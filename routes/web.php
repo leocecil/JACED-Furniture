@@ -10,6 +10,9 @@ Route::get('/', function () {
 Route::get('/about', function () {
     return view('store.checkout');
 });
+Route::get('/login', function () {
+    return view('auth.login');
+});
 
 Route::get('/transactionhistory', function () {
     return view('store.transaction_history');

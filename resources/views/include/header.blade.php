@@ -1,44 +1,100 @@
-<nav class="bg-white border-b border-gray-100 shadow-sm">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div class="flex justify-between items-center h-20">
-            
-            <div class="flex-shrink-0 flex items-center">
-                <a href="/" class="flex items-center gap-2">
-                    <div class="bg-gray-900 p-2 rounded-lg">
-                        <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path>
-                        </svg>
+<nav class="navbar navbar-expand-lg sticky-top py-4 px-md-5" style="background-color: #f3f3f1; border-bottom: 1px solid #e5e5e3;">
+    <div class="container-fluid">
+        <a class="navbar-brand d-flex align-items-center" href="#">
+            <div class="bg-dark p-2 rounded-2 me-2 d-flex align-items-center justify-content-center" style="width: 38px; height: 38px;">
+                <svg class="text-white" width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M12 2L2 7L12 12L22 7L12 2Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    <path d="M2 17L12 22L22 17" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    <path d="M2 12L12 17L22 12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+            </div>
+            <span class="fw-black tracking-tighter text-dark fs-4" style="font-weight: 900; letter-spacing: -1px;">Jaced Furniture</span>
+        </a>
+
+        <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav mx-auto mb-2 mb-lg-0 gap-lg-4">
+                <li class="nav-item">
+                    <a class="nav-link text-uppercase tracking-widest fw-bold text-dark-50" style="font-size: 11px; letter-spacing: 2px;" href="/">Home</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link text-uppercase tracking-widest fw-bold text-dark-50" style="font-size: 11px; letter-spacing: 2px;" href="/shop">Shop</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link text-uppercase tracking-widest fw-bold text-dark-50" style="font-size: 11px; letter-spacing: 2px;" href="/about">About</a>
+                </li>
+                @auth
+                    <li class="nav-item">
+                        <a class="nav-link text-uppercase tracking-widest fw-bold text-dark-50" style="font-size: 11px; letter-spacing: 2px;" href="/orders">My Orders</a>
+                    </li>
+                @endauth
+            </ul>
+
+            <div class="d-flex align-items-center gap-4">
+                <a href="#" class="text-dark opacity-75 hover-opacity-100 transition"><i class="fas fa-search"></i></a>
+                
+                @auth
+                    <a href="/cart" class="text-dark opacity-75 hover-opacity-100 transition position-relative">
+                        <i class="fas fa-shopping-bag"></i>
+                        <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-dark" style="font-size: 8px;">0</span>
+                    </a>
+                @endauth
+
+                @guest
+                    <a href="/login" class="btn btn-dark btn-sm px-4 fw-bold rounded-pill shadow-sm">Login</a>
+                @else
+                    <div class="position-relative">
+                        <button class="btn btn-outline-dark border-0 btn-sm fw-bold d-flex align-items-center" type="button" id="customUserDropdown">
+                            <i class="fas fa-user-circle me-2 fs-5"></i>
+                            <span style="font-size: 12px; letter-spacing: 1px;">{{ strtoupper(auth()->user()->name) }}</span>
+                        </button>
+                        <div class="dropdown-menu shadow-lg border-0 mt-2 position-absolute rounded-3" id="customUserMenu" style="right: 0; left: auto; min-width: 180px; display: none; z-index: 1050; background: #fff;">
+                            <a class="dropdown-item text-danger d-flex align-items-center py-2 px-3 fw-bold" style="font-size: 12px;" href="#" data-bs-toggle="modal" data-bs-target="#logoutModal">
+                                <i class="fas fa-sign-out-alt me-2"></i> LOGOUT
+                            </a>
+                        </div>
                     </div>
-                    <span class="text-xl font-bold tracking-tighter text-gray-900">FURNISPACE</span>
-                </a>
-            </div>
-
-            <div class="hidden md:flex space-x-10">
-                <a href="{{ url('/') }}" class="text-sm font-medium text-gray-600 hover:text-gray-900 transition">Home</a>
-                <a href="{{ url('/shop') }}" class="text-sm font-medium text-gray-600 hover:text-gray-900 transition">Shop</a>
-                <a href="{{ url('/about') }}" class="text-sm font-medium text-gray-600 hover:text-gray-900 transition">About</a>
-            </div>
-
-            <div class="flex items-center space-x-6">
-                <button class="text-gray-600 hover:text-gray-900">
-                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
-                    </svg>
-                </button>
-
-                <a href="{{ url('/cart') }}" class="text-gray-600 hover:text-gray-900 relative">
-                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"></path>
-                    </svg>
-                    <span class="absolute -top-1 -right-1 bg-red-500 text-white text-[10px] rounded-full h-4 w-4 flex items-center justify-center">0</span>
-                </a>
-
-                <a href="{{ url('/profile') }}" class="text-gray-600 hover:text-gray-900">
-                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
-                    </svg>
-                </a>
+                @endguest
             </div>
         </div>
     </div>
 </nav>
+
+<style>
+    /* Tambahan agar lebih mirip Furnispace */
+    .nav-link {
+        transition: all 0.3s ease;
+        opacity: 0.6;
+    }
+    .nav-link:hover {
+        opacity: 1 !important;
+        transform: translateY(-1px);
+    }
+    .tracking-widest { letter-spacing: 0.2em; }
+    .tracking-tighter { letter-spacing: -0.05em; }
+    .hover-opacity-100:hover { opacity: 1 !important; }
+</style>
+
+<div class="modal fade" id="logoutModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow-lg rounded-0" style="background: #f3f3f1;">
+            <div class="modal-header border-0 pb-0 pt-4 px-4">
+                <h5 class="modal-title fw-black text-dark tracking-tighter">CONFIRM LOGOUT</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body text-dark px-4 py-3">
+                <p class="mb-0 text-muted" style="font-size: 14px;">Are you sure you want to exit your session?</p>
+            </div>
+            <div class="modal-footer border-0 pb-4 px-4">
+                <button type="button" class="btn btn-link text-dark text-decoration-none fw-bold" style="font-size: 12px;" data-bs-dismiss="modal">CANCEL</button>
+                <form action="/logout" method="POST" class="m-0">
+                    @csrf
+                    <button type="submit" class="btn btn-dark rounded-0 px-4 fw-bold" style="font-size: 12px;">LOGOUT</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
