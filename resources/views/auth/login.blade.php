@@ -7,7 +7,7 @@
     
                 <div class="card shadow border-0 rounded-4">
                     <div class="card-header text-center bg-transparent border-0 pt-4 pb-0">
-                        <h3 class="fw-bold text-primary mb-1">Welcome Back</h3>
+                        <h3 class="fw-bold mb-1" style="color: #1F2937;">Welcome Back</h3>
                         <p class="text-muted small">Please login to your account</p>
                     </div>
                     <div class="card-body p-4 pt-3">
@@ -19,7 +19,7 @@
                             </div>
                         @endif
     
-                        <form action="" method="POST" novalidate>
+                        <form action="{{ route('login.auth') }}" method="POST" novalidate>
                             @csrf
     
                             <div class="mb-3">
