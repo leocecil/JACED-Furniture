@@ -5,3 +5,7 @@ use Illuminate\Support\Facades\Route;
 Route::get('/', function () {
     return view('store.checkout');
 });
+
+Route::get('/transactionhistory', function () {
+    return view('store.transaction_history');
+});
