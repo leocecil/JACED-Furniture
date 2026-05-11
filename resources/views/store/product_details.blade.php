@@ -1,9 +1,10 @@
 @extends('base.base')
 
 @section('content')
+
 <style>
     .product-section{
-        padding: 40px 0;
+        padding: 28px 0 40px;
     }
     .back-btn{
         text-decoration: none;
@@ -15,10 +16,10 @@
     /* MAIN IMAGE */
     .image-preview-wrapper{
         position: relative;
-        background: #eef3f3;
+        background: transparent;
         border-radius: 28px;
         overflow: hidden;
-        height: 650px;
+        height: 480px;
 
         display: flex;
         align-items: center;
@@ -26,8 +27,8 @@
     }
 
     .main-product-image{
-        width: 90%;
-        height: 90%;
+        width: 82%;
+        height: 82%;
         object-fit: contain;
     }
 
@@ -36,75 +37,83 @@
         position: absolute;
         top: 50%;
         transform: translateY(-50%);
-        width: 32px;
-        height: 32px;
+        width: 34px;
+        height: 34px;
         border-radius: 50%;
         border: none;
-        background: rgba(30,30,30,0.75);
+        background: rgba(20,20,20,0.72);
         color: white;
-        font-size: 20px;
+        font-size: 18px;
         z-index: 2;
         transition: 0.2s ease;
     }
 
     .slider-arrow:hover{ background: rgba(0,0,0,0.9); }
 
-    .arrow-left{ left: 20px; }
-    .arrow-right{ right: 20px;}
+    .arrow-left{ left: 10px; }
+    .arrow-right{ right: 10px;}
 
     /* THUMBNAILS */
-    .thumbnail-wrapper{ margin-top: 22px; }
+    .thumbnail-wrapper{ margin-top: 12px; }
 
     .thumbnail-image{
         width: 100%;
         height: 120px;
         object-fit: cover;
-        border-radius: 18px;
+        border-radius: 14px;
         cursor: pointer;
         border: 3px solid transparent;
         transition: 0.2s ease;
         background: #eef3f3;
-        padding: 6px;
+        padding: 4px;
     }
 
     .thumbnail-image:hover{ opacity: 0.9; }
 
     .thumbnail-image.active-thumbnail{
-        border: 3px solid #111827;
-        transform: scale(0.96);
+        border: 2px solid #111827;
+        transform: scale(0.97);
     }
 
     /* PRODUCT INFO */
     .premium-badge{
         display: inline-block;
-        padding: 8px 18px;
+        padding: 6px 14px;
         border-radius: 30px;
         background: #f2d3a1;
         color: #7a5a28;
-        font-size: 13px;
+        font-size: 12px;
         font-weight: 700;
         letter-spacing: 1px;
     }
 
     .product-title{
-        font-size: 48px;
+        font-size: 40px;
         font-weight: 700;
         line-height: 1.05;
-        margin-top: 20px;
+        margin-top: 14px;
+        margin-bottom: 10px;
         color: #111827;
     }
 
     .product-price{
-        font-size: 30px;
+        font-size: 26px;
         font-weight: 700;
-        margin: 20px 0 30px;
+        margin: 0 0 30px;
         color: #111827;
+    }
+
+    .product-description{
+        font-size: 15px;
+        line-height: 1.9;
+        color: #5d5d5d;
+        margin-bottom: 28px;
     }
 
     .info-card{
         background: #eeeeec;
-        border-radius: 24px;
-        padding: 28px;
+        border-radius: 18px;
+        padding: 20px;
         height: 100%;
     }
 
@@ -113,7 +122,7 @@
         letter-spacing: 2px;
         font-weight: 700;
         color: #666;
-        margin-bottom: 14px;
+        margin-bottom: 10px;
     }
 
     .info-content{
@@ -124,16 +133,16 @@
 
     /* ACCORDION */
     .accordion-item{
-        border-radius: 22px !important;
+        border-radius: 18px !important;
         overflow: hidden;
-        border: 1px solid white;
+        border: none;
     }
 
     .accordion-button{
-        padding: 24px 28px;
-        font-size: 20px;
+        padding: 18px 22px;
+        font-size: 16px;
         font-weight: 700;
-        background: whitesmoke;
+        background: #ececeb;
         color: #111827;
         box-shadow: none !important;
     }
@@ -144,7 +153,7 @@
     }
 
     .accordion-body{
-        padding: 14px;
+        padding: 18px 22px;
         font-size: 16px;
         line-height: 1.8;
         color: #555;
@@ -163,36 +172,36 @@
     .qty-wrapper{
         display: flex;
         align-items: center;
-        gap: 18px;
-        margin-top: 30px;
+        gap: 12px;
+        margin-top: 24px;
     }
 
     .qty-btn{
-        width: 36px;
-        height: 36px;
+        width: 32px;
+        height: 32px;
         border-radius: 50%;
         border: none;
         background: #111827;
         color: white;
-        font-size: 24px;
+        font-size: 18px;
         font-weight: 500;
     }
 
     .qty-input{
-        width: 85px;
-        height: 50px;
-        border-radius: 14px;
+        width: 62px;
+        height: 38px;
+        border-radius: 10px;
         border: 1px solid #ddd;
         text-align: center;
-        font-size: 20px;
+        font-size: 18px;
         font-weight: 700;
     }
 
     /* BUTTONS */
     .action-btn{
-        height: 72px;
-        border-radius: 22px;
-        font-size: 22px;
+        height: 56px;
+        border-radius: 18px;
+        font-size: 16px;
         font-weight: 600;
     }
     .btn-dark-custom{
@@ -201,17 +210,26 @@
         border: none;
         font-size:16px; 
     }
+    .btn-dark-custom:hover {
+        background: #1f2937;
+        color: white !important;
+        opacity: 0.9;
+    }
     .btn-outline-custom{
-        border: 2px solid #dddddd;
+        border: 1.5px solid #dddddd;
         background: transparent;
         color: #111827;
         font-size:16px;
     }
+    .btn-outline-custom:hover {
+        background: #f3f4f6; 
+        border-color: #111827;
+    }
 
     /* WISHLIST */
     .wishlist-btn{
-        width: 54px;
-        height: 54px;
+        width: 42px;
+        height: 42px;
         border-radius: 50%;
         border: 1px solid #dddddd;
         background: white;
@@ -231,7 +249,7 @@
         height: 32px;
         border-radius: 50%;
         cursor: pointer;
-        border: 4px solid #8b8b8b;
+        border: 2px solid #8b8b8b;
         transition: 0.2s ease;
         position: relative;
     }
@@ -244,34 +262,36 @@
     .color-option.active-color::after{
         content: '';
         position: absolute;
-        top: -12px;
-        left: -12px;
-        right: -12px;
-        bottom: -12px;
-        border: 3px solid #111827;
+        top: -8px;
+        left: -8px;
+        right: -8px;
+        bottom: -8px;
+        border: 2px solid #111827;
         border-radius: 50%;
     }
 
-    .background-color{
+    body{
         background: #f9f9f7;
     }
     @media(max-width: 992px){
-        .product-title{ font-size: 42px; }
-        .product-price{ font-size: 36px; }
+        .product-section{ padding: 20px 0 30px; }
+        .product-title{ font-size: 30px; }
+        .product-price{ font-size: 22px; }
         .image-preview-wrapper{ height: 300px; }
         .main-product-image{
             width: 100%;
             height: 100%;
         }
+        .thumbnail-image{ height: 70px; }
     }
 </style>
 
-<div class="container-fluid px-5 product-section background-color">
+<div class="container-fluid px-5 product-section">
 
     <!-- BACK -->
     <div class="mb-4">
         <a href="{{ route('store') }}" class="back-btn">
-            ← Back to Catalog
+            <i class="fa-solid fa-arrow-left me-2"></i> Back to Catalog
         </a>
     </div>
 
@@ -382,8 +402,9 @@
                 </span>
 
                 <a href="#" class="fw-semibold text-secondary">
-                    ★ 4.9 (124 reviews)
+                    <i class="fa-solid fa-star me-2"></i>4.9 (124 reviews)
                 </a>
+                {{-- ★ --}}
                 <button class="wishlist-btn">
                     <i class="fa-regular fa-heart"></i>
                 </button>
@@ -475,10 +496,14 @@
                     </div>
                 </div>
             </div>
-
+            
+            <br>
             <!-- QUANTITY -->
-            <div class="qty-wrapper">
-
+            <div class="qty-wrapper ">
+                <label class="fw-bold fs-5 mb-0">
+                    Quantity:
+                </label>
+                
                 <button
                     class="qty-btn" type="button"
                     onclick="
@@ -513,27 +538,19 @@
             <div class="row g-3 mt-5">
 
                 <div class="col-md-6">
-
                     <button class="btn btn-dark-custom action-btn w-100">
                         <i class="fa-solid fa-bag-shopping me-2"></i> Add to Collection
                     </button>
-
                 </div>
 
                 <div class="col-md-6">
-
                     <button class="btn btn-outline-custom action-btn w-100">
                         <i class="fa-solid fa-cube me-2"></i> 3D Simulation
                     </button>
-
                 </div>
-
             </div>
-
         </div>
-
     </div>
-
 </div>
 
 <script>
@@ -582,4 +599,5 @@
         element.classList.add('active-color');
     }
 </script>
+
 @endsection
