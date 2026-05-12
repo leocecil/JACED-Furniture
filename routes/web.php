@@ -19,3 +19,9 @@ Route::get('/transactionhistory', function () {
 Route::get('/login', [AuthController::class, 'show_login_form'])->name('login.show')->middleware('guest');
 
 Route::post('/login_auth', [AuthController::class, 'login_auth'])->name('login.auth');
+
+Route::get('/register', [AuthController::class, 'show_register_form'])->name('register.show')->middleware('guest');
+
+Route::post('/register', [AuthController::class, 'register'])->name('register');
+
+Route::get('/logout', [AuthController::class, 'logout'])->name('logout');

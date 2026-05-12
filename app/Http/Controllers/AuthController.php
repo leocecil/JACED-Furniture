@@ -28,6 +28,26 @@ class AuthController extends Controller
         ])->onlyInput('email');
     }
 
+    public function show_register_form() {
+        return view('auth.register');
+    }
+
+    public function register(Request $request) {
+        $credentials = $request->validate([
+            'name' => 'required|string|max:255',
+            'email' => 'required|email|unique:users,email',
+            'password' => 'required|string|min:8|confirmed'
+        ]);
+
+        // Create the user
+        // $user = User::create($credentials);
+
+        // Log the user in
+        Auth::login($user);
+
+        // return redirect()->route('home');
+    }
+
     public function logout(Request $request) {
         Auth::logout();
 
