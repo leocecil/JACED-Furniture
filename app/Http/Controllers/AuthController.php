@@ -43,7 +43,7 @@ class AuthController extends Controller
         // $user = User::create($credentials);
 
         // Log the user in
-        Auth::login($user);
+        // Auth::login($user);
 
         // return redirect()->route('home');
     }
