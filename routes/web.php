@@ -8,7 +8,7 @@ Route::get('/', function () {
     return View::make('welcome');
 });
 
-Route::get('/about', function () {
+Route::get('/checkout', function () {
     return view('store.checkout');
 });
 
