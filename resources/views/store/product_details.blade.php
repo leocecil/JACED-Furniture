@@ -290,7 +290,7 @@
 
     <!-- BACK -->
     <div class="mb-4">
-        <a href="{{ route('store') }}" class="back-btn">
+        <a href="#" class="back-btn">
             <i class="fa-solid fa-arrow-left me-2"></i> Back to Catalog
         </a>
     </div>
