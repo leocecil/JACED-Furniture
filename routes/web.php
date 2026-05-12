@@ -1,9 +1,7 @@
 <?php
 
-use App\Http\Controllers\AuthController;
 use App\Http\Controllers\ProductController;
 use Illuminate\Support\Facades\Route;
-use Illuminate\Support\Facades\View;
 
 Route::get('/', [ProductController::class, 'home'])->name('home');
 Route::get('/shop', [ProductController::class, 'shop'])->name('shop');
@@ -16,6 +14,8 @@ Route::get('/checkout', function () {
 Route::get('/transactionhistory', function () {
     return view('store.transaction_history');
 });
+
+Route::get('/login', [AuthController::class, 'show_login_form'])->name('login.show')->middleware('guest');
 
 Route::get('/profile', function () {
     return 'Profile page belum dibuat.';
