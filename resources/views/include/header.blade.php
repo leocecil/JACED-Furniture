@@ -18,10 +18,10 @@
         <div class="collapse navbar-collapse" id="navbarNav">
             <ul class="navbar-nav mx-auto mb-2 mb-lg-0 gap-lg-4">
                 <li class="nav-item">
-                    <a class="nav-link text-uppercase tracking-widest fw-bold text-dark-50" style="font-size: 11px; letter-spacing: 2px;" href="/">Home</a>
+                    <a class="nav-link text-uppercase tracking-widest fw-bold {{ request()->routeIs('home') ? 'active' : '' }}" style="font-size: 11px; letter-spacing: 2px;" href="{{ route('home') }}">Home</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link text-uppercase tracking-widest fw-bold text-dark-50" style="font-size: 11px; letter-spacing: 2px;" href="/shop">Shop</a>
+                    <a class="nav-link text-uppercase tracking-widest fw-bold {{ request()->routeIs('shop') ? 'active' : '' }}" style="font-size: 11px; letter-spacing: 2px;" href="{{ route('shop') }}">Shop</a>
                 </li>
                 <li class="nav-item">
                     <a class="nav-link text-uppercase tracking-widest fw-bold text-dark-50" style="font-size: 11px; letter-spacing: 2px;" href="/about">About</a>
@@ -72,6 +72,10 @@
     .nav-link:hover {
         opacity: 1 !important;
         transform: translateY(-1px);
+    }
+    .nav-link.active {
+        opacity: 1 !important;
+        color: #1f1f1f !important;
     }
     .tracking-widest { letter-spacing: 0.2em; }
     .tracking-tighter { letter-spacing: -0.05em; }
