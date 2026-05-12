@@ -125,19 +125,19 @@
                                     @error('province') <div class="invalid-feedback">{{ $message }}</div> @enderror
                                 </div>
 
-                                  <div class="mb-4">
-                                      <label for="country" class="form-label fw-medium">Country</label>
-                                      <select class="form-select form-select-lg fs-6 @error('country') is-invalid @enderror" id="country" name="country" required>
-                                          <option value="" disabled selected>Select your country</option>
-                                          <option value="Indonesia" {{ old('country') == 'Indonesia' ? 'selected' : '' }}>Indonesia</option>
-                                          <option value="United States" {{ old('country') == 'United States' ? 'selected' : '' }}>United States</option>
-                                          <option value="United Kingdom" {{ old('country') == 'United Kingdom' ? 'selected' : '' }}>United Kingdom</option>
-                                          <option value="Australia" {{ old('country') == 'Australia' ? 'selected' : '' }}>Australia</option>
-                                          <option value="Canada" {{ old('country') == 'Canada' ? 'selected' : '' }}>Canada</option>
-                                          <!-- Add more countries as needed -->
-                                      </select>
-                                      @error('country') <div class="invalid-feedback">{{ $message }}</div> @enderror
-                                  </div>
+                                <div class="mb-4">
+                                    <label for="country" class="form-label fw-medium">Country</label>
+                                    <select class="form-select form-select-lg fs-6 @error('country') is-invalid @enderror" id="country" name="country" required>
+                                        <option value="" disabled selected>Select your country</option>
+                                        <option value="Indonesia" {{ old('country') == 'Indonesia' ? 'selected' : '' }}>Indonesia</option>
+                                        <option value="United States" {{ old('country') == 'United States' ? 'selected' : '' }}>United States</option>
+                                        <option value="United Kingdom" {{ old('country') == 'United Kingdom' ? 'selected' : '' }}>United Kingdom</option>
+                                        <option value="Australia" {{ old('country') == 'Australia' ? 'selected' : '' }}>Australia</option>
+                                        <option value="Canada" {{ old('country') == 'Canada' ? 'selected' : '' }}>Canada</option>
+                                        <!-- Add more countries as needed -->
+                                    </select>
+                                    @error('country') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                                </div>
 
                                 <div class="d-flex gap-2 mb-3">
                                     <button type="button" id="btnPrev" class="btn btn-outline-dark btn-lg fs-6 fw-bold w-50">Back</button>
