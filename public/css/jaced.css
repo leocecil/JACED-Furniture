@@ -1,17 +1,19 @@
 :root {
-    --jaced-cream: #EDE8E3;
-    --jaced-card: #FAF6F1;
+    --jaced-cream: #F2EDE6;
+    --jaced-card: #FAF7F2;
     --jaced-brown-dark: #272E1D;
+    --jaced-dark: #1C1C1A;
     --jaced-brown: #5A4D47;
     --jaced-caramel: #C99A6B;
-    --jaced-sage: #5F7568;
+    --jaced-sage: #5A6B5B;
     --jaced-input: #DDD6CE;
-    --jaced-muted: #8A8278;
+    --jaced-muted: #8A857D;
+    --jaced-caramel-bg: #F5EBE0;
 }
 
 body {
-    font-family: 'Lexend', sans-serif !important;
-    background-color: var(--jaced-cream) !important;
+    /* font-family: 'Lexend', sans-serif ; */
+    background-color: var(--jaced-caramel-bg) !important; ;
     color: var(--jaced-brown-dark) !important;
 }
 
@@ -30,20 +32,20 @@ body {
 }
 
 .jaced-card {
-    background-color: var(--jaced-card);
+    background-color: white;
     border-radius: 12px;
     border: none;
 }
 
-.jaced-item-card {
-    background-color: var(--jaced-card);
+/* .jaced-item-card {
+    background-color: white;
     border-radius: 12px;
     padding: 16px;
     display: flex;
     align-items: center;
     gap: 16px;
     margin-bottom: 12px;
-}
+} */
 
 .jaced-item-card img {
     width: 80px;
@@ -66,8 +68,8 @@ body {
 }
 
 .input-jaced {
-    background-color: var(--jaced-input) !important;
-    border: none !important;
+    background-color: var(--jaced-card) !important;
+    border: 1px solid var(--jaced-input) !important;
     border-radius: 8px !important;
     padding: 12px 16px !important;
     font-size: 14px !important;
@@ -104,7 +106,7 @@ body {
 }
 
 .btn-jaced {
-    background-color: var(--jaced-sage) !important;
+    background-color: var(--jaced-dark) !important;
     color: white !important;
     padding: 14px 32px;
     border-radius: 8px;
@@ -141,4 +143,107 @@ label {
     font-size: 14px;
     margin-bottom: 6px;
     display: block;
+}
+
+.order-items-wrapper {
+    background-color: white;
+    border-radius: 12px;
+    padding: 16px;
+}
+
+.order-items-scroll {
+    max-height: 320px;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    padding-right: 4px;
+}
+
+.order-items-scroll::-webkit-scrollbar {
+    width: 4px;
+}
+
+.order-items-scroll::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.order-items-scroll::-webkit-scrollbar-thumb {
+    background: var(--jaced-input);
+    border-radius: 99px;
+}
+
+.jaced-item-card {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 12px 0;
+    border-bottom: 1px solid var(--jaced-input); /* pemisah antar item */
+}
+
+.jaced-item-card:last-child {
+    border-bottom: none; /* item terakhir ga ada garis */
+    padding-bottom: 0;
+}
+
+/* Payment Method Buttons */
+
+.payment-method-btn:hover {
+    border-color: var(--jaced-sage);
+    background: white;
+}
+
+.payment-method-btn.active {
+    border-color: var(--jaced-sage);
+    background: white;
+    color: var(--jaced-sage);
+    font-weight: 600;
+}
+
+/* Bank Grid */
+
+.bank-btn:hover {
+    border-color: var(--jaced-sage);
+}
+
+.bank-btn.active {
+    border-color: var(--jaced-sage);
+    background: #f0f4f1;
+}
+
+.bank-btn img {
+    height: 20px;
+    width: auto;
+    object-fit: contain;
+    flex-shrink: 0;
+}
+
+.bank-btn span {
+    font-size: 13px;
+    color: var(--jaced-brown-dark);
+    font-weight: 500;
+}
+
+.field-label {
+    font-size: 13px;
+    color: var(--jaced-muted);
+    margin-bottom: 6px;
+    display: block;
+}
+
+select.input-jaced {
+    font-size: 14px !important;
+    background-color: var(--jaced-cream) !important;
+    appearance: none;
+    -webkit-appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%238A8278' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 14px center;
+    padding-right: 40px !important;
+    cursor: pointer;
+}
+
+.payment-section {
+    margin-top: 16px;
+    margin-bottom: 4px;
 }
