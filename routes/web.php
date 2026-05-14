@@ -1,55 +1,43 @@
- <?php
+<?php
 
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\ProductController;
 use Illuminate\Support\Facades\Route;
-use Illuminate\Support\Facades\View;
 
+// ===== HOME, SHOP, PRODUCT (punya gue, ProductController) =====
 Route::redirect('/', '/home');
 Route::get('/home', [ProductController::class, 'home'])->name('home');
 Route::get('/shop', [ProductController::class, 'shop'])->name('shop');
 Route::get('/product/{slug}', [ProductController::class, 'show'])->name('product.show');
 
-Route::get('/checkout', [ProductController::class, 'checkout'])->name('checkout');
+// ===== STATIC PAGE (punya temen) =====
+Route::get('/checkout', function () {
+    return view('store.checkout');
+})->name('checkout');
 
-Route::get('/transactionhistory', [ProductController::class, 'transaction_history'])->name('transaction_history');
+Route::get('/transactionhistory', function () {
+    return view('store.transaction_history');
+})->name('transaction.history');
 
-Route::get('/login', [AuthController::class, 'show_login_form'])->name('login')->middleware('guest');
+Route::get('/product_details', function () {
+    return view('store.product_details');
+})->name('product_details');
 
-Route::post('/login_auth', [AuthController::class, 'login_auth'])->name('login.auth');
+// ===== AUTH (punya temen, plus tambahan) =====
+Route::middleware('guest')->group(function () {
+    Route::get('/login', [AuthController::class, 'show_login_form'])->name('login');
+    Route::post('/login_auth', [AuthController::class, 'login_auth'])->name('login.auth');
+    Route::get('/register', [AuthController::class, 'show_register_form'])->name('register.show');
+    Route::post('/register', [AuthController::class, 'register'])->name('register');
 
-Route::get('/register', [AuthController::class, 'show_register_form'])->name('register.show')->middleware('guest');
+    Route::get('/admin/login', [AuthController::class, 'show_login_admin_form'])->name('admin.login.show');
+    Route::post('/admin/login_auth', [AuthController::class, 'login_admin_auth'])->name('admin.login.auth');
+});
 
-Route::post('/register', [AuthController::class, 'register'])->name('register');
+// Logout pake POST biar lebih aman (sesuain header lo yg pake form POST)
+Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 
-Route::get('/logout', [AuthController::class, 'logout'])->name('logout');
-
-Route::get('/product_details', function() {
-            return view('store.product_details');
-        })->name('product_details');
-
-// use App\Http\Controllers\AuthController;
-// use App\Http\Controllers\ProductController;
-// use Illuminate\Support\Facades\Route;
-
-// Route::get('/', [ProductController::class, 'home'])->name('home');
-// Route::get('/shop', [ProductController::class, 'shop'])->name('shop');
-// Route::get('/product/{slug}', [ProductController::class, 'show'])->name('product.show');
-
-// Route::get('/checkout', function () {
-//     return view('store.checkout');
-// });
-
-// Route::get('/transactionhistory', function () {
-//     return view('store.transaction_history');
-// });
-
-// Route::get('/login', [AuthController::class, 'show_login_form'])
-//     ->name('login')
-//     ->middleware('guest');
-
-// Route::get('/profile', function () {
-//     return 'Profile page belum dibuat.';
-// })->name('profile');
-
-// Route::get('/home', [ProductController::class, 'home']); -->
+// ===== ADMIN (punya temen) =====
+Route::get('/dashboard', function () {
+    return view('admin.dashboard');
+})->name('dashboard');
