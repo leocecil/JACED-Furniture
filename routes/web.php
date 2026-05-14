@@ -3,6 +3,7 @@
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\OrderController;
 use App\Http\Controllers\ProductController;
+use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\View;
 
@@ -14,6 +15,10 @@ Route::get('/', function () {
 Route::get('/checkout', [OrderController::class, 'checkout'])->name('store.checkout');
 Route::get('/transactionhistory', [OrderController::class, 'index'])->name('store.transactionhistory');
 Route::get('/transactionhistory/{id}', [OrderController::class, 'show'])->name('store.transactionhistory_detail.show');
+Route::get('/profile', [UserController::class, 'show_profile'])->name('profile');
+Route::get('/profile/edit/{id}', [UserController::class, 'edit_profile'])->name('profile.edit');
+Route::get('/terms-of-service', function () {return view('profile.tos');})->name('tos');
+
 // -- sampe sini --
 
 // Route::get('/checkout', [ProductController::class, 'checkout'])->name('checkout');

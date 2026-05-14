@@ -93,7 +93,7 @@
     $orders = [
         [
             'name'   => 'The Kyoto Lounge Chair',
-            'id'     => '#CL-8924',
+            'id'     => 'CL-8924',
             'date'   => 'Oct 20, 2024',
             'status' => 'shipped',
             'eta'    => 'Thursday, Oct 26',
@@ -102,7 +102,7 @@
         ],
         [
             'name'   => 'Oka Dining Table',
-            'id'     => '#CL-8801',
+            'id'     => 'CL-8801',
             'date'   => 'Oct 10, 2024',
             'status' => 'completed',
             'eta'    => null,
@@ -111,7 +111,7 @@
         ],
         [
             'name'   => 'Washi Side Cabinet',
-            'id'     => '#CL-8750',
+            'id'     => 'CL-8750',
             'date'   => 'Sep 28, 2024',
             'status' => 'cancelled',
             'eta'    => null,
