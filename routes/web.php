@@ -54,3 +54,10 @@ Route::get('/product_details', function() {
 // })->name('profile');
 
 // Route::get('/home', [ProductController::class, 'home']); -->
+Route::get('/admin/login', [AuthController::class, 'show_login_admin_form'])->name('admin.login.show');
+
+Route::post('/admin/login_auth', [AuthController::class, 'login_admin_auth'])->name('admin.login.auth');
+
+Route::get('/dashboard', function () {
+    return view('admin.dashboard');
+})->name('dashboard');

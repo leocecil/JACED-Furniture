@@ -84,12 +84,6 @@
                                     <i class="fab fa-google me-2"></i> Sign in with Google
                                 </button>
                             </div>
-
-                            <div class="d-grid mb-3">
-                                <button type="submit" class="btn btn-outline-dark btn-lg fs-6 fw-bold">
-                                    <i class="fas fa-user me-2"></i> Sign in as Guest
-                                </button>
-                            </div>
     
                             <div class="text-center mt-4">
                                 <p class="text-muted mb-0">Don't have an account? <a href="{{ route('register') }}" class="text-decoration-none fw-medium" style="color: #1F2937;">Sign up here</a></p>
