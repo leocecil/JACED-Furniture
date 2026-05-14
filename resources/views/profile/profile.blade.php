@@ -243,7 +243,7 @@
                 <span class="menu-chevron"><svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg></span>
             </a>
 
-            <a href="#" class="menu-item">
+            <a href="{{ route('privacy') }}" class="menu-item">
                 <div class="menu-icon-wrap">
                     <svg viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
                 </div>
@@ -251,7 +251,7 @@
                 <span class="menu-chevron"><svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg></span>
             </a>
 
-            <a href="#" class="menu-item">
+            <a href="{{ route('help') }}" class="menu-item">
                 <div class="menu-icon-wrap">
                     <svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><path d="M9 9a3 3 0 0 1 5.12-2.12A3 3 0 0 1 12 12"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
                 </div>

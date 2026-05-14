@@ -18,6 +18,8 @@ Route::get('/transactionhistory/{id}', [OrderController::class, 'show'])->name('
 Route::get('/profile', [UserController::class, 'show_profile'])->name('profile');
 Route::get('/profile/edit/{id}', [UserController::class, 'edit_profile'])->name('profile.edit');
 Route::get('/terms-of-service', function () {return view('profile.tos');})->name('tos');
+Route::get('/privacy-policy', function () {return view('profile.privacy-policy');})->name('privacy');
+Route::get('/help-center', function () {return view('profile.help-center');})->name('help');
 
 // -- sampe sini --
 
