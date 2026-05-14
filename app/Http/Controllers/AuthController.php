@@ -28,6 +28,27 @@ class AuthController extends Controller
         ])->onlyInput('email');
     }
 
+
+    public function show_login_admin_form() {
+        return view('auth.login_admin');
+    }
+
+    public function login_admin_auth(Request $request) {
+        $credentials = $request->validate([
+            'email' => 'required|email',
+            'password' => 'required'
+        ]);
+
+        if (Auth::attempt($credentials)) {
+            $request->session()->regenerate();
+            // return redirect()->intended(route('home'));
+        }
+
+        return back()->withErrors([
+            'email' => 'The provided credentials do not match our records.',
+        ])->onlyInput('email');
+    }
+
     public function show_register_form() {
         return view('auth.register');
     }
