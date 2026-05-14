@@ -1,12 +1,13 @@
 <nav class="navbar navbar-expand-lg sticky-top py-4 px-md-5" style="background-color: #f3f3f1; border-bottom: 1px solid #e5e5e3;">
     <div class="container-fluid">
         <a class="navbar-brand d-flex align-items-center" href="#">
-            <div class="bg-dark p-2 rounded-2 me-2 d-flex align-items-center justify-content-center" style="width: 38px; height: 38px;">
-                <svg class="text-white" width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <div class="bg-#f3f3f1 p-2 rounded-2 me-2 d-flex align-items-center justify-content-center" style="width: 50px; height: 38px;">
+                {{-- <svg class="text-white" width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                     <path d="M12 2L2 7L12 12L22 7L12 2Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
                     <path d="M2 17L12 22L22 17" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
                     <path d="M2 12L12 17L22 12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                </svg>
+                </svg> --}}
+                <img src="{{ asset('image/jaced_logo1.png') }}" alt="Jaced Logo" style="width: 49px; height: 30px;">
             </div>
             <span class="fw-black tracking-tighter text-dark fs-4" style="font-weight: 900; letter-spacing: -1px;">Jaced Furniture</span>
         </a>

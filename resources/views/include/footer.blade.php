@@ -8,11 +8,8 @@
             <div>
                 <div style="display: flex; align-items: center; gap: 16px; margin-bottom: 24px;">
                     <div style="background: white; border-radius: 12px; width: 52px; height: 52px; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
-                        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#1a1c20" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                            <rect x="2" y="3" width="20" height="14" rx="2"/>
-                            <path d="M8 21h8M12 17v4"/>
-                            <path d="M2 7h20"/>
-                        </svg>
+                                        <img src="{{ asset('image/jaced_logo1.png') }}" alt="Jaced Logo" style="width: 49px; height: 30px;">
+
                     </div>
                     <span style="color: white; font-size: 22px; font-weight: 700; letter-spacing: -0.01em;">Jaced Furniture</span>
                 </div>
