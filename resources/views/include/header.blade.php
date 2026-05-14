@@ -1,4 +1,4 @@
-<nav class="navbar navbar-expand-lg sticky-top py-4 px-md-5" style="background-color: #f3f3f1; border-bottom: 1px solid #e5e5e3;">
+<nav class="navbar navbar-expand-lg sticky-top py-4 px-md-4" style="background-color: #f3f3f1; border-bottom: 1px solid #e5e5e3;">
     <div class="container-fluid">
         <a class="navbar-brand d-flex align-items-center" href="#">
             <div class="bg-#f3f3f1 p-2 rounded-2 me-2 d-flex align-items-center justify-content-center" style="width: 50px; height: 38px;">
@@ -19,22 +19,22 @@
         <div class="collapse navbar-collapse" id="navbarNav">
             <ul class="navbar-nav mx-auto mb-2 mb-lg-0 gap-lg-4">
                 <li class="nav-item">
-                    <a class="nav-link text-uppercase tracking-widest fw-bold text-dark-50" style="font-size: 11px; letter-spacing: 2px;" href="/">Home</a>
+                    <a class="nav-link text-uppercase tracking-widest fw-bold text-dark-50" style="font-size: 14px; letter-spacing: 2px;" href="/">Home</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link text-uppercase tracking-widest fw-bold text-dark-50" style="font-size: 11px; letter-spacing: 2px;" href="/shop">Shop</a>
+                    <a class="nav-link text-uppercase tracking-widest fw-bold text-dark-50" style="font-size: 14px; letter-spacing: 2px;" href="/shop">Shop</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link text-uppercase tracking-widest fw-bold text-dark-50" style="font-size: 11px; letter-spacing: 2px;" href="/about">About</a>
+                    <a class="nav-link text-uppercase tracking-widest fw-bold text-dark-50" style="font-size: 14px; letter-spacing: 2px;" href="/about">About</a>
                 </li>
                 @auth
                     <li class="nav-item">
-                        <a class="nav-link text-uppercase tracking-widest fw-bold text-dark-50" style="font-size: 11px; letter-spacing: 2px;" href="/orders">My Orders</a>
+                        <a class="nav-link text-uppercase tracking-widest fw-bold text-dark-50" style="font-size: 14px; letter-spacing: 2px;" href="/orders">My Orders</a>
                     </li>
                 @endauth
             </ul>
 
-            <div class="d-flex align-items-center gap-4">
+            <div class="d-flex align-items-center gap-4 ms-lg-4">
                 <a href="#" class="text-dark opacity-75 hover-opacity-100 transition"><i class="fas fa-search"></i></a>
                 
                 @auth
