@@ -1,6 +1,7 @@
 :root {
-    --jaced-cream: #F2EDE6;
-    --jaced-card: #FAF7F2;
+    --jaced-cream: #EDE8E3;
+    --jaced-white: #F9F9F7;
+    --jaced-card: #FAF6F1;
     --jaced-brown-dark: #272E1D;
     --jaced-dark: #1C1C1A;
     --jaced-brown: #5A4D47;
@@ -12,8 +13,8 @@
 }
 
 body {
-    /* font-family: 'Lexend', sans-serif ; */
-    background-color: var(--jaced-caramel-bg) !important; ;
+    /* font-family: 'Lexend', sans-serif !important; */
+    background-color: var(--jaced-cream) !important;
     color: var(--jaced-brown-dark) !important;
 }
 
