@@ -8,15 +8,21 @@
     }
     .back-btn{
         text-decoration: none;
-        color: #111827;
+        color: var(--jaced-brown-dark);
         font-size: 18px;
         font-weight: 600;
+        transition: 0.2s ease;
     }
 
+    /* LEFT SIDE STICKY */
+    .sticky-gallery{
+        position: sticky;
+        top: 100px;
+    }
     /* MAIN IMAGE */
     .image-preview-wrapper{
         position: relative;
-        background: transparent;
+        background: var(--jaced-card);
         border-radius: 28px;
         overflow: hidden;
         height: 480px;
@@ -24,6 +30,9 @@
         display: flex;
         align-items: center;
         justify-content: center;
+        
+        border: 1px solid var(--jaced-input);
+        box-shadow: 0 10px 30px rgba(0,0,0,0.04);
     }
 
     .main-product-image{
@@ -41,17 +50,17 @@
         height: 34px;
         border-radius: 50%;
         border: none;
-        background: rgba(20,20,20,0.72);
+        background: rgba(39,46,29,0.9);
         color: white;
         font-size: 18px;
         z-index: 2;
         transition: 0.2s ease;
     }
 
-    .slider-arrow:hover{ background: rgba(0,0,0,0.9); }
+    .slider-arrow:hover{ background: var(--jaced-dark); }
 
-    .arrow-left{ left: 10px; }
-    .arrow-right{ right: 10px;}
+    .arrow-left{ left: 12px; }
+    .arrow-right{ right: 12px;}
 
     /* THUMBNAILS */
     .thumbnail-wrapper{ margin-top: 12px; }
@@ -64,14 +73,14 @@
         cursor: pointer;
         border: 3px solid transparent;
         transition: 0.2s ease;
-        background: #eef3f3;
+        background: var(--jaced-card);
         padding: 4px;
     }
 
     .thumbnail-image:hover{ opacity: 0.9; }
 
     .thumbnail-image.active-thumbnail{
-        border: 2px solid #111827;
+        border: 2px solid var(--jaced-brown-dark);
         transform: scale(0.97);
     }
 
@@ -81,7 +90,7 @@
         padding: 6px 14px;
         border-radius: 30px;
         background: #f2d3a1;
-        color: #7a5a28;
+        color: var(--jaced-caramel);
         font-size: 12px;
         font-weight: 700;
         letter-spacing: 1px;
@@ -93,14 +102,14 @@
         line-height: 1.05;
         margin-top: 14px;
         margin-bottom: 10px;
-        color: #111827;
+        color: var(--jaced-brown-dark);
     }
 
     .product-price{
         font-size: 26px;
         font-weight: 700;
         margin: 0 0 30px;
-        color: #111827;
+        color: var(--jaced-brown-dark);
     }
 
     .product-description{
@@ -111,7 +120,7 @@
     }
 
     .info-card{
-        background: #eeeeec;
+        background: var(--jaced-card);
         border-radius: 18px;
         padding: 20px;
         height: 100%;
@@ -121,51 +130,45 @@
         font-size: 16px;
         letter-spacing: 2px;
         font-weight: 700;
-        color: #666;
+        color: var(--jaced-muted);
         margin-bottom: 10px;
     }
 
     .info-content{
         font-size: 14px;
         font-weight: 600;
-        color: #111827;
+        color: var(--jaced-brown-dark);
     }
 
     /* ACCORDION */
     .accordion-item{
         border-radius: 18px !important;
         overflow: hidden;
-        border: none;
+        border: 1px solid var(--jaced-input);
+        background: var(--jaced-card);
     }
 
     .accordion-button{
         padding: 18px 22px;
         font-size: 16px;
         font-weight: 700;
-        background: #ececeb;
-        color: #111827;
+        background: var(--jaced-card);
+        color: var(--jaced-brown-dark);
         box-shadow: none !important;
     }
 
     .accordion-button:not(.collapsed){
-        background: #e7e7e7;
-        color: #111827;
+        background: var(--jaced-card);
+        color: var(--jaced-brown-dark);
     }
 
     .accordion-body{
         padding: 18px 22px;
         font-size: 16px;
         line-height: 1.8;
-        color: #555;
-    }
-
-    /* COLOR SELECT */
-    .custom-select{
-        border-radius: 18px;
-        height: 60px;
-        font-size: 18px;
-        padding-left: 20px;
-        font-weight: 500;
+        color: var(--jaced-brown);
+        background: var(--jaced-white);
+        border-top: 1px solid var(--jaced-input);
     }
 
     /* QUANTITY */
@@ -181,20 +184,26 @@
         height: 32px;
         border-radius: 50%;
         border: none;
-        background: #111827;
+        background: var(--jaced-brown-dark);
         color: white;
         font-size: 18px;
         font-weight: 500;
+    }
+
+    .qty-btn:hover{
+        background: var(--jaced-dark);
     }
 
     .qty-input{
         width: 62px;
         height: 38px;
         border-radius: 10px;
-        border: 1px solid #ddd;
+        border: 1px solid var(--jaced-input);
+        background: var(--jaced-card);
         text-align: center;
         font-size: 18px;
         font-weight: 700;
+        color: var(--jaced-brown-dark)
     }
 
     /* BUTTONS */
@@ -205,25 +214,26 @@
         font-weight: 600;
     }
     .btn-dark-custom{
-        background: #111827;
+        background: var(--jaced-brown-dark);
         color: white;
         border: none;
         font-size:16px; 
     }
     .btn-dark-custom:hover {
-        background: #1f2937;
+        background: var(--jaced-dark);
         color: white !important;
         opacity: 0.9;
     }
     .btn-outline-custom{
-        border: 1.5px solid #dddddd;
+        border: 1.5px solid var(--jaced-input);
         background: transparent;
-        color: #111827;
+        color: var(--jaced-brown-dark);
         font-size:16px;
     }
     .btn-outline-custom:hover {
-        background: #f3f4f6; 
-        border-color: #111827;
+        background: var(--jaced-card); 
+        border-color: var(--jaced-brown);
+        color: var(--jaced-brown-dark);
     }
 
     /* WISHLIST */
@@ -231,49 +241,26 @@
         width: 42px;
         height: 42px;
         border-radius: 50%;
-        border: 1px solid #dddddd;
-        background: white;
-        color: #111827;
+        border: 1px solid var(--jaced-input);
+        background: var(--jaced-card);
+        color: var(--jaced-brown-dark);
         font-size: 22px;
         transition: 0.2s ease;
     }
 
     .wishlist-btn:hover{
-        background: #111827;
+        background: var(--jaced-brown-dark);
         color: white;
-    }
-
-    /* COLOR PICKER */
-    .color-option{
-        width: 32px;
-        height: 32px;
-        border-radius: 50%;
-        cursor: pointer;
-        border: 2px solid #8b8b8b;
-        transition: 0.2s ease;
-        position: relative;
-    }
-
-    .color-option:hover{
-        transform: scale(0.95);
-    }
-
-    /* ACTIVE COLOR */
-    .color-option.active-color::after{
-        content: '';
-        position: absolute;
-        top: -8px;
-        left: -8px;
-        right: -8px;
-        bottom: -8px;
-        border: 2px solid #111827;
-        border-radius: 50%;
     }
 
     body{
         background: #f9f9f7;
     }
     @media(max-width: 992px){
+        .sticky-gallery{
+            position: relative;
+            top: 0;
+        }
         .product-section{ padding: 20px 0 30px; }
         .product-title{ font-size: 30px; }
         .product-price{ font-size: 22px; }
@@ -298,28 +285,25 @@
     <div class="row g-5">
         <!-- LEFT SIDE -->
         <div class="col-lg-6">
-
             <!-- IMAGE PREVIEW -->
             <div class="image-preview-wrapper">
-
                 <!-- LEFT ARROW -->
-                <button class="slider-arrow arrow-left" onclick="previousImage()">
-                    ‹
-                </button>
+                    <button class="slider-arrow arrow-left" onclick="previousImage()">
+                        ‹
+                    </button>
 
-                <!-- MAIN IMAGE -->
-                <img
-                    id="mainImage"
-                    src="https://placehold.co/800x800"
-                    {{-- src="{{ $product->image_path ? asset('product_image/' . $product->image_path) : 'https://placehold.co/800x800' }}" --}}
-                    class="main-product-image"
-                    {{-- alt="{{ $product->name }}" --}}
-                >
+                    <!-- MAIN IMAGE -->
+                    <img
+                        id="mainImage"
+                        src="https://placehold.co/800x800"
+                        {{-- src="{{ $product->image_path ? asset('product_image/' . $product->image_path) : 'https://placehold.co/800x800' }}" --}}
+                        class="main-product-image"
+                        {{-- alt="{{ $product->name }}" --}}
+                    >
 
-                <!-- RIGHT ARROW -->
-                <button class="slider-arrow arrow-right" onclick="nextImage()"> ›
-                </button>
-
+                    <!-- RIGHT ARROW -->
+                    <button class="slider-arrow arrow-right" onclick="nextImage()"> ›
+                    </button>
             </div>
 
             <!-- THUMBNAILS -->
@@ -362,7 +346,6 @@
 
             </div>
 
-        
         </div>
 
         <!-- RIGHT SIDE -->
@@ -405,72 +388,8 @@
                         </div>
                     </div>
                 </div>
-
-                <div class="col-md-6">
-                    <div class="info-card">
-                        <div class="info-title">
-                            MATERIALS
-                        </div>
-                        <div class="info-content">
-                            Solid Oak, Leather
-                        </div>
-                    </div>
-                </div>
             </div>
-
-            <!-- COLOR OPTIONS -->
-            <div class="mt-5">
-                <label class="fw-bold fs-5 mb-3">
-                    Select Product Color
-                </label>
-                <!-- SELECTED COLOR TEXT -->
-                <div class="mb-4">
-
-                    <h4 class="fw-light mb-0" style="font-size: 20px;">
-                        <span id="selectedColorName">YELLOW</span>
-                    </h4>
-
-                </div>
-
-                <!-- COLOR OPTIONS -->
-                <div class="d-flex align-items-center gap-4">
-                    <!-- WHITE -->
-                    <div 
-                        class="color-option"
-                        data-color="WHITE"
-                        style="background: #f4f4f4;"
-                        onclick="selectColor(this)"
-                    >
-                    </div>
-
-                    <!-- BLACK -->
-                    <div 
-                        class="color-option"
-                        data-color="BLACK"
-                        style="background: #111111;"
-                        onclick="selectColor(this)"
-                    >
-                    </div>
-
-                    <!-- LIGHT GRAY -->
-                    <div 
-                        class="color-option"
-                        data-color="GRAY"
-                        style="background: #ddd9d9;"
-                        onclick="selectColor(this)">
-                    </div>
-
-                    <!-- YELLOW -->
-                    <div 
-                        class="color-option active-color"
-                        data-color="YELLOW"
-                        style="background: #dec892;"
-                        onclick="selectColor(this)">
-                    </div>
-                </div>
-            </div>
-            
-            <br>
+    
             <!-- QUANTITY -->
             <div class="qty-wrapper ">
                 <label class="fw-bold fs-5 mb-0">
