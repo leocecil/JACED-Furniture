@@ -1,5 +1,6 @@
 <nav id="mainNavbar" class="navbar navbar-expand-lg fixed-top py-4 px-md-4 transition-navbar">
     <div class="container-fluid">
+
         <a class="navbar-brand d-flex align-items-center" href="{{ route('home') }}">
             <div class="logo-wrapper p-2 rounded-2 me-2 d-flex align-items-center justify-content-center" style="width: 50px; height: 38px;">
                 {{-- Dark logo (shows when scrolled) --}}

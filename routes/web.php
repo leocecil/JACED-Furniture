@@ -3,29 +3,49 @@
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\OrderController;
 use App\Http\Controllers\ProductController;
+use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
 
 // ===== HOME / SHOP =====
 Route::redirect('/', '/home');
 
 Route::get('/home', [ProductController::class, 'home'])->name('home');
-
 Route::get('/shop', [ProductController::class, 'shop'])->name('shop');
-
 Route::get('/product/{slug}', [ProductController::class, 'show'])->name('product.show');
 
 // ===== ORDER =====
 Route::get('/checkout', [OrderController::class, 'checkout'])->name('store.checkout');
 
-Route::get('/transactionhistory', [OrderController::class, 'index'])->name('store.transactionhistory');
+Route::get('/transactionhistory', [OrderController::class, 'index'])
+    ->name('store.transactionhistory');
 
 Route::get('/transactionhistory/{id}', [OrderController::class, 'show'])
     ->name('store.transactionhistory_detail.show');
 
-// ===== PRODUCT DETAILS =====
+// ===== PROFILE =====
+Route::get('/profile', [UserController::class, 'show_profile'])->name('profile');
+Route::get('/profile/edit/{id}', [UserController::class, 'edit_profile'])->name('profile.edit');
+
+Route::get('/terms-of-service', function () {
+    return view('profile.tos');
+})->name('tos');
+
+Route::get('/privacy-policy', function () {
+    return view('profile.privacy-policy');
+})->name('privacy');
+
+Route::get('/help-center', function () {
+    return view('profile.help-center');
+})->name('help');
+
+// ===== CART =====
 Route::get('/product_details', function () {
     return view('store.product_details');
 })->name('product_details');
+
+Route::get('/cart', function () {
+    return view('store.cart');
+})->name('cart');
 
 // ===== AUTH =====
 Route::middleware('guest')->group(function () {
@@ -49,11 +69,13 @@ Route::middleware('guest')->group(function () {
         ->name('admin.login.auth');
 });
 
-// ===== LOGOUT =====
-Route::post('/logout', [AuthController::class, 'logout'])
+Route::get('/logout', [AuthController::class, 'logout'])
     ->name('logout');
 
 // ===== ADMIN =====
+Route::get('/admin/main', [OrderController::class, 'index'])
+    ->name('orders.index');
+
 Route::get('/dashboard', function () {
     return view('admin.dashboard');
 })->name('dashboard');

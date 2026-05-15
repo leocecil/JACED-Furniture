@@ -362,34 +362,7 @@
 
             </div>
 
-            <!-- BOOTSTRAP ACCORDION -->
-            <div class="accordion mt-4" id="productAccordion">
-                <div class="accordion-item">
-                    <h2 class="accordion-header">
-                        <button
-                            class="accordion-button" type="button"
-                            data-bs-toggle="collapse" data-bs-target="#descriptionCollapse">
-                            Product Description
-                        </button>
-                    </h2>
-
-                    <div
-                        id="descriptionCollapse"
-                        class="accordion-collapse collapse show"
-                        data-bs-parent="#productAccordion"
-                    >
-
-                        <div class="accordion-body">
-                            Lorem ipsum dolor sit amet consectetur adipisicing elit. Deleniti nihil temporibus ipsa magnam quidem perferendis voluptatem expedita omnis magni, accusamus aliquid iure? Doloremque officia nobis totam rem, hic reprehenderit dolorum.
-                            {{-- {{ $product->details }} --}}
-                        </div>
-
-                    </div>
-
-                </div>
-
-            </div>
-
+        
         </div>
 
         <!-- RIGHT SIDE -->
@@ -428,7 +401,7 @@
                             DIMENSIONS
                         </div>
                         <div class="info-content">
-                            W 85cm x D 90cm x H 75cm
+                            L 85cm x W 90cm x H 75cm
                         </div>
                     </div>
                 </div>
@@ -549,6 +522,30 @@
                     </button>
                 </div>
             </div>
+
+            <!-- BOOTSTRAP ACCORDION -->
+            <div class="accordion mt-4" id="productAccordion">
+                <div class="accordion-item">
+                    <h2 class="accordion-header">
+                        <button
+                            class="accordion-button" type="button"
+                            data-bs-toggle="collapse" data-bs-target="#descriptionCollapse">
+                            Product Description
+                        </button>
+                    </h2>
+
+                    <div
+                        id="descriptionCollapse"
+                        class="accordion-collapse collapse show"
+                        data-bs-parent="#productAccordion">
+                        <div class="accordion-body">
+                            Lorem ipsum dolor sit amet consectetur adipisicing elit. Deleniti nihil temporibus ipsa magnam quidem perferendis voluptatem expedita omnis magni, accusamus aliquid iure? Doloremque officia nobis totam rem, hic reprehenderit dolorum.
+                            {{-- {{ $product->details }} --}}
+                        </div>
+                    </div>
+                </div>
+            </div>
+
         </div>
     </div>
 </div>
