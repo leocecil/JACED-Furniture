@@ -173,6 +173,13 @@ class ProductController extends Controller
             $mats = (array) $request->input('material');
             $all = $all->filter(fn($p) => in_array($p['material']['slug'], $mats));
         }
+        if ($request->filled('color')) {
+            $colors = (array) $request->input('color');
+            $all = $all->filter(function ($p) use ($colors) {
+                $productColors = collect($p['variants'])->pluck('color_hex')->toArray();
+                return count(array_intersect($productColors, $colors)) > 0;
+            });
+        }
 
         if ($request->filled('min_price')) {
             $all = $all->filter(fn($p) => $p['price'] >= $request->input('min_price'));
