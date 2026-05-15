@@ -1,6 +1,8 @@
 <?php
 
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\InventoryController;
+use App\Http\Controllers\OrderController;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\View;
 
@@ -29,3 +31,7 @@ Route::get('/logout', [AuthController::class, 'logout'])->name('logout');
 Route::get('/admin/login', [AuthController::class, 'show_login_admin_form'])->name('admin.login.show');
 
 Route::post('/admin/login_auth', [AuthController::class, 'login_admin_auth'])->name('admin.login.auth');
+
+Route::get('/admin/main', [OrderController::class, 'index'])->name('orders.index');
+
+Route::get('/inventory', [InventoryController::class, 'index'])->name('inventory.index');
