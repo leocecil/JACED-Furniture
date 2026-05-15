@@ -28,12 +28,12 @@
     $shipping = 150.0;
     $tax      = $subtotal * 0.0836;
     $total    = $subtotal + $shipping + $tax;
-@endphp
+@endphp --}}
 
 <div class="jaced-page">
     <div style="max-width: 1280px; margin: 0 auto;">
 
-        <h1 class="font-serif-jaced text-jaced-dark mb-5" style="font-size: 2.8rem; font-weight: 400;">Checkout</h1>
+        <h1 class="fw-bold text-jaced-dark mb-5" style="font-size: 2.8rem; font-weight: 400; letter-spacing: 0.05em;">Checkout</h1>
 
         <div class="row g-4 align-items-start">
 
@@ -42,23 +42,29 @@
 
                 {{-- Review Order --}}
                 <div class="mb-5">
-                    <h2 class="font-serif-jaced text-jaced-sage mb-4" style="font-size: 1.5rem; font-weight: 400;">Review Order</h2>
-                    @foreach ($items as $item)
-                        <div class="jaced-item-card">
-                            <img src="{{ $item['image'] }}" alt="{{ $item['name'] }}">
-                            <div class="flex-grow-1">
-                                <div class="fw-semibold text-jaced-dark">{{ $item['name'] }}</div>
-                                <div class="text-jaced-muted" style="font-size: 13px;">{{ $item['variant'] }}</div>
-                                <div class="text-jaced-muted" style="font-size: 13px;">Qty: {{ $item['qty'] }}</div>
-                            </div>
-                            <div class="fw-semibold text-jaced-dark">${{ number_format($item['price'], 2) }}</div>
+                    <h2 class="fw-bold text-jaced-sage mb-4" style="font-size: 1.5rem; font-weight: 400;">Review Order</h2>
+                    <div class="order-items-wrapper">
+                        <div class="order-items-scroll">
+                            @forelse ($items as $item)
+                                <div class="jaced-item-card">
+                                    <img src="{{ $item['image'] }}" alt="{{ $item['name'] }}">
+                                    <div class="flex-grow-1">
+                                        <div class="fw-semibold text-jaced-dark">{{ $item['name'] }}</div>
+                                        <div class="text-jaced-muted">{{ $item['variant'] }}</div>
+                                        <div class="text-jaced-muted">Qty: {{ $item['qty'] }}</div>
+                                    </div>
+                                    <div class="fw-semibold text-jaced-dark">Rp {{ number_format($item['price'], 2) }}</div>
+                                </div>
+                            @empty
+                                <p class="text-jaced-muted">Keranjang kamu kosong.</p>
+                            @endforelse
                         </div>
-                    @endforeach
+                    </div>
                 </div>
 
                 {{-- Shipping Address --}}
                 <div class="mb-5">
-                    <h2 class="font-serif-jaced text-jaced-sage mb-4" style="font-size: 1.5rem; font-weight: 400;">Shipping Address</h2>
+                    <h2 class="fw-bold text-jaced-sage mb-4" style="font-size: 1.5rem; font-weight: 400;">Shipping Address</h2>
                     <div class="jaced-card p-4">
                         <div class="row g-3">
                             <div class="col-12 col-md-6">
@@ -74,46 +80,23 @@
                                 <input type="text" name="street" class="input-jaced" placeholder="123 Artisan Way">
                             </div>
                             <div class="col-12 col-md-4">
-                                <label>City</label>
-                                <input type="text" name="city" class="input-jaced" placeholder="New York">
+                                <label>Provinsi</label>
+                                <select name="province" id="provinceSelect" class="input-jaced" onchange="loadCities(this.value)">
+                                    <option value="">Pilih Provinsi</option>
+                                    @foreach ($provinces as $province)
+                                        <option value="{{ $province['code'] }}">{{ $province['name'] }}</option>
+                                    @endforeach
+                                </select>
                             </div>
                             <div class="col-12 col-md-4">
-                                <label>State</label>
-                                <input type="text" name="state" class="input-jaced" placeholder="NY">
+                                <label>Kota / Kabupaten</label>
+                                <select name="city" id="citySelect" class="input-jaced" disabled>
+                                    <option value="">Pilih Kota</option>
+                                </select>
                             </div>
                             <div class="col-12 col-md-4">
                                 <label>ZIP Code</label>
                                 <input type="text" name="zip" class="input-jaced" placeholder="10001">
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                {{-- Payment --}}
-                <div class="mb-5">
-                    <h2 class="font-serif-jaced text-jaced-sage mb-4" style="font-size: 1.5rem; font-weight: 400;">Payment Method</h2>
-                    <div class="jaced-card p-4">
-                        <div class="row g-3">
-                            <div class="col-12">
-                                <label>Card Number</label>
-                                <div class="input-with-icon">
-                                    <span class="icon">
-                                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg>
-                                    </span>
-                                    <input type="text" name="card_number" class="input-jaced" placeholder="0000 0000 0000 0000">
-                                </div>
-                            </div>
-                            <div class="col-12 col-md-6">
-                                <label>Expiration Date</label>
-                                <input type="text" name="exp" class="input-jaced" placeholder="MM/YY">
-                            </div>
-                            <div class="col-12 col-md-6">
-                                <label>CVC</label>
-                                <input type="text" name="cvc" class="input-jaced" placeholder="123">
-                            </div>
-                            <div class="col-12">
-                                <label>Name on Card</label>
-                                <input type="text" name="card_name" class="input-jaced" placeholder="Jane Doe">
                             </div>
                         </div>
                     </div>
@@ -124,26 +107,51 @@
             {{-- RIGHT: Summary --}}
             <div class="col-12 col-lg-4">
                 <div class="summary-card">
-                    <h2 class="font-serif-jaced text-jaced-dark mb-4" style="font-size: 1.5rem; font-weight: 400;">Order Summary</h2>
+                    <h2 class="fw-bold text-jaced-dark mb-4" style="font-size: 1.5rem; font-weight: 400;">Order Summary</h2>
 
                     <div class="d-flex justify-content-between mb-2" style="font-size: 14px;">
                         <span class="text-jaced-muted">Subtotal</span>
-                        <span class="text-jaced-dark fw-medium">${{ number_format($subtotal, 2) }}</span>
+                        <span class="text-jaced-dark fw-medium">Rp {{ number_format($subtotal, 2) }}</span>
                     </div>
                     <div class="d-flex justify-content-between mb-2" style="font-size: 14px;">
-                        <span class="text-jaced-muted">White Glove Delivery</span>
-                        <span class="text-jaced-dark fw-medium">${{ number_format($shipping, 2) }}</span>
+                        <span class="text-jaced-muted">Delivery Fee</span>
+                        <span class="text-jaced-dark fw-medium">Rp {{ number_format($shipping, 2) }}</span>
                     </div>
                     <div class="d-flex justify-content-between mb-2" style="font-size: 14px;">
-                        <span class="text-jaced-muted">Estimated Tax</span>
-                        <span class="text-jaced-dark fw-medium">${{ number_format($tax, 2) }}</span>
+                        <span class="text-jaced-muted">Service Tax</span>
+                        <span class="text-jaced-dark fw-medium">Rp {{ number_format($tax, 2) }}</span>
                     </div>
+
+                    {{-- Payment Method --}}
+                    <div class="payment-section">
+                        <span class="field-label" style="margin-bottom: 8px;">Payment Method</span>
+
+                        <select name="payment_method" class="input-jaced" id="paymentMethod" onchange="handlePaymentChange(this.value)">
+                            <option value="">Choose Payment Method</option>
+                            @foreach ($paymentMethods as $method)
+                                <option value="{{ $method['value'] }}">{{ $method['label'] }}</option>
+                            @endforeach
+                        </select>
+
+                        {{-- Dropdown bank, muncul kalau pilih Virtual Account --}}
+                        <div id="bankDropdown" style="display: none; margin-top: 10px;">
+                            <span class="field-label" style="margin-bottom: 8px;">Pilih Bank</span>
+                            <select name="bank" class="input-jaced">
+                                <option value="">Choose Bank</option>
+                                @foreach ($banks as $bank)
+                                    <option value="{{ $bank['value'] }}">{{ $bank['name'] }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+                    </div>
+
+                    
 
                     <hr class="divider-jaced my-4">
 
                     <div class="d-flex justify-content-between align-items-center mb-4">
-                        <span class="fw-semibold text-jaced-dark" style="font-size: 16px;">Total</span>
-                        <span class="font-serif-jaced text-jaced-sage" style="font-size: 2rem;">${{ number_format($total, 2) }}</span>
+                        <span class="fw-bold text-jaced-dark" style="font-size: 24px;">Total</span>
+                        <span class="fw-bold text-jaced-sage" style="font-size: 30px;">Rp {{ number_format($total, 2) }}</span>
                     </div>
 
                     <button type="button" class="btn-jaced">
@@ -161,4 +169,37 @@
         </div>
     </div>
 </div>
+
+
 @endsection
+
+@push('scripts')
+    <script>
+        function handlePaymentChange(value) {
+            const bankDropdown = document.getElementById('bankDropdown');
+            bankDropdown.style.display = value === 'virtual_account' ? 'block' : 'none';
+        }
+
+        // Load provinsi saat halaman dibuka
+        function loadCities(provinceCode) {
+        const citySelect = document.getElementById('citySelect');
+        citySelect.innerHTML = '<option value="">Pilih Kota</option>';
+        citySelect.disabled = true;
+
+        if (!provinceCode) return;
+
+        fetch(`https://dev.farizdotid.com/api/daerahindonesia/kota?id_provinsi=${provinceCode}`)
+            .then(res => res.json())
+            .then(cities => {
+                cities.forEach(c => {
+                    citySelect.innerHTML += `<option value="${c.id}">${c.name}</option>`;
+                });
+                citySelect.disabled = false;
+            })
+            .catch(() => {
+                citySelect.innerHTML = '<option value="">Gagal load kota</option>';
+            });
+
+        }
+    </script>
+@endpush
