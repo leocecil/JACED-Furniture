@@ -19,17 +19,17 @@
         <div class="collapse navbar-collapse" id="navbarNav">
             <ul class="navbar-nav mx-auto mb-2 mb-lg-0 gap-lg-4">
                 <li class="nav-item">
-                    <a class="nav-link text-uppercase tracking-widest fw-bold text-dark-50" style="font-size: 14px; letter-spacing: 2px;" href="/">Home</a>
+                    <a href="/" class="nav-link text-uppercase tracking-widest fw-bold text-dark-50" style="font-size: 14px; letter-spacing: 2px;">Home</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link text-uppercase tracking-widest fw-bold text-dark-50" style="font-size: 14px; letter-spacing: 2px;" href="/shop">Shop</a>
+                    <a href="/shop" class="nav-link text-uppercase tracking-widest fw-bold text-dark-50" style="font-size: 14px; letter-spacing: 2px;">Shop</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link text-uppercase tracking-widest fw-bold text-dark-50" style="font-size: 14px; letter-spacing: 2px;" href="/about">About</a>
+                    <a href="/about" class="nav-link text-uppercase tracking-widest fw-bold text-dark-50" style="font-size: 14px; letter-spacing: 2px;">About</a>
                 </li>
                 @auth
                     <li class="nav-item">
-                        <a class="nav-link text-uppercase tracking-widest fw-bold text-dark-50" style="font-size: 14px; letter-spacing: 2px;" href="/orders">My Orders</a>
+                        <a href="/orders" class="nav-link text-uppercase tracking-widest fw-bold text-dark-50" style="font-size: 14px; letter-spacing: 2px;">My Orders</a>
                     </li>
                 @endauth
             </ul>

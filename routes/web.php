@@ -37,8 +37,12 @@ Route::post('/register', [AuthController::class, 'register'])->name('register');
 Route::get('/logout', [AuthController::class, 'logout'])->name('logout');
 
 Route::get('/product_details', function() {
-            return view('store.product_details');
-        })->name('product_details');
+    return view('store.product_details');
+})->name('product_details');
+
+Route::get('/cart', function() {
+    return view('store.cart');
+})->name('cart');
 
 // use App\Http\Controllers\AuthController;
 // use App\Http\Controllers\ProductController;
