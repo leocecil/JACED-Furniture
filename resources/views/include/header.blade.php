@@ -1,4 +1,4 @@
-<nav id="mainNavbar" class="navbar navbar-expand-lg fixed-top py-4 px-md-4 transition-navbar">
+<nav id="mainNavbar" class="navbar navbar-expand-lg fixed-top py-4 px-md-4 transition-navbar {{ request()->routeIs('home') ? 'home-navbar' : 'default-navbar' }}">
     <div class="container-fluid">
 
         <a class="navbar-brand d-flex align-items-center" href="{{ route('home') }}">
@@ -64,41 +64,70 @@
 </nav>
 
 <style>
-    /* ===== BASE NAVBAR (always transparent + white) ===== */
+    /* ===== BASE NAVBAR ===== */
     .transition-navbar {
         transition: all 0.35s ease;
+    }
+
+    .transition-navbar.home-navbar {
         background: transparent;
     }
 
-    .transition-navbar.scrolled {
-        background: rgba(255,255,255,0.68);
+    .transition-navbar.default-navbar {
+        background: rgba(255,255,255,0.95);
+        box-shadow: 0 4px 18px rgba(0, 0, 0, 0.05);
+    }
+
+    .transition-navbar.scrolled,
+    .transition-navbar.default-navbar.scrolled {
+        background: rgba(255,255,255,0.95);
         backdrop-filter: blur(14px);
         -webkit-backdrop-filter: blur(14px);
-        border-bottom: 1px solid rgba(255,255,255,0.18);
+        border-bottom: 1px solid rgba(0,0,0,0.08);
         box-shadow: 0 4px 30px rgba(0,0,0,0.04);
     }
 
-    /* ===== LOGO SWAP (white default, dark on scroll) ===== */
+    /* ===== LOGO SWAP (white default on home, dark everywhere else) ===== */
     .logo-default { display: none; }
     .logo-white   { display: block; }
+
+    .transition-navbar.default-navbar .logo-default { display: block; }
+    .transition-navbar.default-navbar .logo-white   { display: none; }
 
     .transition-navbar.scrolled .logo-default { display: block; }
     .transition-navbar.scrolled .logo-white   { display: none; }
 
-    /* ===== TEXT COLOR (white default, dark on scroll) ===== */
-    .transition-navbar .navbar-brand,
-    .transition-navbar .nav-link,
-    .transition-navbar .nav-icon,
-    .transition-navbar .nav-icon i,
-    .transition-navbar .navbar-toggler,
-    .transition-navbar .user-btn {
+    /* ===== TEXT COLOR (white default on home; dark by default on other pages) ===== */
+    .transition-navbar.home-navbar .navbar-brand,
+    .transition-navbar.home-navbar .nav-link,
+    .transition-navbar.home-navbar .nav-icon,
+    .transition-navbar.home-navbar .nav-icon i,
+    .transition-navbar.home-navbar .navbar-toggler,
+    .transition-navbar.home-navbar .user-btn {
         color: #f3f3f1 !important;
         text-shadow: 0 1px 12px rgba(0, 0, 0, 0.25);
     }
 
-    .transition-navbar .btn-login {
+    .transition-navbar.default-navbar .navbar-brand,
+    .transition-navbar.default-navbar .nav-link,
+    .transition-navbar.default-navbar .nav-icon,
+    .transition-navbar.default-navbar .nav-icon i,
+    .transition-navbar.default-navbar .navbar-toggler,
+    .transition-navbar.default-navbar .user-btn {
+        color: #1f1f1f !important;
+        text-shadow: none;
+    }
+
+    .transition-navbar.home-navbar .btn-login {
         background-color: #f3f3f1;
         color: #1f1f1f;
+        border: none;
+        text-shadow: none;
+    }
+
+    .transition-navbar.default-navbar .btn-login {
+        background-color: #1f1f1f;
+        color: #ffffff;
         border: none;
         text-shadow: none;
     }

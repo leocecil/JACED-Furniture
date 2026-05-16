@@ -119,6 +119,7 @@
         margin-bottom: 28px;
     }
 
+    /* INFO CARD */
     .info-card{
         background: var(--jaced-card);
         border-radius: 18px;
@@ -139,6 +140,51 @@
         font-weight: 600;
         color: var(--jaced-brown-dark);
     }
+    /* DIMENSION CARD */
+        .dimension-card{ padding: 24px; }
+
+        .dimension-grid{
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 18px;
+        }
+
+        .dimension-item{
+            background: var(--jaced-white);
+            border: 1px solid var(--jaced-input);
+            border-radius: 18px;
+            padding: 18px 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            transition: 0.2s ease;
+        }
+
+        .dimension-item:hover{
+            transform: translateY(-2px);
+            border-color: var(--jaced-caramel);
+        }
+
+        .dimension-label{
+            font-size: 12px;
+            font-weight: 600;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+
+            color: var(--jaced-muted);
+        }
+
+        .dimension-value{
+            font-size: 22px;
+            font-weight: 700;
+            color: var(--jaced-brown-dark);
+        }
+
+        @media(max-width: 768px){
+            .dimension-grid{
+                grid-template-columns: 1fr;
+            }
+        }
 
     /* ACCORDION */
     .accordion-item{
@@ -378,13 +424,34 @@
 
             <!-- INFO CARDS -->
             <div class="row g-4">
-                <div class="col-md-6">
-                    <div class="info-card">
-                        <div class="info-title">
-                            DIMENSIONS
+                <div class="col-12">
+                    <div class="info-card dimension-card">
+                        <div class="d-flex justify-content-between align-items-center mb-4">
+                            <div class="info-title mb-0">
+                                PRODUCT DIMENSIONS
+                            </div>
+
+                            <i class="fa-solid fa-ruler-combined fs-5"
+                            style="color: var(--jaced-caramel);">
+                            </i>
                         </div>
-                        <div class="info-content">
-                            L 85cm x W 90cm x H 75cm
+
+                        <div class="dimension-grid">
+                            <!-- LENGTH -->
+                            <div class="dimension-item">
+                                <span class="dimension-label"> Length </span>
+                                <span class="dimension-value"> 85 cm </span>
+                            </div>
+                            <!-- WIDTH -->
+                            <div class="dimension-item">
+                                <span class="dimension-label"> Width </span>
+                                <span class="dimension-value"> 90 cm </span>
+                            </div>
+                            <!-- HEIGHT -->
+                            <div class="dimension-item">
+                                <span class="dimension-label"> Height </span>
+                                <span class="dimension-value"> 75 cm </span>
+                            </div>
                         </div>
                     </div>
                 </div>

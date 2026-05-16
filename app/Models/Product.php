@@ -41,4 +41,13 @@ class Product extends Model
     {
         return $this->hasOne(ProductVariant::class)->where('is_default', true);
     }
+    public function images()
+    {
+        return $this->hasMany(ProductImage::class);
+    }
+
+    public function wishlists()
+    {
+        return $this->hasMany(Wishlist::class);
+    }
 }

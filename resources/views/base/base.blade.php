@@ -21,12 +21,15 @@
         .main-content {
             flex: 1;
         }
+        .main-content.default-content {
+            padding-top: 8rem !important;
+        }
     </style>
 </head>
 <body>
     @include('include.header')
     
-    <div class="container-fluid main-content px-4 px-md-5 py-5" style="margin:0 auto; max-width: 1400px;">
+    <div class="container-fluid main-content px-4 px-md-5 py-5 {{ request()->routeIs('home') ? '' : 'default-content' }}" style="margin:0 auto; max-width: 1400px;">
         @yield('content')
     </div>
     
