@@ -55,12 +55,12 @@ class AuthController extends Controller
 
             Auth::logout();
             return back()->withErrors([
-                'email' => 'Akun ini bukan admin.',
+                'email' => 'The provided credentials do not match our records.',
             ])->onlyInput('email');
         }
 
         return back()->withErrors([
-            'email' => 'Email atau password salah.',
+            'email' => 'The provided credentials do not match our records.',
         ])->onlyInput('email');
     }
 

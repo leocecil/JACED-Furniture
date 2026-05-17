@@ -7,8 +7,7 @@ use App\Http\Controllers\ProductController;
 use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
 
-// ===== HOME / SHOP =====
-
+// LOGIN & REGISTER CUSTOMER
 Route::get('/login', [AuthController::class, 'show_login_form'])
     ->name('login');
 
@@ -20,7 +19,8 @@ Route::get('/register', [AuthController::class, 'show_register_form'])
 
 Route::post('/register', [AuthController::class, 'register'])
     ->name('register');
-
+    
+// MIDDLEWARE CUSTOMER
 Route::middleware(['role:customer'])->group(function() {
     Route::get('/profile', [UserController::class, 'show_profile'])->name('profile');
     Route::get('/profile/edit/{id}', [UserController::class, 'edit_profile'])->name('profile.edit');
@@ -29,17 +29,17 @@ Route::middleware(['role:customer'])->group(function() {
         return view('profile.tos');
     })->name('tos');
     
-Route::get('/reward', function () {
-    return view('profile.reward');
-})->name('reward');
+    Route::get('/reward', function () {
+        return view('profile.reward');
+    })->name('reward');
 
-Route::get('/reward/voucher', function () {
-    return view('profile.voucher');
-})->name('voucher');
+    Route::get('/reward/voucher', function () {
+        return view('profile.voucher');
+    })->name('voucher');
 
-Route::get('/terms-of-service', function () {
-    return view('profile.tos');
-})->name('tos');
+    Route::get('/terms-of-service', function () {
+        return view('profile.tos');
+    })->name('tos');
 
     Route::get('/privacy-policy', function () {
         return view('profile.privacy-policy');
@@ -59,6 +59,7 @@ Route::get('/terms-of-service', function () {
 
     Route::get('/home', [ProductController::class, 'home'])->name('home');
     Route::get('/shop', [ProductController::class, 'shop'])->name('shop');
+    
     Route::get('/product/{slug}', [ProductController::class, 'show'])->name('product.show');
 
     Route::get('/checkout', [OrderController::class, 'checkout'])->name('store.checkout');
@@ -70,12 +71,14 @@ Route::get('/terms-of-service', function () {
         ->name('store.transactionhistory_detail.show');
 });
 
+// ADMIN LOGIN
 Route::get('/admin/login', [AuthController::class, 'show_login_admin_form'])
         ->name('admin.login.show');
 
 Route::post('/admin/login_auth', [AuthController::class, 'login_admin_auth'])
     ->name('admin.login.auth');
-
+    
+// MIDDLEWARE ADMIN
 Route::middleware(['role:admin'])->group(function() {
 
     Route::get('/admin/main', [OrderController::class, 'index'])->name('orders.index');

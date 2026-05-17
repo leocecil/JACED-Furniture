@@ -15,7 +15,7 @@ class UserSeeder extends Seeder
         DB::table('users')->insert([
             [
                 'name' => 'diah',
-                'email' => 'pdiahloka@ciputra.ac.id',
+                'email' => 'pdiahloka@student.ciputra.ac.id',
                 'phone_number' => '081234567891',
                 'password' => Hash::make('password123'),
                 'is_admin' => false,
@@ -24,7 +24,7 @@ class UserSeeder extends Seeder
             ],
             [
                 'name' => 'cecil',
-                'email' => 'cagustaleo@ciputra.ac.id',
+                'email' => 'cagustaleo@student.ciputra.ac.id',
                 'phone_number' => '081234567892',
                 'password' => Hash::make('password123'),
                 'is_admin' => false,
