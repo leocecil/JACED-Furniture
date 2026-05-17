@@ -26,6 +26,14 @@ Route::get('/transactionhistory/{id}', [OrderController::class, 'show'])
 Route::get('/profile', [UserController::class, 'show_profile'])->name('profile');
 Route::get('/profile/edit/{id}', [UserController::class, 'edit_profile'])->name('profile.edit');
 
+Route::get('/reward', function () {
+    return view('profile.reward');
+})->name('reward');
+
+Route::get('/reward/voucher', function () {
+    return view('profile.voucher');
+})->name('voucher');
+
 Route::get('/terms-of-service', function () {
     return view('profile.tos');
 })->name('tos');
