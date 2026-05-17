@@ -69,6 +69,8 @@ Route::middleware(['role:customer'])->group(function() {
 
     Route::get('/transactionhistory/{id}', [OrderController::class, 'show'])
         ->name('store.transactionhistory_detail.show');
+
+    Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 });
 
 // ADMIN LOGIN

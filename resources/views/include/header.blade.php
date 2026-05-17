@@ -52,9 +52,12 @@
                             <span style="font-size: 12px; letter-spacing: 1px;">{{ strtoupper(auth()->user()->name) }}</span>
                         </button>
                         <div class="dropdown-menu shadow-lg border-0 mt-2 position-absolute rounded-3" id="customUserMenu" style="right: 0; left: auto; min-width: 180px; display: none; z-index: 1050; background: #fff;">
-                            <a class="dropdown-item text-danger d-flex align-items-center py-2 px-3 fw-bold" style="font-size: 12px;" href="#" data-bs-toggle="modal" data-bs-target="#logoutModal">
-                                <i class="fas fa-sign-out-alt me-2"></i> LOGOUT
-                            </a>
+                            <form action="{{ route('logout') }}" method="POST" class="m-0">
+                                @csrf
+                                <button type="submit" class="dropdown-item text-danger d-flex align-items-center py-2 px-3 fw-bold border-0 bg-transparent w-100" style="font-size: 12px;">
+                                    <i class="fas fa-sign-out-alt me-2"></i> LOGOUT
+                                </button>
+                            </form>
                         </div>
                     </div>
                 @endguest
