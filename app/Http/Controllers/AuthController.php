@@ -45,10 +45,14 @@ class AuthController extends Controller
 
         if (Auth::attempt($credentials)) {
             $user = Auth::user();
-            if ($user && property_exists($user, 'role') && $user->role === 'admin') {
+
+            $isAdmin = $user->roles->pluck('role')->contains('admin');
+
+            if ($isAdmin) {
                 $request->session()->regenerate();
                 return redirect()->route('dashboard');
             }
+
             Auth::logout();
             return back()->withErrors([
                 'email' => 'Akun ini bukan admin.',
@@ -56,7 +60,7 @@ class AuthController extends Controller
         }
 
         return back()->withErrors([
-            'email' => 'The provided credentials do not match our records.',
+            'email' => 'Email atau password salah.',
         ])->onlyInput('email');
     }
 

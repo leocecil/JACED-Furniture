@@ -19,34 +19,11 @@
                                 <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                             </div>
                         @endif
-
-                        {{-- <div class="d-flex justify-content-center align-items-center mb-4 px-3">
-                            <div id="indicator-1" class="rounded-circle bg-dark text-white d-flex align-items-center justify-content-center fw-bold step-indicator" style="width: 35px; height: 35px; transition: 0.3s;">
-                                1
-                            </div>
-                            <div id="line-1" class="flex-grow-1 bg-secondary mx-2" style="height: 3px; opacity: 0.3; transition: 0.3s;"></div>
-                            <div id="indicator-2" class="rounded-circle bg-secondary text-white d-flex align-items-center justify-content-center fw-bold step-indicator" style="width: 35px; height: 35px; opacity: 0.5; transition: 0.3s;">
-                                2
-                            </div>
-                        </div> --}}
-
-                        <div class="d-flex justify-content-center align-items-center mb-4 px-3">
-                            <div id="indicator-1" class="rounded-circle bg-dark text-white d-flex align-items-center justify-content-center fw-bold step-indicator" style="width: 35px; height: 35px; transition: 0.3s;">
-                                1
-                            </div>
-                            
-                            <div id="line-1" class="bg-secondary mx-2" style="width: 30%; height: 3px; opacity: 0.3; transition: 0.3s;"></div>
-                            
-                            <div id="indicator-2" class="rounded-circle bg-secondary text-white d-flex align-items-center justify-content-center fw-bold step-indicator" style="width: 35px; height: 35px; opacity: 0.5; transition: 0.3s;">
-                                2
-                            </div>
-                        </div>
     
                         <form action="{{ route('login.auth') }}" method="POST" id="registerForm" novalidate>
                             @csrf
     
                             <div id="step-1">
-                                <h5 class="fw-bold mb-3">Account Details</h5>
                                 <div class="mb-3">
                                     <label for="name" class="form-label fw-medium">Full Name</label>
                                     <input type="text" class="form-control form-control-lg fs-6 @error('name') is-invalid @enderror" id="name" name="name" value="{{ old('name') }}" placeholder="John Doe" required autofocus>
@@ -80,13 +57,11 @@
                                         @error('password_confirmation') <div class="invalid-feedback">{{ $message }}</div> @enderror
                                     </div>
                                 </div>
-        
-                                <div class="d-grid mb-3">
-                                    <button type="button" id="btnNext" class="btn btn-dark btn-lg fs-6 fw-bold">Next</button>
-                                </div>
+
+                                <button type="submit" class="btn btn-dark btn-lg fs-6 fw-bold w-100">Register</button>
                             </div>
 
-                            <div id="step-2" class="d-none">
+                            {{-- <div id="step-2" class="d-none">
                                 <h5 class="fw-bold mb-3">Personal Details</h5>
                                 
                                 <div class="mb-3">
@@ -137,16 +112,11 @@
                                         <!-- Add more countries as needed -->
                                     </select>
                                     @error('country') <div class="invalid-feedback">{{ $message }}</div> @enderror
-                                </div>
-
-                                <div class="d-flex gap-2 mb-3">
-                                    <button type="button" id="btnPrev" class="btn btn-outline-dark btn-lg fs-6 fw-bold w-50">Back</button>
-                                    <button type="submit" class="btn btn-dark btn-lg fs-6 fw-bold w-50">Register</button>
-                                </div>
-                            </div>
+                                </div> --}}                                
+                            {{-- </div> --}}
     
                             <div class="text-center mt-4">
-                                <p class="text-muted mb-0">Already have an account? <a href="{{ route('login.show') }}" class="text-decoration-none fw-medium" style="color: #1F2937;">Login here</a></p>
+                                <p class="text-muted mb-0">Already have an account? <a href="{{ route('login') }}" class="text-decoration-none fw-medium" style="color: #1F2937;">Login here</a></p>
                             </div>
     
                         </form>
