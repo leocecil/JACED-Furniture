@@ -28,6 +28,18 @@ Route::middleware(['role:customer'])->group(function() {
     Route::get('/terms-of-service', function () {
         return view('profile.tos');
     })->name('tos');
+    
+Route::get('/reward', function () {
+    return view('profile.reward');
+})->name('reward');
+
+Route::get('/reward/voucher', function () {
+    return view('profile.voucher');
+})->name('voucher');
+
+Route::get('/terms-of-service', function () {
+    return view('profile.tos');
+})->name('tos');
 
     Route::get('/privacy-policy', function () {
         return view('profile.privacy-policy');
