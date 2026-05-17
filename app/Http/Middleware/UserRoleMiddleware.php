@@ -16,12 +16,10 @@ class UserRoleMiddleware
      */
     public function handle(Request $request, Closure $next, ...$roles): Response
     {
-        // Cek login dulu
         if (!Auth::check()) {
             return redirect()->route('login');
         }
 
-        // Cek role via relasi
         $userRoles = Auth::user()->roles->pluck('role')->toArray();
 
         if (array_intersect($roles, $userRoles)) {

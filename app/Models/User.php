@@ -12,7 +12,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 
-#[Fillable(['name', 'email', 'password'])]
+#[Fillable(['name', 'email', 'password', 'phone_number'])]
 #[Hidden(['password', 'remember_token'])]
 class User extends Authenticatable
 {
@@ -32,7 +32,8 @@ class User extends Authenticatable
         ];
     }
 
-    public function roles():HasMany {   
-        return $this->hasMany(UserRole::class);
+    public function roles()
+    {
+        return $this->hasMany(UserRole::class, 'user_id', 'id');
     }
 }
