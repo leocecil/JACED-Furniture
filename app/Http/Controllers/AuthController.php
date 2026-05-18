@@ -45,13 +45,17 @@ class AuthController extends Controller
 
         if (Auth::attempt($credentials)) {
             $user = Auth::user();
-            if ($user && property_exists($user, 'role') && $user->role === 'admin') {
+
+            $isAdmin = $user->roles->pluck('role')->contains('admin');
+
+            if ($isAdmin) {
                 $request->session()->regenerate();
                 return redirect()->route('dashboard');
             }
+
             Auth::logout();
             return back()->withErrors([
-                'email' => 'Akun ini bukan admin.',
+                'email' => 'The provided credentials do not match our records.',
             ])->onlyInput('email');
         }
 
@@ -68,19 +72,22 @@ class AuthController extends Controller
     public function register(Request $request)
     {
         $credentials = $request->validate([
-            'name' => 'required|string|max:255',
-            'email' => 'required|email|unique:users,email',
-            'password' => 'required|string|min:8|confirmed'
+            'name'         => 'required|string|max:255',
+            'email'        => 'required|email|unique:users,email',
+            'phone_number' => 'required|string|max:20',
+            'password'     => 'required|string|min:8|confirmed'
         ]);
 
         $user = User::create([
-            'name' => $credentials['name'],
-            'email' => $credentials['email'],
-            'password' => Hash::make($credentials['password']),
+            'name'         => $credentials['name'],
+            'email'        => $credentials['email'],
+            'phone_number' => $credentials['phone_number'],
+            'password'     => Hash::make($credentials['password']),
         ]);
 
-        Auth::login($user);
+        $user->roles()->create(['role' => 'customer']);
 
+        Auth::login($user);
         return redirect()->route('home');
     }
 
