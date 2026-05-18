@@ -24,28 +24,18 @@ class Product extends Model
 
     public function category()
     {
-        return $this->belongsTo(Category::class);
+        return $this->belongsTo(ProductCategory::class, 'category_id');
     }
 
-    public function material()
-    {
-        return $this->belongsTo(Material::class);
-    }
-
-    public function variants()
-    {
-        return $this->hasMany(ProductVariant::class);
-    }
-
-    public function defaultVariant()
-    {
-        return $this->hasOne(ProductVariant::class)->where('is_default', true);
-    }
     public function images()
     {
         return $this->hasMany(ProductImage::class);
     }
 
+    public function orderDetails()
+    {
+        return $this->hasMany(OrderDetail::class);
+    }
     public function wishlists()
     {
         return $this->hasMany(Wishlist::class);
