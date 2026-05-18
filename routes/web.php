@@ -27,12 +27,20 @@ Route::get('/profile', [UserController::class, 'show_profile'])->name('profile')
 Route::get('/profile/edit/{id}', [UserController::class, 'edit_profile'])->name('profile.edit');
 
 Route::get('/reward', function () {
-    return view('profile.reward');
+    return view('profile.reward-center.reward');
 })->name('reward');
 
 Route::get('/reward/voucher', function () {
-    return view('profile.voucher');
+    return view('profile.reward-center.voucher');
 })->name('voucher');
+
+Route::get('/reward/redeem-point', function () {
+    return view('profile.reward-center.redeem-point');
+})->name('redeem-point');
+
+Route::get('/reward/point-history', function () {
+    return view('profile.reward-center.point-history');
+})->name('point-history');
 
 Route::get('/terms-of-service', function () {
     return view('profile.tos');

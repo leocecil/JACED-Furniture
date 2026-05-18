@@ -112,8 +112,9 @@
         border: 1px solid var(--jaced-input);
         border-radius: 12px;
         padding: 14px 16px;
-        z-index: 100;
-        box-shadow: 0 4px 16px rgba(0,0,0,.08);
+        /* Naikkan z-index menjadi 999 agar berada di lapisan paling atas */
+        z-index: 999; 
+        box-shadow: 0 4px 24px rgba(0,0,0,.15);
     }
     .stage-popover.open { display: block; }
     .popover-title {
@@ -473,6 +474,14 @@
 
 <div class="loyalty-page">
     <div style="max-width: 1000px; margin: 0 auto;">
+        {{-- BACK --}}
+        <a href="{{ route('profile') }}" class="back-link">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="19" y1="12" x2="5" y2="12"></line>
+                <polyline points="12 19 5 12 12 5"></polyline>
+            </svg>
+            <span>Back</span>
+        </a>
 
         {{-- PAGE TITLE --}}
         <div class="mb-4">
@@ -521,53 +530,39 @@
 
                     {{-- Stage Tabs --}}
                     <div class="stage-tabs">
-                        <div class="stage-tab current">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="6"/><path d="M15.477 12.89L17 22l-5-3-5 3 1.523-9.11"/></svg>
-                            Bronze
+                        <div class="popover-wrap" style="flex: 1; position: relative;">
+                            <div class="stage-tab current" onclick="togglePopover(event, 'bronze-tab-pop')">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="6"/><path d="M15.477 12.89L17 22l-5-3-5 3 1.523-9.11"/></svg>
+                                Bronze
+                            </div>
+                            <div class="stage-popover" id="bronze-tab-pop">
+                                <p class="popover-title">Bronze benefits</p>
+                                <div class="benefit-item">5% point bonus on every purchase</div>
+                                <div class="benefit-item">Birthday reward — free artisan candle</div>
+                            </div>
                         </div>
 
-                        <div class="popover-wrap" style="flex: 1;">
-                            <div class="stage-tab locked w-100" onclick="togglePopover('silver-pop')">
+                        <div class="popover-wrap" style="flex: 1; position: relative;">
+                            <div class="stage-tab locked w-100" onclick="togglePopover(event, 'silver-pop')">
                                 <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
                                 Silver
                             </div>
                             <div class="stage-popover" id="silver-pop">
                                 <p class="popover-title">Silver benefits</p>
-                                <div class="benefit-item locked">
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>
-                                    10% point bonus on every purchase
-                                </div>
-                                <div class="benefit-item locked">
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="3" width="15" height="13"/><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg>
-                                    Free standard delivery on all orders
-                                </div>
-                                <div class="benefit-item locked">
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
-                                    Exclusive member workshop invitations
-                                </div>
+                                <div class="benefit-item locked">10% point bonus on every purchase</div>
+                                <div class="benefit-item locked">Free standard delivery on all orders</div>
                                 <a href="#" class="how-to-link">How to reach Silver stage →</a>
                             </div>
                         </div>
 
-                        <div class="popover-wrap" style="flex: 1;">
-                            <div class="stage-tab locked w-100" onclick="togglePopover('gold-pop')">
+                        <div class="popover-wrap" style="flex: 1; position: relative;">
+                            <div class="stage-tab locked w-100" onclick="togglePopover(event, 'gold-pop')">
                                 <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
                                 Gold
                             </div>
                             <div class="stage-popover" id="gold-pop">
                                 <p class="popover-title">Gold benefits</p>
-                                <div class="benefit-item locked">
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>
-                                    15% point bonus + priority production
-                                </div>
-                                <div class="benefit-item locked">
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
-                                    Dedicated personal atelier consultant
-                                </div>
-                                <div class="benefit-item locked">
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
-                                    Annual gift from our master craftsmen
-                                </div>
+                                <div class="benefit-item locked">15% point bonus + priority production</div>
                                 <a href="#" class="how-to-link">How to reach Gold stage →</a>
                             </div>
                         </div>
@@ -584,7 +579,11 @@
                         <p class="pts-unit mb-0">Points</p>
                     </div>
                     <div class="d-flex gap-2">
-                        <button class="btn-redeem mb-0" style="flex: 1; white-space: nowrap;">Redeem Now</button>
+                        <a href="{{ route('redeem-point') }}" style="flex: 1; text-decoration: none;">
+                            <button class="btn-redeem mb-0" style="width: 100%; white-space: nowrap;">
+                                Redeem Now
+                            </button>
+                        </a>
                         <a href="{{ route('voucher') }}" class="btn-voucher text-decoration-none" style="flex: 1; white-space: nowrap;">
                             <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                                 <path d="M2 9a3 3 0 0 1 0 6v2a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-2a3 3 0 0 1 0-6V7a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2Z"/>
@@ -645,7 +644,7 @@
                     @endforeach
 
                     {{-- Mengubah teks tautan bawah karena fungsinya kini menjadi riwayat umum, bukan sekadar kedaluwarsa --}}
-                    <a href="#" class="view-all-link">View All History Details</a>
+                    <a href="{{ route('point-history') }}" class="view-all-link">View All History Details</a>
                 </div>
             </div>
 
@@ -653,7 +652,7 @@
             <div class="col-12 col-lg-8">
                 <div class="redeem-header mb-3" style="min-height: 34px; display: flex; align-items: center; justify-content: space-between;">
                     <p class="section-title mb-0">Redeem Goals</p>
-                    <a href="#" class="favorites-btn text-decoration-none">
+                    <a href="{{ route('redeem-point') }}" class="favorites-btn text-decoration-none">
                         See All
                         <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
                     </a>
@@ -717,15 +716,32 @@
 
 @push('scripts')
 <script>
-    function togglePopover(id) {
+    function togglePopover(event, id) {
+        // Menghentikan efek klik agar tidak merembet dan langsung menutup diri
+        event.stopPropagation(); 
+        
+        const targetPopover = document.getElementById(id);
+        if (!targetPopover) return;
+
+        const isOpen = targetPopover.classList.contains('open');
+
+        // Tutup semua popover yang sedang terbuka di halaman
         document.querySelectorAll('.stage-popover').forEach(p => {
-            if (p.id !== id) p.classList.remove('open');
+            p.classList.remove('open');
         });
-        document.getElementById(id).classList.toggle('open');
+
+        // Jika popover yang diklik tadi posisinya tertutup, sekarang kita buka
+        if (!isOpen) {
+            targetPopover.classList.add('open');
+        }
     }
+
+    // Menutup popover hanya jika user melakukan klik di luar area luar dokumen
     document.addEventListener('click', function(e) {
-        if (!e.target.closest('.popover-wrap') && !e.target.closest('.benefit-link')) {
-            document.querySelectorAll('.stage-popover').forEach(p => p.classList.remove('open'));
+        if (!e.target.closest('.stage-popover')) {
+            document.querySelectorAll('.stage-popover').forEach(p => {
+                p.classList.remove('open');
+            });
         }
     });
 </script>
