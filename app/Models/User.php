@@ -32,21 +32,8 @@ class User extends Authenticatable
         ];
     }
 
-    public function role()
+    public function roles()
     {
-        return $this->belongsTo(UserRole::class, 'role_id');
-    }
-    public function orders()
-    {
-        return $this->hasMany(Order::class);
-    }
-    public function wishlists()
-    {
-        return $this->hasMany(Wishlist::class);
-    }
-
-    public function shippingAddresses()
-    {
-        return $this->hasMany(ShippingAddress::class);
+        return $this->hasMany(UserRole::class, 'user_id', 'id');
     }
 }

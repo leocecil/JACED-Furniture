@@ -28,7 +28,7 @@
                 </li>
                 @auth
                     <li class="nav-item">
-                        <a class="nav-link text-uppercase tracking-widest fw-bold" style="font-size: 14px; letter-spacing: 2px;" href="/orders">My Orders</a>
+                        <a class="nav-link text-uppercase tracking-widest fw-bold {{ request()-> routeIs('store.transactionhistory') ? 'active' : '' }}" style="font-size: 14px; letter-spacing: 2px;" href="{{ route('store.transactionhistory') }}">My Orders</a>
                     </li>
                 @endauth
             </ul>

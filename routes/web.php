@@ -7,6 +7,8 @@ use App\Http\Controllers\ProductController;
 use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
 
+
+
 // LOGIN & REGISTER CUSTOMER
 Route::get('/login', [AuthController::class, 'show_login_form'])
     ->name('login');
@@ -30,32 +32,32 @@ Route::middleware(['role:customer'])->group(function() {
     })->name('tos');
     
     Route::get('/reward', function () {
-        return view('profile.reward');
+        return view('profile.reward-center.reward');
     })->name('reward');
 
     Route::get('/reward/voucher', function () {
-        return view('profile.voucher');
+        return view('profile.reward-center.voucher');
     })->name('voucher');
 
-Route::get('/reward', function () {
-    return view('profile.reward-center.reward');
-})->name('reward');
+    Route::get('/reward', function () {
+        return view('profile.reward-center.reward');
+    })->name('reward');
 
-Route::get('/reward/voucher', function () {
-    return view('profile.reward-center.voucher');
-})->name('voucher');
+    Route::get('/reward/voucher', function () {
+        return view('profile.reward-center.voucher');
+    })->name('voucher');
 
-Route::get('/reward/redeem-point', function () {
-    return view('profile.reward-center.redeem-point');
-})->name('redeem-point');
+    Route::get('/reward/redeem-point', function () {
+        return view('profile.reward-center.redeem-point');
+    })->name('redeem-point');
 
-Route::get('/reward/point-history', function () {
-    return view('profile.reward-center.point-history');
-})->name('point-history');
+    Route::get('/reward/point-history', function () {
+        return view('profile.reward-center.point-history');
+    })->name('point-history');
 
-Route::get('/terms-of-service', function () {
-    return view('profile.tos');
-})->name('tos');
+    Route::get('/terms-of-service', function () {
+        return view('profile.tos');
+    })->name('tos');
     Route::get('/terms-of-service', function () {
         return view('profile.tos');
     })->name('tos');
@@ -81,7 +83,17 @@ Route::get('/terms-of-service', function () {
     
     Route::get('/product/{slug}', [ProductController::class, 'show'])->name('product.show');
 
-    Route::get('/checkout', [OrderController::class, 'checkout'])->name('store.checkout');
+    
+    //CHECKOUT
+    // 1. Rute untuk TAMPILAN CHECKOUT (GET)
+    Route::get('/checkout', [OrderController::class, 'showCheckout'])->name('checkout.index');
+    // 2. Rute untuk PROSES BAYAR ke Midtrans saat tombol diklik (POST)
+    Route::post('/checkout', [OrderController::class, 'processCheckout'])->name('checkout.store');
+    // 3. Rute API AJAX untuk ambil data kota
+    Route::get('/api/cities', [OrderController::class, 'getCities'])->name('api.cities');
+
+    Route::get('/payment/status/{order_id}', [OrderController::class, 'payment_status'])->name('payment_status');
+    Route::get('/payment/return/{order_id}', [OrderController::class, 'payment_return'])->name('payment_return');
 
     Route::get('/transactionhistory', [OrderController::class, 'index'])
         ->name('store.transactionhistory');

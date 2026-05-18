@@ -30,4 +30,16 @@ class Order extends Model
     {
         return $this->belongsTo(ShippingAddress::class);
     }
+
+    protected $fillable = [
+    'user_id',
+    'payment_id',
+    'voucher_id',
+    'shipping_address_id',
+    'delivery_fee',
+    'service_tax',
+    'discount_amount',
+    'total_price',
+    'status',
+    ];
 }
