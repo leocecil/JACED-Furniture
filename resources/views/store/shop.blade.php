@@ -29,7 +29,7 @@
                     </button>
                     <div class="shop-search-wrap">
                         <i class="fas fa-search shop-search-icon"></i>
-                        <input type="text" name="search" class="shop-search-input"
+                        <input type="text" id="shopSearchInput" name="search" class="shop-search-input"
                                placeholder="Search nora chair, oka table, walnut..."
                                value="{{ request('search') }}">
                         @if(request('search'))
@@ -160,8 +160,7 @@
                                 @foreach($categories as $cat)
                                     <label class="shop-filter-row" for="cat-{{ $cat->slug }}">
                                         <input type="checkbox" id="cat-{{ $cat->slug }}" name="category[]" value="{{ $cat->slug }}"
-                                               {{ in_array($cat->slug, (array) request('category', [])) ? 'checked' : '' }}
-                                               onchange="document.getElementById('filter-form').submit()">
+                                               {{ in_array($cat->slug, (array) request('category', [])) ? 'checked' : '' }}>
                                         <span class="shop-filter-name">{{ $cat->name }}</span>
                                         <span class="shop-filter-count">{{ $cat->products_count }}</span>
                                     </label>
@@ -175,8 +174,7 @@
                                 @foreach($rooms as $room)
                                     <label class="shop-filter-row" for="room-{{ $room->slug }}">
                                         <input type="checkbox" id="room-{{ $room->slug }}" name="room[]" value="{{ $room->slug }}"
-                                               {{ in_array($room->slug, (array) request('room', [])) ? 'checked' : '' }}
-                                               onchange="document.getElementById('filter-form').submit()">
+                                               {{ in_array($room->slug, (array) request('room', [])) ? 'checked' : '' }}>
                                         <span class="shop-filter-name">{{ $room->name }}</span>
                                         <span class="shop-filter-count">{{ $room->products_count }}</span>
                                     </label>
@@ -190,8 +188,7 @@
                                 @foreach($materials as $mat)
                                     <label class="shop-filter-row" for="mat-{{ $mat->slug }}">
                                         <input type="checkbox" id="mat-{{ $mat->slug }}" name="material[]" value="{{ $mat->slug }}"
-                                               {{ in_array($mat->slug, (array) request('material', [])) ? 'checked' : '' }}
-                                               onchange="document.getElementById('filter-form').submit()">
+                                               {{ in_array($mat->slug, (array) request('material', [])) ? 'checked' : '' }}>
                                         <span class="shop-filter-name">{{ $mat->name }}</span>
                                         <span class="shop-filter-count">{{ $mat->products_count }}</span>
                                     </label>
@@ -212,8 +209,7 @@
                                 @foreach($sizeOptions as $sz)
                                     <label class="shop-filter-row" for="size-{{ $sz['slug'] }}">
                                         <input type="checkbox" id="size-{{ $sz['slug'] }}" name="size[]" value="{{ $sz['slug'] }}"
-                                               {{ in_array($sz['slug'], $activeSizes) ? 'checked' : '' }}
-                                               onchange="document.getElementById('filter-form').submit()">
+                                               {{ in_array($sz['slug'], $activeSizes) ? 'checked' : '' }}>
                                         <span class="shop-filter-name">{{ $sz['name'] }}</span>
                                         <span class="shop-filter-count">{{ $sz['note'] }}</span>
                                     </label>
@@ -230,9 +226,8 @@
                                     <input type="number" name="max_price" class="shop-price-input"
                                            placeholder="Max" value="{{ request('max_price') }}">
                                 </div>
-                                <button type="submit" class="shop-apply-btn">Apply Price</button>
                             </div>
-
+                                <button type="submit" class="shop-apply-btn shop-main-apply">Apply Filters</button>
                             <a href="{{ route('shop') }}" class="shop-reset-btn">Reset all filters</a>
                         </aside>
                     </div>
@@ -498,6 +493,11 @@
             font-size: 12px;
             cursor: pointer;
         }
+        .shop-main-apply{
+            width: 100%;S
+            margin-top: 8px;
+            margin-bottom: 12px;
+        }
         .shop-search-clear:hover { color: var(--jaced-brown-dark); }
 
         /* ===== CUSTOM SORT DROPDOWN ===== */
@@ -644,6 +644,11 @@
             position: sticky;
             top: 110px;
         }
+
+        .row.g-4.mt-1{
+            align-items: flex-start;
+        }
+
         .shop-filter-group {
             padding-bottom: 24px;
             margin-bottom: 24px;
@@ -1512,6 +1517,25 @@
                 if (e.key === 'Escape') closeDrawer();
             });
         })();
+        
+                /* ===== LIVE SEARCH ===== */
+        (function () {
+            const searchInput = document.getElementById('shopSearchInput');
+            const form = document.getElementById('filter-form');
+
+            if (!searchInput || !form) return;
+
+            let debounceTimer;
+
+            searchInput.addEventListener('input', function () {
+                clearTimeout(debounceTimer);
+
+                debounceTimer = setTimeout(function () {
+                    form.submit();
+                }, 500);
+            });
+        })();
+
     </script>
 
 @endsection

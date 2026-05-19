@@ -197,7 +197,7 @@
                         </svg>
                     </div>
                     <div class="stat-value">{{ number_format($user->artisan_points ?? 1250) }} Artisan Points</div>
-                    <a href="#" class="stat-link">Redeem</a>
+                    <a href="{{ route('reward') }}" class="stat-link">Redeem</a>
                 </div>
             </div>
             <div class="col-6">
@@ -227,7 +227,7 @@
                 <span class="menu-chevron"><svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg></span>
             </a>
 
-            <a href="#" class="menu-item">
+            <a href="{{ route('reward') }}" class="menu-item">
                 <div class="menu-icon-wrap">
                     <svg viewBox="0 0 24 24"><polyline points="20 12 20 22 4 22 4 12"/><rect x="2" y="7" width="20" height="5"/><path d="M12 22V7"/><path d="M12 7H7.5a2.5 2.5 0 0 1 0-5C11 2 12 7 12 7z"/><path d="M12 7h4.5a2.5 2.5 0 0 0 0-5C13 2 12 7 12 7z"/></svg>
                 </div>

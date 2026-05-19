@@ -22,23 +22,31 @@ class Product extends Model
         'is_recommended' => 'boolean',
     ];
 
+    // protected $fillable = ['name', 'description', 'length', 'width', 'height',
+    //     'unit', 'price', 'stock', 'label', 'category_id',];
+
+    // protected $casts = [
+    //     'length' => 'decimal:2',
+    //     'width' => 'decimal:2',
+    //     'height' => 'decimal:2',
+    //     'price' => 'decimal:2',
+    // ];
     public function category()
     {
-        return $this->belongsTo(Category::class);
+        return $this->belongsTo(ProductCategory::class, 'category_id');
     }
 
-    public function material()
+    public function images()
     {
-        return $this->belongsTo(Material::class);
+        return $this->hasMany(ProductImage::class);
     }
 
-    public function variants()
+    public function orderDetails()
     {
-        return $this->hasMany(ProductVariant::class);
+        return $this->hasMany(OrderDetail::class);
     }
-
-    public function defaultVariant()
+    public function wishlists()
     {
-        return $this->hasOne(ProductVariant::class)->where('is_default', true);
+        return $this->hasMany(Wishlist::class);
     }
 }

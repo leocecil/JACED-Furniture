@@ -4,34 +4,69 @@ namespace Database\Seeders;
 
 use App\Models\User;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 
 class UserSeeder extends Seeder
 {
     public function run(): void
     {
-        User::updateOrCreate(
-            ['email' => 'admin@jaced.test'],
+        //
+        DB::table('users')->insert([
             [
-                'name' => 'Admin Jaced',
-                'password' => Hash::make('password'),
-                'role' => 'admin',
-                'phone_number' => '081234567890',
-                'address' => 'Surabaya, Jawa Timur',
-                'email_verified_at' => now(),
-            ]
-        );
-
-        User::updateOrCreate(
-            ['email' => 'customer@jaced.test'],
+                'name' => 'diah',
+                'email' => 'pdiahloka@student.ciputra.ac.id',
+                'phone_number' => '081234567891',
+                'password' => Hash::make('password123'),
+                'is_admin' => false,
+                'created_at' => now(),
+                'updated_at' => now(),
+            ],
             [
-                'name' => 'Ekk Customer',
-                'password' => Hash::make('password'),
-                'role' => 'customer',
-                'phone_number' => '081298765432',
-                'address' => 'Kapasari, Surabaya',
-                'email_verified_at' => now(),
+                'name' => 'cecil',
+                'email' => 'cagustaleo@student.ciputra.ac.id',
+                'phone_number' => '081234567892',
+                'password' => Hash::make('password123'),
+                'is_admin' => false,
+                'created_at' => now(),
+                'updated_at' => now(),
+            ],
+            [
+                'name' => 'jolie',
+                'email' => 'jocelynjolie01@student.ciputra.ac.id',
+                'phone_number' => '081234567893',
+                'password' => Hash::make('password123'),
+                'is_admin' => false,
+                'created_at' => now(),
+                'updated_at' => now(),
+            ],
+            [
+                'name' => 'audric',
+                'email' => 'iaudricwijaya@student.ciputra.ac.id',
+                'phone_number' => '081234567894',
+                'password' => Hash::make('password123'),
+                'is_admin' => false,
+                'created_at' => now(),
+                'updated_at' => now(),
+            ],
+            [
+                'name' => 'ekkin',
+                'email' => 'ekenneth01@student.ciputra.ac.id',
+                'phone_number' => '081234567895',
+                'password' => Hash::make('password123'),
+                'is_admin' => false,
+                'created_at' => now(),
+                'updated_at' => now(),
+            ],
+            [
+                'name' => 'customer',
+                'email' => 'customer@gmail.com',
+                'phone_number' => '081234567896',
+                'password' => Hash::make('password123'),
+                'is_admin' => false,
+                'created_at' => now(),
+                'updated_at' => now(),
             ]
-        );
+        ]);
     }
 }
