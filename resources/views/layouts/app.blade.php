@@ -1,79 +1,129 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Jaced Furniture - Order Management</title>
-    <link href="https://fonts.googleapis.com/css2?family=Lexend:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
+    <title>{{ config('app.name', 'Studio Manager') }} — @yield('title', 'Dashboard')</title>
+
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap Icons -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+
     <style>
         :root {
-            --jaced-cream: #EDE8E3;
-            --jaced-card: #FAF6F1;
-            --jaced-brown-dark: #272E1D;
-            --jaced-brown: #5A4D47;
-            --jaced-caramel: #C99A6B;
-            --jaced-sage: #5F7568;
-            --jaced-input: #DDD6CE;
-            --jaced-muted: #8A8278;
+            --sidebar-width:          220px;
+            --topbar-height:          60px;
+            --color-sidebar:          #1a1a18;
+            --color-sidebar-hover:    #2a2a27;
+            --color-sidebar-active:   #2f2d28;
+            --color-sidebar-text:     #a8a49e;
+            --color-sidebar-text-act: #f5f2ee;
+            --color-accent:           #c4a882;
+            --color-bg:               #f0eeeb;
+            --color-border:           #e2ddd8;
         }
 
-        body {
-            font-family: 'Lexend', sans-serif !important;
-            background-color: var(--jaced-cream) !important;
-            color: var(--jaced-brown-dark) !important;
-        }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        html, body { height: 100%; background: var(--color-bg); font-family: system-ui, -apple-system, 'Segoe UI', sans-serif; }
 
-        .sidebar { 
-            width: 260px; 
-            min-height: 100vh; 
-            background: white; 
-            position: fixed;
-            padding: 40px 24px;
-        }
+        .app-shell { display: flex; width: 100%; height: 100vh; overflow: hidden; }
 
-        .main-content { 
-            margin-left: 260px; 
-            padding: 48px 24px !important; 
-            max-width: 100% !important; 
-        }
+        .main-area { flex: 1; display: flex; flex-direction: column; height: 100vh; overflow: hidden; min-width: 0; }
 
-        /* Custom Jaced Classes */
-        .jaced-card {
-            background-color: var(--jaced-card);
-            border-radius: 12px;
-            border: none;
-            padding: 24px;
-        }
+        /* PAGE CONTENT */
+        .page-content { flex: 1; overflow-y: auto; overflow-x: hidden; padding: 28px 28px 48px; }
+        .page-content::-webkit-scrollbar { width: 5px; }
+        .page-content::-webkit-scrollbar-thumb { background: #d4d0ca; border-radius: 6px; }
 
-        .btn-jaced-primary {
-            background-color: var(--jaced-brown-dark) !important;
-            color: white !important;
-            border-radius: 8px;
-            padding: 10px 20px;
-            border: none;
-            font-weight: 500;
-        }
-
-        .input-jaced {
-            background-color: var(--jaced-input) !important;
-            border: none !important;
-            border-radius: 8px !important;
-            color: var(--jaced-brown-dark) !important;
-        }
-        
-        .text-jaced-muted { color: var(--jaced-muted) !important; }
-        .text-jaced-sage { color: var(--jaced-sage) !important; }
+        /* PAGE HEADER */
+        .breadcrumb { font-size: 11px; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 4px !important; }
+        .breadcrumb-item a { color: #9c9890; text-decoration: none; }
+        .breadcrumb-item a:hover { color: #6b6860; }
+        .breadcrumb-item.active { color: #6b6860; }
+        .breadcrumb-item + .breadcrumb-item::before { color: #bbb8b2; }
+        .page-title { font-size: 24px; font-weight: 700; letter-spacing: -0.02em; color: #1a1a18; margin: 0; }
     </style>
+
+    {{-- CSS tambahan dari halaman child --}}
+    @stack('styles')
 </head>
 <body>
+
+<div class="app-shell">
+
+    {{-- =====================
+         SIDEBAR (component)
+         resources/views/components/sidebar.blade.php
+    ===================== --}}
     @include('components.sidebar')
-    <div class="main-content">
+
+    {{-- =====================
+         MAIN AREA
+    ===================== --}}
+    <div class="main-area">
+
+        {{-- TOPBAR (component)
+             resources/views/components/topbar.blade.php --}}
         @include('components.topbar')
-        <main class="mt-4">
+
+        {{-- PAGE CONTENT --}}
+        <main class="page-content">
+
+            {{-- Flash Messages --}}
+            @if(session('success'))
+                <div class="alert alert-success alert-dismissible fade show d-flex align-items-center gap-2 mb-3">
+                    <i class="bi bi-check-circle-fill"></i> {{ session('success') }}
+                    <button type="button" class="btn-close ms-auto" data-bs-dismiss="alert"></button>
+                </div>
+            @endif
+            @if(session('error'))
+                <div class="alert alert-danger alert-dismissible fade show d-flex align-items-center gap-2 mb-3">
+                    <i class="bi bi-x-circle-fill"></i> {{ session('error') }}
+                    <button type="button" class="btn-close ms-auto" data-bs-dismiss="alert"></button>
+                </div>
+            @endif
+            @if(session('warning'))
+                <div class="alert alert-warning alert-dismissible fade show d-flex align-items-center gap-2 mb-3">
+                    <i class="bi bi-exclamation-triangle-fill"></i> {{ session('warning') }}
+                    <button type="button" class="btn-close ms-auto" data-bs-dismiss="alert"></button>
+                </div>
+            @endif
+
+            {{-- Page Header --}}
+            @hasSection('page-title')
+                <div class="d-flex align-items-start justify-content-between mb-4">
+                    <div>
+                        @hasSection('breadcrumb')
+                            <nav aria-label="breadcrumb">
+                                <ol class="breadcrumb">@yield('breadcrumb')</ol>
+                            </nav>
+                        @endif
+                        <h1 class="page-title">@yield('page-title')</h1>
+                    </div>
+                    @hasSection('page-actions')
+                        <div class="d-flex gap-2 mt-1">@yield('page-actions')</div>
+                    @endif
+                </div>
+            @endif
+
+            {{-- KONTEN UTAMA --}}
             @yield('content')
+
         </main>
+
     </div>
+</div>
+
+<!-- Bootstrap 5 JS -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+{{-- Modal dirender di sini — di luar .app-shell agar tidak terpotong overflow --}}
+@stack('modals')
+
+{{-- JS tambahan dari halaman child --}}
+@stack('scripts')
+
 </body>
 </html>

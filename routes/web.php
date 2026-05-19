@@ -3,7 +3,6 @@
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\InventoryController;
 use App\Http\Controllers\OrderController;
-use App\Http\Controllers\OrderController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
@@ -50,10 +49,6 @@ Route::get('/product_details', function() {
 // Route::get('/shop', [ProductController::class, 'shop'])->name('shop');
 // Route::get('/product/{slug}', [ProductController::class, 'show'])->name('product.show');
 
-
-
-
-
 // Route::get('/login', [AuthController::class, 'show_login_form'])
 //     ->name('login')
 //     ->middleware('guest');
@@ -67,12 +62,9 @@ Route::get('/admin/login', [AuthController::class, 'show_login_admin_form'])->na
 
 Route::post('/admin/login_auth', [AuthController::class, 'login_admin_auth'])->name('admin.login.auth');
 
-<<<<<<< HEAD
-Route::get('/admin/main', [OrderController::class, 'index'])->name('orders.index');
+Route::get('/order', [OrderController::class, 'index1'])->name('orders.index1');
 
 Route::get('/inventory', [InventoryController::class, 'index'])->name('inventory.index');
-=======
 Route::get('/dashboard', function () {
     return view('admin.dashboard');
 })->name('dashboard');
->>>>>>> 5ed2eaa3fa822212430402ca80b56ca18e7b04f3

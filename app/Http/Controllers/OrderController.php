@@ -6,9 +6,8 @@ use Illuminate\Http\Request;
 
 class OrderController extends Controller
 {
-<<<<<<< HEAD
     //
-    public function index()
+    public function index1()
     {
         // Data dummy untuk simulasi tampilan di Screenshot 2026-05-14 151311.jpg
         $orders = [
@@ -32,7 +31,7 @@ class OrderController extends Controller
         ];
 
         return view('pages.orders.index', compact('orders'));
-=======
+    }
     public function checkout() {
         // ========================================
         // DARI DATABASE (uncomment kalau DB sudah siap)
@@ -177,6 +176,5 @@ class OrderController extends Controller
     public function show($id)
     {
         return view('store.transactionhistory_detail', ['id' => $id]);
->>>>>>> 5ed2eaa3fa822212430402ca80b56ca18e7b04f3
     }
 }
