@@ -66,21 +66,6 @@
 
             </div>
 
-            {{-- FLOATING PRODUCT CARD (di pojok hero, ala Aunara) --}}
-            @if($recommended->count() > 0)
-                @php $featured = $recommended->first(); @endphp
-                <a href="{{ route('product.show', $featured->slug ?? '#') }}" class="hero-floating-card text-decoration-none">
-                    <div class="hero-floating-img">
-                        <img src="{{ $featured->main_image }}" alt="{{ $featured->name }}">
-                    </div>
-                    <div class="hero-floating-info">
-                        <p class="hero-floating-tag">/05</p>
-                        <p class="hero-floating-name">{{ $featured->name }}</p>
-                        <p class="hero-floating-price">Rp {{ number_format($featured->price, 0, ',', '.') }}</p>
-                    </div>
-                </a>
-            @endif
-
             <button class="carousel-control-prev" type="button" data-bs-target="#heroCarousel" data-bs-slide="prev">
                 <span class="carousel-control-prev-icon"></span>
             </button>
@@ -221,32 +206,38 @@
         </div>
     </section>
 
-    {{-- ============== ASYMMETRIC ROOM BLOCKS ============== --}}
+    {{-- ============== SHOP BY ROOM (2x2 grid, gambar besar) ============== --}}
     <section class="rooms-section">
         <div class="container">
-            <div class="row g-3">
-                <div class="col-6 col-md-3">
-                    <a href="{{ route('shop') }}" class="room-card d-block text-decoration-none">
-                        <img src="https://images.unsplash.com/photo-1556228453-efd6c1ff04f6?q=80&w=1200&auto=format&fit=crop" alt="Entryway">
-                        <span class="room-label">Entryway</span>
-                    </a>
+            <div class="section-header d-flex justify-content-between align-items-end mb-4 flex-wrap gap-3">
+                <div>
+                    <p class="section-label">/ Shop by Room</p>
+                    <h2 class="section-title">Find pieces for every space</h2>
                 </div>
-                <div class="col-6 col-md-3">
-                    <a href="{{ route('shop') }}" class="room-card d-block text-decoration-none">
+            </div>
+            <div class="row g-3">
+                <div class="col-md-6">
+                    <a href="{{ route('shop', ['room' => 'living-room']) }}" class="room-card d-block text-decoration-none">
                         <img src="https://images.unsplash.com/photo-1567538096630-e0c55bd6374c?q=80&w=1200&auto=format&fit=crop" alt="Living Room">
                         <span class="room-label">Living Room</span>
                     </a>
                 </div>
-                <div class="col-6 col-md-3">
-                    <a href="{{ route('shop') }}" class="room-card d-block text-decoration-none">
+                <div class="col-md-6">
+                    <a href="{{ route('shop', ['room' => 'bedroom']) }}" class="room-card d-block text-decoration-none">
                         <img src="https://images.unsplash.com/photo-1540518614846-7eded433c457?q=80&w=1200&auto=format&fit=crop" alt="Bedroom">
                         <span class="room-label">Bedroom</span>
                     </a>
                 </div>
-                <div class="col-6 col-md-3">
-                    <a href="{{ route('shop') }}" class="room-card d-block text-decoration-none">
+                <div class="col-md-6">
+                    <a href="{{ route('shop', ['room' => 'dining-room']) }}" class="room-card d-block text-decoration-none">
                         <img src="https://images.unsplash.com/photo-1617806118233-18e1de247200?q=80&w=1200&auto=format&fit=crop" alt="Dining Room">
                         <span class="room-label">Dining Room</span>
+                    </a>
+                </div>
+                <div class="col-md-6">
+                    <a href="{{ route('shop', ['room' => 'office']) }}" class="room-card d-block text-decoration-none">
+                        <img src="https://images.unsplash.com/photo-1524758631624-e2822e304c36?q=80&w=1200&auto=format&fit=crop" alt="Office">
+                        <span class="room-label">Office</span>
                     </a>
                 </div>
             </div>
@@ -723,9 +714,9 @@
         .room-card {
             position: relative;
             display: block;
-            border-radius: 18px;
+            border-radius: 20px;
             overflow: hidden;
-            height: 360px;
+            height: 440px;
             transition: transform 0.5s cubic-bezier(0.22, 1, 0.36, 1);
         }
         .room-card:hover {
@@ -746,10 +737,10 @@
         }
         .room-label {
             position: absolute;
-            bottom: 20px;
-            left: 24px;
+            bottom: 24px;
+            left: 28px;
             color: var(--jaced-cream);
-            font-size: 18px;
+            font-size: 22px;
             font-weight: 600;
             letter-spacing: -0.01em;
             z-index: 2;

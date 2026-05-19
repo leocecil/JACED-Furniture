@@ -15,6 +15,9 @@ class ProductController extends Controller
                 'id' => 1, 'slug' => 'nora-lounge-chair', 'name' => 'Nora Lounge Chair',
                 'category' => ['name' => 'Seating', 'slug' => 'seating'],
                 'material' => ['name' => 'Walnut', 'slug' => 'walnut'],
+                'room' => ['name' => 'Living Room', 'slug' => 'living-room'],
+                'length' => 75, 'width' => 80, 'height' => 90, 'unit' => 'cm', 'size' => 'medium',
+                'stock' => 6,
                 'price' => 12500000, 'old_price' => 14800000, 'badge' => 'new',
                 'main_image' => 'https://images.unsplash.com/photo-1567538096630-e0c55bd6374c?w=800&h=800&fit=crop',
                 'is_recommended' => true,
@@ -28,6 +31,9 @@ class ProductController extends Controller
                 'id' => 2, 'slug' => 'oka-dining-table', 'name' => 'Oka Dining Table',
                 'category' => ['name' => 'Tables', 'slug' => 'tables'],
                 'material' => ['name' => 'Oak', 'slug' => 'oak'],
+                'room' => ['name' => 'Dining Room', 'slug' => 'dining-room'],
+                'length' => 200, 'width' => 95, 'height' => 75, 'unit' => 'cm', 'size' => 'large',
+                'stock' => 3,
                 'price' => 21000000, 'old_price' => null, 'badge' => null,
                 'main_image' => 'https://images.unsplash.com/photo-1577140917170-285929fb55b7?w=800&h=800&fit=crop',
                 'is_recommended' => true,
@@ -41,6 +47,9 @@ class ProductController extends Controller
                 'id' => 3, 'slug' => 'mara-sofa-bed', 'name' => 'Mara Sofa Bed',
                 'category' => ['name' => 'Sofas', 'slug' => 'sofas'],
                 'material' => ['name' => 'Ash', 'slug' => 'ash'],
+                'room' => ['name' => 'Living Room', 'slug' => 'living-room'],
+                'length' => 220, 'width' => 95, 'height' => 85, 'unit' => 'cm', 'size' => 'large',
+                'stock' => 4,
                 'price' => 18750000, 'old_price' => 22000000, 'badge' => 'bestseller',
                 'main_image' => 'https://images.unsplash.com/photo-1555041469-a586c61ea9bc?w=800&h=800&fit=crop',
                 'is_recommended' => true,
@@ -54,6 +63,9 @@ class ProductController extends Controller
                 'id' => 4, 'slug' => 'aro-bookshelf', 'name' => 'Aro Bookshelf',
                 'category' => ['name' => 'Storage', 'slug' => 'storage'],
                 'material' => ['name' => 'Walnut', 'slug' => 'walnut'],
+                'room' => ['name' => 'Office', 'slug' => 'office'],
+                'length' => 90, 'width' => 35, 'height' => 180, 'unit' => 'cm', 'size' => 'large',
+                'stock' => 0,
                 'price' => 9800000, 'old_price' => null, 'badge' => null,
                 'main_image' => 'https://images.unsplash.com/photo-1594620302200-9a762244a156?w=800&h=800&fit=crop',
                 'is_recommended' => true,
@@ -66,6 +78,9 @@ class ProductController extends Controller
                 'id' => 5, 'slug' => 'halden-armchair', 'name' => 'Halden Armchair',
                 'category' => ['name' => 'Seating', 'slug' => 'seating'],
                 'material' => ['name' => 'Ash', 'slug' => 'ash'],
+                'room' => ['name' => 'Living Room', 'slug' => 'living-room'],
+                'length' => 70, 'width' => 75, 'height' => 80, 'unit' => 'cm', 'size' => 'small',
+                'stock' => 9,
                 'price' => 8400000, 'old_price' => null, 'badge' => null,
                 'main_image' => 'https://images.unsplash.com/photo-1506439773649-6e0eb8cfb237?w=800&h=800&fit=crop',
                 'is_recommended' => false,
@@ -79,6 +94,9 @@ class ProductController extends Controller
                 'id' => 6, 'slug' => 'lina-coffee-table', 'name' => 'Lina Coffee Table',
                 'category' => ['name' => 'Tables', 'slug' => 'tables'],
                 'material' => ['name' => 'Walnut', 'slug' => 'walnut'],
+                'room' => ['name' => 'Living Room', 'slug' => 'living-room'],
+                'length' => 110, 'width' => 60, 'height' => 40, 'unit' => 'cm', 'size' => 'small',
+                'stock' => 7,
                 'price' => 6900000, 'old_price' => 8200000, 'badge' => 'sale',
                 'main_image' => 'https://images.unsplash.com/photo-1530018607912-eff2daa1bac4?w=800&h=800&fit=crop',
                 'is_recommended' => false,
@@ -92,6 +110,9 @@ class ProductController extends Controller
                 'id' => 7, 'slug' => 'eden-bed-frame', 'name' => 'Eden Bed Frame',
                 'category' => ['name' => 'Beds', 'slug' => 'beds'],
                 'material' => ['name' => 'Walnut', 'slug' => 'walnut'],
+                'room' => ['name' => 'Bedroom', 'slug' => 'bedroom'],
+                'length' => 215, 'width' => 165, 'height' => 100, 'unit' => 'cm', 'size' => 'large',
+                'stock' => 2,
                 'price' => 16200000, 'old_price' => null, 'badge' => 'preorder',
                 'main_image' => 'https://images.unsplash.com/photo-1505693416388-ac5ce068fe85?w=800&h=800&fit=crop',
                 'is_recommended' => false,
@@ -104,6 +125,9 @@ class ProductController extends Controller
                 'id' => 8, 'slug' => 'vico-floor-lamp', 'name' => 'Vico Floor Lamp',
                 'category' => ['name' => 'Lighting', 'slug' => 'lighting'],
                 'material' => ['name' => 'Oak', 'slug' => 'oak'],
+                'room' => ['name' => 'Living Room', 'slug' => 'living-room'],
+                'length' => 35, 'width' => 35, 'height' => 150, 'unit' => 'cm', 'size' => 'small',
+                'stock' => 0,
                 'price' => 3400000, 'old_price' => null, 'badge' => null,
                 'main_image' => 'https://images.unsplash.com/photo-1513506003901-1e6a229e2d15?w=800&h=800&fit=crop',
                 'is_recommended' => false,
@@ -116,6 +140,9 @@ class ProductController extends Controller
                 'id' => 9, 'slug' => 'ria-sideboard', 'name' => 'Ria Sideboard',
                 'category' => ['name' => 'Storage', 'slug' => 'storage'],
                 'material' => ['name' => 'Oak', 'slug' => 'oak'],
+                'room' => ['name' => 'Dining Room', 'slug' => 'dining-room'],
+                'length' => 160, 'width' => 45, 'height' => 80, 'unit' => 'cm', 'size' => 'medium',
+                'stock' => 5,
                 'price' => 14600000, 'old_price' => 16400000, 'badge' => 'sale',
                 'main_image' => 'https://images.unsplash.com/photo-1493663284031-b7e3aefcae8e?w=800&h=800&fit=crop',
                 'is_recommended' => false,
@@ -173,12 +200,15 @@ class ProductController extends Controller
             $mats = (array) $request->input('material');
             $all = $all->filter(fn($p) => in_array($p['material']['slug'], $mats));
         }
-        if ($request->filled('color')) {
-            $colors = (array) $request->input('color');
-            $all = $all->filter(function ($p) use ($colors) {
-                $productColors = collect($p['variants'])->pluck('color_hex')->toArray();
-                return count(array_intersect($productColors, $colors)) > 0;
-            });
+
+        if ($request->filled('room')) {
+            $rooms = (array) $request->input('room');
+            $all = $all->filter(fn($p) => in_array($p['room']['slug'] ?? '', $rooms));
+        }
+
+        if ($request->filled('size')) {
+            $sizes = (array) $request->input('size');
+            $all = $all->filter(fn($p) => in_array($p['size'] ?? '', $sizes));
         }
 
         if ($request->filled('min_price')) {
@@ -233,9 +263,17 @@ class ProductController extends Controller
             ];
         })->sortBy('name')->values();
 
+        $rooms = $rawProducts->groupBy(fn($p) => $p['room']['slug'] ?? 'other')->map(function ($items, $slug) {
+            return (object) [
+                'slug' => $slug,
+                'name' => $items->first()['room']['name'] ?? 'Other',
+                'products_count' => $items->count(),
+            ];
+        })->sortBy('name')->values();
+
         $totalProducts = $rawProducts->count();
 
-        return view('store.shop', compact('products', 'categories', 'materials', 'totalProducts'));
+        return view('store.shop', compact('products', 'categories', 'materials', 'rooms', 'totalProducts'));
     }
 
     public function show($slug)

@@ -1,4 +1,4 @@
-<nav id="mainNavbar" class="navbar navbar-expand-lg fixed-top py-4 px-md-4 transition-navbar">
+<nav id="mainNavbar" class="navbar navbar-expand-lg fixed-top py-4 px-md-4 transition-navbar {{ request()->routeIs('home') ? 'home-navbar' : 'solid-navbar' }}">
     <div class="container-fluid">
 
         <a class="navbar-brand d-flex align-items-center" href="{{ route('home') }}">
@@ -119,6 +119,31 @@
         border: none;
     }
 
+    /* ===== NON-HOME PAGES: solid dark navbar from the start (no transparent phase) ===== */
+    .transition-navbar.solid-navbar {
+        background: rgba(255,255,255,0.68);
+        backdrop-filter: blur(14px);
+        -webkit-backdrop-filter: blur(14px);
+        border-bottom: 1px solid rgba(255,255,255,0.18);
+        box-shadow: 0 4px 30px rgba(0,0,0,0.04);
+    }
+    .transition-navbar.solid-navbar .logo-default { display: block; }
+    .transition-navbar.solid-navbar .logo-white   { display: none; }
+    .transition-navbar.solid-navbar .navbar-brand,
+    .transition-navbar.solid-navbar .nav-link,
+    .transition-navbar.solid-navbar .nav-icon,
+    .transition-navbar.solid-navbar .nav-icon i,
+    .transition-navbar.solid-navbar .navbar-toggler,
+    .transition-navbar.solid-navbar .user-btn {
+        color: #1f1f1f !important;
+        text-shadow: none !important;
+    }
+    .transition-navbar.solid-navbar .btn-login {
+        background-color: #1f1f1f;
+        color: #ffffff;
+        border: none;
+    }
+
     /* ===== NAV LINK UNDERLINE ===== */
     .nav-link {
         position: relative;
@@ -192,20 +217,20 @@
 
 <script>
     const navbar = document.getElementById('mainNavbar');
-
-    // Scroll: add .scrolled class past 40px
-    window.addEventListener('scroll', () => {
-        if (window.scrollY > 40) {
-            navbar.classList.add('scrolled');
-        } else {
-            navbar.classList.remove('scrolled');
-        }
-    });
-
-    // Preload intro: ONLY on home page. Not on Shop, About, etc.
     const isHomePage = @json(request()->routeIs('home'));
 
+    // Scroll darkening: ONLY on home.
+    // Other pages stay transparent + white permanently.
     if (isHomePage) {
+        window.addEventListener('scroll', () => {
+            if (window.scrollY > 40) {
+                navbar.classList.add('scrolled');
+            } else {
+                navbar.classList.remove('scrolled');
+            }
+        });
+
+        // Preload intro animation only on home
         navbar.classList.add('preload');
     }
 

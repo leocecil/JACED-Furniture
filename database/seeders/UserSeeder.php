@@ -16,7 +16,7 @@ class UserSeeder extends Seeder
                 'name' => 'Admin Jaced',
                 'password' => Hash::make('password'),
                 'role' => 'admin',
-                'phone' => '081234567890',
+                'phone_number' => '081234567890',
                 'address' => 'Surabaya, Jawa Timur',
                 'email_verified_at' => now(),
             ]
@@ -28,7 +28,7 @@ class UserSeeder extends Seeder
                 'name' => 'Ekk Customer',
                 'password' => Hash::make('password'),
                 'role' => 'customer',
-                'phone' => '081298765432',
+                'phone_number' => '081298765432',
                 'address' => 'Kapasari, Surabaya',
                 'email_verified_at' => now(),
             ]
