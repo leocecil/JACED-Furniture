@@ -111,7 +111,7 @@
             <i class="bi bi-grid-1x2"></i> Overview
         </a>
 
-        <a href="{{ route('orders.index1') }}"
+        <a href="{{ route('orders.index') }}"
            class="nav-link {{ request()->routeIs('orders.*') ? 'active' : '' }}"
            onclick="if(window.innerWidth<=768) closeSidebar()">
             <i class="bi bi-bag-check"></i> Orders

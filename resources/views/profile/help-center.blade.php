@@ -107,9 +107,13 @@
     <div class="help-wrapper">
         
         <div class="help-header">
-            <a href="{{ route('profile') }}" class="text-decoration-none d-inline-flex align-items-center mb-3" style="color: var(--jaced-caramel);">
-                <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
-                <span class="ms-2 fw-bold">Back</span>
+            {{-- BACK --}}
+            <a href="{{ route('profile') }}" class="back-link">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                    <line x1="19" y1="12" x2="5" y2="12"></line>
+                    <polyline points="12 19 5 12 12 5"></polyline>
+                </svg>
+                <span>Back</span>
             </a>
             <h2>Help Center</h2>
             <p class="text-muted">Find answers to your questions about Jaced furniture.</p>

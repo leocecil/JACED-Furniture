@@ -1,4 +1,7 @@
 :root {
+    --jaced-cream: #EDE8E3;
+    --jaced-white: #F9F9F7;
+    --jaced-card: #FAF6F1;
     --jaced-cream: #F2EDE6;
     --jaced-card: #FAF7F2;
     --jaced-brown-dark: #272E1D;
@@ -12,6 +15,8 @@
 }
 
 body {
+    /* font-family: 'Lexend', sans-serif !important; */
+    background-color: var(--jaced-cream) !important;
     /* font-family: 'Lexend', sans-serif ; */
     background-color: var(--jaced-caramel-bg) !important; ;
     color: var(--jaced-brown-dark) !important;
@@ -246,4 +251,26 @@ select.input-jaced {
 .payment-section {
     margin-top: 16px;
     margin-bottom: 4px;
+}
+
+.back-link {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        color: var(--jaced-brown-dark);
+        text-decoration: none;
+        font-size: 0.9rem;
+        font-weight: 600;
+        margin-bottom: 20px;
+        transition: all 0.2s ease;
+        opacity: 0.8;
+}
+.back-link:hover {
+    color: var(--jaced-caramel);
+    opacity: 1;
+    transform: translateX(-4px);
+}
+
+.back-link svg {
+    transition: transform 0.2s ease;
 }
