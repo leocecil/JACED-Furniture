@@ -17,9 +17,12 @@ class OrderDetail extends Model
     }
 
     protected $fillable = [
-    'order_id',
-    'product_id',
-    'quantity',
-    'subtotal',
+        'order_id',
+        'product_id',
+        'quantity',
+        'subtotal',
+    ];
+    protected $casts = [
+        'subtotal' => 'decimal:2',
     ];
 }

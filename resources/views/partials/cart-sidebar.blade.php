@@ -1,9 +1,6 @@
-@extends('base.base')
-
-@section('content')
 <style>
     /* CART SIDEBAR */
-    .cart-sidebar{
+    #cartSidebar{
         width: 430px !important;
         background: #f9f9f7;
         border-left: 1px solid #ebe5de;
@@ -50,6 +47,11 @@
         flex-direction: column;
         overflow: hidden;
         height: 100%;
+    }
+
+    .offcanvas-backdrop.show{
+        opacity: 0.08;
+        backdrop-filter: blur(2px);
     }
 
     /* ITEMS */
@@ -248,7 +250,7 @@
 
     /* RESPONSIVE */
     @media(max-width: 768px){
-        .cart-sidebar{
+        #cartSidebar{
             width: 100% !important;
             padding: 18px;
         }
@@ -269,19 +271,9 @@
     }
 </style>
 
-<!-- ADD TO COLLECTION BUTTON -->
-<button 
-    class="btn btn-dark-custom action-btn w-100"
-    data-bs-toggle="offcanvas"
-    data-bs-target="#cartSidebar"
->
-    <i class="fa-solid fa-bag-shopping me-2"></i>
-    Add to Collection
-</button>
-
 <!-- CART SIDEBAR -->
 <div 
-    class="offcanvas offcanvas-end cart-sidebar" 
+    class="offcanvas offcanvas-end" 
     tabindex="-1" id="cartSidebar">
 
     <!-- HEADER -->
@@ -416,9 +408,8 @@
         </div>
 
         <!-- CHECKOUT BUTTON -->
-        <button class="checkout-btn">
+        <a href="/checkout" class="checkout-btn d-flex align-items-center justify-content-center text-decoration-none">
             Proceed to Checkout
-        </button>
+        </a>
     </div>
 </div>
-@endsection

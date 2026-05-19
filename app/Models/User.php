@@ -36,4 +36,17 @@ class User extends Authenticatable
     {
         return $this->hasMany(UserRole::class, 'user_id', 'id');
     }
+    public function orders()
+    {
+        return $this->hasMany(Order::class);
+    }
+
+    public function wishlists()
+    {
+        return $this->hasMany(Wishlist::class);
+    }
+    public function shippingAddresses()
+    {
+        return $this->hasMany(ShippingAddress::class);
+    }
 }
