@@ -28,44 +28,61 @@
         * { box-sizing: border-box; margin: 0; padding: 0; }
         html, body { height: 100%; background: var(--color-bg); font-family: system-ui, -apple-system, 'Segoe UI', sans-serif; }
 
+        /* ── APP SHELL ── */
         .app-shell { display: flex; width: 100%; height: 100vh; overflow: hidden; }
 
+        /* ── MAIN AREA ── */
         .main-area { flex: 1; display: flex; flex-direction: column; height: 100vh; overflow: hidden; min-width: 0; }
 
-        /* PAGE CONTENT */
+        /* ── PAGE CONTENT ── */
         .page-content { flex: 1; overflow-y: auto; overflow-x: hidden; padding: 28px 28px 48px; }
         .page-content::-webkit-scrollbar { width: 5px; }
         .page-content::-webkit-scrollbar-thumb { background: #d4d0ca; border-radius: 6px; }
 
-        /* PAGE HEADER */
+        /* ── PAGE HEADER ── */
         .breadcrumb { font-size: 11px; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 4px !important; }
         .breadcrumb-item a { color: #9c9890; text-decoration: none; }
         .breadcrumb-item a:hover { color: #6b6860; }
         .breadcrumb-item.active { color: #6b6860; }
         .breadcrumb-item + .breadcrumb-item::before { color: #bbb8b2; }
         .page-title { font-size: 24px; font-weight: 700; letter-spacing: -0.02em; color: #1a1a18; margin: 0; }
+
+        /* ── OVERLAY (mobile) ──
+           Muncul di belakang sidebar saat sidebar dibuka di HP */
+        .sidebar-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 999;
+            backdrop-filter: blur(2px);
+            -webkit-backdrop-filter: blur(2px);
+        }
+        .sidebar-overlay.show { display: block; }
+
+        /* ── RESPONSIVE ── */
+        @media (max-width: 768px) {
+            .page-content { padding: 20px 16px 40px; }
+            .page-title   { font-size: 20px; }
+        }
     </style>
 
-    {{-- CSS tambahan dari halaman child --}}
     @stack('styles')
 </head>
 <body>
 
+{{-- Overlay gelap saat sidebar dibuka di mobile --}}
+<div class="sidebar-overlay" id="sidebarOverlay" onclick="closeSidebar()"></div>
+
 <div class="app-shell">
 
-    {{-- =====================
-         SIDEBAR (component)
-         resources/views/components/sidebar.blade.php
-    ===================== --}}
+    {{-- SIDEBAR --}}
     @include('components.sidebar')
 
-    {{-- =====================
-         MAIN AREA
-    ===================== --}}
+    {{-- MAIN AREA --}}
     <div class="main-area">
 
-        {{-- TOPBAR (component)
-             resources/views/components/topbar.blade.php --}}
+        {{-- TOPBAR --}}
         @include('components.topbar')
 
         {{-- PAGE CONTENT --}}
@@ -103,12 +120,11 @@
                         <h1 class="page-title">@yield('page-title')</h1>
                     </div>
                     @hasSection('page-actions')
-                        <div class="d-flex gap-2 mt-1">@yield('page-actions')</div>
+                        <div class="d-flex gap-2 mt-1 flex-wrap">@yield('page-actions')</div>
                     @endif
                 </div>
             @endif
 
-            {{-- KONTEN UTAMA --}}
             @yield('content')
 
         </main>
@@ -119,10 +135,29 @@
 <!-- Bootstrap 5 JS -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 
-{{-- Modal dirender di sini — di luar .app-shell agar tidak terpotong overflow --}}
+{{-- Modal slot — di luar .app-shell agar tidak terpotong overflow --}}
 @stack('modals')
 
-{{-- JS tambahan dari halaman child --}}
+<script>
+    // ── SIDEBAR TOGGLE (mobile) ──
+    function openSidebar() {
+        document.getElementById('appSidebar').classList.add('open');
+        document.getElementById('sidebarOverlay').classList.add('show');
+        document.body.style.overflow = 'hidden';
+    }
+
+    function closeSidebar() {
+        document.getElementById('appSidebar').classList.remove('open');
+        document.getElementById('sidebarOverlay').classList.remove('show');
+        document.body.style.overflow = '';
+    }
+
+    // Tutup sidebar saat resize ke desktop
+    window.addEventListener('resize', function () {
+        if (window.innerWidth > 768) closeSidebar();
+    });
+</script>
+
 @stack('scripts')
 
 </body>

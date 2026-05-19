@@ -1,23 +1,7 @@
-<div class="sidebar d-flex flex-column p-4">
-    {{-- <!-- Header Logo & Brand -->
-    <div class="mb-5">
-        <a class="navbar-brand d-flex align-items-center gap-2" href="#" style="text-decoration: none;">
-            <img src="{{ asset('image/jaced_logo1.png') }}" alt="Jaced Logo" style="width: 35px; height: auto;">
-            <span class="text-dark fs-4" style="font-weight: 800; letter-spacing: -1.5px; font-family: 'Lexend', sans-serif;">
-                Jaced Furniture
-            </span>
-        </a>
-    </div>
-    
-    <!-- Navigation Menu -->
-    <ul class="nav flex-column mb-auto">
-        <li class="nav-item mb-2">
-            <a href="#" class="nav-link text-jaced-muted d-flex align-items-center py-2 px-0">
-                <i class="bi bi-grid me-3 fs-5"></i> Overview
-            </a>
-        </li> --}}
-        <style>
-    /* ── SIDEBAR ── */
+<style>
+    /* ══════════════════════════════
+       SIDEBAR
+    ══════════════════════════════ */
     .sidebar {
         width: 220px;
         min-width: 220px;
@@ -28,6 +12,8 @@
         overflow-y: auto;
         overflow-x: hidden;
         flex-shrink: 0;
+        transition: transform 0.3s ease;
+        z-index: 1000;
     }
     .sidebar::-webkit-scrollbar { width: 3px; }
     .sidebar::-webkit-scrollbar-thumb { background: #3a3a36; border-radius: 4px; }
@@ -87,9 +73,26 @@
         text-decoration: none; transition: color 0.15s; padding: 0;
     }
     .sidebar-footer-link:hover { color: #7a7a76; }
+
+    /* ══════════════════════════════
+       MOBILE: sidebar tersembunyi
+    ══════════════════════════════ */
+    @media (max-width: 768px) {
+        .sidebar {
+            position: fixed;
+            top: 0; left: 0;
+            height: 100vh;
+            transform: translateX(-100%); /* hidden ke kiri */
+        }
+        /* Saat openSidebar() dipanggil → muncul */
+        .sidebar.open {
+            transform: translateX(0);
+            box-shadow: 4px 0 24px rgba(0, 0, 0, 0.3);
+        }
+    }
 </style>
 
-<aside class="sidebar">
+<aside class="sidebar" id="appSidebar">
 
     {{-- Brand --}}
     <div class="brand">
@@ -103,12 +106,14 @@
         <div class="nav-section-label">Main</div>
 
         <a href="{{ route('dashboard') }}"
-           class="nav-link {{ request()->routeIs('dashboard') ? 'active' : '' }}">
+           class="nav-link {{ request()->routeIs('dashboard') ? 'active' : '' }}"
+           onclick="if(window.innerWidth<=768) closeSidebar()">
             <i class="bi bi-grid-1x2"></i> Overview
         </a>
 
         <a href="{{ route('orders.index1') }}"
-           class="nav-link {{ request()->routeIs('orders.*') ? 'active' : '' }}">
+           class="nav-link {{ request()->routeIs('orders.*') ? 'active' : '' }}"
+           onclick="if(window.innerWidth<=768) closeSidebar()">
             <i class="bi bi-bag-check"></i> Orders
             @isset($orderCount)
                 <span class="nav-badge">{{ $orderCount }}</span>
@@ -116,69 +121,23 @@
         </a>
 
         <a href="{{ route('inventory.index') }}"
-           class="nav-link {{ request()->routeIs('inventory.*') ? 'active' : '' }}">
+           class="nav-link {{ request()->routeIs('inventory.*') ? 'active' : '' }}"
+           onclick="if(window.innerWidth<=768) closeSidebar()">
             <i class="bi bi-box-seam"></i> Inventory
         </a>
 
         <a href="#"
-           class="nav-link {{ request()->routeIs('analytics.*') ? 'active' : '' }}">
+           class="nav-link {{ request()->routeIs('analytics.*') ? 'active' : '' }}"
+           onclick="if(window.innerWidth<=768) closeSidebar()">
             <i class="bi bi-bar-chart-line"></i> Analytics
         </a>
 
         <a href="#"
-           class="nav-link {{ request()->routeIs('logistics.*') ? 'active' : '' }}">
+           class="nav-link {{ request()->routeIs('logistics.*') ? 'active' : '' }}"
+           onclick="if(window.innerWidth<=768) closeSidebar()">
             <i class="bi bi-truck"></i> Logistics
         </a>
 
     </nav>
 
-    {{-- Footer --}}
-    <div class="sidebar-footer">
-    
-        <div class="sidebar-footer-links">
-            <form method="POST" action="{{ route('logout') }}">
-                @csrf
-                <button type="submit" class="sidebar-footer-link">
-                    <i class="bi bi-box-arrow-right"></i> Sign Out
-                </button>
-            </form>
-        </div>
-    </div>
-
 </aside>
-{{-- 
-        <!-- Menu Orders -->
-        <li class="nav-item mb-2">
-            <a href="{{ route('orders.index1') }}" 
-               class="nav-link d-flex align-items-center py-2 px-0 {{ request()->routeIs('orders.index1') ? 'fw-bold text-jaced-dark' : 'text-jaced-muted' }}" 
-               style="{{ request()->routeIs('orders.index1') ? 'border-left: 4px solid var(--jaced-brown-dark); padding-left: 12px !important; margin-left: -24px;' : '' }}">
-                <i class="bi bi-cart me-3 fs-5"></i> Orders
-            </a>
-        </li>
-
-        <!-- Menu Inventory -->
-        <li class="nav-item mb-2">
-            <a href="{{ route('inventory.index') }}" 
-               class="nav-link d-flex align-items-center py-2 px-0 {{ request()->routeIs('inventory.*') ? 'fw-bold text-jaced-dark' : 'text-jaced-muted' }}"
-               style="{{ request()->routeIs('inventory.*') ? 'border-left: 4px solid var(--jaced-brown-dark); padding-left: 12px !important; margin-left: -24px;' : '' }}">
-                <i class="bi bi-box me-3 fs-5"></i> Inventory
-            </a>
-        </li>
-
-        <li class="nav-item mb-2">
-            <a href="#" class="nav-link text-jaced-muted d-flex align-items-center py-2 px-0">
-                <i class="bi bi-graph-up me-3 fs-5"></i> Analytics
-            </a>
-        </li>
-    </ul>
-
-    <!-- Footer Links -->
-    <div class="mt-auto pt-4 border-top divider-jaced">
-        <a href="#" class="text-jaced-muted text-decoration-none small d-flex align-items-center mb-3">
-            <i class="bi bi-question-circle me-3 fs-5"></i> Support
-        </a>
-        <a href="#" class="text-jaced-muted text-decoration-none small d-flex align-items-center">
-            <i class="bi bi-box-arrow-right me-3 fs-5"></i> Sign Out
-        </a>
-    </div> --}}
-</div>

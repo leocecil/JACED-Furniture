@@ -47,8 +47,6 @@
     .dropdown-item:hover { background-color: #f0eeeb !important; }
     .dropdown-item.active { background-color: #c4a882 !important; color: white !important; }
     .dropdown-toggle::after { display: none !important; }
-
-    .active-view { background-color: #f0eeeb; color: #1a1a18; }
     .btn-close:focus { box-shadow: none !important; }
 </style>
 @endpush
@@ -62,8 +60,9 @@
     </p>
 
     {{-- Filter Bar --}}
-    <div class="d-flex justify-content-between align-items-center mb-4 pb-2 border-bottom">
+    <div class="d-flex justify-content-between align-items-center mb-2 pb-2 border-bottom">
 
+        {{-- Kategori --}}
         <div class="d-flex align-items-center gap-2" style="flex: 1; min-width: 0;">
             <div class="category-wrapper" style="max-width: 500px; overflow: hidden;">
                 <div class="d-flex gap-2 overflow-auto category-scroll flex-nowrap py-1">
@@ -80,7 +79,10 @@
             </button>
         </div>
 
+        {{-- Sort & Toggle --}}
         <div class="d-flex align-items-center gap-3 ms-3">
+
+            {{-- Sort dropdown --}}
             <div class="dropdown">
                 <button class="btn btn-sm border-0 p-0 dropdown-toggle fw-bold d-flex align-items-center text-muted"
                         type="button" id="sortDropdown"
@@ -99,22 +101,14 @@
                 </ul>
             </div>
 
-            <div class="bg-white rounded-3 p-1 shadow-sm d-flex gap-1" style="border: 1px solid #e2ddd8;">
-                <button class="btn btn-sm p-1 px-2 border-0 active-view" style="border-radius: 6px;">
-                    <i class="bi bi-grid-fill"></i>
-                </button>
-                <button class="btn btn-sm p-1 px-2 border-0 text-muted" style="border-radius: 6px;">
-                    <i class="bi bi-list"></i>
-                </button>
-            </div>
+            {{-- ✅ Toggle view — dirender dari item-grid.blade.php via #inv-toggle-wrap --}}
+            <div id="togglePlaceholder"></div>
+
         </div>
-
     </div>
 
-    {{-- Inventory Grid --}}
-    <div class="row g-4">
-        @include('pages.inventory.item-grid')
-    </div>
+    {{-- Inventory items — toggle buttons ada di dalam file ini --}}
+    @include('pages.inventory.item-grid')
 
     {{-- Load More --}}
     <div class="text-center mt-5">
@@ -127,12 +121,20 @@
 </div>
 @endsection
 
+@push('scripts')
+<script>
+    // Pindahkan tombol toggle dari dalam item-grid ke filter bar
+    document.addEventListener('DOMContentLoaded', function () {
+        const toggleWrap    = document.getElementById('inv-toggle-wrap');
+        const placeholder   = document.getElementById('togglePlaceholder');
+        if (toggleWrap && placeholder) {
+            placeholder.replaceWith(toggleWrap);
+        }
+    });
+</script>
+@endpush
 
-{{-- ══════════════════════════════════════════
-     MODAL: dirender lewat @stack('modals')
-     di app.blade.php — di luar .app-shell
-     sehingga tidak terpotong overflow
-══════════════════════════════════════════ --}}
+{{-- Modal --}}
 @push('modals')
 <div class="modal fade" id="addItemModal" tabindex="-1" aria-labelledby="addItemModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
