@@ -6,6 +6,10 @@ use Illuminate\Database\Eloquent\Model;
 
 class VaBank extends Model
 {
+    protected $fillable = [
+        'name',
+    ];
+
     public function paymentMethod()
     {
         return $this->belongsTo(PaymentMethod::class);

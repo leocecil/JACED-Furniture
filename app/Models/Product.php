@@ -22,6 +22,15 @@ class Product extends Model
         'is_recommended' => 'boolean',
     ];
 
+    // protected $fillable = ['name', 'description', 'length', 'width', 'height',
+    //     'unit', 'price', 'stock', 'label', 'category_id',];
+
+    // protected $casts = [
+    //     'length' => 'decimal:2',
+    //     'width' => 'decimal:2',
+    //     'height' => 'decimal:2',
+    //     'price' => 'decimal:2',
+    // ];
     public function category()
     {
         return $this->belongsTo(ProductCategory::class, 'category_id');
