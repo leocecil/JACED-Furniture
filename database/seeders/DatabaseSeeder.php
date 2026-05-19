@@ -12,7 +12,7 @@ class DatabaseSeeder extends Seeder
             UserSeeder::class,
             UserRoleSeeder::class,
             ProductCategorySeeder::class,
-            
+            WilayahIndonesiaSeeder::class,
         ]);
     }
 }
