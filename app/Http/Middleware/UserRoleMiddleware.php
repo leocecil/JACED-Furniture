@@ -15,17 +15,22 @@ class UserRoleMiddleware
      * @param  Closure(Request): (Response)  $next
      */
     public function handle(Request $request, Closure $next, ...$roles): Response
-    {
-        if (!Auth::check()) {
-            return redirect()->route('login');
+{
+    if (!Auth::check()) {
+        // Cek apakah URL mengandung /admin
+        if ($request->is('admin/*') || $request->is('admin')) {
+            return redirect()->route('admin.login.show');
         }
 
-        $userRoles = Auth::user()->roles->pluck('role')->toArray();
-
-        if (array_intersect($roles, $userRoles)) {
-            return $next($request);
-        }
-
-        abort(403, 'Unauthorized action.');
+        return redirect()->route('login');
     }
+
+    $userRoles = Auth::user()->roles->pluck('role')->toArray();
+
+    if (array_intersect($roles, $userRoles)) {
+        return $next($request);
+    }
+
+    abort(403, 'Unauthorized action.');
+}
 }
