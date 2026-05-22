@@ -341,7 +341,7 @@
                     <!-- MAIN IMAGE -->
                     <img
                         id="mainImage"
-                        src="https://placehold.co/800x800"
+                        src="https://i.pinimg.com/736x/51/94/bf/5194bfe785e1163b333538a062a80af2.jpg"
                         {{-- src="{{ $product->image_path ? asset('product_image/' . $product->image_path) : 'https://placehold.co/800x800' }}" --}}
                         class="main-product-image"
                         {{-- alt="{{ $product->name }}" --}}
