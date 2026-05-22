@@ -18,7 +18,8 @@ return new class extends Migration
             $table->string('phone_number');
             $table->timestamp('email_verified_at')->nullable();
             $table->string('password');
-            $table->integer('points')->default(0);
+            $table->integer('current_points')->default(0);
+            $table->integer('accumulated_points')->default(0);
             $table->boolean('is_admin')->default(false);
             $table->rememberToken();
             $table->timestamps();

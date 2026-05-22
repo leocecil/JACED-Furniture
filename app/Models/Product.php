@@ -4,33 +4,35 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes; // Tambahkan ini karena di migration pakai softDeletes
 
 class Product extends Model
 {
-    use HasFactory;
+    use HasFactory, SoftDeletes; // Aktifkan softDeletes agar sinkron dengan migration
 
+    // Pastikan semua kolom yang ada di migration masuk ke sini agar bisa diisi data
     protected $fillable = [
-        'category_id', 'material_id', 'name', 'slug',
-        'short_description', 'description', 'price', 'old_price',
-        'main_image', 'badge', 'stock', 'is_active', 'is_recommended',
+        'name', 
+        'description', 
+        'length', 
+        'width', 
+        'height',
+        'unit', 
+        'price', 
+        'stock', 
+        'label', 
+        'category_id'
     ];
 
+    // Casts berguna agar data tipe decimal dari DB otomatis dikonversi ke float/decimal di PHP
     protected $casts = [
+        'length' => 'decimal:2',
+        'width' => 'decimal:2',
+        'height' => 'decimal:2',
         'price' => 'decimal:2',
-        'old_price' => 'decimal:2',
-        'is_active' => 'boolean',
-        'is_recommended' => 'boolean',
+        'stock' => 'integer',
     ];
 
-    // protected $fillable = ['name', 'description', 'length', 'width', 'height',
-    //     'unit', 'price', 'stock', 'label', 'category_id',];
-
-    // protected $casts = [
-    //     'length' => 'decimal:2',
-    //     'width' => 'decimal:2',
-    //     'height' => 'decimal:2',
-    //     'price' => 'decimal:2',
-    // ];
     public function category()
     {
         return $this->belongsTo(ProductCategory::class, 'category_id');
@@ -45,6 +47,7 @@ class Product extends Model
     {
         return $this->hasMany(OrderDetail::class);
     }
+
     public function wishlists()
     {
         return $this->hasMany(Wishlist::class);

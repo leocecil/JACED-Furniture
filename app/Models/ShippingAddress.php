@@ -6,13 +6,21 @@ use Illuminate\Database\Eloquent\Model;
 
 class ShippingAddress extends Model
 {
+    protected $table = 'shipping_address';
+
     protected $fillable = [
         'user_id',
         'receiver_name',
         'receiver_phone',
         'address_line1',
-        'province',
-        'city',
+        'province_code',
+        'province_name',
+        'city_code',
+        'city_name',
+        'district_code',
+        'district_name',
+        'village_code',
+        'village_name',
         'postal_code',
     ];
     public function user()

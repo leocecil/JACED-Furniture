@@ -40,5 +40,11 @@ return [
         'client_secret' => env('GOOGLE_CLIENT_SECRET'),
         'redirect'      => env('GOOGLE_REDIRECT_URI'),
     ],
+    
+    'rajaongkir' => [
+    'api_key'   => env('RAJAONGKIR_API_KEY'),
+    'base_url'  => env('RAJAONGKIR_BASE_URL'),
+    'origin_id' => env('RAJAONGKIR_ORIGIN_ID'),
+    ],
 
 ];

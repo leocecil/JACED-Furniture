@@ -87,24 +87,56 @@
                                         <label>Street Address</label>
                                         <input type="text" name="street" class="input-jaced" placeholder="123 Artisan Way" required>
                                     </div>
-                                    <div class="col-12 col-md-4">
+                                    <div class="col-12 col-md-6">
                                         <label>Provinsi</label>
-                                        <select name="province" id="provinceSelect" class="input-jaced" onchange="loadCities(this.value)" required>
+                                        <select name="province" id="provinceSelect" class="input-jaced"
+                                                onchange="loadCities(this.value)" required>
                                             <option value="">Pilih Provinsi</option>
                                             @foreach ($provinces as $province)
                                                 <option value="{{ $province->code }}">{{ $province->name }}</option>
                                             @endforeach
                                         </select>
                                     </div>
-                                    <div class="col-12 col-md-4">
+
+                                    <div class="col-12 col-md-6">
                                         <label>Kota / Kabupaten</label>
-                                        <select name="city" id="citySelect" class="input-jaced" disabled required>
+                                        <select name="city" id="citySelect" class="input-jaced"
+                                                onchange="loadDistricts(this.value)" disabled required>
                                             <option value="">Pilih Kota</option>
                                         </select>
                                     </div>
-                                    <div class="col-12 col-md-4">
-                                        <label>ZIP Code</label>
+
+                                    <div class="col-12 col-md-6">
+                                        <label>Kecamatan</label>
+                                        <select name="district" id="districtSelect" class="input-jaced"
+                                                onchange="loadVillages(this.value)" disabled required>
+                                            <option value="">Pilih Kecamatan</option>
+                                        </select>
+                                    </div>
+
+                                    <div class="col-12 col-md-6">
+                                        <label>Kelurahan / Desa</label>
+                                        <select name="village" id="villageSelect" class="input-jaced" disabled required>
+                                            <option value="">Pilih Kelurahan</option>
+                                        </select>
+                                    </div>
+
+                                    {{-- TAMBAH DI SINI ↓ --}}
+                                    <div class="col-12">
+                                        <label>Pilih Kurir</label>
+                                        <div id="shippingOptions" class="mt-2">
+                                            <p class="text-jaced-muted" style="font-size:14px;">Pilih kelurahan terlebih dahulu.</p>
+                                        </div>
+                                        <input type="hidden" name="delivery_fee" id="deliveryFeeInput" value="0">
+                                    </div>
+
+                                    <div class="col-12 col-md-6">
+                                        <label>Postal Code</label>
                                         <input type="text" name="zip" class="input-jaced" placeholder="10001" required>
+                                    </div>
+                                    <div class="col-12 col-md-6">
+                                        <label>Phone Number</label>
+                                        <input type="text" name="phone" class="input-jaced" placeholder="081234567890" required>
                                     </div>
                                 </div>
                             </div>
@@ -124,7 +156,7 @@
                         </div>
                         <div class="d-flex justify-content-between mb-2" style="font-size: 14px;">
                             <span class="text-jaced-muted">Delivery Fee</span>
-                            <span class="text-jaced-dark fw-medium">Rp {{ number_format($shipping, 2) }}</span>
+                            <span class="text-jaced-dark fw-medium" id="deliveryFeeDisplay">Rp 0</span>
                         </div>
                         <div class="d-flex justify-content-between mb-2" style="font-size: 14px;">
                             <span class="text-jaced-muted">Service Tax</span>
@@ -158,7 +190,7 @@
 
                         <div class="d-flex justify-content-between align-items-center mb-4">
                             <span class="fw-bold text-jaced-dark" style="font-size: 24px;">Total</span>
-                            <span class="fw-bold text-jaced-sage" style="font-size: 30px;">Rp {{ number_format($total, 2) }}</span>
+                            <span class="fw-bold text-jaced-sage" style="font-size: 30px;" id="totalDisplay">Rp {{ number_format($subtotal + $tax, 2) }}</span>
                         </div>
 
                         <button type="submit" class="btn-jaced">
@@ -187,9 +219,16 @@
         }
 
         function loadCities(provinceCode) {
-            const citySelect = document.getElementById('citySelect');
-            citySelect.innerHTML = '<option value="">Pilih Kota</option>';
-            citySelect.disabled = true;
+            const citySelect     = document.getElementById('citySelect');
+            const districtSelect = document.getElementById('districtSelect');
+            const villageSelect  = document.getElementById('villageSelect');
+
+            citySelect.innerHTML     = '<option value="">Pilih Kota</option>';
+            districtSelect.innerHTML = '<option value="">Pilih Kecamatan</option>';
+            villageSelect.innerHTML  = '<option value="">Pilih Kelurahan</option>';
+            citySelect.disabled     = true;
+            districtSelect.disabled = true;
+            villageSelect.disabled  = true;
 
             if (!provinceCode) return;
 
@@ -204,6 +243,109 @@
                 .catch(() => {
                     citySelect.innerHTML = '<option value="">Gagal load kota</option>';
                 });
+        }
+
+        function loadDistricts(cityCode) {
+            const districtSelect = document.getElementById('districtSelect');
+            const villageSelect  = document.getElementById('villageSelect');
+
+            districtSelect.innerHTML = '<option value="">Pilih Kecamatan</option>';
+            villageSelect.innerHTML  = '<option value="">Pilih Kelurahan</option>';
+            districtSelect.disabled = true;
+            villageSelect.disabled  = true;
+
+            if (!cityCode) return;
+
+            fetch(`/api/districts?city_code=${cityCode}`)
+                .then(res => res.json())
+                .then(districts => {
+                    districts.forEach(d => {
+                        districtSelect.innerHTML += `<option value="${d.code}">${d.name}</option>`;
+                    });
+                    districtSelect.disabled = false;
+                })
+                .catch(() => {
+                    districtSelect.innerHTML = '<option value="">Gagal load kecamatan</option>';
+                });
+        }
+
+        function loadVillages(districtCode) {
+            const villageSelect = document.getElementById('villageSelect');
+            villageSelect.innerHTML = '<option value="">Pilih Kelurahan</option>';
+            villageSelect.disabled  = true;
+
+            if (!districtCode) return;
+
+            fetch(`/api/villages?district_code=${districtCode}`)
+                .then(res => res.json())
+                .then(villages => {
+                    villages.forEach(v => {
+                        villageSelect.innerHTML += `<option value="${v.code}">${v.name}</option>`;
+                    });
+                    villageSelect.disabled = false;
+
+                    // Auto trigger hitung ongkir setelah village loaded
+                    villageSelect.addEventListener('change', function() {
+                        loadShippingCost(this);
+                    }, { once: true });
+                });
+        }
+
+        function loadShippingCost(villageSelect) {
+            const citySelect     = document.getElementById('citySelect');
+            const selectedVillage = villageSelect.options[villageSelect.selectedIndex].text;
+            const selectedCity    = citySelect.options[citySelect.selectedIndex].text;
+            const shippingSection = document.getElementById('shippingOptions');
+
+            shippingSection.innerHTML = '<p class="text-jaced-muted" style="font-size:14px;">Menghitung ongkir...</p>';
+
+            fetch(`/api/shipping-cost?village_name=${encodeURIComponent(selectedVillage)}&city_name=${encodeURIComponent(selectedCity)}&weight=1000`)
+                .then(res => res.json())
+                .then(costs => {
+                    if (costs.error) {
+                        shippingSection.innerHTML = `<p class="text-danger" style="font-size:14px;">${costs.error}</p>`;
+                        return;
+                    }
+
+                    let html = '<div class="row g-2 mt-1">';
+                    costs.forEach((item, index) => {
+                        html += `
+                        <div class="col-12">
+                            <label class="d-flex justify-content-between align-items-center p-3"
+                                style="border: 1px solid #d1cbbf; border-radius: 8px; cursor: pointer; font-size: 14px;">
+                                <div class="d-flex align-items-center gap-2">
+                                    <input type="radio" name="selected_courier" value="${item.cost}"
+                                        data-cost="${item.cost}" onchange="updateDeliveryFee(${item.cost})" ${index === 0 ? 'checked' : ''}>
+                                    <div>
+                                        <div class="fw-semibold">${item.name} - ${item.service}</div>
+                                        <div class="text-jaced-muted">${item.description} • ${item.etd}</div>
+                                    </div>
+                                </div>
+                                <span class="fw-semibold">Rp ${item.cost.toLocaleString('id-ID')}</span>
+                            </label>
+                        </div>`;
+                    });
+                    html += '</div>';
+
+                    shippingSection.innerHTML = html;
+
+                    // Auto pilih yang pertama
+                    updateDeliveryFee(costs[0].cost);
+                })
+                .catch(() => {
+                    shippingSection.innerHTML = '<p class="text-danger" style="font-size:14px;">Gagal menghitung ongkir.</p>';
+                });
+        }
+
+        function updateDeliveryFee(cost) {
+            document.getElementById('deliveryFeeDisplay').innerText = 'Rp ' + cost.toLocaleString('id-ID');
+            document.getElementById('deliveryFeeInput').value = cost;
+
+            // Update total
+            const subtotal    = {{ $subtotal }};
+            const tax         = {{ $tax }};
+            const total       = subtotal + tax + cost;
+            document.getElementById('totalDisplay').innerText = 'Rp ' + total.toLocaleString('id-ID');
         }
     </script>
 @endpush

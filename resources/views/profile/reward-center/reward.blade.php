@@ -417,18 +417,32 @@
 
 @section('content')
 @php
+    // =================================================================
+    // FIX : AMBIL DATA DARI DB USER SECARA REALTIME
+    // =================================================================
+    $currentPoints = Auth::user()->current_points ?? 0;
+    $accumulatedPoints = Auth::user()->accumulated_points ?? 0;
+
+    // Tentukan Stage secara dinamis berdasarkan Akumulasi Poin
+    $stage = 'Bronze';
+    if ($accumulatedPoints >= 5000) {
+        $stage = 'Gold';
+    } elseif ($accumulatedPoints >= 2500) {
+        $stage = 'Silver';
+    }
+
     $pointHistoryItems = [
         [
-            'points' => '200 Points', // Poin masuk
+            'points' => '200 Points',
             'source' => 'Workshop Attendance',
             'date'   => '15 May 2026',
-            'type'   => 'earned', // status earned
+            'type'   => 'earned',
         ],
         [
-            'points' => '450 Points', // Poin keluar (habis nge-redeem lilin misalnya)
+            'points' => '450 Points',
             'source' => 'Redeem Candle',
             'date'   => '14 May 2026',
-            'type'   => 'redeemed', // status redeemed
+            'type'   => 'redeemed',
         ],
         [
             'points' => '50 Points',
@@ -448,25 +462,19 @@
         [
             'name'     => 'Artisan Scented Candle',
             'image'    => 'https://images.unsplash.com/photo-1603905600016-2f0a09924a49?w=400&h=300&fit=crop',
-            'progress' => 1250,
             'goal'     => 450,
-            'reached'  => true,
             'favorited'=> true,
         ],
         [
             'name'     => 'Asymmetric Vase',
             'image'    => 'https://images.unsplash.com/photo-1612196808214-b8e1d6145a8c?w=400&h=300&fit=crop',
-            'progress' => 1250,
             'goal'     => 850,
-            'reached'  => true,
             'favorited'=> false,
         ],
         [
             'name'     => 'Handwoven Wool Throw',
             'image'    => 'https://images.unsplash.com/photo-1580301762395-21ce84d00bc6?w=400&h=300&fit=crop',
-            'progress' => 1250,
             'goal'     => 2000,
-            'reached'  => false,
             'favorited'=> false,
         ],
     ];
@@ -500,10 +508,11 @@
                         <span class="stage-badge-text">Current stage</span>
                     </div>
 
-                    <p class="stage-name">Bronze</p>
+                    {{-- FIX DOSEN: Teks Stage Dinamis --}}
+                    <p class="stage-name">{{ $stage }}</p>
 
                     <div class="stage-meta">
-                        <span class="stage-valid">Active until 31 Dec 2025</span>
+                        <span class="stage-valid">Active until 31 Dec 2026</span>
                         <span style="color: var(--jaced-input);">·</span>
                         <div class="popover-wrap">
                             <button class="benefit-link" onclick="togglePopover('bronze-pop')">
@@ -511,59 +520,39 @@
                                 <svg xmlns="http://www.w3.org/2000/svg" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
                             </button>
                             <div class="stage-popover" id="bronze-pop">
-                                <p class="popover-title">Bronze benefits</p>
+                                <p class="popover-title">{{ $stage }} benefits</p>
                                 <div class="benefit-item">
                                     <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>
-                                    5% point bonus on every purchase
-                                </div>
-                                <div class="benefit-item">
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 12 20 22 4 22 4 12"/><rect x="2" y="7" width="20" height="5"/><line x1="12" y1="22" x2="12" y2="7"/><path d="M12 7H7.5a2.5 2.5 0 0 1 0-5C11 2 12 7 12 7z"/><path d="M12 7h4.5a2.5 2.5 0 0 0 0-5C13 2 12 7 12 7z"/></svg>
-                                    Birthday reward — free artisan candle
-                                </div>
-                                <div class="benefit-item">
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>
-                                    Early access to seasonal sales
+                                    Benefit active for {{ $stage }} member
                                 </div>
                             </div>
                         </div>
                     </div>
 
-                    {{-- Stage Tabs --}}
+                    {{-- Stage Tabs dengan Highlight Class Current Otomatis --}}
                     <div class="stage-tabs">
                         <div class="popover-wrap" style="flex: 1; position: relative;">
-                            <div class="stage-tab current" onclick="togglePopover(event, 'bronze-tab-pop')">
+                            <div class="stage-tab {{ $stage == 'Bronze' ? 'current' : '' }}" onclick="togglePopover(event, 'bronze-tab-pop')">
                                 <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="6"/><path d="M15.477 12.89L17 22l-5-3-5 3 1.523-9.11"/></svg>
                                 Bronze
                             </div>
-                            <div class="stage-popover" id="bronze-tab-pop">
-                                <p class="popover-title">Bronze benefits</p>
-                                <div class="benefit-item">5% point bonus on every purchase</div>
-                                <div class="benefit-item">Birthday reward — free artisan candle</div>
-                            </div>
                         </div>
 
                         <div class="popover-wrap" style="flex: 1; position: relative;">
-                            <div class="stage-tab locked w-100" onclick="togglePopover(event, 'silver-pop')">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+                            <div class="stage-tab {{ $stage == 'Silver' ? 'current' : 'locked' }} w-100" onclick="togglePopover(event, 'silver-pop')">
+                                @if($stage == 'Bronze')
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+                                @endif
                                 Silver
                             </div>
-                            <div class="stage-popover" id="silver-pop">
-                                <p class="popover-title">Silver benefits</p>
-                                <div class="benefit-item locked">10% point bonus on every purchase</div>
-                                <div class="benefit-item locked">Free standard delivery on all orders</div>
-                                <a href="#" class="how-to-link">How to reach Silver stage →</a>
-                            </div>
                         </div>
 
                         <div class="popover-wrap" style="flex: 1; position: relative;">
-                            <div class="stage-tab locked w-100" onclick="togglePopover(event, 'gold-pop')">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+                            <div class="stage-tab {{ $stage == 'Gold' ? 'current' : 'locked' }} w-100" onclick="togglePopover(event, 'gold-pop')">
+                                @if($stage != 'Gold')
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+                                @endif
                                 Gold
-                            </div>
-                            <div class="stage-popover" id="gold-pop">
-                                <p class="popover-title">Gold benefits</p>
-                                <div class="benefit-item locked">15% point bonus + priority production</div>
-                                <a href="#" class="how-to-link">How to reach Gold stage →</a>
                             </div>
                         </div>
                     </div>
@@ -571,13 +560,20 @@
 
                 <div class="header-vdivider d-none d-md-block mx-4"></div>
 
-                {{-- Col 2: Points + Buttons --}}
+                {{-- Col 2: Points Display --}}
                 <div class="col-12 col-md-4 py-3 py-md-0">
-                    <p class="pts-label">Points Earned</p>
-                    <div class="d-flex align-items-baseline gap-2 mb-4">
-                        <p class="pts-val mb-0">1,250</p>
+                    <p class="pts-label">Points Available to Redeem</p>
+                    <div class="d-flex align-items-baseline gap-2 mb-1">
+                        {{-- FIX DOSEN: Tampilkan Current Points --}}
+                        <p class="pts-val mb-0">{{ number_format($currentPoints) }}</p>
                         <p class="pts-unit mb-0">Points</p>
                     </div>
+                    
+                    {{-- FIX DOSEN: Tambahkan Info Akumulasi Poin Di Sini --}}
+                    <p class="text-muted mb-4" style="font-size: 12px;">
+                        Lifetime Accumulation: <strong>{{ number_format($accumulatedPoints) }} Pts</strong>
+                    </p>
+
                     <div class="d-flex gap-2">
                         <a href="{{ route('redeem-point') }}" style="flex: 1; text-decoration: none;">
                             <button class="btn-redeem mb-0" style="width: 100%; white-space: nowrap;">
@@ -595,7 +591,6 @@
                         </a>
                     </div>
                 </div>
-
 
             </div>
         </div>
@@ -618,7 +613,6 @@
                             </div>
                             
                             <div class="flex-grow-1 ms-2">
-                                {{-- Poin otomatis berwarna merah jika redeemed, dan otomatis pasang simbol + atau - --}}
                                 <p class="point-history-pts mb-0 {{ ($item['type'] ?? 'earned') === 'redeemed' ? 'text-danger' : '' }}">
                                     {{ ($item['type'] ?? 'earned') === 'redeemed' ? '-' : '+' }} {{ $item['points'] }}
                                 </p>
@@ -626,7 +620,6 @@
                             </div>
 
                             <div class="text-end">
-                                {{-- Badge Status: Menggunakan style soft agar estetika desain premiumnya tetap terjaga --}}
                                 @if(($item['type'] ?? 'earned') === 'redeemed')
                                     <span class="badge mb-1" style="background-color: #fce8e6; color: #c5221f; font-size: 0.7rem; font-weight: 700;">
                                         Redeemed
@@ -636,14 +629,11 @@
                                         Earned
                                     </span>
                                 @endif
-                                
-                                {{-- Menampilkan Tanggal Transaksi --}}
                                 <p class="point-history-days mb-0 text-muted" style="font-size: 0.75rem;">{{ $item['date'] }}</p>
                             </div>
                         </div>
                     @endforeach
 
-                    {{-- Mengubah teks tautan bawah karena fungsinya kini menjadi riwayat umum, bukan sekadar kedaluwarsa --}}
                     <a href="{{ route('point-history') }}" class="view-all-link">View All History Details</a>
                 </div>
             </div>
@@ -661,30 +651,23 @@
                 <div class="row g-3">
                     @foreach ($redeemGoals as $goal)
                         @php
-                            // Simulasi total poin user (1250)
-                            $userTotalPoints = 1250; 
-                            $isEnough = $userTotalPoints >= $goal['goal'];
+                            // FIX DOSEN: Menggunakan currentPoints asli milik user untuk memvalidasi tombol redeem goals
+                            $isEnough = $currentPoints >= $goal['goal'];
                         @endphp
 
                         <div class="col-12 col-sm-4">
                             <div class="redeem-card position-relative">
-                                {{-- TOMBOL HATI (FAVORIT) SUDAH DIHAPUS TOTAL --}}
-
-                                {{-- Image Container --}}
                                 <div style="background: #f5f4f0; height: 160px; width: 100%;">
                                     <img src="{{ $goal['image'] }}" alt="{{ $goal['name'] }}" class="redeem-card-img">
                                 </div>
 
                                 <div class="redeem-card-body">
-                                    {{-- Nama Produk --}}
                                     <p class="redeem-card-name mb-2">{{ $goal['name'] }}</p>
 
-                                    {{-- Menampilkan Harga Poin (Menggantikan Progress Bar) --}}
                                     <p class="mb-2" style="font-size: 13px; font-weight: 600; color: var(--jaced-brown-dark);">
                                         <span style="color: var(--jaced-caramel); font-weight: 700; font-size: 18px;">{{ number_format($goal['goal']) }} </span> Points
                                     </p>
 
-                                    {{-- Tanda / Status Poin --}}
                                     <div class="mb-3">
                                         @if ($isEnough)
                                             <span class="badge" style="background-color: #e6f4ea; color: #137333; font-size: 0.7rem; font-weight: 700; padding: 4px 8px;">
@@ -692,12 +675,11 @@
                                             </span>
                                         @else
                                             <span class="badge" style="background-color: #fff3cd; color: #856404; font-size: 0.7rem; font-weight: 700; padding: 4px 8px;">
-                                                🔒 Need {{ number_format($goal['goal'] - $userTotalPoints) }} Pts
+                                                🔒 Need {{ number_format($goal['goal'] - $currentPoints) }} Pts
                                             </span>
                                         @endif
                                     </div>
 
-                                    {{-- Tombol Redeem Kembali di Bawah Penuh Sesuai Code Awalmu --}}
                                     @if ($isEnough)
                                         <button class="btn-redeem-now">Redeem Now</button>
                                     @else
@@ -717,7 +699,6 @@
 @push('scripts')
 <script>
     function togglePopover(event, id) {
-        // Menghentikan efek klik agar tidak merembet dan langsung menutup diri
         event.stopPropagation(); 
         
         const targetPopover = document.getElementById(id);
@@ -725,18 +706,15 @@
 
         const isOpen = targetPopover.classList.contains('open');
 
-        // Tutup semua popover yang sedang terbuka di halaman
         document.querySelectorAll('.stage-popover').forEach(p => {
             p.classList.remove('open');
         });
 
-        // Jika popover yang diklik tadi posisinya tertutup, sekarang kita buka
         if (!isOpen) {
             targetPopover.classList.add('open');
         }
     }
 
-    // Menutup popover hanya jika user melakukan klik di luar area luar dokumen
     document.addEventListener('click', function(e) {
         if (!e.target.closest('.stage-popover')) {
             document.querySelectorAll('.stage-popover').forEach(p => {
