@@ -11,6 +11,7 @@
     "require": {
         "php": "^8.3",
         "laravel/framework": "^13.7",
+        "laravel/socialite": "^5.27",
         "laravel/tinker": "^3.0",
         "laravolt/indonesia": "^0.41.0",
         "midtrans/midtrans-php": "^2.6"

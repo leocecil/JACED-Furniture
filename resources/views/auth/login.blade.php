@@ -80,9 +80,9 @@
                             </div>
 
                             <div class="d-grid mb-3">
-                                <button type="submit" class="btn btn-outline-dark btn-lg fs-6 fw-bold">
+                                <a href="{{ route('auth.google') }}" class="btn btn-outline-dark btn-lg fs-6 fw-bold w-100">
                                     <i class="fab fa-google me-2"></i> Sign in with Google
-                                </button>
+                                </a>
                             </div>
     
                             <div class="text-center mt-4">

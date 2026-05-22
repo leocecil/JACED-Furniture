@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Auth\GoogleController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\InventoryController;
 use App\Http\Controllers\OrderController;
@@ -10,6 +11,9 @@ use Illuminate\Support\Facades\Route;
 
 
 // LOGIN & REGISTER CUSTOMER
+Route::get('/auth/google', [GoogleController::class, 'redirect'])->name('auth.google');
+Route::get('/auth/google/callback', [GoogleController::class, 'callback'])->name('auth.google.callback');
+
 Route::get('/login', [AuthController::class, 'show_login_form'])
     ->name('login');
 
@@ -22,6 +26,9 @@ Route::get('/register', [AuthController::class, 'show_register_form'])
 Route::post('/register', [AuthController::class, 'register'])
     ->name('register');
     
+Route::get('/', [ProductController::class, 'home'])->name('home');
+Route::get('/shop', [ProductController::class, 'shop'])->name('shop');
+
 // MIDDLEWARE CUSTOMER
 Route::middleware(['role:customer'])->group(function() {
     Route::get('/profile', [UserController::class, 'show_profile'])->name('profile');
@@ -77,9 +84,6 @@ Route::middleware(['role:customer'])->group(function() {
     Route::get('/cart', function () {
         return view('store.cart');
     })->name('cart');
-
-    Route::get('/home', [ProductController::class, 'home'])->name('home');
-    Route::get('/shop', [ProductController::class, 'shop'])->name('shop');
     
     Route::get('/product/{slug}', [ProductController::class, 'show'])->name('product.show');
 
@@ -100,9 +104,9 @@ Route::middleware(['role:customer'])->group(function() {
 
     Route::get('/transactionhistory/{id}', [OrderController::class, 'show'])
         ->name('store.transactionhistory_detail.show');
-
-    Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 });
+
+Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 
 // ADMIN LOGIN
 Route::get('/admin/login', [AuthController::class, 'show_login_admin_form'])
@@ -110,6 +114,9 @@ Route::get('/admin/login', [AuthController::class, 'show_login_admin_form'])
 
 Route::post('/admin/login_auth', [AuthController::class, 'login_admin_auth'])
     ->name('admin.login.auth');
+
+Route::post('/admin/logout', [AuthController::class, 'logout_admin'])
+    ->name('admin.logout');
     
 // MIDDLEWARE ADMIN
 Route::middleware(['role:admin'])->group(function() {

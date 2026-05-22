@@ -278,7 +278,6 @@
             <p class="label mb-1">Overview</p>
             <h1>Dashboard</h1>
         </div>
-        <span class="date-pill">October 2023</span>
     </div>
 
     {{-- ── Row 1: Stat Cards ── --}}

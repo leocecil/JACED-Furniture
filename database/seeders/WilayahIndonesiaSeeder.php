@@ -13,7 +13,6 @@ class WilayahIndonesiaSeeder extends Seeder
      */
     public function run(): void
     {
-        // Urutan sangat penting karena ada relasi Foreign Key
         $tables = [
             'provinces.sql',
             'cities.sql',
@@ -24,7 +23,6 @@ class WilayahIndonesiaSeeder extends Seeder
         foreach ($tables as $table) {
             $path = database_path('seeders/data/' . $table);
             
-            // Cek apakah file SQL ada
             if (File::exists($path)) {
                 $sql = File::get($path);
                 DB::unprepared($sql);

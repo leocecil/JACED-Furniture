@@ -238,7 +238,7 @@
 
                 {{-- Sign Out --}}
                 <div style="padding: 6px 0 8px;">
-                    <form method="POST" action="{{ route('logout') }}">
+                    <form method="POST" action="{{ route('admin.logout') }}">
                         @csrf
                         <button type="submit" class="profile-dropdown-item signout">
                             <i class="bi bi-box-arrow-right"></i> Sign Out
