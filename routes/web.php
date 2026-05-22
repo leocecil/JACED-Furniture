@@ -77,9 +77,12 @@ Route::middleware(['role:customer'])->group(function() {
         return view('profile.help-center');
     })->name('help');
 
-    Route::get('/product_details', function () {
-        return view('store.product_details');
-    })->name('product_details');
+    Route::get('/product_details/{id}', [ProductController::class, 'show'])
+    ->name('product_details');
+
+    // Route::get('/product_details', function () {
+    //     return view('store.product_details');
+    // })->name('product_details');
 
     Route::get('/cart', function () {
         return view('store.cart');

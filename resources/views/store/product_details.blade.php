@@ -323,7 +323,7 @@
 
     <!-- BACK -->
     <div class="mb-4">
-        <a href="#" class="back-btn">
+        <a href="{{ route('shop') }}" class="back-btn">
             <i class="fa-solid fa-arrow-left me-2"></i> Back to Catalog
         </a>
     </div>
@@ -341,10 +341,11 @@
                     <!-- MAIN IMAGE -->
                     <img
                         id="mainImage"
-                        src="https://i.pinimg.com/736x/51/94/bf/5194bfe785e1163b333538a062a80af2.jpg"
+                        src="{{ asset($product->mainImage->image_path) }}
                         {{-- src="{{ $product->image_path ? asset('product_image/' . $product->image_path) : 'https://placehold.co/800x800' }}" --}}
                         class="main-product-image"
                         {{-- alt="{{ $product->name }}" --}}
+                        alt="{{ $product->mainImage->image_path }}"
                     >
 
                     <!-- RIGHT ARROW -->
@@ -354,42 +355,16 @@
 
             <!-- THUMBNAILS -->
             <div class="row g-3 thumbnail-wrapper">
-                <div class="col-3">
-                    <img
-                        src="https://placehold.co/800x800"
-                        {{-- src="{{ $product->image_path ? asset('product_image/' . $product->image_path) : 'https://placehold.co/300x300' }}" --}}
-                        class="thumbnail-image active-thumbnail"
-                        onclick="changeImage(this)"
-                    >
-                </div>
-
-                <div class="col-3">
-                    <img
-                        src="https://placehold.co/800x800"
-                        {{-- src="{{ $product->image_path ? asset('product_image/' . $product->image_path) : 'https://placehold.co/300x300/cccccc' }}" --}}
-                        class="thumbnail-image"
-                        onclick="changeImage(this)"
-                    >
-                </div>
-
-                <div class="col-3">
-                    <img
-                        src="https://placehold.co/800x800"
-                        {{-- src="{{ $product->image_path ? asset('product_image/' . $product->image_path) : 'https://placehold.co/300x300/bbbbbb' }}" --}}
-                        class="thumbnail-image"
-                        onclick="changeImage(this)"
-                    >
-                </div>
-
-                <div class="col-3">
-                    <img
-                        src="https://placehold.co/800x800"
-                        {{-- src="{{ $product->image_path ? asset('product_image/' . $product->image_path) : 'https://placehold.co/300x300/aaaaaa' }}" --}}
-                        class="thumbnail-image"
-                        onclick="changeImage(this)"
-                    >
-                </div>
-
+                @foreach($product->images as $index => $image)
+                    <div class="col-3">
+                        <img
+                            src="{{ asset($image->image_path) }}"
+                            class="thumbnail-image {{ $index == 0 ? 'active-thumbnail' : '' }}"
+                            onclick="changeImage(this)"
+                            alt="{{ $product->mainImage->image_path }}"
+                        >
+                    </div>
+                @endforeach
             </div>
 
         </div>
@@ -400,7 +375,7 @@
             <div class="d-flex align-items-center gap-3 mb-3">
 
                 <span class="premium-badge">
-                    PREMIUM SELECTION
+                    {{ strtoupper($product->label) }}
                 </span>
 
                 <a href="#" class="fw-semibold text-secondary">
@@ -413,15 +388,13 @@
             </div>
 
             <h2 class="product-title">
-                {{-- {{ $product->name }} --}}
-                Lounge Chair
+                {{ $product->name }}
             </h2>
 
             <div class="product-price">
-                {{-- Rp {{ number_format($product->price, 0, ',', '.') }} --}}
-                Rp 250.000
+                Rp {{ number_format($product->price, 0, ',', '.') }}
             </div>
-
+            
             <!-- INFO CARDS -->
             <div class="row g-4">
                 <div class="col-12">
@@ -440,17 +413,17 @@
                             <!-- LENGTH -->
                             <div class="dimension-item">
                                 <span class="dimension-label"> Length </span>
-                                <span class="dimension-value"> 85 cm </span>
+                                <span class="dimension-value">{{ $product->length }} {{ $product->unit }}</span>
                             </div>
                             <!-- WIDTH -->
                             <div class="dimension-item">
                                 <span class="dimension-label"> Width </span>
-                                <span class="dimension-value"> 90 cm </span>
+                                <span class="dimension-value">{{ $product->width }} {{ $product->unit }}</span>
                             </div>
                             <!-- HEIGHT -->
                             <div class="dimension-item">
                                 <span class="dimension-label"> Height </span>
-                                <span class="dimension-value"> 75 cm </span>
+                                <span class="dimension-value">{{ $product->height }} {{ $product->unit }}</span>
                             </div>
                         </div>
                     </div>
@@ -473,11 +446,7 @@
                 </button>
 
                 <input
-                    type="text"
-                    id="quantity"
-                    value="1"
-                    class="qty-input"
-                    readonly
+                    type="text" id="quantity" value="1" class="qty-input" readonly
                 >
 
                 <button
@@ -485,12 +454,16 @@
                     type="button"
                     onclick="
                         const qty = document.getElementById('quantity');
-                        qty.value++;
+                        if(parseInt(qty.value) < {{ $product->stock }}){
+                            qty.value++;
+                        }
                     "
-                >
-                    +
+                > +
                 </button>
+            </div>
 
+            <div class="mt-2 text-muted fw-semibold">
+                Stock Available: {{ $product->stock }}
             </div>
 
             <!-- ACTION BUTTONS -->
@@ -525,8 +498,7 @@
                         class="accordion-collapse collapse show"
                         data-bs-parent="#productAccordion">
                         <div class="accordion-body">
-                            Lorem ipsum dolor sit amet consectetur adipisicing elit. Deleniti nihil temporibus ipsa magnam quidem perferendis voluptatem expedita omnis magni, accusamus aliquid iure? Doloremque officia nobis totam rem, hic reprehenderit dolorum.
-                            {{-- {{ $product->details }} --}}
+                            {{ $product->description }}
                         </div>
                     </div>
                 </div>

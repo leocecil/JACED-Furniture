@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Product;
 use Illuminate\Http\Request;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Collection;
@@ -276,21 +277,32 @@ class ProductController extends Controller
         return view('store.shop', compact('products', 'categories', 'materials', 'rooms', 'totalProducts'));
     }
 
-    public function show($slug)
+    // public function show($slug)
+    // {
+    //     $product = collect($this->dummyProducts())->firstWhere('slug', $slug);
+    //     if (!$product) {
+    //         abort(404);
+    //     }
+
+    //     $related = collect($this->dummyProducts())
+    //         ->filter(fn($p) => $p['category']['slug'] === $product['category']['slug'] && $p['slug'] !== $slug)
+    //         ->take(4)
+    //         ->map(fn($p) => $this->toObject($p))
+    //         ->values();
+
+    //     $product = $this->toObject($product);
+
+    //     return view('store.product_details', compact('product', 'related'));
+    // }
+
+    public function show($id)
     {
-        $product = collect($this->dummyProducts())->firstWhere('slug', $slug);
-        if (!$product) {
-            abort(404);
-        }
+        $product = Product::with([
+            'images',
+            'category',
+            'mainImage'
+        ])->findOrFail($id);
 
-        $related = collect($this->dummyProducts())
-            ->filter(fn($p) => $p['category']['slug'] === $product['category']['slug'] && $p['slug'] !== $slug)
-            ->take(4)
-            ->map(fn($p) => $this->toObject($p))
-            ->values();
-
-        $product = $this->toObject($product);
-
-        return view('store.product_details', compact('product', 'related'));
+        return view('store.product_details', compact('product'));
     }
 }
