@@ -12,6 +12,8 @@ class DatabaseSeeder extends Seeder
             UserSeeder::class,
             UserRoleSeeder::class,
             ProductCategorySeeder::class,
+            ProductSeeder::class,
+            ProductImageSeeder::class,
             WilayahIndonesiaSeeder::class,
         ]);
     }

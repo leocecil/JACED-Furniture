@@ -4,54 +4,63 @@ namespace Database\Seeders;
 
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Carbon;
 
 class ProductCategorySeeder extends Seeder
 {
+    /**
+     * Run the database seeds.
+     */
     public function run(): void
     {
-        $now = Carbon::now();
-
-        $categories = [
-            // Seating
-            ['name' => 'Sofa'],
-            ['name' => 'Armchair'],
-            ['name' => 'Dining Chair'],
-            ['name' => 'Office Chair'],
-            ['name' => 'Stool'],
-            ['name' => 'Bench'],
-
-            // Table
-            ['name' => 'Dining Table'],
-            ['name' => 'Coffee Table'],
-            ['name' => 'Office Desk'],
-            ['name' => 'Side Table'],
-            ['name' => 'Console Table'],
-
-            // Storage
-            ['name' => 'Wardrobe'],
-            ['name' => 'Bookshelf'],
-            ['name' => 'Cabinet'],
-            ['name' => 'Sideboard'],
-            ['name' => 'TV Stand'],
-            ['name' => 'Storage Rack'],
-
-            // Bedroom
-            ['name' => 'Bed Frame'],
-            ['name' => 'Nightstand'],
-            ['name' => 'Dresser'],
-
-            // Outdoor
-            ['name' => 'Outdoor Table'],
-            ['name' => 'Outdoor Chair'],
-            ['name' => 'Garden Bench'],
-        ];
-
-        $categories = array_map(fn($cat) => array_merge($cat, [
-            'created_at' => $now,
-            'updated_at' => $now,
-        ]), $categories);
-
-        DB::table('product_categories')->insert($categories);
+        DB::table('product_categories')->insert([
+            [
+                'id' => 1,
+                'name' => 'sofa',
+                'created_at' => now(),
+                'updated_at' => now(),
+            ],
+            [
+                'id' => 2,
+                'name' => 'chair',
+                'created_at' => now(),
+                'updated_at' => now(),
+            ],
+            [
+                'id' => 3,
+                'name' => 'table',
+                'created_at' => now(),
+                'updated_at' => now(),
+            ],
+            [
+                'id' => 4,
+                'name' => 'bed',
+                'created_at' => now(),
+                'updated_at' => now(),
+            ],
+            [
+                'id' => 5,
+                'name' => 'lighting',
+                'created_at' => now(),
+                'updated_at' => now(),
+            ],
+            [
+                'id' => 6,
+                'name' => 'storage',
+                'created_at' => now(),
+                'updated_at' => now(),
+            ],
+            [
+                'id' => 7,
+                'name' => 'bathroom',
+                'created_at' => now(),
+                'updated_at' => now(),
+            ],
+            [
+                'id' => 8,
+                'name' => 'decorations',
+                'created_at' => now(),
+                'updated_at' => now(),
+            ],
+        ]);
     }
 }
