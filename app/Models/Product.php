@@ -5,10 +5,11 @@ namespace App\Models;
 use App\Models\ProductImage;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Product extends Model
 {
-    use HasFactory;
+    use HasFactory, SoftDeletes; // Aktifkan softDeletes agar sinkron dengan migration
 
     // protected $fillable = [
     //     'category_id', 'material_id', 'name', 'slug',
@@ -53,8 +54,13 @@ class Product extends Model
     {
         return $this->hasMany(OrderDetail::class);
     }
+
     public function wishlists()
     {
         return $this->hasMany(Wishlist::class);
+    }
+    public function carts()
+    {
+        return $this->hasMany(Cart::class);
     }
 }

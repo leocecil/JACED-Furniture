@@ -15,6 +15,8 @@ class DatabaseSeeder extends Seeder
             ProductSeeder::class,
             ProductImageSeeder::class,
             WilayahIndonesiaSeeder::class,
+            PaymentMethodSeeder::class,
+            VaBankSeeder::class,
         ]);
     }
 }

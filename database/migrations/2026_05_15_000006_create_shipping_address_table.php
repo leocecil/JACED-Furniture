@@ -14,9 +14,17 @@ return new class extends Migration
         Schema::create('shipping_address', function (Blueprint $table) {
             $table->id();
             $table->unsignedBigInteger('user_id');
+            $table->string('receiver_name');
+            $table->string('receiver_phone');
             $table->string('address_line1');
-            $table->string('province');
-            $table->string('city');
+            $table->string('province_code');
+            $table->string('province_name');
+            $table->string('city_code');
+            $table->string('city_name');
+            $table->string('district_code');
+            $table->string('district_name');
+            $table->string('village_code');
+            $table->string('village_name');
             $table->string('postal_code');
             $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
             $table->timestamps();

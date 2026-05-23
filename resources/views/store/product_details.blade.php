@@ -437,28 +437,15 @@
                 </label>
                 
                 <button
-                    class="qty-btn" type="button"
-                    onclick="
-                        const qty = document.getElementById('quantity');
-                        if(parseInt(qty.value) > 1){
-                            qty.value--;
-                        }" > -
+                    class="qty-btn" type="button" onclick="decreaseQty()" > -
                 </button>
 
                 <input
-                    type="text" id="quantity" value="1" class="qty-input" readonly
-                >
+                    type="number" id="quantity" value="1" min="1" max="{{ $product->stock }}"
+                    class="qty-input" oninput="handleQtyInput()">
 
                 <button
-                    class="qty-btn"
-                    type="button"
-                    onclick="
-                        const qty = document.getElementById('quantity');
-                        if(parseInt(qty.value) < {{ $product->stock }}){
-                            qty.value++;
-                        }
-                    "
-                > +
+                    class="qty-btn" type="button" onclick="increaseQty()" > +
                 </button>
             </div>
 
@@ -468,8 +455,17 @@
 
             <!-- ACTION BUTTONS -->
             <div class="row g-3 mt-5">
+                <form action="{{ route('cart.add') }}" method="POST">
+                    @csrf
+                    <input type="hidden" name="product_id" value="{{ $product->id }}">
+                    <input type="hidden" name="quantity" id="cartQuantity" value="1">
 
-                <div class="col-md-6">
+                    <button type="submit" class="btn btn-dark-custom action-btn w-100">
+                        <i class="fa-solid fa-bag-shopping me-2"></i>
+                        Add to Collection
+                    </button>
+                </form>
+                {{-- <div class="col-md-6">
                     <button class="btn btn-dark-custom action-btn w-100">
                         <i class="fa-solid fa-bag-shopping me-2"></i> Add to Collection
                     </button>
@@ -479,7 +475,7 @@
                     <button class="btn btn-outline-custom action-btn w-100">
                         <i class="fa-solid fa-cube me-2"></i> 3D Simulation
                     </button>
-                </div>
+                </div> --}}
             </div>
 
             <!-- BOOTSTRAP ACCORDION -->
@@ -553,6 +549,50 @@
         });
         element.classList.add('active-color');
     }
+
+    const qtyInput = document.getElementById('quantity');
+    const cartQtyInput = document.getElementById('cartQuantity');
+
+    function updateCartQty(){
+        cartQtyInput.value = qtyInput.value;
+    }
+
+    function increaseQty(){
+        let current = parseInt(qtyInput.value);
+
+        if(current < {{ $product->stock }}){
+            qtyInput.value = current + 1;
+            updateCartQty();
+        }
+    }
+
+    function decreaseQty(){
+        let current = parseInt(qtyInput.value);
+
+        if(current > 1){
+            qtyInput.value = current - 1;
+            updateCartQty();
+        }
+    }
+
+    function handleQtyInput(){
+        let value = parseInt(qtyInput.value);
+
+        // if empty or invalid
+        if(isNaN(value) || value < 1){
+            value = 1;
+        }
+
+        // prevent exceeding stock
+        if(value > {{ $product->stock }}){
+            value = {{ $product->stock }};
+        }
+
+        qtyInput.value = value;
+
+        updateCartQty();
+    }
+
 </script>
 
 @endsection

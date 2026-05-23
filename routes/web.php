@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Auth\GoogleController;
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\CartController;
 use App\Http\Controllers\InventoryController;
 use App\Http\Controllers\OrderController;
 use App\Http\Controllers\ProductController;
@@ -84,20 +85,30 @@ Route::middleware(['role:customer'])->group(function() {
     //     return view('store.product_details');
     // })->name('product_details');
 
-    Route::get('/cart', function () {
-        return view('store.cart');
-    })->name('cart');
-    
+    // CART
+    Route::post('/cart/add', [CartController::class, 'add'])->name('cart');
+    Route::patch('/cart/{id}/increase', [CartController::class, 'increase'])
+        ->name('cart.increase');
+    Route::patch('/cart/{id}/decrease', [CartController::class, 'decrease'])
+        ->name('cart.decrease');
+    Route::delete('/cart/{id}', [CartController::class, 'delete'])
+        ->name('cart.delete');
+
     Route::get('/product/{slug}', [ProductController::class, 'show'])->name('product.show');
 
+    // CART
+    Route::get('/api/cart', [CartController::class, 'index']);
+    Route::post('/api/cart/add', [CartController::class, 'add'])->name('cart.add');
+    Route::put('/api/cart/update/{id}', [CartController::class, 'update'])->name('cart.update');
+    Route::delete('/api/cart/remove/{id}', [CartController::class, 'remove'])->name('cart.remove');
     
     //CHECKOUT
-    // 1. Rute untuk TAMPILAN CHECKOUT (GET)
     Route::get('/checkout', [OrderController::class, 'showCheckout'])->name('checkout.index');
-    // 2. Rute untuk PROSES BAYAR ke Midtrans saat tombol diklik (POST)
     Route::post('/checkout', [OrderController::class, 'processCheckout'])->name('checkout.store');
-    // 3. Rute API AJAX untuk ambil data kota
     Route::get('/api/cities', [OrderController::class, 'getCities'])->name('api.cities');
+    Route::get('/api/districts', [OrderController::class, 'getDistricts'])->name('api.districts');
+    Route::get('/api/villages', [OrderController::class, 'getVillages'])->name('api.villages');
+    Route::get('/api/shipping-cost', [OrderController::class, 'getShippingCost']);
 
     Route::get('/payment/status/{order_id}', [OrderController::class, 'payment_status'])->name('payment_status');
     Route::get('/payment/return/{order_id}', [OrderController::class, 'payment_return'])->name('payment_return');
