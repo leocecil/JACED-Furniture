@@ -17,6 +17,7 @@ return new class extends Migration
             $table->text('description');
             $table->string('used_for');
             $table->integer('point_cost');
+            $table->integer('discount_percentage');
             $table->decimal('max_discount', 10, 2);
             $table->timestamps();
         });

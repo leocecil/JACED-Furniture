@@ -2,10 +2,12 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Order;
 use App\Models\Cart;
+use App\Models\Order;
 use App\Models\OrderDetail;
+use App\Models\PaymentMethod;
 use App\Models\ShippingAddress;
+use App\Models\VaBank;
 use App\Services\RajaOngkirService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -22,6 +24,9 @@ class OrderController extends Controller
     public function showCheckout()
     {
         $provinces = Province::orderBy('name', 'asc')->get();
+        $savedAddresses = DB::table('shipping_address')
+                        ->where('user_id', auth()->user()->id)
+                        ->get();
 
         $cartItems = \App\Models\Cart::with('product.images')
                         ->where('user_id', Auth::id())
@@ -30,6 +35,14 @@ class OrderController extends Controller
         if ($cartItems->isEmpty()) {
             return redirect()->back()->with('error', 'Keranjang kamu kosong!');
         }
+
+        $myVouchers = DB::table('vouchers')
+                    ->join('voucher_types', 'vouchers.voucher_type_id', '=', 'voucher_types.id')
+                    ->where('vouchers.user_id', Auth::id())
+                    ->where('vouchers.is_active', true)
+                    ->where('vouchers.expiry_date', '>', now())
+                    ->select('vouchers.*', 'voucher_types.name', 'voucher_types.description', 'voucher_types.used_for', 'voucher_types.discount_percentage', 'voucher_types.max_discount')
+                    ->get();
 
         $items = $cartItems->map(fn($cart) => [
             'name'    => $cart->product->name,
@@ -46,24 +59,28 @@ class OrderController extends Controller
         $tax      = $subtotal * 0.0836;
         $total    = $subtotal + $shipping + $tax;
 
-        $paymentMethods = [
-            ['value' => 'qris',            'label' => 'QRIS'],
-            ['value' => 'virtual_account', 'label' => 'Virtual Account'],
-            ['value' => 'credit_card',     'label' => 'Kartu Kredit / Debit'],
-            ['value' => 'ovo',             'label' => 'OVO'],
-            ['value' => 'dana',            'label' => 'DANA'],
-        ];
+        $paymentMethods = PaymentMethod::all()
+            ->map(fn($p) => [
+                'value' => $p->name,
+                'label' => match($p->name) {
+                    'qris'            => 'QRIS',
+                    'virtual_account' => 'Virtual Account',
+                    'credit_card'     => 'Kartu Kredit / Debit',
+                    'ovo'             => 'OVO',
+                    'dana'            => 'DANA',
+                    default           => ucfirst($p->name),
+                }
+            ]);
 
-        $banks = [
-            ['value' => 'bca',     'name' => 'BCA'],
-            ['value' => 'mandiri', 'name' => 'Mandiri'],
-            ['value' => 'bni',     'name' => 'BNI'],
-            ['value' => 'bri',     'name' => 'BRI'],
-        ];
+        $banks = VaBank::all()
+            ->map(fn($b) => [
+                'value' => $b->name,
+                'name'  => strtoupper($b->name),
+            ]);
 
         return view('store.checkout', compact(
             'items', 'paymentMethods', 'banks',
-            'provinces', 'subtotal', 'shipping', 'tax', 'total'
+            'provinces', 'savedAddresses', 'subtotal', 'shipping', 'myVouchers', 'tax', 'total'
         ));
     }
 
@@ -84,23 +101,58 @@ class OrderController extends Controller
         try {
             DB::statement('SET FOREIGN_KEY_CHECKS=0;');
 
-            $firstName   = $request->input('first_name');
-            $lastName    = $request->input('last_name');
-            $street      = $request->input('street');
-            $provinceId  = $request->input('province');
-            $cityId      = $request->input('city');
-            $districtId  = $request->input('district');
-            $villageId   = $request->input('village');
-            $zip         = $request->input('zip');
-            $phone       = $request->input('phone');
             $deliveryFee = (float) $request->input('delivery_fee', 0);
+            $addressId   = $request->input('address_id');
+            dd('address_id value: ' . $addressId, $request->all());
 
-            $provinceName = Province::where('code', $provinceId)->first()?->name ?? '';
-            $cityName     = City::where('code', $cityId)->first()?->name ?? '';
-            $districtName = District::where('code', $districtId)->first()?->name ?? '';
-            $villageName  = Village::where('code', $villageId)->first()?->name ?? '';
+            $firstName = '';
+            $lastName  = '';
+            $street    = '';
+            $cityName  = '';
+            $zip       = '';
 
-            // Hitung volumetric weight
+            if ($addressId && $addressId !== 'new') {
+                $shippingAddress = ShippingAddress::find($addressId);
+
+                if (!$shippingAddress || $shippingAddress->user_id !== Auth::id()) {
+                    return redirect()->back()->with('error', 'Alamat tidak valid.');
+                }
+
+                $nameParts = explode(' ', $shippingAddress->receiver_name, 2);
+                $firstName = $nameParts[0] ?? '';
+                $lastName  = $nameParts[1] ?? '';
+                $street    = $shippingAddress->address_line1;
+                $cityName  = $shippingAddress->city_name;
+                $zip       = $shippingAddress->postal_code;
+
+            } else {
+                $receiverName = $request->input('receiver_name');
+                $nameParts    = explode(' ', $receiverName, 2);
+                $firstName    = $nameParts[0] ?? '';
+                $lastName     = $nameParts[1] ?? '';
+                $street       = $request->input('address_line1');
+                $cityName     = $request->input('city_name');
+                $zip          = $request->input('postal_code');
+                $provinceCode = $request->input('province_code');
+                $provinceName = Province::where('code', $provinceCode)->first()?->name ?? '';
+
+                $shippingAddress = ShippingAddress::create([
+                    'user_id'        => Auth::id(),
+                    'receiver_name'  => $receiverName,
+                    'receiver_phone' => $request->input('receiver_phone'),
+                    'address_line1'  => $street,
+                    'province_code'  => $provinceCode,
+                    'province_name'  => $provinceName,
+                    'city_code'      => '',
+                    'city_name'      => $cityName,
+                    'district_code'  => '',
+                    'district_name'  => '',
+                    'village_code'   => '',
+                    'village_name'   => $request->input('village_name'),
+                    'postal_code'    => $zip,
+                ]);
+            }
+
             $totalWeight = 0;
             foreach ($cartItems as $cartItem) {
                 $product = $cartItem->product;
@@ -113,32 +165,43 @@ class OrderController extends Controller
 
             $subtotalPrice = $cartItems->sum(fn($item) => $item->product->price * $item->quantity);
             $serviceTax    = $subtotalPrice * 0.0836;
-            $totalPrice    = $subtotalPrice + $deliveryFee + $serviceTax;
+            $voucherId      = $request->input('applied_voucher_id');
+            $discountAmount = 0;
+            $appliedVoucher = null;
+            $paymentId = PaymentMethod::where('name', $paymentMethod)->first()?->id ?? 1;
 
-            $shippingAddress = ShippingAddress::create([
-                'user_id'        => Auth::id(),
-                'receiver_name'  => $firstName . ' ' . $lastName,
-                'receiver_phone' => $phone,
-                'address_line1'  => $street,
-                'province_code'  => $provinceId,
-                'province_name'  => $provinceName,
-                'city_code'      => $cityId,
-                'city_name'      => $cityName,
-                'district_code'  => $districtId,
-                'district_name'  => $districtName,
-                'village_code'   => $villageId,
-                'village_name'   => $villageName,
-                'postal_code'    => $zip,
-            ]);
+            if ($voucherId) {
+                $appliedVoucher = DB::table('vouchers')
+                    ->join('voucher_types', 'vouchers.voucher_type_id', '=', 'voucher_types.id')
+                    ->where('vouchers.id', $voucherId)
+                    ->where('vouchers.user_id', Auth::id())
+                    ->where('vouchers.is_active', true)
+                    ->where('vouchers.expiry_date', '>', now())
+                    ->whereNull('vouchers.redeemed_at')
+                    ->select('vouchers.*', 'voucher_types.used_for', 'voucher_types.max_discount', 'voucher_types.discount_percentage')
+                    ->first();
+
+                if ($appliedVoucher) {
+                    $maxDiscount = (float) $appliedVoucher->max_discount;
+
+                    if ($appliedVoucher->used_for === 'shipping') {
+                        $discountAmount = min($deliveryFee, $maxDiscount);
+                    } else {
+                        $discountAmount = min($subtotalPrice, $maxDiscount);
+                    }
+                }
+            }
+
+            $totalPrice = $subtotalPrice + $deliveryFee + $serviceTax - $discountAmount;
 
             $order = Order::create([
                 'user_id'             => Auth::id(),
-                'payment_id'          => 1,
-                'voucher_id'          => null,
+                'payment_id'          => $paymentId,
+                'voucher_id'          => $appliedVoucher?->id ?? null,
                 'shipping_address_id' => $shippingAddress->id,
                 'delivery_fee'        => $deliveryFee,
                 'service_tax'         => $serviceTax,
-                'discount_amount'     => 0,
+                'discount_amount'     => $discountAmount,
                 'total_price'         => $totalPrice,
                 'status'              => 'pending',
             ]);
@@ -160,15 +223,34 @@ class OrderController extends Controller
 
             $item_details = [];
             foreach ($cartItems as $cartItem) {
-                $item_details[] = [
-                    'id'       => $cartItem->product_id,
-                    'price'    => $cartItem->product->price,
-                    'quantity' => $cartItem->quantity,
-                    'name'     => substr($cartItem->product->name, 0, 50),
-                ];
+                if ($deliveryFee > 0) {
+                    $item_details[] = [
+                        'id'       => 'DELIVERY',
+                        'price'    => $deliveryFee,
+                        'quantity' => 1,
+                        'name'     => 'Ongkos Kirim',
+                    ];
+                }
+
+                if ($serviceTax > 0) {
+                    $item_details[] = [
+                        'id'       => 'TAX',
+                        'price'    => round($serviceTax),
+                        'quantity' => 1,
+                        'name'     => 'Pajak Layanan',
+                    ];
+                }
+
+                if ($discountAmount > 0) {
+                    $item_details[] = [
+                        'id'       => 'DISCOUNT',
+                        'price'    => -round($discountAmount),
+                        'quantity' => 1,
+                        'name'     => 'Diskon Voucher',
+                    ];
+                }
             }
 
-            // Logika payment method Midtrans
             $enabledPayments = [];
             if ($paymentMethod === 'virtual_account' && $chosenBank !== 'all' && !empty($chosenBank)) {
                 if ($chosenBank === 'mandiri') {
@@ -211,6 +293,14 @@ class OrderController extends Controller
             $snapToken = Snap::getSnapToken($params);
 
             DB::commit();
+            if ($appliedVoucher) {
+                DB::table('vouchers')
+                    ->where('id', $appliedVoucher->id)
+                    ->update([
+                        'redeemed_at' => now(),
+                        'is_active'   => false,
+                    ]);
+            }
             DB::statement('SET FOREIGN_KEY_CHECKS=1;');
 
             $userId = Auth::id();
@@ -336,12 +426,20 @@ class OrderController extends Controller
             return response()->json(['error' => 'Alamat tidak ditemukan'], 404);
         }
 
-        // Hit beberapa kurir populer sekaligus
-        $couriers = ['jne', 'jnt', 'sicepat', 'anteraja'];
+        $couriers = ['jne', 'jnt', 'sicepat', 'lion'];
         $allCosts = [];
 
         foreach ($couriers as $courier) {
             $costs = $rajaOngkir->calculateCost($destinationId, $weight, $courier);
+            if ($courier === 'jne') {
+                $costs = array_filter($costs, fn($c) => str_contains($c['service'], 'JTR'));
+                $costs = array_values($costs);
+            }
+            
+            if ($courier === 'jnt') {
+                $costs = array_filter($costs, fn($c) => str_contains(strtoupper($c['service']), 'CARGO'));
+                $costs = array_values($costs);
+            }
             $allCosts = array_merge($allCosts, $costs);
         }
 

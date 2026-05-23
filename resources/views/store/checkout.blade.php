@@ -3,17 +3,87 @@
 @push('styles')
 <link href="https://fonts.googleapis.com/css2?family=Lexend:wght@400;500;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="{{ asset('css/jaced.css') }}">
+<style>
+    /* Styling Alamat Ringkas ala Shopee */
+    .shopee-address-wrapper {
+        border: 1px solid #e2dcd0;
+        border-radius: 8px;
+        background-color: #fff;
+        overflow: hidden;
+    }
+    .shopee-address-item {
+        position: relative;
+        padding: 16px 20px;
+        border-bottom: 1px solid #f3f0e9;
+        cursor: pointer;
+        transition: background-color 0.2s ease;
+    }
+    .shopee-address-item:last-child {
+        border-bottom: none;
+    }
+    .shopee-address-item:hover {
+        background-color: #faf9f6;
+    }
+    .shopee-address-item:has(.address-selector-radio:checked) {
+        background-color: #f6f5f0;
+    }
+    .shopee-address-item:has(.address-selector-radio:checked)::before {
+        content: "";
+        position: absolute;
+        left: 0;
+        top: 0;
+        bottom: 0;
+        width: 4px;
+        background-color: #5c695d;
+    }
+    .address-selector-radio {
+        width: 18px;
+        height: 18px;
+        accent-color: #5c695d;
+        cursor: pointer;
+    }
+    .btn-add-address-shopee {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        width: 100%;
+        padding: 12px;
+        background-color: #fff;
+        border: 1px dashed #5c695d;
+        color: #5c695d;
+        font-weight: 500;
+        border-radius: 8px;
+        transition: all 0.2s ease;
+    }
+    .btn-add-address-shopee:hover {
+        background-color: #f3f1eb;
+    }
+    /* Tombol Ubah / Edit teks */
+    .btn-edit-address {
+        background: none;
+        border: none;
+        color: #8c7e6c;
+        font-size: 13px;
+        text-decoration: none;
+        padding: 0 4px;
+    }
+    .btn-edit-address:hover {
+        color: #5c695d;
+        text-decoration: underline;
+    }
+</style>
 @endpush
 
 @section('content')
 
-<form action="{{ route('checkout.store') }}" method="POST">
+<form action="{{ route('checkout.store') }}" method="POST" id="checkoutForm">
     @csrf
 
     <div class="jaced-page">
         <div style="max-width: 1280px; margin: 0 auto;">
 
-            <h1 class="fw-bold text-jaced-dark mb-5" style="font-size: 2.8rem; font-weight: 400; letter-spacing: 0.05em;">Checkout</h1>
+            <h1 class="fw-bold text-jaced-dark mb-4" style="font-size: 2.2rem; font-weight: 400; letter-spacing: 0.04em;">Checkout</h1>
 
             <div class="row g-4 align-items-start">
 
@@ -21,19 +91,18 @@
                 <div class="col-12 col-lg-8">
 
                     {{-- Review Order --}}
-                    <div class="mb-5">
-                        <h2 class="fw-bold text-jaced-sage mb-4" style="font-size: 1.5rem; font-weight: 400;">Review Order</h2>
+                    <div class="mb-4">
+                        <h2 class="fw-bold text-jaced-sage mb-3" style="font-size: 1.3rem; font-weight: 400;">Review Order</h2>
                         <div class="order-items-wrapper">
                             <div class="order-items-scroll">
                                 @forelse ($items as $item)
-                                    <div class="jaced-item-card">
-                                        <img src="{{ $item['image'] }}" alt="{{ $item['name'] }}">
+                                    <div class="jaced-item-card py-2">
+                                        <img src="{{ $item['image'] }}" alt="{{ $item['name'] }}" style="width: 70px; height: 70px; object-fit: cover; border-radius: 6px;">
                                         <div class="flex-grow-1">
-                                            <div class="fw-semibold text-jaced-dark">{{ $item['name'] }}</div>
-                                            <div class="text-jaced-muted">{{ $item['variant'] }}</div>
-                                            <div class="text-jaced-muted">Qty: {{ $item['qty'] }}</div>
+                                            <div class="fw-semibold text-jaced-dark" style="font-size: 14px;">{{ $item['name'] }}</div>
+                                            <div class="text-jaced-muted small">{{ $item['variant'] }} • Qty: {{ $item['qty'] }}</div>
                                         </div>
-                                        <div class="fw-semibold text-jaced-dark">Rp {{ number_format($item['price'], 2) }}</div>
+                                        <div class="fw-semibold text-jaced-dark" style="font-size: 14px;">Rp {{ number_format($item['price'], 2) }}</div>
                                     </div>
                                 @empty
                                     <p class="text-jaced-muted">Keranjang kamu kosong.</p>
@@ -42,143 +111,141 @@
                         </div>
                     </div>
 
-                    {{-- Shipping Address (LOGIKA ALA SHOPEE) --}}
-                    <div class="mb-5">
-                        <div class="d-flex justify-content-between align-items-center mb-4">
-                            <h2 class="fw-bold text-jaced-sage mb-0" style="font-size: 1.5rem; font-weight: 400;">Shipping Address</h2>
-                            
-                            {{-- Tombol Ubah Alamat muncul jika user terdeteksi sudah punya data alamat tersimpan --}}
-                            @if(isset($savedAddresses) && $savedAddresses->isNotEmpty())
-                                <button type="button" class="btn btn-sm btn-outline-dark" style="font-family: 'Lexend', sans-serif; font-size: 0.85rem;" data-bs-toggle="modal" data-bs-target="#changeAddressModal">
-                                    Ubah Alamat
-                                </button>
-                            @endif
+                    {{-- Shipping Address Selection Section --}}
+                    <div class="mb-4">
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <h2 class="fw-bold text-jaced-sage m-0" style="font-size: 1.3rem; font-weight: 400;">Alamat Pengiriman</h2>
                         </div>
+                        
+                        @if(isset($savedAddresses) && $savedAddresses->isNotEmpty())
+                            <div class="shopee-address-wrapper mb-3">
+                                @foreach ($savedAddresses as $addr)
+                                    <div class="shopee-address-item d-flex align-items-start gap-3 w-100 m-0">
+                                        <div class="pt-1">
+                                            <input type="radio" name="address_id" value="{{ $addr->id }}" class="address-selector-radio" 
+                                                   data-is-new="false"
+                                                   data-city="{{ $addr->city_name }}"
+                                                   data-village="{{ $addr->village_name }}"
+                                                   {{ (isset($defaultAddress) && $defaultAddress->id == $addr->id) || $loop->first ? 'checked' : '' }}>
+                                        </div>
+                                        
+                                        {{-- Sisi Kiri: Informasi Alamat --}}
+                                        <div class="flex-grow-1" onclick="this.parentElement.querySelector('.address-selector-radio').click()">
+                                            <div class="d-flex align-items-center gap-2 mb-1">
+                                                <span class="fw-bold text-jaced-dark" style="font-size: 14px;">{{ $addr->receiver_name }}</span>
+                                                <span class="text-jaced-muted small">|</span>
+                                                <span class="text-jaced-muted small">{{ $addr->receiver_phone }}</span>
+                                                
+                                                @if(isset($defaultAddress) && $defaultAddress->id == $addr->id)
+                                                    <span class="badge bg-transparent text-danger border border-danger ms-2" style="font-size: 9px; padding: 2px 4px;">Utama</span>
+                                                @endif
+                                            </div>
+                                            <div class="text-jaced-dark small mb-1">{{ $addr->address_line1 }}</div>
+                                            <div class="text-jaced-muted tiny" style="font-size: 12px;">
+                                                {{ $addr->village_name }}, {{ $addr->district_name }}, {{ $addr->city_name }}, {{ $addr->province_name }}, {{ $addr->postal_code }}
+                                            </div>
+                                        </div>
 
-                        {{-- KONDISI 1: JIKA USER SUDAH PUNYA ALAMAT TERSEDIA --}}
-                        @if(isset($defaultAddress) && $defaultAddress)
-                            <div class="jaced-card p-4" style="border: 1px solid #d1cbbf; background-color: #faf9f6;">
-                                <div class="d-flex align-items-start gap-2 mb-2">
-                                    <span class="badge bg-secondary text-uppercase" style="font-size: 10px; font-weight: 500; letter-spacing: 0.05em;">Utama</span>
-                                    <div class="fw-bold text-jaced-dark" style="font-size: 1.1rem;">{{ $defaultAddress->first_name }} {{ $defaultAddress->last_name }}</div>
-                                </div>
-                                <div class="text-jaced-dark mb-1">{{ $defaultAddress->street }}</div>
-                                <div class="text-jaced-muted" style="font-size: 14px;">
-                                    {{ $defaultAddress->city_name }}, {{ $defaultAddress->province_name }}, {{ $defaultAddress->zip }}
-                                </div>
-                                
-                                {{-- Input hidden untuk mengirim ID alamat terpilih ke controller --}}
-                                <input type="hidden" name="address_id" value="{{ $defaultAddress->id }}">
+                                        {{-- Sisi Kanan: Tombol Ubah ala Shopee --}}
+                                        <div class="pt-1">
+                                            <button type="button" class="btn-edit-address" 
+                                                    onclick="openEditAddressModal({{ json_encode($addr) }})">
+                                                Ubah
+                                            </button>
+                                        </div>
+                                    </div>
+                                @endforeach
                             </div>
 
-                        {{-- KONDISI 2: JIKA BELUM ADA DATA ALAMAT (TAMPILKAN FORM KOSONG SEPERTI SEMULA) --}}
+                            <button type="button" class="btn-add-address-shopee" onclick="openAddAddressModal()">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-plus-lg" viewBox="0 0 14 14"><path fill-rule="evenodd" d="M8 2a.5.5 0 0 1 .5.5v5h5a.5.5 0 0 1 0 1h-5v5a.5.5 0 0 1-1 0v-5h-5a.5.5 0 0 1 0-1h5v-5A.5.5 0 0 1 8 2Z"/></svg>
+                                Tambah Alamat Baru
+                            </button>
                         @else
-                            <div class="jaced-card p-4">
-                                <div class="row g-3">
-                                    <div class="col-12 col-md-6">
-                                        <label>First Name</label>
-                                        <input type="text" name="first_name" class="input-jaced" placeholder="Jane" required>
-                                    </div>
-                                    <div class="col-12 col-md-6">
-                                        <label>Last Name</label>
-                                        <input type="text" name="last_name" class="input-jaced" placeholder="Doe" required>
-                                    </div>
-                                    <div class="col-12">
-                                        <label>Street Address</label>
-                                        <input type="text" name="street" class="input-jaced" placeholder="123 Artisan Way" required>
-                                    </div>
-                                    <div class="col-12 col-md-6">
-                                        <label>Provinsi</label>
-                                        <select name="province" id="provinceSelect" class="input-jaced"
-                                                onchange="loadCities(this.value)" required>
-                                            <option value="">Pilih Provinsi</option>
-                                            @foreach ($provinces as $province)
-                                                <option value="{{ $province->code }}">{{ $province->name }}</option>
-                                            @endforeach
-                                        </select>
-                                    </div>
-
-                                    <div class="col-12 col-md-6">
-                                        <label>Kota / Kabupaten</label>
-                                        <select name="city" id="citySelect" class="input-jaced"
-                                                onchange="loadDistricts(this.value)" disabled required>
-                                            <option value="">Pilih Kota</option>
-                                        </select>
-                                    </div>
-
-                                    <div class="col-12 col-md-6">
-                                        <label>Kecamatan</label>
-                                        <select name="district" id="districtSelect" class="input-jaced"
-                                                onchange="loadVillages(this.value)" disabled required>
-                                            <option value="">Pilih Kecamatan</option>
-                                        </select>
-                                    </div>
-
-                                    <div class="col-12 col-md-6">
-                                        <label>Kelurahan / Desa</label>
-                                        <select name="village" id="villageSelect" class="input-jaced" disabled required>
-                                            <option value="">Pilih Kelurahan</option>
-                                        </select>
-                                    </div>
-
-                                    {{-- TAMBAH DI SINI ↓ --}}
-                                    <div class="col-12">
-                                        <label>Pilih Kurir</label>
-                                        <div id="shippingOptions" class="mt-2">
-                                            <p class="text-jaced-muted" style="font-size:14px;">Pilih kelurahan terlebih dahulu.</p>
-                                        </div>
-                                        <input type="hidden" name="delivery_fee" id="deliveryFeeInput" value="0">
-                                    </div>
-
-                                    <div class="col-12 col-md-6">
-                                        <label>Postal Code</label>
-                                        <input type="text" name="zip" class="input-jaced" placeholder="10001" required>
-                                    </div>
-                                    <div class="col-12 col-md-6">
-                                        <label>Phone Number</label>
-                                        <input type="text" name="phone" class="input-jaced" placeholder="081234567890" required>
-                                    </div>
-                                </div>
+                            <div class="p-4 text-center border rounded bg-light">
+                                <p class="text-jaced-muted small">Kamu belum memiliki alamat tersimpan.</p>
+                                <button type="button" class="btn btn-sm btn-outline-secondary" onclick="openAddAddressModal()">
+                                    + Buat Alamat Pertama
+                                </button>
                             </div>
                         @endif
+
+                        {{-- SELEKSI KURIR --}}
+                        <div class="jaced-card p-3 mt-4" style="border: 1px solid #d1cbbf;">
+                            <label class="fw-bold text-jaced-dark mb-2" style="font-size: 14px;">Metode Pengiriman</label>
+                            <div id="shippingOptions" style="max-height: 200px; overflow-y: auto;">
+                                <p class="text-jaced-muted small">Silakan pilih alamat terlebih dahulu.</p>
+                            </div>
+                            <input type="hidden" name="delivery_fee" id="deliveryFeeInput" value="0">
+                        </div>
                     </div>
 
                 </div>
 
                 {{-- RIGHT SIDE: Summary --}}
                 <div class="col-12 col-lg-4">
-                    <div class="summary-card">
-                        <h2 class="fw-bold text-jaced-dark mb-4" style="font-size: 1.5rem; font-weight: 400;">Order Summary</h2>
+                    <div class="summary-card p-3" style="background-color: #faf9f6; border: 1px solid #e2dcd0; border-radius: 8px;">
+                        <h2 class="fw-bold text-jaced-dark mb-3" style="font-size: 1.3rem; font-weight: 400;">Order Summary</h2>
 
-                        <div class="d-flex justify-content-between mb-2" style="font-size: 14px;">
+                        <div class="d-flex justify-content-between mb-2" style="font-size: 13px;">
                             <span class="text-jaced-muted">Subtotal</span>
-                            <span class="text-jaced-dark fw-medium">Rp {{ number_format($subtotal, 2) }}</span>
+                            {{-- Tambahkan id="summary-subtotal" dan data-raw agar JS bisa membaca angka aslinya --}}
+                            <span class="text-jaced-dark fw-medium" id="summary-subtotal" data-raw="{{ $subtotal }}">Rp {{ number_format($subtotal, 0, ',', '.') }}</span>
                         </div>
-                        <div class="d-flex justify-content-between mb-2" style="font-size: 14px;">
-                            <span class="text-jaced-muted">Delivery Fee</span>
-                            <span class="text-jaced-dark fw-medium" id="deliveryFeeDisplay">Rp 0</span>
+                        <div class="d-flex justify-content-between mb-2" style="font-size: 13px;">
+                            <span class="text-jaced-muted">Ongkos Kirim</span>
+                            <span class="text-jaced-dark fw-medium" id="deliveryFeeDisplay">Rp {{ number_format($shipping, 0, ',', '.') }}</span>
                         </div>
-                        <div class="d-flex justify-content-between mb-2" style="font-size: 14px;">
-                            <span class="text-jaced-muted">Service Tax</span>
-                            <span class="text-jaced-dark fw-medium">Rp {{ number_format($tax, 2) }}</span>
+                        <div class="d-flex justify-content-between mb-2" style="font-size: 13px;">
+                            <span class="text-jaced-muted">Pajak Layanan</span>
+                            {{-- Tambahkan id="summary-tax" dan data-raw --}}
+                            <span class="text-jaced-dark fw-medium" id="summary-tax" data-raw="{{ $tax }}">Rp {{ number_format($tax, 0, ',', '.') }}</span>
+                        </div>
+
+                        {{-- BARIS DISKON VOUCHER (ZONA POTONGAN) --}}
+                        <div class="d-flex justify-content-between text-danger d-none" id="row-discount-shipping">
+                            <span>Total Diskon Pengiriman</span>
+                            <span class="fw-bold" id="summary-discount-shipping">-Rp 0</span>
+                        </div>
+                        
+                        <div class="d-flex justify-content-between text-danger d-none" id="row-discount-product">
+                            <span>Voucher Diskon</span>
+                            <span class="fw-bold" id="summary-discount-product">-Rp 0</span>
+                        </div>
+
+                        {{-- COMPONENT PILIH VOUCHER ALA SHOPEE --}}
+                        {{-- Perbaikan typo !important --}}
+                        <div class="my-3 p-2 border rounded d-flex justify-content-between align-items-center bg-white" 
+                            style="cursor: pointer; border-color: #e2dcd0 !important;" 
+                            data-bs-toggle="modal" data-bs-target="#voucherModal">
+                            <div class="d-flex align-items-center gap-2">
+                                {{-- Icon Tiket Voucher --}}
+                                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="#5c695d" class="bi bi-ticket-perforated" viewBox="0 0 16 16">
+                                    <path d="M4.5 5.5a.5.5 0 0 1 .5-.5h6a.5.5 0 0 1 0 1H5a.5.5 0 0 1-.5-.5Zm0 2a.5.5 0 0 1 .5-.5h6a.5.5 0 0 1 0 1H5a.5.5 0 0 1-.5-.5Zm0 2a.5.5 0 0 1 .5-.5h6a.5.5 0 0 1 0 1H5a.5.5 0 0 1-.5-.5Z"/>
+                                    <path d="M3.5 0a.5.5 0 0 1 .5.5V1h8V.5a.5.5 0 0 1 1 0V1h1a2 2 0 0 1 2 2v11a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V3a2 2 0 0 1 2-2h1V.5a.5.5 0 0 1 .5-.5ZM1 4v3.5a.5.5 0 0 0 .5.5.5.5 0 0 1 0 1 .5.5 0 0 0-.5.5V14a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-3.5a.5.5 0 0 0-.5-.5.5.5 0 0 1 0-1 .5.5 0 0 0 .5-.5V4a1 1 0 0 0-1-1H2a1 1 0 0 0-1 1Z"/>
+                                </svg>
+                                <span class="fw-medium text-jaced-dark mb-0" id="selectedVoucherText" style="font-size: 13px;">Voucher Jaced</span>
+                            </div>
+                            <div class="d-flex align-items-center gap-1">
+                                <span class="badge bg-danger d-none" id="voucherActiveBadge" style="font-size: 10px;">1 Terpasang</span>
+                                <span class="text-muted small">❯</span>
+                            </div>
                         </div>
 
                         {{-- Payment Method --}}
-                        <div class="payment-section">
-                            <span class="field-label" style="margin-bottom: 8px;">Payment Method</span>
-
-                            <select name="payment_method" class="input-jaced" id="paymentMethod" onchange="handlePaymentChange(this.value)" required>
-                                <option value="">Choose Payment Method</option>
+                        <div class="payment-section mt-3 pt-3 border-top">
+                            <span class="field-label small mb-2 d-block fw-medium text-jaced-dark">Metode Pembayaran</span>
+                            <select name="payment_method" class="form-select form-select-sm" id="paymentMethod" onchange="handlePaymentChange(this.value)" required style="border-color: #d1cbbf;">
+                                <option value="">Pilih Metode Pembayaran</option>
                                 @foreach ($paymentMethods as $method)
                                     <option value="{{ $method['value'] }}">{{ $method['label'] }}</option>
                                 @endforeach
                             </select>
 
-                            {{-- Dropdown bank --}}
                             <div id="bankDropdown" style="display: none; margin-top: 10px;">
-                                <span class="field-label" style="margin-bottom: 8px;">Pilih Bank</span>
-                                <select name="bank" class="input-jaced">
-                                    <option value="">Choose Bank</option>
+                                <span class="field-label small mb-1 d-block text-jaced-muted">Pilih Bank</span>
+                                <select name="bank" class="form-select form-select-sm" style="border-color: #d1cbbf;">
+                                    <option value="">Pilih Bank</option>
                                     @foreach ($banks as $bank)
                                         <option value="{{ $bank['value'] }}">{{ $bank['name'] }}</option>
                                     @endforeach
@@ -186,21 +253,91 @@
                             </div>
                         </div>
 
-                        <hr class="divider-jaced my-4">
+                        <hr class="my-3" style="border-color: #e2dcd0;">
 
-                        <div class="d-flex justify-content-between align-items-center mb-4">
-                            <span class="fw-bold text-jaced-dark" style="font-size: 24px;">Total</span>
-                            <span class="fw-bold text-jaced-sage" style="font-size: 30px;" id="totalDisplay">Rp {{ number_format($subtotal + $tax, 2) }}</span>
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <span class="fw-bold text-jaced-dark" style="font-size: 16px;">Total Pembayaran</span>
+                            {{-- Bersihkan desimal (.00) dari backend agar sinkron saat JS melakukan kalkulasi matematika --}}
+                            <span class="fw-bold text-jaced-sage" style="font-size: 22px;" id="totalDisplay" data-raw="{{ $total }}">Rp {{ number_format($total, 0, ',', '.') }}</span>
                         </div>
 
-                        <button type="submit" class="btn-jaced">
-                            Place Order
-                            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
-                        </button>
+                        {{-- Hidden Input untuk mengirim ID Voucher yang dipilih ke Controller backend --}}
+                        <input type="hidden" name="applied_voucher_id" id="applied-voucher-id" value="">
+                        <input type="hidden" name="discount_amount" id="applied-discount-amount" value="0">
 
-                        <div class="d-flex align-items-center justify-content-center gap-2 mt-3 text-jaced-muted" style="font-size: 12px;">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
-                            <span>Secure encrypted checkout</span>
+                        <button type="submit" class="btn-jaced w-100 py-2" style="font-size: 15px;">
+                            Buat Pesanan
+                        </button>
+                    </div>
+                </div>
+
+
+                {{-- MODAL POP-UP PILIH VOUCHER (ALA SHOPEE) --}}
+                <div class="modal fade" id="voucherModal" tabindex="-1" aria-labelledby="voucherModalLabel" aria-hidden="true">
+                    <div class="modal-dialog modal-dialog-centered modal-md">
+                        <div class="modal-content" style="border-radius: 12px;">
+                            <div class="modal-header" style="background-color: #faf9f6; border-bottom: 1px solid #f3f0e9;">
+                                <h5 class="modal-title fw-bold text-jaced-dark" id="voucherModalLabel" style="font-size: 1.1rem;">Pilih Voucher Jaced</h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                            </div>
+                            <div class="modal-body p-3" style="background-color: #fcfbfa; max-height: 400px; overflow-y: auto;">
+                                
+                                @if(isset($myVouchers) && $myVouchers->isNotEmpty())
+                                    <div class="d-flex flex-column gap-3">
+                                        @foreach($myVouchers as $v)
+                                            @php
+                                                $isShipping = $v->used_for === 'shipping';
+                                                $themeColor = $isShipping ? '#5c695d' : '#bd654e';
+                                                $themeBg = $isShipping ? '#f1f4f2' : '#fcf5f3';
+                                            @endphp
+
+                                            <label class="d-flex align-items-center p-3 bg-white border rounded shadow-sm position-relative m-0" 
+                                                style="cursor: pointer; border-color: #e2dcd0 !important;">
+                                                
+                                                <div class="pe-3 border-end d-flex flex-column justify-content-center text-center align-items-center" 
+                                                    style="width: 105px; border-color: #f3f0e9 !important;">
+                                                    <span class="fw-bold px-2 py-1 rounded" style="font-size: 11px; color: {{ $themeColor }}; background: {{ $themeBg }};">
+                                                        {{ $isShipping ? 'Gratis Ongkir' : 'Diskon' }}
+                                                    </span>
+                                                    @if(!$isShipping && isset($v->discount_percentage))
+                                                        <span class="fw-bold mt-1 text-muted" style="font-size: 14px;">{{ $v->discount_percentage }}% Off</span>
+                                                    @endif
+                                                </div>
+
+                                                <div class="ps-3 flex-grow-1">
+                                                    <h6 class="fw-bold text-jaced-dark mb-1" style="font-size: 13px;">{{ $v->name }}</h6>
+                                                    <p class="text-muted tiny mb-1" style="font-size: 11px; line-height: 1.3;">{{ $v->description }}</p>
+                                                    <span class="text-danger tiny d-block" style="font-size: 10px;">
+                                                        Berlaku s.d {{ \Carbon\Carbon::parse($v->expiry_date)->format('d.m.Y') }}
+                                                    </span>
+                                                </div>
+
+                                                <div class="ps-2">
+                                                    {{-- Menggunakan data-discount dari objek $v secara aman --}}
+                                                    <input type="radio" name="voucher_select_radio" value="{{ $v->id }}" class="voucher-radio-input"
+                                                        data-name="{{ $v->name }}"
+                                                        data-used-for="{{ $v->used_for }}"
+                                                        data-discount="{{ $v->max_discount ?? 0 }}"
+                                                        style="accent-color: {{ $themeColor }}; width: 18px; height: 18px;">
+                                                </div>
+                                            </label>
+                                        @endforeach
+                                    </div>
+                                @else
+                                    <div class="text-center py-4">
+                                        <p class="text-muted small m-0">Kamu belum memiliki voucher yang siap digunakan.</p>
+                                    </div>
+                                @endif
+
+                            </div>
+                            <div class="modal-footer" style="background-color: #faf9f6; border-top: 1px solid #f3f0e9;">
+                                <div id="voucherPreview" class="w-100 mb-2 d-none">
+                                    <div class="p-2 rounded" style="background-color: #f1f4f2; font-size: 12px;">
+                                        <span id="voucherPreviewText"></span>
+                                    </div>
+                                </div>
+                                <button type="button" id="btn-apply-voucher" class="btn btn-sm text-white" style="background-color: #5c695d;" data-bs-dismiss="modal">Oke</button>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -209,101 +346,462 @@
         </div>
     </div>
 </form>
+
+{{-- MODAL POP-UP TAMBAH / EDIT ALAMAT --}}
+<div class="modal fade" id="addressModal" tabindex="-1" aria-labelledby="addressModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content" style="border-radius: 12px; border: none; box-shadow: 0 10px 30px rgba(0,0,0,0.1);">
+            <div class="modal-header" style="border-bottom: 1px solid #f3f0e9; background-color: #faf9f6;">
+                <h5 class="modal-title fw-bold text-jaced-dark" id="addressModalLabel">Detail Alamat</h5>
+                <button type="button" class="btn-close" data-bs-shadow="none" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body p-4">
+                {{-- Input Hidden Penanda Mode: 'add' atau 'edit' --}}
+                <input type="hidden" id="modal_action_mode" value="add">
+                <input type="hidden" id="modal_address_id" value="">
+
+                <div class="row g-3">
+                    <div class="col-12 col-md-6">
+                        <label class="form-label small text-jaced-dark fw-medium">Nama Penerima</label>
+                        <input type="text" id="modal_receiver_name" class="form-control form-control-sm" placeholder="Nama Lengkap">
+                    </div>
+                    <div class="col-12 col-md-6">
+                        <label class="form-label small text-jaced-dark fw-medium">Nomor Telepon</label>
+                        <input type="text" id="modal_receiver_phone" class="form-control form-control-sm" placeholder="Contoh: 08123456789">
+                    </div>
+                    <div class="col-12">
+                        <label class="form-label small text-jaced-dark fw-medium">Alamat Lengkap (Jalan, No Rumah, Blok)</label>
+                        <input type="text" id="modal_address_line1" class="form-control form-control-sm" placeholder="Jalan Raya Jaced No 1">
+                    </div>
+                    <div class="col-12 col-md-6">
+                        <label class="form-label small text-jaced-dark fw-medium">Provinsi</label>
+                        <select id="modalProvinceSelect" class="form-select form-select-sm" onchange="loadCities(this.value)">
+                            <option value="">Pilih Provinsi</option>
+                            @foreach ($provinces as $province)
+                                <option value="{{ $province->code }}">{{ $province->name }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+                    <div class="col-12 col-md-6">
+                        <label class="form-label small text-jaced-dark fw-medium">Kota / Kabupaten</label>
+                        <select id="modalCitySelect" class="form-select form-select-sm" onchange="loadDistricts(this.value)" disabled>
+                            <option value="">Pilih Kota</option>
+                        </select>
+                    </div>
+                    <div class="col-12 col-md-4">
+                        <label class="form-label small text-jaced-dark fw-medium">Kecamatan</label>
+                        <select id="modalDistrictSelect" class="form-select form-select-sm" onchange="loadVillages(this.value)" disabled>
+                            <option value="">Pilih Kecamatan</option>
+                        </select>
+                    </div>
+                    <div class="col-12 col-md-4">
+                        <label class="form-label small text-jaced-dark fw-medium">Kelurahan / Desa</label>
+                        <select id="modalVillageSelect" class="form-select form-select-sm" disabled>
+                            <option value="">Pilih Kelurahan</option>
+                        </select>
+                    </div>
+                    <div class="col-12 col-md-4">
+                        <label class="form-label small text-jaced-dark fw-medium">Kode Pos</label>
+                        <input type="text" id="modal_postal_code" class="form-control form-control-sm" placeholder="10001">
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer" style="border-top: 1px solid #f3f0e9; background-color: #faf9f6;">
+                <button type="button" class="btn btn-sm btn-light border" data-bs-dismiss="modal">Batal</button>
+                <button type="button" class="btn btn-sm text-white" style="background-color: #5c695d;" onclick="saveModalAddress()">Simpan Alamat</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+{{-- Wadah input hidden untuk dikirim ke Controller backend saat submit form checkout --}}
+<div id="hiddenAddressMutationContainer"></div>
+
 @endsection
 
 @push('scripts')
     <script>
-        function handlePaymentChange(value) {
-            const bankDropdown = document.getElementById('bankDropdown');
-            bankDropdown.style.display = value === 'virtual_account' ? 'block' : 'none';
+        let bsModal;
+        // Deklarasi global state agar perhitungan ongkir dan voucher sinkron
+        let currentDeliveryFee = 0;
+        let voucherApplied = false;
+
+        // Toggle radio voucher - klik lagi untuk untick
+        document.addEventListener('DOMContentLoaded', function() {
+            let lastChecked = null;
+
+            document.addEventListener('click', function(e) {
+                if (e.target.classList.contains('voucher-radio-input')) {
+                    if (e.target === lastChecked) {
+                        e.target.checked = false;
+                        lastChecked = null;
+                        document.getElementById('voucherPreview').classList.add('d-none');
+                    } else {
+                        lastChecked = e.target;
+                        const usedFor  = e.target.getAttribute('data-used-for');
+                        const name     = e.target.getAttribute('data-name');
+                        const discount = e.target.getAttribute('data-discount');
+                        const preview  = document.getElementById('voucherPreview');
+                        const text     = document.getElementById('voucherPreviewText');
+
+                        if (usedFor === 'shipping') {
+                            text.innerHTML = `✅ <strong>${name}</strong> — Gratis ongkir hingga Rp ${parseFloat(discount).toLocaleString('id-ID')}`;
+                            preview.querySelector('div').style.backgroundColor = '#f1f4f2';
+                            preview.querySelector('div').style.color = '#5c695d';
+                        } else {
+                            text.innerHTML = `✅ <strong>${name}</strong> — Diskon hingga Rp ${parseFloat(discount).toLocaleString('id-ID')}`;
+                            preview.querySelector('div').style.backgroundColor = '#fcf5f3';
+                            preview.querySelector('div').style.color = '#bd654e';
+                        }
+                        preview.classList.remove('d-none');
+                    }
+                }
+            });
+        });
+
+        function applyVoucherVisual() {
+            const selectedVoucher = document.querySelector('.voucher-radio-input:checked');
+            
+            if (!selectedVoucher || selectedVoucher.value === "") {
+                clearSelectedVoucher();
+                return;
+            }
+
+            const voucherId   = selectedVoucher.value;
+            const voucherName = selectedVoucher.getAttribute('data-name');
+            const usedFor     = selectedVoucher.getAttribute('data-used-for');
+
+            document.getElementById('applied-voucher-id').value = voucherId;
+
+            const textDisplay = document.getElementById('selectedVoucherText');
+            const activeBadge = document.getElementById('voucherActiveBadge');
+
+            // Warna badge sesuai jenis voucher
+            if (usedFor === 'shipping') {
+                textDisplay.innerHTML = `
+                    <span class="px-2 py-1 rounded fw-bold" 
+                        style="background-color: #f1f4f2; color: #5c695d; border: 1px solid #5c695d; font-size: 11px;">
+                        🚚 Gratis Ongkir
+                    </span>
+                    <span class="ms-1" style="font-size: 13px;">${voucherName}</span>
+                `;
+            } else {
+                textDisplay.innerHTML = `
+                    <span class="px-2 py-1 rounded fw-bold" 
+                        style="background-color: #fcf5f3; color: #bd654e; border: 1px solid #bd654e; font-size: 11px;">
+                        🏷️ Diskon Produk
+                    </span>
+                    <span class="ms-1" style="font-size: 13px;">${voucherName}</span>
+                `;
+            }
+
+            if(activeBadge) activeBadge.classList.remove('d-none');
+
+            voucherApplied = true;
+            calculateGrandTotal();
         }
 
-        function loadCities(provinceCode) {
-            const citySelect     = document.getElementById('citySelect');
-            const districtSelect = document.getElementById('districtSelect');
-            const villageSelect  = document.getElementById('villageSelect');
+        document.addEventListener('DOMContentLoaded', function () {
+            bsModal = new bootstrap.Modal(document.getElementById('addressModal'));
 
-            citySelect.innerHTML     = '<option value="">Pilih Kota</option>';
+            const addressRadios = document.querySelectorAll('.address-selector-radio');
+            addressRadios.forEach(radio => {
+                radio.addEventListener('change', handleAddressChange);
+            });
+            handleAddressChange();
+
+            const btnApplyVoucher = document.getElementById('btn-apply-voucher');
+            if (btnApplyVoucher) {
+                btnApplyVoucher.addEventListener('click', function() {
+                    applyVoucherVisual();
+                    
+                    let selectedVoucher = document.querySelector('.voucher-radio-input:checked');
+                    let container = document.getElementById('active-voucher-container');
+                    let placeholderText = document.getElementById('placeholder-voucher-text');
+                
+                    if (container) {
+                        const oldBadge = container.querySelector('.badge-voucher-active');
+                        if (oldBadge) oldBadge.remove();
+                    }
+                    
+                    if (placeholderText) placeholderText.style.display = 'inline';
+
+                    if (selectedVoucher && selectedVoucher.value !== "") {
+                        let voucherName = selectedVoucher.getAttribute('data-name');
+                        let usedFor = selectedVoucher.getAttribute('data-used-for');
+
+                        if (placeholderText) placeholderText.style.display = 'none';
+
+                        let badgeHtml = '';
+                        if (usedFor === 'shipping') {
+                            badgeHtml = `
+                                <span class="badge-voucher-active px-2 py-1 rounded text-white fw-bold" 
+                                      style="background-color: #5c695d; font-size: 11px; border: 1px solid #4a544b;">
+                                    Gratis Ongkir
+                                </span>
+                            `;
+                        } else {
+                            badgeHtml = `
+                                <span class="badge-voucher-active px-2 py-1 rounded fw-bold" 
+                                      style="background-color: #fcf5f3; color: #bd654e; border: 1px solid #bd654e; font-size: 11px;">
+                                    ${voucherName}
+                                </span>
+                            `;
+                        }
+                        if (container) container.insertAdjacentHTML('afterbegin', badgeHtml);
+                    }
+                });
+            }
+        });
+
+        function handleAddressChange() {
+            const selectedRadio = document.querySelector('.address-selector-radio:checked');
+            if (!selectedRadio) return;
+
+            const cityName = selectedRadio.getAttribute('data-city');
+            const villageName = selectedRadio.getAttribute('data-village');
+            if (cityName && villageName) {
+                fetchShippingCost(cityName, villageName);
+            }
+        }
+
+        function handlePaymentChange(value) {
+            const bankDropdown = document.getElementById('bankDropdown');
+            if (bankDropdown) {
+                bankDropdown.style.display = value === 'virtual_account' ? 'block' : 'none';
+            }
+        }
+
+        /* Handler Buka Modal Mode: Tambah Alamat Baru */
+        function openAddAddressModal() {
+            document.getElementById('addressModalLabel').innerText = "Detail Alamat Baru";
+            document.getElementById('modal_action_mode').value = "add";
+            document.getElementById('modal_address_id').value = "";
+            
+            // Reset isi inputan form modal
+            document.getElementById('modal_receiver_name').value = "";
+            document.getElementById('modal_receiver_phone').value = "";
+            document.getElementById('modal_address_line1').value = "";
+            document.getElementById('modal_postal_code').value = "";
+            document.getElementById('modalProvinceSelect').value = "";
+            
+            document.getElementById('modalCitySelect').innerHTML = '<option value="">Pilih Kota</option>';
+            document.getElementById('modalDistrictSelect').innerHTML = '<option value="">Pilih Kecamatan</option>';
+            document.getElementById('modalVillageSelect').innerHTML = '<option value="">Pilih Kelurahan</option>';
+            document.getElementById('modalCitySelect').disabled = true;
+            document.getElementById('modalDistrictSelect').disabled = true;
+            document.getElementById('modalVillageSelect').disabled = true;
+
+            bsModal.show();
+        }
+
+        /* Handler Buka Modal Mode: EDIT Alamat Lama */
+        function openEditAddressModal(addressObj) {
+            document.getElementById('addressModalLabel').innerText = "Ubah Alamat Pengiriman";
+            document.getElementById('modal_action_mode').value = "edit";
+            document.getElementById('modal_address_id').value = addressObj.id;
+
+            // Isi data yang sudah ada
+            document.getElementById('modal_receiver_name').value = addressObj.receiver_name;
+            document.getElementById('modal_receiver_phone').value = addressObj.receiver_phone;
+            document.getElementById('modal_address_line1').value = addressObj.address_line1;
+            document.getElementById('modal_postal_code').value = addressObj.postal_code || '';
+
+            // Otomatis set provinsi lama jika ada relasinya/code nya
+            if(addressObj.province_code) {
+                document.getElementById('modalProvinceSelect').value = addressObj.province_code;
+                
+                const citySelect = document.getElementById('modalCitySelect');
+                citySelect.innerHTML = `<option value="${addressObj.city_code || ''}" selected>${addressObj.city_name}</option>`;
+                citySelect.disabled = false;
+
+                const distSelect = document.getElementById('modalDistrictSelect');
+                distSelect.innerHTML = `<option value="${addressObj.district_code || ''}" selected>${addressObj.district_name}</option>`;
+                distSelect.disabled = false;
+
+                const villSelect = document.getElementById('modalVillageSelect');
+                villSelect.innerHTML = `<option value="${addressObj.village_code || ''}" selected>${addressObj.village_name}</option>`;
+                villSelect.disabled = false;
+            }
+
+            bsModal.show();
+        }
+
+        /* Dropdown Wilayah Bertingkat */
+        function loadCities(provinceCode) {
+            const citySelect = document.getElementById('modalCitySelect');
+            const districtSelect = document.getElementById('modalDistrictSelect');
+            const villageSelect = document.getElementById('modalVillageSelect');
+
+            citySelect.innerHTML = '<option value="">Pilih Kota</option>';
             districtSelect.innerHTML = '<option value="">Pilih Kecamatan</option>';
-            villageSelect.innerHTML  = '<option value="">Pilih Kelurahan</option>';
-            citySelect.disabled     = true;
-            districtSelect.disabled = true;
-            villageSelect.disabled  = true;
+            villageSelect.innerHTML = '<option value="">Pilih Kelurahan</option>';
+            citySelect.disabled = districtSelect.disabled = villageSelect.disabled = true;
 
             if (!provinceCode) return;
 
             fetch(`/api/cities?province_code=${provinceCode}`)
                 .then(res => res.json())
                 .then(cities => {
-                    cities.forEach(c => {
-                        citySelect.innerHTML += `<option value="${c.code}">${c.name}</option>`;
-                    });
+                    cities.forEach(c => { citySelect.innerHTML += `<option value="${c.code}">${c.name}</option>`; });
                     citySelect.disabled = false;
-                })
-                .catch(() => {
-                    citySelect.innerHTML = '<option value="">Gagal load kota</option>';
                 });
         }
 
         function loadDistricts(cityCode) {
-            const districtSelect = document.getElementById('districtSelect');
-            const villageSelect  = document.getElementById('villageSelect');
-
+            const districtSelect = document.getElementById('modalDistrictSelect');
+            const villageSelect = document.getElementById('modalVillageSelect');
             districtSelect.innerHTML = '<option value="">Pilih Kecamatan</option>';
-            villageSelect.innerHTML  = '<option value="">Pilih Kelurahan</option>';
-            districtSelect.disabled = true;
-            villageSelect.disabled  = true;
+            villageSelect.innerHTML = '<option value="">Pilih Kelurahan</option>';
+            districtSelect.disabled = villageSelect.disabled = true;
 
             if (!cityCode) return;
 
             fetch(`/api/districts?city_code=${cityCode}`)
                 .then(res => res.json())
                 .then(districts => {
-                    districts.forEach(d => {
-                        districtSelect.innerHTML += `<option value="${d.code}">${d.name}</option>`;
-                    });
+                    districts.forEach(d => { districtSelect.innerHTML += `<option value="${d.code}">${d.name}</option>`; });
                     districtSelect.disabled = false;
-                })
-                .catch(() => {
-                    districtSelect.innerHTML = '<option value="">Gagal load kecamatan</option>';
                 });
         }
 
         function loadVillages(districtCode) {
-            const villageSelect = document.getElementById('villageSelect');
+            const villageSelect = document.getElementById('modalVillageSelect');
             villageSelect.innerHTML = '<option value="">Pilih Kelurahan</option>';
-            villageSelect.disabled  = true;
+            villageSelect.disabled = true;
 
             if (!districtCode) return;
 
             fetch(`/api/villages?district_code=${districtCode}`)
                 .then(res => res.json())
                 .then(villages => {
-                    villages.forEach(v => {
-                        villageSelect.innerHTML += `<option value="${v.code}">${v.name}</option>`;
-                    });
+                    villages.forEach(v => { villageSelect.innerHTML += `<option value="${v.code}">${v.name}</option>`; });
                     villageSelect.disabled = false;
-
-                    // Auto trigger hitung ongkir setelah village loaded
-                    villageSelect.addEventListener('change', function() {
-                        loadShippingCost(this);
-                    }, { once: true });
                 });
         }
 
-        function loadShippingCost(villageSelect) {
-            const citySelect     = document.getElementById('citySelect');
-            const selectedVillage = villageSelect.options[villageSelect.selectedIndex].text;
-            const selectedCity    = citySelect.options[citySelect.selectedIndex].text;
+        /* Aksi Simpan Perubahan / Penambahan Data Alamat */
+        function saveModalAddress() {
+            const actionMode = document.getElementById('modal_action_mode').value;
+            const addressId = document.getElementById('modal_address_id').value;
+
+            const receiverName = document.getElementById('modal_receiver_name').value;
+            const receiverPhone = document.getElementById('modal_receiver_phone').value;
+            const addressLine = document.getElementById('modal_address_line1').value;
+            const postalCode = document.getElementById('modal_postal_code').value;
+
+            const pSel = document.getElementById('modalProvinceSelect');
+            const cSel = document.getElementById('modalCitySelect');
+            const dSel = document.getElementById('modalDistrictSelect');
+            const vSel = document.getElementById('modalVillageSelect');
+
+            if(!receiverName || !receiverPhone || !addressLine || !cSel.value) {
+                alert('Harap lengkapi informasi alamat Anda.');
+                return;
+            }
+
+            const provinceName = pSel.options[pSel.selectedIndex].text;
+            const cityName = cSel.options[cSel.selectedIndex].text;
+            const districtName = dSel.options[dSel.selectedIndex] ? dSel.options[dSel.selectedIndex].text : '';
+            const villageName = vSel.options[vSel.selectedIndex] ? vSel.options[vSel.selectedIndex].text : '';
+
+            const container = document.getElementById('hiddenAddressMutationContainer');
+            const wrapper = document.querySelector('.shopee-address-wrapper');
+            
+            if (actionMode === 'add') {
+                container.innerHTML = `
+                    <input type="hidden" name="address_action" value="create">
+                    <input type="hidden" name="receiver_name" value="${receiverName}">
+                    <input type="hidden" name="receiver_phone" value="${receiverPhone}">
+                    <input type="hidden" name="address_line1" value="${addressLine}">
+                    <input type="hidden" name="province_code" value="${pSel.value}">
+                    <input type="hidden" name="city_name" value="${cityName}">
+                    <input type="hidden" name="village_name" value="${villageName}">
+                    <input type="hidden" name="postal_code" value="${postalCode}">
+                `;
+
+                document.querySelectorAll('.address-selector-radio').forEach(r => r.checked = false);
+
+                const newAddressHTML = `
+                    <div class="shopee-address-item d-flex align-items-start gap-3 w-100 m-0" id="temp_lbl">
+                        <div class="pt-1">
+                            <input type="radio" name="address_id" value="new" class="address-selector-radio" checked data-is-new="true" data-city="${cityName}" data-village="${villageName}">
+                        </div>
+                        <div class="flex-grow-1" onclick="this.parentElement.querySelector('.address-selector-radio').click()">
+                            <div class="d-flex align-items-center gap-2 mb-1">
+                                <span class="fw-bold text-jaced-dark visual-name" style="font-size: 14px;">${receiverName}</span>
+                                <span class="text-jaced-muted small">|</span>
+                                <span class="text-jaced-muted small visual-phone">${receiverPhone}</span>
+                                <span class="badge bg-dark text-white ms-2" style="font-size: 9px; padding: 2px 4px;">Baru</span>
+                            </div>
+                            <div class="text-jaced-dark small mb-1 visual-line1">${addressLine}</div>
+                            <div class="text-jaced-muted tiny visual-full" style="font-size: 12px;">
+                                ${villageName}, ${districtName}, ${cityName}, ${provinceName}, ${postalCode}
+                            </div>
+                        </div>
+                        <div class="pt-1">
+                            <button type="button" class="btn-edit-address" onclick="alert('Alamat baru belum disimpan ke database. Selesaikan checkout untuk menyimpan.')">Ubah</button>
+                        </div>
+                    </div>
+                `;
+                
+                const oldTemp = document.getElementById('temp_lbl');
+                if(oldTemp) oldTemp.remove();
+
+                wrapper.insertAdjacentHTML('beforeend', newAddressHTML);
+                wrapper.lastElementChild.querySelector('.address-selector-radio').addEventListener('change', handleAddressChange);
+
+            } else {
+                container.innerHTML = `
+                    <input type="hidden" name="address_action" value="update">
+                    <input type="hidden" name="edit_address_id" value="${addressId}">
+                    <input type="hidden" name="receiver_name" value="${receiverName}">
+                    <input type="hidden" name="receiver_phone" value="${receiverPhone}">
+                    <input type="hidden" name="address_line1" value="${addressLine}">
+                    <input type="hidden" name="province_code" value="${pSel.value}">
+                    <input type="hidden" name="city_name" value="${cityName}">
+                    <input type="hidden" name="village_name" value="${villageName}">
+                    <input type="hidden" name="postal_code" value="${postalCode}">
+                `;
+
+                const targetRadio = document.querySelector(`.address-selector-radio[value="${addressId}"]`);
+                if (targetRadio) {
+                    targetRadio.checked = true;
+                    targetRadio.setAttribute('data-city', cityName);
+                    targetRadio.setAttribute('data-village', villageName);
+
+                    const rowItem = targetRadio.closest('.shopee-address-item');
+                    if (rowItem) {
+                        rowItem.querySelector('.flex-grow-1').innerHTML = `
+                            <div class="d-flex align-items-center gap-2 mb-1">
+                                <span class="fw-bold text-jaced-dark" style="font-size: 14px;">${receiverName}</span>
+                                <span class="text-jaced-muted small">|</span>
+                                <span class="text-jaced-muted small">${receiverPhone}</span>
+                            </div>
+                            <div class="text-jaced-dark small mb-1">${addressLine}</div>
+                            <div class="text-jaced-muted tiny" style="font-size: 12px;">
+                                ${villageName}, ${districtName}, ${cityName}, ${provinceName}, ${postalCode}
+                            </div>
+                        `;
+                    }
+                }
+            }
+
+            bsModal.hide();
+            fetchShippingCost(cityName, villageName);
+        }
+
+        function fetchShippingCost(cityName, villageName) {
             const shippingSection = document.getElementById('shippingOptions');
+            if (!shippingSection) return;
+            
+            shippingSection.innerHTML = '<p class="text-jaced-muted small">Menghitung ongkir...</p>';
 
-            shippingSection.innerHTML = '<p class="text-jaced-muted" style="font-size:14px;">Menghitung ongkir...</p>';
-
-            fetch(`/api/shipping-cost?village_name=${encodeURIComponent(selectedVillage)}&city_name=${encodeURIComponent(selectedCity)}&weight=1000`)
+            fetch(`/api/shipping-cost?village_name=${encodeURIComponent(villageName)}&city_name=${encodeURIComponent(cityName)}&weight=1000`)
                 .then(res => res.json())
                 .then(costs => {
-                    if (costs.error) {
-                        shippingSection.innerHTML = `<p class="text-danger" style="font-size:14px;">${costs.error}</p>`;
+                    if (costs.error || !costs.length) {
+                        shippingSection.innerHTML = `<p class="text-danger small">Kurir tidak tersedia untuk wilayah ini.</p>`;
                         return;
                     }
 
@@ -311,41 +809,98 @@
                     costs.forEach((item, index) => {
                         html += `
                         <div class="col-12">
-                            <label class="d-flex justify-content-between align-items-center p-3"
-                                style="border: 1px solid #d1cbbf; border-radius: 8px; cursor: pointer; font-size: 14px;">
+                            <label class="d-flex justify-content-between align-items-center p-2"
+                                style="border: 1px solid #e2dcd0; border-radius: 6px; cursor: pointer; font-size: 13px; background-color: #fff;">
                                 <div class="d-flex align-items-center gap-2">
                                     <input type="radio" name="selected_courier" value="${item.cost}"
                                         data-cost="${item.cost}" onchange="updateDeliveryFee(${item.cost})" ${index === 0 ? 'checked' : ''}>
                                     <div>
-                                        <div class="fw-semibold">${item.name} - ${item.service}</div>
-                                        <div class="text-jaced-muted">${item.description} • ${item.etd}</div>
+                                        <div class="fw-semibold">${item.name} (${item.service})</div>
+                                        <div class="text-jaced-muted tiny" style="font-size: 11px;">${item.etd}</div>
                                     </div>
                                 </div>
-                                <span class="fw-semibold">Rp ${item.cost.toLocaleString('id-ID')}</span>
+                                <span class="fw-semibold text-jaced-dark">Rp ${item.cost.toLocaleString('id-ID')}</span>
                             </label>
                         </div>`;
                     });
                     html += '</div>';
 
                     shippingSection.innerHTML = html;
-
-                    // Auto pilih yang pertama
                     updateDeliveryFee(costs[0].cost);
                 })
                 .catch(() => {
-                    shippingSection.innerHTML = '<p class="text-danger" style="font-size:14px;">Gagal menghitung ongkir.</p>';
+                    shippingSection.innerHTML = '<p class="text-danger small">Gagal menghitung ongkir.</p>';
                 });
         }
 
         function updateDeliveryFee(cost) {
-            document.getElementById('deliveryFeeDisplay').innerText = 'Rp ' + cost.toLocaleString('id-ID');
-            document.getElementById('deliveryFeeInput').value = cost;
+            currentDeliveryFee = cost;
+            
+            const display = document.getElementById('deliveryFeeDisplay');
+            const input = document.getElementById('deliveryFeeInput');
+            
+            if(display) display.innerText = 'Rp ' + cost.toLocaleString('id-ID');
+            if(input) input.value = cost;
 
-            // Update total
-            const subtotal    = {{ $subtotal }};
-            const tax         = {{ $tax }};
-            const total       = subtotal + tax + cost;
-            document.getElementById('totalDisplay').innerText = 'Rp ' + total.toLocaleString('id-ID');
+            calculateGrandTotal();
+        }
+
+
+        function clearSelectedVoucher() {
+            voucherApplied = false;
+            document.getElementById('applied-voucher-id').value = "";
+            document.getElementById('selectedVoucherText').innerText = "Voucher Jaced";
+            document.getElementById('selectedVoucherText').classList.remove('fw-bold', 'text-success');
+            document.getElementById('voucherActiveBadge').classList.add('d-none');
+            
+            const checkedRadio = document.querySelector('.voucher-radio-input:checked');
+            if(checkedRadio) checkedRadio.checked = false;
+
+            // Sembunyikan semua baris diskon saat voucher dihapus
+            document.querySelectorAll('#row-discount-shipping').forEach(el => el.classList.add('d-none'));
+            document.querySelectorAll('#row-discount-product').forEach(el => el.classList.add('d-none'));
+
+            calculateGrandTotal();
+        }
+
+        function calculateGrandTotal() {
+            const subtotal = {{ $subtotal ?? 0 }};
+            const tax = {{ $tax ?? 0 }};
+            
+            let discountValue = 0;
+
+            const rowShipping = document.getElementById('row-discount-shipping');
+            const rowProduct  = document.getElementById('row-discount-product');
+            if(rowShipping) rowShipping.classList.add('d-none');
+            if(rowProduct)  rowProduct.classList.add('d-none');
+            
+            // Hanya hitung diskon kalau user sudah klik Oke
+            if (voucherApplied) {
+                const selectedVoucher = document.querySelector('.voucher-radio-input:checked');
+                if (selectedVoucher) {
+                    const usedFor     = selectedVoucher.getAttribute('data-used-for');
+                    const maxDiscount = parseFloat(selectedVoucher.getAttribute('data-discount')) || 0;
+
+                    if (usedFor === 'shipping') {
+                        discountValue = Math.min(currentDeliveryFee, maxDiscount);
+                        document.querySelectorAll('#row-discount-shipping').forEach(el => el.classList.remove('d-none'));
+                        document.querySelectorAll('#summary-discount-shipping').forEach(el => {
+                            el.innerText = '-Rp ' + discountValue.toLocaleString('id-ID');
+                        });
+                    } else {
+                        discountValue = Math.min(subtotal, maxDiscount);
+                        document.querySelectorAll('#row-discount-product').forEach(el => el.classList.remove('d-none'));
+                        document.querySelectorAll('#summary-discount-product').forEach(el => {
+                            el.innerText = '-Rp ' + discountValue.toLocaleString('id-ID');
+                        });
+                    }
+                }
+            }
+
+            const finalTotal = (subtotal + tax + currentDeliveryFee) - discountValue;
+            document.querySelectorAll('#totalDisplay').forEach(el => {
+                el.innerText = 'Rp ' + finalTotal.toLocaleString('id-ID');
+            });
         }
     </script>
 @endpush
