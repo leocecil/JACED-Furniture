@@ -10,6 +10,10 @@ class ProductController extends Controller
 {
     // ─── HELPER: normalize product object buat view ──────────────────────────
 
+    public function landing()
+    {
+        return view('store.landing');
+    }
     private function normalize(Product $product): object
     {
         // Ambil main image dari relasi ProductImage
@@ -299,5 +303,25 @@ class ProductController extends Controller
         $product = $normalized;
 
         return view('store.product_details', compact('product', 'related'));
+    }
+    public function batchProducts(Request $request)
+    {
+        $ids = explode(',', $request->input('ids', ''));
+        $ids = array_filter(array_map('intval', $ids));
+
+        if (empty($ids)) return response()->json([]);
+
+        $products = Product::with(['images', 'category'])
+            ->whereIn('id', $ids)
+            ->get()
+            ->map(fn($p) => [
+                'id'              => $p->id,
+                'slug'            => $p->slug,
+                'main_image'      => $this->normalize($p)->main_image,
+                'price_formatted' => number_format($p->price, 0, ',', '.'),
+                'category'        => ucfirst($p->category->name ?? 'Furniture'),
+            ]);
+
+        return response()->json($products);
     }
 }

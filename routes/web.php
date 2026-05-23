@@ -26,8 +26,9 @@ Route::get('/register', [AuthController::class, 'show_register_form'])
 
 Route::post('/register', [AuthController::class, 'register'])
     ->name('register');
-    
-Route::get('/', [ProductController::class, 'home'])->name('home');
+
+Route::get('/', [ProductController::class, 'landing'])->name('landing');
+Route::get('/home', [ProductController::class, 'home'])->name('home');
 Route::get('/shop', [ProductController::class, 'shop'])->name('shop');
 
 // MIDDLEWARE CUSTOMER
@@ -163,3 +164,9 @@ Route::get('/admin/order_management', function () {
         return view('admin.dashboard');
     })->name('dashboard');
 }); 
+
+Route::get('/wishlist', function () {
+    return view('store.wishlist');
+})->name('wishlist');
+
+Route::get('/api/products/batch', [ProductController::class, 'batchProducts']);

@@ -372,6 +372,21 @@
             width: 100%; height: 100vh; min-height: 700px;
             background-size: cover; background-position: center;
             position: relative; display: flex; align-items: center;
+            overflow: hidden;
+        }
+        /* ===== KEN BURNS HERO ===== */
+        .carousel-item.active .hero-slide {
+            animation: kenBurns 12s ease-out forwards;
+        }
+        @keyframes kenBurns {
+            0% {
+                background-size: 100%;
+                background-position: center center;
+            }
+            100% {
+                background-size: 115%;
+                background-position: center 55%;
+            }
         }
         .hero-overlay {
             position: absolute; inset: 0;
