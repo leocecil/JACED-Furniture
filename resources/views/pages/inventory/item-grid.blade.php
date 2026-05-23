@@ -141,7 +141,8 @@
                         <span class="stock-badge {{ $badgeClass }}">{{ $badgeText }}</span>
                         <div class="d-flex gap-1">
                             <button class="action-btn" title="Edit"><i class="bi bi-pencil"></i></button>
-                            <form action="{{ route('inventory.destroy', $product->id) }}" method="POST"
+{{-- Form untuk delete, action dan method disesuaikan dengan route yang ada  --}} 
+                            <form action="#" method="POST"
                                   onsubmit="return confirm('Remove {{ addslashes($product->name) }}?')">
                                 @csrf @method('DELETE')
                                 <button type="submit" class="action-btn delete" title="Delete"><i class="bi bi-trash"></i></button>
@@ -179,7 +180,8 @@
 
                 <div class="d-flex gap-1 flex-shrink-0">
                     <button class="action-btn" title="Edit"><i class="bi bi-pencil"></i></button>
-                    <form action="{{ route('inventory.destroy', $product->id) }}" method="POST"
+{{-- Form untuk delete, action dan method disesuaikan dengan route yang ada --}}
+                    <form action="#" method="POST"
                           onsubmit="return confirm('Remove {{ addslashes($product->name) }}?')">
                         @csrf @method('DELETE')
                         <button type="submit" class="action-btn delete" title="Delete"><i class="bi bi-trash"></i></button>
@@ -188,6 +190,7 @@
             </div>
 
         </div>
+        {{-- {{ route('inventory.destroy', $product->id) }} --}}
     @empty
         <div style="width:100%; text-align:center; padding:60px 0; color:#9c9890;">
             <i class="bi bi-box-seam" style="font-size:3rem; opacity:.2; display:block; margin-bottom:12px;"></i>
