@@ -144,29 +144,47 @@
         {{-- SECTION 1: ACTIVE VOUCHERS --}}
         <div id="active-sec" class="voucher-section row g-3">
             @forelse($activeVouchers as $vouch)
-                <div class="ticket-left">
-                    <span style="font-size: 16px; text-align: center; padding: 4px;">
-                        {{ $vouch->discount_percentage }}% Off
-                    </span>
-                    <span style="font-size: 10px; text-transform: uppercase;">
-                        {{ $vouch->used_for === 'shipping' ? 'Ongkir' : 'Diskon' }}
-                    </span>
-                </div>
-                <div class="ticket-right">
-                    <div>
-                        <h3 class="ticket-title">{{ $vouch->name }}</h3>
-                        <p class="ticket-expiry">
-                            Max Rp {{ number_format($vouch->max_discount, 0, ',', '.') }} &bull;
-                            Valid until {{ \Carbon\Carbon::parse($vouch->expiry_date)->format('d M Y') }}
-                        </p>
+                @php
+                    $voucherImage = match(true) {
+                        $vouch->used_for === 'delivery'       => 'disc-ongkir.png',
+                        $vouch->discount_percentage === 100     => 'disc-100.png',
+                        $vouch->discount_percentage === 90     => 'disc-90.png',
+                        $vouch->discount_percentage === 80     => 'disc-80.png',
+                        $vouch->discount_percentage === 70     => 'disc-70.png',
+                        $vouch->discount_percentage === 60     => 'disc-60.png',
+                        $vouch->discount_percentage === 50     => 'disc-50.png',
+                        $vouch->discount_percentage === 40     => 'disc-40.png',
+                        $vouch->discount_percentage === 30     => 'disc-30.png',
+                        $vouch->discount_percentage === 20     => 'disc-20.png',
+                        $vouch->discount_percentage === 10     => 'disc-10.png',
+                        default                               => 'disc-product-default.png',
+                    };
+                @endphp
+
+                <div class="col-12 col-md-6">
+                    <div class="ticket-card">
+                        {{-- Gambar voucher sebagai background --}}
+                        <img src="{{ asset('image/vouchers/' . $voucherImage) }}" 
+                            alt="voucher"
+                            style="width: 120px; height: 100%; object-fit: cover; flex-shrink: 0;">
+                        
+                        <div class="ticket-right">
+                            <div>
+                                <h3 class="ticket-title">{{ $vouch->name }}</h3>
+                                <p class="ticket-expiry">
+                                    Max Rp {{ number_format($vouch->max_discount, 0, ',', '.') }} &bull;
+                                    Valid until {{ \Carbon\Carbon::parse($vouch->expiry_date)->format('d M Y') }}
+                                </p>
+                            </div>
+                            <form action="{{ route('reward.use-voucher') }}" method="POST">
+                                @csrf
+                                <input type="hidden" name="voucher_id" value="{{ $vouch->id }}">
+                                <button type="submit" class="copy-code-btn" style="border-color: var(--jaced-caramel); color: var(--jaced-caramel);">
+                                    Use Now →
+                                </button>
+                            </form>
+                        </div>
                     </div>
-                    <form action="{{ route('reward.use-voucher') }}" method="POST">
-                        @csrf
-                        <input type="hidden" name="voucher_id" value="{{ $vouch->id }}">
-                        <button type="submit" class="copy-code-btn" style="border-color: var(--jaced-caramel); color: var(--jaced-caramel);">
-                            Use Now →
-                        </button>
-                    </form>
                 </div>
             @empty
                 <div class="text-center py-5">

@@ -36,7 +36,7 @@ class RewardController extends Controller
             ->get();
 
         // Redeem goals dari voucher_types
-        $redeemGoals = DB::table('voucher_types')->get();
+        $redeemGoals = DB::table('voucher_types')->limit(2)->get();
 
         return view('profile.reward-center.reward', compact(
             'currentPoints', 'accumulatedPoints', 

@@ -296,7 +296,23 @@
         {{-- REWARDS GRID --}}
         <div class="row g-3" id="rewardsContainer">
             @forelse ($redeemGoals as $reward)
-                @php $isEnough = $currentPoints >= $reward->point_cost; @endphp
+                @php 
+                    $isEnough = $currentPoints >= $reward->point_cost; 
+                    $voucherImage = match(true) {
+                        $reward->used_for === 'delivery'       => 'disc-ongkir.png',
+                        $reward->discount_percentage === 100     => 'disc-100.png',
+                        $reward->discount_percentage === 90     => 'disc-90.png',
+                        $reward->discount_percentage === 80     => 'disc-80.png',
+                        $reward->discount_percentage === 70     => 'disc-70.png',
+                        $reward->discount_percentage === 60     => 'disc-60.png',
+                        $reward->discount_percentage === 50     => 'disc-50.png',
+                        $reward->discount_percentage === 40     => 'disc-40.png',
+                        $reward->discount_percentage === 30     => 'disc-30.png',
+                        $reward->discount_percentage === 20     => 'disc-20.png',
+                        $reward->discount_percentage === 10     => 'disc-10.png',
+                        default                               => 'disc-product-default.png',
+                    };
+                @endphp
 
                 <div class="col-12 col-sm-6 col-md-4 reward-item-card"
                      data-category="{{ $reward->used_for }}"
@@ -304,6 +320,10 @@
                      data-affordable="{{ $isEnough ? 'true' : 'false' }}">
 
                     <div class="reward-grid-card">
+                        <img src="{{ asset('image/vouchers/' . $voucherImage) }}"
+                            alt="{{ $reward->name }}"
+                            style="width: 100%; height: 140px; object-fit: cover;">
+
                         <div class="reward-body">
 
                             {{-- Badge jenis voucher --}}

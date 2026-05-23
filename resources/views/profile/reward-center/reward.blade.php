@@ -586,9 +586,28 @@
 
                 <div class="row g-3">
                     @foreach ($redeemGoals as $goal)
-                        @php $isEnough = $currentPoints >= $goal->point_cost; @endphp
-                        <div class="col-12 col-sm-4">
+                        @php 
+                            $isEnough = $currentPoints >= $goal->point_cost; 
+                            $voucherImage = match(true) {
+                                $goal->used_for === 'delivery'       => 'disc-ongkir.png',
+                                $goal->discount_percentage === 100     => 'disc-100.png',
+                                $goal->discount_percentage === 90     => 'disc-90.png',
+                                $goal->discount_percentage === 80     => 'disc-80.png',
+                                $goal->discount_percentage === 70     => 'disc-70.png',
+                                $goal->discount_percentage === 60     => 'disc-60.png',
+                                $goal->discount_percentage === 50     => 'disc-50.png',
+                                $goal->discount_percentage === 40     => 'disc-40.png',
+                                $goal->discount_percentage === 30     => 'disc-30.png',
+                                $goal->discount_percentage === 20     => 'disc-20.png',
+                                $goal->discount_percentage === 10     => 'disc-10.png',
+                                default                               => 'disc-product-default.png',
+                            };
+                        @endphp
+                        <div class="col-12 col-sm-6">
                             <div class="redeem-card position-relative">
+                                <img src="{{ asset('image/vouchers/' . $voucherImage) }}"
+                                    alt="{{ $goal->name }}"
+                                    style="width: 100%; height: 120px; object-fit: cover;">
                                 <div class="redeem-card-body">
                                     <p class="redeem-card-name mb-2">{{ $goal->name }}</p>
                                     <p class="mb-1" style="font-size: 13px;">
