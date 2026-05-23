@@ -3,6 +3,7 @@
 use App\Http\Controllers\Auth\GoogleController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\CartController;
+use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\InventoryController;
 use App\Http\Controllers\OrderController;
 use App\Http\Controllers\ProductController;
@@ -138,17 +139,9 @@ Route::middleware(['role:admin'])->group(function() {
     Route::get('/admin/main', [OrderController::class, 'index'])->name('orders.index');
 
 Route::get('/admin/inventory', [InventoryController::class, 'index'])->name('inventory.index');
-Route::get('/admin/dashboard', function () {
-    return view('admin.dashboard');
-})->name('dashboard');
+Route::get('/admin/dashboard', [DashboardController::class, 'index'])->name('admin.dashboard');
 Route::get('/admin/order_management', function () {
         return view('admin.order_management');
     })->name('order_management');
-
-
-    Route::get('/admin/inventory', [InventoryController::class, 'index'])->name('inventory.index');
-
-    Route::get('/admin/dashboard', function () {
-        return view('admin.dashboard');
-    })->name('dashboard');
+Route::get('/admin/inventory', [InventoryController::class, 'index'])->name('inventory.index');
 }); 
