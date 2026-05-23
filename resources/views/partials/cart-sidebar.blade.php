@@ -296,102 +296,75 @@
         <!-- CART ITEMS -->
         <div class="cart-items-wrapper">
             <!-- ITEM -->
+            @forelse($globalCartItems as $cart)
             <div class="cart-item">
-                <img src="https://placehold.co/300x300" class="cart-item-image">
-
+                <img
+                    src="{{ asset($cart->product->mainImage->image_path) }}"
+                    class="cart-item-image"
+                >
                 <div class="cart-item-content">
                     <div class="d-flex justify-content-between align-items-start">
                         <div>
                             <h5 class="cart-item-title">
-                                Ethereal Glass Table
+                                {{ $cart->product->name }}
                             </h5>
                             <div class="cart-item-category">
-                                TABLES
+                                {{ strtoupper($cart->product->category->name) }}
                             </div>
+
                             <div class="cart-item-price">
-                                Rp 2.100.000
+                                Rp {{ number_format($cart->product->price, 0, ',', '.') }}
                             </div>
 
                             <!-- QUANTITY -->
                             <div class="cart-qty-wrapper">
-                                <button class="cart-qty-btn" type="button"
-                                    onclick="
-                                        const qty = this.nextElementSibling;
-                                        if(parseInt(qty.value) > 1){
-                                            qty.value--;
-                                        }
-                                    "> -
-                                </button>
+
+                                <!-- MINUS -->
+                                <form action="{{ route('cart.decrease', $cart->id) }}" method="POST">
+                                    @csrf
+                                    @method('PATCH')
+
+                                    <button class="cart-qty-btn">
+                                        -
+                                    </button>
+                                </form>
 
                                 <input
-                                    type="text" value="1" class="cart-qty-input" readonly
+                                    type="text"
+                                    value="{{ $cart->quantity }}"
+                                    class="cart-qty-input"
+                                    readonly
                                 >
 
-                                <button class="cart-qty-btn" type="button"
-                                    onclick="
-                                        const qty = this.previousElementSibling;
-                                        qty.value++;
-                                    "> +
-                                </button>
+                                <!-- PLUS -->
+                                <form action="{{ route('cart.increase', $cart->id) }}" method="POST">
+                                    @csrf
+                                    @method('PATCH')
+
+                                    <button class="cart-qty-btn">
+                                        +
+                                    </button>
+                                </form>
                             </div>
                         </div>
 
                         <!-- DELETE -->
-                        <button class="remove-item-btn">
-                            <i class="fa-solid fa-trash"></i>
-                        </button>
+                        <form action="{{ route('cart.delete', $cart->id) }}" method="POST">
+                            @csrf
+                            @method('DELETE')
+
+                            <button class="remove-item-btn">
+                                <i class="fa-solid fa-trash"></i>
+                            </button>
+                        </form>
                     </div>
                 </div>
             </div>
-
-            <!-- ITEM -->
-            <div class="cart-item">
-                <img src="https://placehold.co/300x300" class="cart-item-image">
-
-                <div class="cart-item-content">
-                    <div class="d-flex justify-content-between align-items-start">
-                        <div>
-                            <h5 class="cart-item-title">
-                                Aurelius Lounge Chair
-                            </h5>
-                            <div class="cart-item-category">
-                                SEATING
-                            </div>
-                            <div class="cart-item-price">
-                                Rp 1.250.000
-                            </div>
-
-                            <!-- QUANTITY -->
-                            <div class="cart-qty-wrapper">
-                                <button class="cart-qty-btn" type="button"
-                                    onclick="
-                                        const qty = this.nextElementSibling;
-                                        if(parseInt(qty.value) > 1){
-                                            qty.value--;
-                                        }
-                                    "> -
-                                </button>
-
-                                <input
-                                    type="text" value="1" class="cart-qty-input" readonly
-                                >
-
-                                <button class="cart-qty-btn" type="button"
-                                    onclick="
-                                        const qty = this.previousElementSibling;
-                                        qty.value++;
-                                    "> +
-                                </button>
-                            </div>
-                        </div>
-
-                        <!-- DELETE -->
-                        <button class="remove-item-btn">
-                            <i class="fa-solid fa-trash"></i>
-                        </button>
-                    </div>
-                </div>
+        @empty
+            <div class="text-center py-5 text-secondary">
+                Your collection is empty
             </div>
+        @endforelse
         </div>
 
         <!-- STICKY FOOTER -->

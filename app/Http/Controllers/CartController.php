@@ -12,28 +12,38 @@ class CartController extends Controller
     // Tambah produk ke cart
     public function add(Request $request)
     {
-        $request->validate([
-            'product_id' => 'required|exists:products,id',
-            'quantity'   => 'required|integer|min:1',
-        ]);
+        $existingCart = Cart::where('user_id', auth()->id())
+            ->where('product_id', $request->product_id)
+            ->first();
 
-        $cart = Cart::where('user_id', Auth::id())
-                ->where('product_id', $request->product_id)
-                    ->first();
-
-        if ($cart) {
-            // Kalau sudah ada, update quantity
-            $cart->increment('quantity', $request->quantity);
+        if($existingCart){
+            $existingCart->quantity += $request->quantity;
+            $existingCart->save();
         } else {
-            // Kalau belum ada, buat baru
             Cart::create([
-                'user_id'    => Auth::id(),
+                'user_id' => auth()->id(),
                 'product_id' => $request->product_id,
-                'quantity'   => $request->quantity,
+                'quantity' => $request->quantity,
             ]);
         }
 
-        return response()->json(['message' => 'Produk ditambahkan ke cart']);
+        return back()->with('success', 'Product added to cart');
+    }
+    public function increase($id)
+    {
+        $cart = Cart::findOrFail($id);
+        $cart->quantity++;
+        $cart->save();
+        return back();
+    }
+    public function decrease($id)
+    {
+        $cart = Cart::findOrFail($id);
+        if($cart->quantity > 1){
+            $cart->quantity--;
+            $cart->save();
+        }
+        return back();
     }
 
     // Update quantity
@@ -56,6 +66,12 @@ class CartController extends Controller
             ->delete();
 
         return response()->json(['message' => 'Item dihapus dari cart']);
+    }
+    public function delete($id)
+    {
+        $cart = Cart::findOrFail($id);
+        $cart->delete();
+        return back();
     }
 
     // Ambil semua item cart user

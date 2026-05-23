@@ -2,6 +2,8 @@
 
 namespace App\Providers;
 
+use App\Models\Cart;
+use Illuminate\Support\Facades\View;
 use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
@@ -19,6 +21,29 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        //
+        View::composer('*', function ($view) {
+
+            $cartItems = [];
+
+            $cartTotal = 0;
+
+            if(auth()->check()){
+                $cartItems = Cart::with([
+                    'product.mainImage',
+                    'product.category'
+                ])
+                ->where('user_id', auth()->id())
+                ->get();
+
+                $cartTotal = $cartItems->sum(function($item){
+                    return $item->product->price * $item->quantity;
+                });
+            }
+
+            $view->with([
+                'globalCartItems' => $cartItems,
+                'globalCartTotal' => $cartTotal,
+            ]);
+        });
     }
 }

@@ -139,7 +139,7 @@ class ProductImageSeeder extends Seeder
 
                 ProductImage::create([
                     'product_id' => $product['product_id'],
-                    'image_path' => "image/products/{$folder}/{$i}.{$product['extension']}",
+                    'image_path' => "image/{$folder}/{$i}.{$product['extension']}",
                     'is_main' => $i === 1,
                     'sort_order' => $i,
                 ]);

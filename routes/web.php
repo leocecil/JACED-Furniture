@@ -78,14 +78,22 @@ Route::middleware(['role:customer'])->group(function() {
         return view('profile.help-center');
     })->name('help');
 
-    Route::get('/product_details', function () {
-        return view('store.product_details');
-    })->name('product_details');
+    Route::get('/product_details/{id}', [ProductController::class, 'show'])
+    ->name('product_details');
 
-    Route::get('/cart', function () {
-        return view('store.cart');
-    })->name('cart');
-    
+    // Route::get('/product_details', function () {
+    //     return view('store.product_details');
+    // })->name('product_details');
+
+    // CART
+    Route::post('/cart/add', [CartController::class, 'add'])->name('cart');
+    Route::patch('/cart/{id}/increase', [CartController::class, 'increase'])
+        ->name('cart.increase');
+    Route::patch('/cart/{id}/decrease', [CartController::class, 'decrease'])
+        ->name('cart.decrease');
+    Route::delete('/cart/{id}', [CartController::class, 'delete'])
+        ->name('cart.delete');
+
     Route::get('/product/{slug}', [ProductController::class, 'show'])->name('product.show');
 
     // CART
