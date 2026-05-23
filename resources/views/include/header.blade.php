@@ -56,9 +56,18 @@
                             <a href="{{ route('profile') }}" class="dropdown-item text-dark d-flex align-items-center py-2 px-3 fw-bold border-0 bg-transparent w-100" style="font-size: 12px;">
                                 <i class="fas fa-user me-2"></i> PROFILE
                             </a>
+
                             <a href="{{ route('wishlist') }}" class="dropdown-item text-dark d-flex align-items-center py-2 px-3 fw-bold border-0 bg-transparent w-100" style="font-size: 12px;">
                                 <i class="fas fa-heart me-2"></i> WISHLIST
                             </a>
+
+                            <a href="{{ route('reward') }}" class="dropdown-item text-dark d-flex align-items-center py-2 px-3 fw-bold border-0 bg-transparent w-100"
+                            style="font-size: 12px; font-family: 'Lexend', sans-serif; color: var(--jaced-brown-dark) !important;">
+                                <i class="fas fa-trophy me-2" style="color: var(--jaced-caramel);"></i>
+                                REWARD
+                            </a>
+
+                            <hr class="dropdown-divider my-1" style="border-color: var(--jaced-input); opacity: 0.5;">
                             <form action="{{ route('logout') }}" method="POST" class="m-0">
                                 @csrf
                                 <button type="submit" class="dropdown-item text-danger d-flex align-items-center py-2 px-3 fw-bold border-0 bg-transparent w-100" style="font-size: 12px;">

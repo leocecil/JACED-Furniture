@@ -17,6 +17,11 @@ class DatabaseSeeder extends Seeder
             WilayahIndonesiaSeeder::class,
             PaymentMethodSeeder::class,
             VaBankSeeder::class,
+            CustomerUserSeeder::class,
+            ShippingAddressSeeder::class,
+            VoucherTypeSeeder::class,
+            OrderSeeder::class,
+            OrderDetailSeeder::class,
         ]);
     }
 }

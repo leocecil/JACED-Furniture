@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('vouchers', function (Blueprint $table) {
             $table->id();
-            $table->unsignedBigInteger('voucher_type_id');
+            $table->string('voucher_type_id');
             $table->unsignedBigInteger('user_id');
             $table->date('expiry_date');
             $table->date('redeemed_at')->nullable();
