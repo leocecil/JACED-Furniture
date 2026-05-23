@@ -341,7 +341,7 @@
                     <!-- MAIN IMAGE -->
                     <img
                         id="mainImage"
-                        src="{{ asset($product->mainImage->image_path) }}
+                        src="{{ asset($product->mainImage->image_path) }}"
                         {{-- src="{{ $product->image_path ? asset('product_image/' . $product->image_path) : 'https://placehold.co/800x800' }}" --}}
                         class="main-product-image"
                         {{-- alt="{{ $product->name }}" --}}
