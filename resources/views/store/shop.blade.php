@@ -325,7 +325,7 @@
 
                         @if($products->total() > 0)
                             <div class="shop-pagination">
-                                {{ $products->onEachSide(1)->links() }}
+                                {{ $products->onEachSide(1)->links('vendor.pagination.bootstrap-5') }}
                             </div>
                         @endif
                     </div>
@@ -973,16 +973,25 @@
         }
         .shop-pagination .pagination {
             gap: 4px;
+            align-items: center;
+            flex-wrap: wrap;
+            justify-content: center;
         }
         .shop-pagination .page-link {
             border: 1px solid var(--jaced-input);
             color: var(--jaced-brown-dark);
             background: transparent;
             border-radius: 999px !important;
-            padding: 8px 14px;
+            padding: 8px 16px;
             font-size: 13px;
             font-weight: 500;
             margin: 0 2px;
+            min-width: 40px;
+            text-align: center;
+            line-height: 1.5;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
         .shop-pagination .page-item.active .page-link {
             background: var(--jaced-brown-dark);
@@ -997,6 +1006,12 @@
         .shop-pagination .page-item.disabled .page-link {
             color: var(--jaced-muted);
             background: transparent;
+            border-color: var(--jaced-input);
+            opacity: 0.5;
+        }
+        .shop-pagination .page-link span[aria-hidden] {
+            font-size: 13px;
+            line-height: 1;
         }
 
         /* ===== LOW STOCK BADGE ===== */

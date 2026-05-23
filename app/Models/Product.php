@@ -2,37 +2,43 @@
 
 namespace App\Models;
 
-use App\Models\ProductImage;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Product extends Model
 {
-    use HasFactory, SoftDeletes; // Aktifkan softDeletes agar sinkron dengan migration
+    use HasFactory, SoftDeletes;
 
-    // protected $fillable = [
-    //     'category_id', 'material_id', 'name', 'slug',
-    //     'short_description', 'description', 'price', 'old_price',
-    //     'main_image', 'badge', 'stock', 'is_active', 'is_recommended',
-    // ];
-
-    // protected $casts = [
-    //     'price' => 'decimal:2',
-    //     'old_price' => 'decimal:2',
-    //     'is_active' => 'boolean',
-    //     'is_recommended' => 'boolean',
-    // ];
-
-    protected $fillable = ['name', 'description', 'length', 'width', 'height',
-        'unit', 'price', 'stock', 'label', 'category_id',];
+    protected $fillable = [
+        'name',
+        'description',
+        'length',
+        'width',
+        'height',
+        'unit',
+        'price',
+        'old_price',
+        'stock',
+        'label',
+        'badge',
+        'slug',
+        'is_recommended',
+        'is_active',
+        'category_id',
+    ];
 
     protected $casts = [
-        'length' => 'decimal:2',
-        'width' => 'decimal:2',
-        'height' => 'decimal:2',
-        'price' => 'decimal:2',
+        'length'         => 'decimal:2',
+        'width'          => 'decimal:2',
+        'height'         => 'decimal:2',
+        'price'          => 'decimal:2',
+        'old_price'      => 'decimal:2',
+        'stock'          => 'integer',
+        'is_recommended' => 'boolean',
+        'is_active'      => 'boolean',
     ];
+
     public function category()
     {
         return $this->belongsTo(ProductCategory::class, 'category_id');
@@ -40,14 +46,7 @@ class Product extends Model
 
     public function images()
     {
-        return $this->hasMany(ProductImage::class)
-            ->orderBy('sort_order');
-    }
-
-    public function mainImage()
-    {
-        return $this->hasOne(ProductImage::class)
-            ->where('is_main', true);
+        return $this->hasMany(ProductImage::class);
     }
 
     public function orderDetails()
@@ -58,9 +57,5 @@ class Product extends Model
     public function wishlists()
     {
         return $this->hasMany(Wishlist::class);
-    }
-    public function carts()
-    {
-        return $this->hasMany(Cart::class);
     }
 }

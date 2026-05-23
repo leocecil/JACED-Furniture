@@ -110,6 +110,17 @@ Route::middleware(['role:customer'])->group(function() {
     Route::get('/api/villages', [OrderController::class, 'getVillages'])->name('api.villages');
     Route::get('/api/shipping-cost', [OrderController::class, 'getShippingCost']);
 
+    // CART
+    Route::get('/api/cart', [CartController::class, 'index']);
+    Route::post('/api/cart/add', [CartController::class, 'add'])->name('cart.add');
+    Route::put('/api/cart/update/{id}', [CartController::class, 'update'])->name('cart.update');
+    Route::delete('/api/cart/remove/{id}', [CartController::class, 'remove'])->name('cart.remove');
+
+    // SHIPPING API
+    Route::get('/api/districts', [OrderController::class, 'getDistricts'])->name('api.districts');
+    Route::get('/api/villages', [OrderController::class, 'getVillages'])->name('api.villages');
+    Route::get('/api/shipping-cost', [OrderController::class, 'getShippingCost']);
+
     Route::get('/payment/status/{order_id}', [OrderController::class, 'payment_status'])->name('payment_status');
     Route::get('/payment/return/{order_id}', [OrderController::class, 'payment_return'])->name('payment_return');
 
