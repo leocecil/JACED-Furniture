@@ -137,11 +137,14 @@ Route::middleware(['role:admin'])->group(function() {
 
     Route::get('/admin/main', [OrderController::class, 'index'])->name('orders.index');
 
-    Route::get('/admin//inventory', [InventoryController::class, 'index'])->name('inventory.index');
-
-    Route::get('/admin/order_management', function () {
+Route::get('/admin/inventory', [InventoryController::class, 'index'])->name('inventory.index');
+Route::get('/admin/dashboard', function () {
+    return view('admin.dashboard');
+})->name('dashboard');
+Route::get('/admin/order_management', function () {
         return view('admin.order_management');
     })->name('order_management');
+
 
     Route::get('/admin/inventory', [InventoryController::class, 'index'])->name('inventory.index');
 
