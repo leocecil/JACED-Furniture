@@ -66,7 +66,6 @@
                                 <i class="fas fa-trophy me-2" style="color: var(--jaced-caramel);"></i>
                                 REWARD
                             </a>
-
                             <hr class="dropdown-divider my-1" style="border-color: var(--jaced-input); opacity: 0.5;">
                             <form action="{{ route('logout') }}" method="POST" class="m-0">
                                 @csrf
