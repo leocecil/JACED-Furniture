@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 
 class RewardController extends Controller
 {
@@ -11,33 +12,37 @@ class RewardController extends Controller
     {
         $user = Auth::user();
         
-        // Ambil data poin dari user yang sedang login
-        $currentPoints = $user->current_points ?? 0;
+        $currentPoints     = $user->current_points ?? 0;
         $accumulatedPoints = $user->accumulated_points ?? 0;
 
-        // Tentukan Stage secara dinamis berdasarkan Akumulasi Poin
-        $stage = 'Bronze';
-        if ($accumulatedPoints >= 5000) {
-            $stage = 'Gold';
-        } elseif ($accumulatedPoints >= 2500) {
-            $stage = 'Silver';
-        }
+        // Stage berdasarkan total spending order paid
+        $totalSpending = DB::table('orders')
+            ->where('user_id', $user->id)
+            ->where('status', 'paid')
+            ->sum('total_price');
 
-        // Dummy data untuk History (Nanti bisa kamu ganti dari DB tabel point_histories jika ada)
-        $pointHistoryItems = [
-            ['points' => '200 Points', 'source' => 'Workshop Attendance', 'date' => '15 May 2026', 'type' => 'earned'],
-            ['points' => '450 Points', 'source' => 'Redeem Candle', 'date' => '14 May 2026', 'type' => 'redeemed'],
-        ];
+        $stage = match(true) {
+            $totalSpending >= 500_000_000 => 'Platinum',
+            $totalSpending >= 200_000_000 => 'Gold',
+            $totalSpending >= 50_000_000  => 'Silver',
+            default                        => 'Bronze',
+        };
 
-        // Daftar hadiah yang bisa ditukarkan
-        $redeemGoals = [
-            ['id' => 1, 'name' => 'Artisan Scented Candle', 'image' => 'https://images.unsplash.com/photo-1603905600016-2f0a09924a49?w=400&h=300&fit=crop', 'goal' => 450],
-            ['id' => 2, 'name' => 'Asymmetric Vase', 'image' => 'https://images.unsplash.com/photo-1612196808214-b8e1d6145a8c?w=400&h=300&fit=crop', 'goal' => 850],
-            ['id' => 3, 'name' => 'Handwoven Wool Throw', 'image' => 'https://images.unsplash.com/photo-1580301762395-21ce84d00bc6?w=400&h=300&fit=crop', 'goal' => 2000],
-        ];
+        // Point history dari DB
+        $pointHistoryItems = DB::table('point_histories')
+            ->where('user_id', $user->id)
+            ->orderBy('created_at', 'desc')
+            ->limit(5)
+            ->get();
 
-        // Kirim semua variabel ke view blade kamu
-        return view('loyalty', compact('currentPoints', 'accumulatedPoints', 'stage', 'pointHistoryItems', 'redeemGoals'));
+        // Redeem goals dari voucher_types
+        $redeemGoals = DB::table('voucher_types')->get();
+
+        return view('profile.reward-center.reward', compact(
+            'currentPoints', 'accumulatedPoints', 
+            'stage', 'totalSpending',
+            'pointHistoryItems', 'redeemGoals'
+        ));
     }
 
     /**
@@ -45,25 +50,137 @@ class RewardController extends Controller
      */
     public function redeem(Request $request)
     {
-        $user = Auth::user();
-        
-        // Contoh harga hadiah fix berdasarkan input / request dari form penukaran
-        $rewardCost = $request->input('points_cost'); 
-        $rewardName = $request->input('reward_name');
+        $user          = Auth::user();
+        $voucherTypeId = $request->input('voucher_type_id');
 
-        // Validasi: Apakah poin yang bisa digunakan cukup?
-        if ($user->current_points < $rewardCost) {
-            return redirect()->back()->with('error', 'Poin kamu tidak mencukupi untuk menukar hadiah ini.');
+        $voucherType = DB::table('voucher_types')->find($voucherTypeId);
+
+        if (!$voucherType) {
+            return redirect()->back()->with('error', 'Voucher tidak ditemukan.');
         }
 
-        // PROSES UTAMA: Kurangi poin belanja user
-        // Poin akumulasi seumur hidup (accumulated_points) SENGAJA TIDAK DIKURANGI agar level/stage tidak turun
-        $user->decrement('current_points', $rewardCost);
+        if ($user->current_points < $voucherType->point_cost) {
+            return redirect()->back()->with('error', 'Poin kamu tidak mencukupi.');
+        }
 
-        // Tambahan Logika Kelompokmu: 
-        // 1. Simpan hadiah ke tabel kupon/voucher user
-        // 2. Catat transaksi ke tabel riwayat poin
+        // Kurangi poin, accumulated tidak berkurang
+        $user->decrement('current_points', $voucherType->point_cost);
 
-        return redirect()->back()->with('success', "Berhasil menukarkan {$rewardName}! Silakan cek menu My Vouchers.");
+        // Buat voucher untuk user
+        DB::table('vouchers')->insert([
+            'voucher_type_id' => $voucherType->id,
+            'user_id'         => $user->id,
+            'expiry_date'     => now()->addDays(30),
+            'is_active'       => true,
+            'created_at'      => now(),
+            'updated_at'      => now(),
+        ]);
+
+        // Catat ke point_histories
+        DB::table('point_histories')->insert([
+            'user_id'    => $user->id,
+            'points'     => -$voucherType->point_cost, // negatif karena dipakai
+            'type'       => 'redeemed',
+            'source'     => 'redeem_voucher',
+            'order_id'   => null,
+            'created_at' => now(),
+            'updated_at' => now(),
+        ]);
+
+        return redirect()->back()->with('success', "Berhasil menukar {$voucherType->name}! Cek My Vouchers.");
     }
+
+
+    public function redeemPage()
+    {
+        $user = Auth::user();
+        $currentPoints = $user->current_points ?? 0;
+        $redeemGoals = DB::table('voucher_types')->get();
+
+        return view('profile.reward-center.redeem-point', compact(
+            'currentPoints', 'redeemGoals'
+        ));
+    }
+
+    public function pointHistory()
+    {
+        $user = Auth::user();
+        $currentPoints = $user->current_points ?? 0;
+
+        $histories = DB::table('point_histories')
+            ->where('user_id', $user->id)
+            ->orderBy('created_at', 'desc')
+            ->get();
+
+        // Hitung total earned dan redeemed tahun ini
+        $currentYear = now()->year;
+        $earnedThisYear = DB::table('point_histories')
+            ->where('user_id', $user->id)
+            ->where('type', 'earned')
+            ->whereYear('created_at', $currentYear)
+            ->sum('points');
+
+        // Ambil tahun-tahun yang ada di history untuk dropdown
+        $availableYears = DB::table('point_histories')
+            ->where('user_id', $user->id)
+            ->selectRaw('YEAR(created_at) as year')
+            ->distinct()
+            ->orderBy('year', 'desc')
+            ->pluck('year');
+
+        return view('profile.reward-center.point-history', compact(
+            'currentPoints', 'histories',
+            'earnedThisYear', 'availableYears', 'currentYear'
+        ));
+    }
+
+    public function useVoucher(Request $request)
+    {
+        $voucherId = $request->input('voucher_id');
+        
+        // Validasi voucher milik user dan masih aktif
+        $voucher = DB::table('vouchers')
+            ->where('id', $voucherId)
+            ->where('user_id', Auth::id())
+            ->where('is_active', true)
+            ->whereNull('redeemed_at')
+            ->first();
+
+        if (!$voucher) {
+            return redirect()->back()->with('error', 'Voucher tidak valid.');
+        }
+
+        // Simpan ke session
+        session(['pending_voucher_id' => $voucherId]);
+
+        return redirect()->route('checkout.index');
+    }
+
+    public function voucherPage()
+    {
+        $user = Auth::user();
+
+        $activeVouchers = DB::table('vouchers')
+            ->join('voucher_types', 'vouchers.voucher_type_id', '=', 'voucher_types.id')
+            ->where('vouchers.user_id', $user->id)
+            ->where('vouchers.is_active', true)
+            ->whereNull('vouchers.redeemed_at')
+            ->where('vouchers.expiry_date', '>', now())
+            ->select('vouchers.*', 'voucher_types.name', 'voucher_types.used_for', 'voucher_types.discount_percentage', 'voucher_types.max_discount')
+            ->get();
+
+        $historyVouchers = DB::table('vouchers')
+            ->join('voucher_types', 'vouchers.voucher_type_id', '=', 'voucher_types.id')
+            ->where('vouchers.user_id', $user->id)
+            ->where(function($q) {
+                $q->where('vouchers.is_active', false)
+                ->orWhereNotNull('vouchers.redeemed_at')
+                ->orWhere('vouchers.expiry_date', '<=', now());
+            })
+            ->select('vouchers.*', 'voucher_types.name', 'voucher_types.used_for', 'voucher_types.discount_percentage', 'voucher_types.max_discount')
+            ->get();
+
+        return view('profile.reward-center.voucher', compact('activeVouchers', 'historyVouchers'));
+    }
+
 }

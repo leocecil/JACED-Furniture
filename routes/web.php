@@ -7,6 +7,7 @@ use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\InventoryController;
 use App\Http\Controllers\OrderController;
 use App\Http\Controllers\ProductController;
+use App\Http\Controllers\RewardController;
 use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
 
@@ -41,29 +42,25 @@ Route::middleware(['role:customer'])->group(function() {
         return view('profile.tos');
     })->name('tos');
     
-    Route::get('/reward', function () {
-        return view('profile.reward-center.reward');
-    })->name('reward');
+    Route::get('/reward', [RewardController::class, 'index'])->name('reward');
 
     Route::get('/reward/voucher', function () {
         return view('profile.reward-center.voucher');
     })->name('voucher');
 
-    Route::get('/reward', function () {
-        return view('profile.reward-center.reward');
-    })->name('reward');
-
-    Route::get('/reward/voucher', function () {
-        return view('profile.reward-center.voucher');
-    })->name('voucher');
-
+    Route::post('/reward/redeem', [RewardController::class, 'redeem'])->name('reward.redeem');
     Route::get('/reward/redeem-point', function () {
         return view('profile.reward-center.redeem-point');
     })->name('redeem-point');
+    Route::get('/reward/redeem-point', [RewardController::class, 'redeemPage'])->name('redeem-point');
 
-    Route::get('/reward/point-history', function () {
-        return view('profile.reward-center.point-history');
-    })->name('point-history');
+    Route::get('/reward/point-history', [RewardController::class, 'pointHistory'])->name('point-history');
+    Route::post('/reward/use-voucher', [RewardController::class, 'useVoucher'])->name('reward.use-voucher');
+    Route::post('/voucher/clear-session', function() {
+        session()->forget('pending_voucher_id');
+        return response()->json(['ok' => true]);
+    })->name('voucher.clear-session');
+    Route::get('/reward/voucher', [RewardController::class, 'voucherPage'])->name('voucher');
 
     Route::get('/terms-of-service', function () {
         return view('profile.tos');

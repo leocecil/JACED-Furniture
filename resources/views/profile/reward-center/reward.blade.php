@@ -416,70 +416,6 @@
 @endpush
 
 @section('content')
-@php
-    // =================================================================
-    // FIX : AMBIL DATA DARI DB USER SECARA REALTIME
-    // =================================================================
-    $currentPoints = Auth::user()->current_points ?? 0;
-    $accumulatedPoints = Auth::user()->accumulated_points ?? 0;
-
-    // Tentukan Stage secara dinamis berdasarkan Akumulasi Poin
-    $stage = 'Bronze';
-    if ($accumulatedPoints >= 5000) {
-        $stage = 'Gold';
-    } elseif ($accumulatedPoints >= 2500) {
-        $stage = 'Silver';
-    }
-
-    $pointHistoryItems = [
-        [
-            'points' => '200 Points',
-            'source' => 'Workshop Attendance',
-            'date'   => '15 May 2026',
-            'type'   => 'earned',
-        ],
-        [
-            'points' => '450 Points',
-            'source' => 'Redeem Candle',
-            'date'   => '14 May 2026',
-            'type'   => 'redeemed',
-        ],
-        [
-            'points' => '50 Points',
-            'source' => 'Social Share Post',
-            'date'   => '12 May 2026',
-            'type'   => 'earned',
-        ],
-        [
-            'points' => '150 Points',
-            'source' => 'Referral Reward',
-            'date'   => '10 May 2026',
-            'type'   => 'earned',
-        ],
-    ];
-
-    $redeemGoals = [
-        [
-            'name'     => 'Artisan Scented Candle',
-            'image'    => 'https://images.unsplash.com/photo-1603905600016-2f0a09924a49?w=400&h=300&fit=crop',
-            'goal'     => 450,
-            'favorited'=> true,
-        ],
-        [
-            'name'     => 'Asymmetric Vase',
-            'image'    => 'https://images.unsplash.com/photo-1612196808214-b8e1d6145a8c?w=400&h=300&fit=crop',
-            'goal'     => 850,
-            'favorited'=> false,
-        ],
-        [
-            'name'     => 'Handwoven Wool Throw',
-            'image'    => 'https://images.unsplash.com/photo-1580301762395-21ce84d00bc6?w=400&h=300&fit=crop',
-            'goal'     => 2000,
-            'favorited'=> false,
-        ],
-    ];
-@endphp
-
 <div class="loyalty-page">
     <div style="max-width: 1000px; margin: 0 auto;">
         {{-- BACK --}}
@@ -650,38 +586,36 @@
 
                 <div class="row g-3">
                     @foreach ($redeemGoals as $goal)
-                        @php
-                            // FIX DOSEN: Menggunakan currentPoints asli milik user untuk memvalidasi tombol redeem goals
-                            $isEnough = $currentPoints >= $goal['goal'];
-                        @endphp
-
+                        @php $isEnough = $currentPoints >= $goal->point_cost; @endphp
                         <div class="col-12 col-sm-4">
                             <div class="redeem-card position-relative">
-                                <div style="background: #f5f4f0; height: 160px; width: 100%;">
-                                    <img src="{{ $goal['image'] }}" alt="{{ $goal['name'] }}" class="redeem-card-img">
-                                </div>
-
                                 <div class="redeem-card-body">
-                                    <p class="redeem-card-name mb-2">{{ $goal['name'] }}</p>
-
-                                    <p class="mb-2" style="font-size: 13px; font-weight: 600; color: var(--jaced-brown-dark);">
-                                        <span style="color: var(--jaced-caramel); font-weight: 700; font-size: 18px;">{{ number_format($goal['goal']) }} </span> Points
+                                    <p class="redeem-card-name mb-2">{{ $goal->name }}</p>
+                                    <p class="mb-1" style="font-size: 13px;">
+                                        <span style="color: var(--jaced-caramel); font-weight: 700; font-size: 18px;">
+                                            {{ number_format($goal->point_cost) }}
+                                        </span> Points
+                                    </p>
+                                    <p class="text-muted mb-2" style="font-size: 12px;">
+                                        Diskon {{ $goal->discount_percentage }}% • Max Rp {{ number_format($goal->max_discount, 0, ',', '.') }}
                                     </p>
 
                                     <div class="mb-3">
-                                        @if ($isEnough)
-                                            <span class="badge" style="background-color: #e6f4ea; color: #137333; font-size: 0.7rem; font-weight: 700; padding: 4px 8px;">
-                                                🎉 Enough Points!
-                                            </span>
+                                        @if($isEnough)
+                                            <span class="badge" style="background-color: #e6f4ea; color: #137333;">🎉 Enough Points!</span>
                                         @else
-                                            <span class="badge" style="background-color: #fff3cd; color: #856404; font-size: 0.7rem; font-weight: 700; padding: 4px 8px;">
-                                                🔒 Need {{ number_format($goal['goal'] - $currentPoints) }} Pts
+                                            <span class="badge" style="background-color: #fff3cd; color: #856404;">
+                                                🔒 Need {{ number_format($goal->point_cost - $currentPoints) }} Pts
                                             </span>
                                         @endif
                                     </div>
 
-                                    @if ($isEnough)
-                                        <button class="btn-redeem-now">Redeem Now</button>
+                                    @if($isEnough)
+                                        <form action="{{ route('reward.redeem') }}" method="POST">
+                                            @csrf
+                                            <input type="hidden" name="voucher_type_id" value="{{ $goal->id }}">
+                                            <button type="submit" class="btn-redeem-now">Redeem Now</button>
+                                        </form>
                                     @else
                                         <button class="btn-redeem-locked" disabled>Redeem Now</button>
                                     @endif
