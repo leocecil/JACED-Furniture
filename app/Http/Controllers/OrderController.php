@@ -54,6 +54,16 @@ class OrderController extends Controller
                         ?? 'https://placehold.co/200x200',
         ]);
 
+        $totalWeight = $cartItems->sum(function($cart) {
+            $p = $cart->product;
+            if (!$p || !$p->length || !$p->width || !$p->height) {
+                return 1000; // fallback kalau dimensi belum diisi
+            }
+            $volumetric = ($p->length * $p->width * $p->height) / 6;
+            return $volumetric * $cart->quantity;
+        });
+        $totalWeight = max(1000, (int) $totalWeight);
+
         $subtotal = $items->sum(fn($i) => $i['price'] * $i['qty']);
         $shipping = 0;
         $tax      = $subtotal * 0.0836;
@@ -78,9 +88,23 @@ class OrderController extends Controller
                 'name'  => strtoupper($b->name),
             ]);
 
+        $pendingVoucherId = session('pending_voucher_id');
+        $pendingVoucher = null;
+
+        if ($pendingVoucherId) {
+            $pendingVoucher = DB::table('vouchers')
+                ->join('voucher_types', 'vouchers.voucher_type_id', '=', 'voucher_types.id')
+                ->where('vouchers.id', $pendingVoucherId)
+                ->where('vouchers.user_id', Auth::id())
+                ->where('vouchers.is_active', true)
+                ->whereNull('vouchers.redeemed_at')
+                ->select('vouchers.*', 'voucher_types.name', 'voucher_types.used_for', 'voucher_types.max_discount', 'voucher_types.discount_percentage')
+                ->first();
+        }
+
         return view('store.checkout', compact(
-            'items', 'paymentMethods', 'banks',
-            'provinces', 'savedAddresses', 'subtotal', 'shipping', 'myVouchers', 'tax', 'total'
+            'items', 'paymentMethods', 'banks', 'pendingVoucher',
+            'provinces', 'savedAddresses', 'totalWeight', 'subtotal', 'shipping', 'myVouchers', 'tax', 'total'
         ));
     }
 
@@ -164,7 +188,7 @@ class OrderController extends Controller
             $totalWeight = max(1000, (int) $totalWeight);
 
             $subtotalPrice = $cartItems->sum(fn($item) => $item->product->price * $item->quantity);
-            $serviceTax    = $subtotalPrice * 0.0836;
+            $serviceTax    = $subtotalPrice * 0.1;
             $voucherId      = $request->input('applied_voucher_id');
             $discountAmount = 0;
             $appliedVoucher = null;
@@ -363,21 +387,28 @@ class OrderController extends Controller
             if ($poinBaru > 0 && Auth::check()) {
                 $user = Auth::user();
                 
-                // Poin yang bisa dibelanjakan (bisa berkurang saat diredeem)
                 $user->increment('current_points', $poinBaru);
-                
-                // Poin akumulasi seumur hidup (tidak pernah berkurang untuk penentu Stage)
                 $user->increment('accumulated_points', $poinBaru);
+
+                DB::table('point_histories')->insert([
+                    'user_id'    => $user->id,
+                    'points'     => $poinBaru,
+                    'type'       => 'earned',
+                    'source'     => 'purchase',
+                    'order_id'   => $order->id,
+                    'created_at' => now(),
+                    'updated_at' => now(),
+                ]);
             }
 
             // Arahkan ke riwayat transaksi dengan flash message jumlah poin yang didapat
-            return redirect()->route('store.transactionhistory')
+            return redirect()->route('store.orderhistory')
                              ->with('success', 'Payment successful! You earned ' . $poinBaru . ' points.');
                              
         } elseif ($order->status == 'pending') {
-            return redirect()->route('store.transactionhistory')->with('error', 'Payment is pending. Please complete it.');
+            return redirect()->route('store.orderhistory')->with('error', 'Payment is pending. Please complete it.');
         } else {
-            return redirect()->route('store.transactionhistory')->with('error', 'Payment failed or expired.');
+            return redirect()->route('store.orderhistory')->with('error', 'Payment failed or expired.');
         }
     }
 
@@ -426,24 +457,48 @@ class OrderController extends Controller
             return response()->json(['error' => 'Alamat tidak ditemukan'], 404);
         }
 
+
         $couriers = ['jne', 'jnt', 'sicepat', 'lion'];
         $allCosts = [];
 
         foreach ($couriers as $courier) {
             $costs = $rajaOngkir->calculateCost($destinationId, $weight, $courier);
-            if ($courier === 'jne') {
-                $costs = array_filter($costs, fn($c) => str_contains($c['service'], 'JTR'));
-                $costs = array_values($costs);
-            }
-            
-            if ($courier === 'jnt') {
-                $costs = array_filter($costs, fn($c) => str_contains(strtoupper($c['service']), 'CARGO'));
-                $costs = array_values($costs);
-            }
-            $allCosts = array_merge($allCosts, $costs);
+            $filtered = match($courier) {
+            'jne' => array_filter($costs, function($c) use ($weight) {
+                $svc = strtoupper($c['service']);
+                if (!str_starts_with($svc, 'JTR')) return false;
+
+                $weightKg = $weight / 1000;
+
+                if (str_contains($svc, '>200')) return $weightKg >= 200;
+                if (str_contains($svc, '>130')) return $weightKg >= 130 && $weightKg < 200;
+                if (str_contains($svc, '<130')) return $weightKg >= 10  && $weightKg < 130;
+
+                // JTR polos = untuk < 10kg
+                return $weightKg < 10;
+            }),
+
+            // JNT: skip aja, ga ada cargo service-nya
+            'jnt' => [],
+
+            // SiCepat: GOKIL itu cargo, REG yang dibuang
+            'sicepat' => array_filter($costs, function($c) {
+                $svc = strtoupper($c['service']);
+                if (str_contains($svc, 'REG')) return false;
+                return true; // ambil GOKIL dan service lain non-REG
+            }),
+
+            // Lion: BIGPACK only
+            'lion' => array_filter($costs, function($c) {
+                return strtoupper($c['service']) === 'BIGPACK';
+            }),
+
+            default => [],
+            };
+            $allCosts = array_merge($allCosts, array_values($filtered));
         }
 
-        return response()->json($allCosts);
+        return response()->json(array_values($allCosts));
     }
 
 

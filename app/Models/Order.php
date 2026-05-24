@@ -46,15 +46,10 @@ class Order extends Model
         // 'arrived_at',
         // 'cancelled_at',
     ];
-    // protected $casts = [
-    //     'delivery_fee' => 'decimal:2',
-    //     'service_tax' => 'decimal:2',
-    //     'discount_amount' => 'decimal:2',
-    //     'total_price' => 'decimal:2',
-
-    //     'packed_at' => 'datetime',
-    //     'delivered_at' => 'datetime',
-    //     'arrived_at' => 'datetime',
-    //     'cancelled_at' => 'datetime',
-    // ];
+    protected $casts = [
+        'packed_at' => 'datetime',
+        'delivered_at' => 'datetime',
+        'arrived_at' => 'datetime',
+        'cancelled_at' => 'datetime',
+    ];
 }

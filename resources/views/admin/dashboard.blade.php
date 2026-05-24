@@ -12,24 +12,22 @@
         --ink-2:        #3D3830;
         --ink-muted:    #7A7369;
         --border:       #DDD8CF;
-
-        /* Colorblind-safe accent palette (no red/green confusion)   */
-        /* Uses Blue / Orange / Teal / Purple                        */
-        --accent:       #B87333;   /* warm copper/amber – primary     */
-        --accent-soft:  #F5E6D3;   /* accent tint                     */
-        --blue:         #2667CC;   /* info / shipped                  */
+        --accent:       #B87333;
+        --accent-soft:  #F5E6D3;
+        --blue:         #2667CC;
         --blue-soft:    #DBE8FB;
-        --teal:         #007A7A;   /* on-site / success               */
+        --teal:         #007A7A;
         --teal-soft:    #CCEAEA;
-        --amber:        #C47B00;   /* processing / warning            */
+        --amber:        #C47B00;
         --amber-soft:   #FAF0D0;
-        --danger:       #A0320A;   /* low stock / urgent              */
+        --danger:       #A0320A;
         --danger-soft:  #FAE0D3;
         --purple:       #5E3FA3;
         --purple-soft:  #E8E0F7;
+        --green:        #1E7D45;
+        --green-soft:   #D4EDDA;
     }
 
-    /* ── Base ────────────────────────────────────────────────────── */
     body, .dashboard-wrap {
         background: var(--cream);
         font-family: var(--bs-font-sans-serif);
@@ -63,15 +61,6 @@
         font-weight: 700;
         letter-spacing: -.02em;
         margin: 0;
-    }
-    .dash-header .date-pill {
-        background: var(--cream-2);
-        border: 1px solid var(--border);
-        border-radius: 99px;
-        padding: 6px 16px;
-        font-size: 13px;
-        color: var(--ink-2);
-        font-weight: 500;
     }
 
     /* ── Stat cards ──────────────────────────────────────────────── */
@@ -139,6 +128,24 @@
     /* ── Chart wrapper ───────────────────────────────────────────── */
     .chart-outer { position: relative; height: 190px; }
 
+    /* ── Range selector ──────────────────────────────────────────── */
+    .range-btn {
+        background: none;
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        padding: 4px 10px;
+        font-size: 12px;
+        font-weight: 500;
+        color: var(--ink-muted);
+        cursor: pointer;
+        transition: all .15s;
+    }
+    .range-btn.active, .range-btn:hover {
+        background: var(--accent);
+        border-color: var(--accent);
+        color: #fff;
+    }
+
     /* ── Monthly target donut ─────────────────────────────────────── */
     .donut-wrap {
         position: relative;
@@ -153,46 +160,54 @@
         letter-spacing: -.03em;
     }
 
-    /* ── Traffic progress bars ───────────────────────────────────── */
-    .traffic-row { margin-bottom: 14px; }
-    .traffic-row:last-child { margin-bottom: 0; }
-    .traffic-bar-track {
-        height: 8px;
-        border-radius: 99px;
-        background: var(--cream-3);
-        overflow: hidden;
-    }
-    .traffic-bar-fill {
-        height: 100%;
-        border-radius: 99px;
-        transition: width .6s ease;
-    }
-
-    /* ── Best Selling Products ───────────────────────────────────── */
-    .product-card {
-        border: 1px solid var(--border);
-        border-radius: 12px;
-        padding: 14px 16px;
+    /* ── Best Selling Categories ──────────────────────────────────── */
+    .category-row {
         display: flex;
         align-items: center;
-        gap: 14px;
+        gap: 12px;
+        padding: 10px 0;
+        border-bottom: 1px solid var(--cream-2);
+    }
+    .category-row:last-child { border-bottom: none; }
+    .category-rank {
+        width: 24px; height: 24px;
+        border-radius: 50%;
         background: var(--cream-2);
-        transition: box-shadow .15s;
-    }
-    .product-card:hover { box-shadow: 0 4px 16px rgba(0,0,0,.08); }
-    .product-avatar {
-        width: 52px; height: 52px;
-        border-radius: 10px;
-        background: var(--accent-soft);
         display: flex; align-items: center; justify-content: center;
-        font-weight: 700; font-size: 13px;
-        color: var(--accent);
+        font-size: 11px; font-weight: 700;
+        color: var(--ink-muted);
         flex-shrink: 0;
-        letter-spacing: .02em;
     }
-    .product-name { font-size: 14px; font-weight: 600; color: var(--ink); margin: 0 0 2px; }
-    .product-sub  { font-size: 12px; color: var(--ink-muted); margin: 0 0 4px; }
-    .product-price{ font-size: 14px; font-weight: 700; color: var(--accent); margin: 0; }
+    .category-rank.top { background: var(--accent-soft); color: var(--accent); }
+    .category-name {
+        font-size: 13px; font-weight: 600;
+        color: var(--ink);
+        text-transform: capitalize;
+        flex: 1;
+    }
+    .category-units {
+        font-size: 12px;
+        color: var(--ink-muted);
+    }
+    .category-bar-track {
+        height: 6px;
+        border-radius: 99px;
+        background: var(--cream-3);
+        flex: 1;
+        overflow: hidden;
+    }
+    .category-bar-fill {
+        height: 100%;
+        border-radius: 99px;
+        background: var(--accent);
+        transition: width .6s ease;
+    }
+    .category-revenue {
+        font-size: 12px; font-weight: 600;
+        color: var(--ink);
+        min-width: 80px;
+        text-align: right;
+    }
 
     /* ── Orders table ─────────────────────────────────────────────── */
     .orders-table { width: 100%; border-collapse: collapse; }
@@ -215,7 +230,6 @@
     .order-id { font-family: var(--bs-font-monospace); font-size: 12px; font-weight: 500; color: var(--accent); }
     .order-amt { font-weight: 600; color: var(--ink); }
 
-    /* Status badges – distinct shapes for colorblind friendliness */
     .status-badge {
         display: inline-flex;
         align-items: center;
@@ -232,14 +246,17 @@
         border-radius: 50%;
         flex-shrink: 0;
     }
-    .status-onsite    { background: var(--teal-soft);   color: var(--teal);   }
-    .status-onsite::before    { background: var(--teal);   }
-    .status-processing{ background: var(--amber-soft);  color: var(--amber);  }
-    .status-processing::before{ background: var(--amber);  }
-    .status-shipped   { background: var(--blue-soft);   color: var(--blue);   }
-    .status-shipped::before   { background: var(--blue);   }
+    .status-unpaid    { background: var(--amber-soft);  color: var(--amber);  }
+    .status-unpaid::before    { background: var(--amber);  }
+    .status-packed    { background: var(--blue-soft);   color: var(--blue);   }
+    .status-packed::before    { background: var(--blue);   }
+    .status-delivered { background: var(--purple-soft); color: var(--purple); }
+    .status-delivered::before { background: var(--purple); }
+    .status-arrived   { background: var(--teal-soft);   color: var(--teal);   }
+    .status-arrived::before   { background: var(--teal);   }
+    .status-cancelled { background: var(--danger-soft); color: var(--danger); }
+    .status-cancelled::before { background: var(--danger); }
 
-    /* action button */
     .btn-dots {
         background: none; border: none; padding: 4px 8px;
         color: var(--ink-muted); cursor: pointer; border-radius: 6px;
@@ -247,7 +264,6 @@
     }
     .btn-dots:hover { background: var(--cream-2); }
 
-    /* ── View All link ───────────────────────────────────────────── */
     .view-all {
         font-size: 12px; font-weight: 600;
         color: var(--accent);
@@ -256,7 +272,6 @@
     }
     .view-all:hover { text-decoration: underline; }
 
-    /* ── Filter button ───────────────────────────────────────────── */
     .btn-filter {
         background: var(--cream-2);
         border: 1px solid var(--border);
@@ -268,6 +283,20 @@
         display: inline-flex; align-items: center; gap: 6px;
     }
     .btn-filter:hover { background: var(--cream-3); }
+
+    /* ── Monthly target set button ───────────────────────────────── */
+    .btn-set-target {
+        font-size: 11px;
+        color: var(--accent);
+        background: none;
+        border: 1px dashed var(--accent);
+        border-radius: 6px;
+        padding: 3px 8px;
+        cursor: pointer;
+        font-weight: 500;
+        transition: background .15s;
+    }
+    .btn-set-target:hover { background: var(--accent-soft); }
 </style>
 
 <div class="dashboard-wrap container-fluid px-4 py-4">
@@ -278,6 +307,9 @@
             <p class="label mb-1">Overview</p>
             <h1>Dashboard</h1>
         </div>
+        <span style="font-size:13px; color:var(--ink-muted);">
+            {{ now()->format('d M Y') }}
+        </span>
     </div>
 
     {{-- ── Row 1: Stat Cards ── --}}
@@ -289,10 +321,10 @@
                     <div class="icon-wrap" style="background:var(--accent-soft); color:var(--accent);">
                         <i class="bi bi-receipt"></i>
                     </div>
-                    <span class="pill pill-amber">+12.5%</span>
+                    <span class="pill pill-amber">All Time</span>
                 </div>
                 <p class="label">Total Revenue</p>
-                <p class="value">$128,430</p>
+                <p class="value">Rp {{ number_format($totalRevenue, 0, ',', '.') }}</p>
             </div>
         </div>
 
@@ -302,10 +334,10 @@
                     <div class="icon-wrap" style="background:var(--blue-soft); color:var(--blue);">
                         <i class="bi bi-basket"></i>
                     </div>
-                    <span class="pill pill-blue">Monthly</span>
+                    <span class="pill pill-blue">All Time</span>
                 </div>
                 <p class="label">Total Orders</p>
-                <p class="value">1,240</p>
+                <p class="value">{{ number_format($totalOrders) }}</p>
             </div>
         </div>
 
@@ -318,7 +350,7 @@
                     <span class="pill pill-teal">In Transit</span>
                 </div>
                 <p class="label">In Delivery</p>
-                <p class="value">45</p>
+                <p class="value">{{ $inDelivery }}</p>
             </div>
         </div>
 
@@ -331,13 +363,13 @@
                     <span class="pill pill-danger">Urgent</span>
                 </div>
                 <p class="label">Low Stock</p>
-                <p class="value">12 items</p>
+                <p class="value">{{ $lowStockCount }} items</p>
             </div>
         </div>
 
     </div>
 
-    {{-- ── Row 2: Sales Analytics | Monthly Target | Customer Traffic ── --}}
+    {{-- ── Row 2: Sales Analytics | Monthly Target | Best Selling Categories ── --}}
     <div class="row g-3 mb-3">
 
         {{-- Sales Analytics --}}
@@ -345,7 +377,12 @@
             <div class="d-card p-3 h-100">
                 <div class="d-flex justify-content-between align-items-center mb-3">
                     <span class="section-title">Sales Analytics</span>
-                    <span class="section-meta">Last 6 Months</span>
+                    <div class="d-flex gap-1">
+                        @foreach([1 => '1M', 3 => '3M', 6 => '6M', 12 => '1Y'] as $val => $label)
+                            <button class="range-btn {{ $months == $val ? 'active' : '' }}"
+                                    data-months="{{ $val }}">{{ $label }}</button>
+                        @endforeach
+                    </div>
                 </div>
                 <div class="chart-outer">
                     <canvas id="salesChart"></canvas>
@@ -356,135 +393,83 @@
         {{-- Monthly Target --}}
         <div class="col-12 col-md-3">
             <div class="d-card p-3 h-100 text-center">
-                <p class="section-title mb-3">Monthly Target</p>
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <p class="section-title mb-0">Monthly Target</p>
+                    <button class="btn-set-target" data-bs-toggle="modal" data-bs-target="#targetModal">
+                        Set Target
+                    </button>
+                </div>
+
+                @php
+                    $monthlyTarget  = session('monthly_target', 50000000);
+                    $currentRevenue = \Illuminate\Support\Facades\DB::table('orders')
+                        ->whereNotIn('status', ['cancelled', 'unpaid'])
+                        ->whereYear('created_at', now()->year)
+                        ->whereMonth('created_at', now()->month)
+                        ->sum('total_price');
+                    $pct = $monthlyTarget > 0 ? min(100, round(($currentRevenue / $monthlyTarget) * 100)) : 0;
+                    $remaining = max(0, $monthlyTarget - $currentRevenue);
+                @endphp
+
                 <div class="donut-wrap">
                     <canvas id="targetChart"></canvas>
-                    <div class="donut-label">78%</div>
+                    <div class="donut-label">{{ $pct }}%</div>
                 </div>
-                <p class="section-meta mb-1">$17,000 / $125k</p>
+                <p class="section-meta mb-1">
+                    Rp {{ number_format($currentRevenue, 0, ',', '.') }}
+                    / Rp {{ number_format($monthlyTarget, 0, ',', '.') }}
+                </p>
                 <p class="section-meta mb-0">
-                    Remaining: <span style="color:var(--accent); font-weight:600;">$30,000</span>
+                    Remaining:
+                    <span style="color:var(--accent); font-weight:600;">
+                        Rp {{ number_format($remaining, 0, ',', '.') }}
+                    </span>
                 </p>
             </div>
         </div>
 
-        {{-- Customer Traffic --}}
+        {{-- Best Selling Categories --}}
         <div class="col-12 col-md-4">
             <div class="d-card p-3 h-100">
-                <p class="section-title mb-3">Customer Traffic</p>
+                <p class="section-title mb-3">Best Selling Categories</p>
 
-                <div class="traffic-row">
-                    <div class="d-flex justify-content-between mb-1">
-                        <span class="section-meta">Organic Search</span>
-                        <span style="font-size:13px; font-weight:600;">45%</span>
-                    </div>
-                    <div class="traffic-bar-track">
-                        <div class="traffic-bar-fill" style="width:45%; background:var(--accent);"></div>
-                    </div>
-                </div>
+                @php $maxUnits = $bestCategories->max('total_units') ?: 1; @endphp
 
-                <div class="traffic-row">
-                    <div class="d-flex justify-content-between mb-1">
-                        <span class="section-meta">Social Media</span>
-                        <span style="font-size:13px; font-weight:600;">30%</span>
+                @forelse($bestCategories as $i => $cat)
+                    <div class="category-row">
+                        <div class="category-rank {{ $i === 0 ? 'top' : '' }}">{{ $i + 1 }}</div>
+                        <div style="flex:1; min-width:0;">
+                            <div class="d-flex justify-content-between align-items-center mb-1">
+                                <span class="category-name">{{ $cat->category_name }}</span>
+                                <span class="category-units">{{ number_format($cat->total_units) }} units</span>
+                            </div>
+                            <div class="category-bar-track">
+                                <div class="category-bar-fill"
+                                     style="width: {{ round(($cat->total_units / $maxUnits) * 100) }}%">
+                                </div>
+                            </div>
+                        </div>
+                        <span class="category-revenue">
+                            Rp {{ number_format($cat->total_revenue / 1000000, 1) }}M
+                        </span>
                     </div>
-                    <div class="traffic-bar-track">
-                        <div class="traffic-bar-fill" style="width:30%; background:var(--blue);"></div>
-                    </div>
-                </div>
-
-                <div class="traffic-row">
-                    <div class="d-flex justify-content-between mb-1">
-                        <span class="section-meta">Referral</span>
-                        <span style="font-size:13px; font-weight:600;">8%</span>
-                    </div>
-                    <div class="traffic-bar-track">
-                        <div class="traffic-bar-fill" style="width:8%; background:var(--teal);"></div>
-                    </div>
-                </div>
-
-                <div class="traffic-row">
-                    <div class="d-flex justify-content-between mb-1">
-                        <span class="section-meta">Direct</span>
-                        <span style="font-size:13px; font-weight:600;">17%</span>
-                    </div>
-                    <div class="traffic-bar-track">
-                        <div class="traffic-bar-fill" style="width:17%; background:var(--purple);"></div>
-                    </div>
-                </div>
+                @empty
+                    <p class="section-meta text-center py-3">No data yet.</p>
+                @endforelse
 
             </div>
         </div>
 
     </div>
 
-    {{-- ── Row 3: Best Selling Products ── --}}
-    <div class="row g-3 mb-3">
-        <div class="col-12">
-            <div class="d-card p-3">
-                <div class="d-flex justify-content-between align-items-center mb-3">
-                    <span class="section-title">Best Selling Products</span>
-                    <a href="#" class="view-all">View All →</a>
-                </div>
-                <div class="row g-3">
-
-                    <div class="col-12 col-md-4">
-                        <div class="product-card">
-                            <div class="product-avatar">WD</div>
-                            <div>
-                                <p class="product-name">Walnut Dining Table</p>
-                                <p class="product-sub">Craftsman Series · 24 Units</p>
-                                <p class="product-price">$2,800</p>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="col-12 col-md-4">
-                        <div class="product-card">
-                            <div class="product-avatar">EC</div>
-                            <div>
-                                <p class="product-name">Eames-style Chair</p>
-                                <p class="product-sub">Executive Lounge · 18 Units</p>
-                                <p class="product-price">$1,450</p>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="col-12 col-md-4">
-                        <div class="product-card">
-                            <div class="product-avatar">OS</div>
-                            <div>
-                                <p class="product-name">Oak Sideboard</p>
-                                <p class="product-sub">Studio Minimal · 14 Units</p>
-                                <p class="product-price">$1,200</p>
-                            </div>
-                        </div>
-                    </div>
-
-                </div>
-            </div>
-        </div>
-    </div>
-
-    {{-- ── Row 4: Recent Orders ── --}}
+    {{-- ── Row 3: Recent Orders ── --}}
     <div class="row g-3">
         <div class="col-12">
             <div class="d-card p-3">
 
                 <div class="d-flex justify-content-between align-items-center mb-3">
                     <span class="section-title">Recent Orders</span>
-                    <div class="dropdown">
-                        <button class="btn-filter dropdown-toggle border-0"
-                            type="button" data-bs-toggle="dropdown">
-                            <i class="bi bi-sliders2"></i> Filter By
-                        </button>
-                        <ul class="dropdown-menu dropdown-menu-end">
-                            <li><a class="dropdown-item small" href="#">All Orders</a></li>
-                            <li><a class="dropdown-item small" href="#">On Site</a></li>
-                            <li><a class="dropdown-item small" href="#">Processing</a></li>
-                            <li><a class="dropdown-item small" href="#">Shipped</a></li>
-                        </ul>
-                    </div>
+                    <a href="{{ route('orders.index') }}" class="view-all">View All →</a>
                 </div>
 
                 <div class="table-responsive">
@@ -500,70 +485,44 @@
                             </tr>
                         </thead>
                         <tbody>
-
+                            @forelse($recentOrders as $order)
                             <tr>
-                                <td><span class="order-id">#ORD-8821</span></td>
-                                <td>Jonathan Reed</td>
-                                <td style="color:var(--ink-muted);">Oct 11, 2023</td>
-                                <td><span class="order-amt">$4,250.00</span></td>
-                                <td><span class="status-badge status-onsite">On Site</span></td>
+                                <td><span class="order-id">#ORD-{{ str_pad($order->id, 4, '0', STR_PAD_LEFT) }}</span></td>
+                                <td>{{ $order->customer_name }}</td>
+                                <td style="color:var(--ink-muted);">
+                                    {{ \Carbon\Carbon::parse($order->created_at)->format('d M Y') }}
+                                </td>
+                                <td>
+                                    <span class="order-amt">
+                                        Rp {{ number_format($order->total_price, 0, ',', '.') }}
+                                    </span>
+                                </td>
+                                <td>
+                                    <span class="status-badge status-{{ $order->status }}">
+                                        {{ ucfirst($order->status) }}
+                                    </span>
+                                </td>
                                 <td>
                                     <div class="dropdown">
                                         <button class="btn-dots" data-bs-toggle="dropdown">
                                             <i class="bi bi-three-dots-vertical"></i>
                                         </button>
                                         <ul class="dropdown-menu dropdown-menu-end">
-                                            <li><a class="dropdown-item small" href="#">View Detail</a></li>
-                                            <li><a class="dropdown-item small" href="#">Edit</a></li>
-                                            <li><hr class="dropdown-divider"></li>
-                                            <li><a class="dropdown-item small text-danger" href="#">Delete</a></li>
+                                            <li>
+                                                <a class="dropdown-item small"
+                                                   href="#">
+                                                   View Detail
+                                                </a>
+                                            </li>
                                         </ul>
                                     </div>
                                 </td>
                             </tr>
-
+                            @empty
                             <tr>
-                                <td><span class="order-id">#ORD-8820</span></td>
-                                <td>Sarah Jenkins</td>
-                                <td style="color:var(--ink-muted);">Oct 11, 2023</td>
-                                <td><span class="order-amt">$1,800.00</span></td>
-                                <td><span class="status-badge status-processing">Processing</span></td>
-                                <td>
-                                    <div class="dropdown">
-                                        <button class="btn-dots" data-bs-toggle="dropdown">
-                                            <i class="bi bi-three-dots-vertical"></i>
-                                        </button>
-                                        <ul class="dropdown-menu dropdown-menu-end">
-                                            <li><a class="dropdown-item small" href="#">View Detail</a></li>
-                                            <li><a class="dropdown-item small" href="#">Edit</a></li>
-                                            <li><hr class="dropdown-divider"></li>
-                                            <li><a class="dropdown-item small text-danger" href="#">Delete</a></li>
-                                        </ul>
-                                    </div>
-                                </td>
+                                <td colspan="6" class="text-center py-4 section-meta">No orders yet.</td>
                             </tr>
-
-                            <tr>
-                                <td><span class="order-id">#ORD-8819</span></td>
-                                <td>Holloway Design Co.</td>
-                                <td style="color:var(--ink-muted);">Oct 11, 2023</td>
-                                <td><span class="order-amt">$12,600.00</span></td>
-                                <td><span class="status-badge status-shipped">Shipped</span></td>
-                                <td>
-                                    <div class="dropdown">
-                                        <button class="btn-dots" data-bs-toggle="dropdown">
-                                            <i class="bi bi-three-dots-vertical"></i>
-                                        </button>
-                                        <ul class="dropdown-menu dropdown-menu-end">
-                                            <li><a class="dropdown-item small" href="#">View Detail</a></li>
-                                            <li><a class="dropdown-item small" href="#">Edit</a></li>
-                                            <li><hr class="dropdown-divider"></li>
-                                            <li><a class="dropdown-item small text-danger" href="#">Delete</a></li>
-                                        </ul>
-                                    </div>
-                                </td>
-                            </tr>
-
+                            @endforelse
                         </tbody>
                     </table>
                 </div>
@@ -574,25 +533,61 @@
 
 </div>
 
+{{-- ── Monthly Target Modal ── --}}
+<div class="modal fade" id="targetModal" tabindex="-1">
+    <div class="modal-dialog modal-sm modal-dialog-centered">
+        <div class="modal-content" style="border-radius:16px; border:1px solid var(--border);">
+            <div class="modal-header border-0 pb-0">
+                <h6 class="modal-title fw-600">Set Monthly Target</h6>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <form method="POST" action="{{ route('admin.dashboard.setTarget') }}">
+                @csrf
+                <div class="modal-body pt-2">
+                    <label class="section-meta mb-1 d-block">Target Amount (Rp)</label>
+                    <input type="number" name="monthly_target" class="form-control form-control-sm"
+                           value="{{ session('monthly_target', 50000000) }}"
+                           min="1000000" step="1000000" required>
+                    <small class="section-meta">e.g. 50000000 = Rp 50.000.000</small>
+                </div>
+                <div class="modal-footer border-0 pt-0">
+                    <button type="submit" class="btn btn-sm w-100"
+                            style="background:var(--accent); color:#fff; border-radius:8px;">
+                        Save Target
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
 {{-- ── Charts (Chart.js) ── --}}
 @push('scripts')
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4"></script>
 <script>
 document.addEventListener('DOMContentLoaded', function () {
 
+    // ── Sales data from server (initial render) ───────────────────
+    let salesLabels = @json($salesData['labels']);
+    let salesData   = @json($salesData['data']);
+    let activeMonths = {{ $months }};
+
     // ── Sales Line Chart ──────────────────────────────────────────
     const salesCtx = document.getElementById('salesChart').getContext('2d');
 
-    const gradient = salesCtx.createLinearGradient(0, 0, 0, 190);
-    gradient.addColorStop(0,   'rgba(184,115,51,0.18)');
-    gradient.addColorStop(1,   'rgba(184,115,51,0)');
+    const makeGradient = () => {
+        const g = salesCtx.createLinearGradient(0, 0, 0, 190);
+        g.addColorStop(0,   'rgba(184,115,51,0.18)');
+        g.addColorStop(1,   'rgba(184,115,51,0)');
+        return g;
+    };
 
-    new Chart(salesCtx, {
+    const salesChart = new Chart(salesCtx, {
         type: 'line',
         data: {
-            labels: ['May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct'],
+            labels: salesLabels,
             datasets: [{
-                data: [41000, 58000, 69000, 65000, 63000, 87000],
+                data: salesData,
                 borderColor: '#B87333',
                 borderWidth: 2.5,
                 pointBackgroundColor: '#B87333',
@@ -601,7 +596,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 pointRadius: 5,
                 tension: 0.35,
                 fill: true,
-                backgroundColor: gradient,
+                backgroundColor: makeGradient(),
             }]
         },
         options: {
@@ -611,17 +606,17 @@ document.addEventListener('DOMContentLoaded', function () {
             scales: {
                 y: {
                     beginAtZero: false,
-                    min: 35000,
                     ticks: {
-                        callback: v => '$' + (v/1000) + 'k',
+                        callback: v => 'Rp ' + (v / 1000000).toFixed(0) + 'M',
                         color: '#7A7369',
-                        font: { size: 11, family: 'DM Sans' },
+                        font: { size: 11 },
+                        maxTicksLimit: 5,
                     },
                     grid: { color: '#EAE5DB', drawBorder: false },
                     border: { display: false }
                 },
                 x: {
-                    ticks: { color: '#7A7369', font: { size: 11, family: 'DM Sans' } },
+                    ticks: { color: '#7A7369', font: { size: 11 } },
                     grid: { display: false },
                     border: { display: false }
                 }
@@ -629,13 +624,33 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     });
 
+    // ── Range buttons (AJAX) ──────────────────────────────────────
+    document.querySelectorAll('.range-btn').forEach(btn => {
+        btn.addEventListener('click', function () {
+            const months = this.dataset.months;
+
+            document.querySelectorAll('.range-btn').forEach(b => b.classList.remove('active'));
+            this.classList.add('active');
+
+            fetch(`{{ route('admin.dashboard.salesChart') }}?months=${months}`)
+                .then(r => r.json())
+                .then(json => {
+                    salesChart.data.labels              = json.labels;
+                    salesChart.data.datasets[0].data    = json.data;
+                    salesChart.data.datasets[0].backgroundColor = makeGradient();
+                    salesChart.update();
+                });
+        });
+    });
+
     // ── Donut Chart ───────────────────────────────────────────────
     const targetCtx = document.getElementById('targetChart').getContext('2d');
+    const pct = {{ $pct }};
     new Chart(targetCtx, {
         type: 'doughnut',
         data: {
             datasets: [{
-                data: [78, 22],
+                data: [pct, 100 - pct],
                 backgroundColor: ['#B87333', '#EAE5DB'],
                 borderWidth: 0,
                 hoverOffset: 0,

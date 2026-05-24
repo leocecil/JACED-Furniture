@@ -120,33 +120,6 @@
 @endpush
 
 @section('content')
-@php
-    // Data dummy voucher milik user
-    $activeVouchers = [
-        [
-            'code'   => 'CANDLEFREE99',
-            'title'  => 'Free Artisan Scented Candle',
-            'value'  => 'FREE',
-            'expiry' => 'Valid until 31 May 2026'
-        ],
-        [
-            'code'   => 'JACED10KOFF',
-            'title'  => 'Potongan Langsung Rp 10.000',
-            'value'  => 'Rp 10k',
-            'expiry' => 'Valid until 15 Jun 2026'
-        ]
-    ];
-
-    $historyVouchers = [
-        [
-            'code'   => 'BRONZEBBDAY',
-            'title'  => 'Birthday Reward - Free Gift',
-            'value'  => 'USED',
-            'expiry' => 'Used on 12 May 2026'
-        ]
-    ];
-@endphp
-
 <div class="voucher-page">
     <div style="max-width: 800px; margin: 0 auto;">
         
@@ -171,25 +144,45 @@
         {{-- SECTION 1: ACTIVE VOUCHERS --}}
         <div id="active-sec" class="voucher-section row g-3">
             @forelse($activeVouchers as $vouch)
+                @php
+                    $voucherImage = match(true) {
+                        $vouch->used_for === 'delivery'       => 'disc-ongkir.png',
+                        $vouch->discount_percentage === 100     => 'disc-100.png',
+                        $vouch->discount_percentage === 90     => 'disc-90.png',
+                        $vouch->discount_percentage === 80     => 'disc-80.png',
+                        $vouch->discount_percentage === 70     => 'disc-70.png',
+                        $vouch->discount_percentage === 60     => 'disc-60.png',
+                        $vouch->discount_percentage === 50     => 'disc-50.png',
+                        $vouch->discount_percentage === 40     => 'disc-40.png',
+                        $vouch->discount_percentage === 30     => 'disc-30.png',
+                        $vouch->discount_percentage === 20     => 'disc-20.png',
+                        $vouch->discount_percentage === 10     => 'disc-10.png',
+                        default                               => 'disc-product-default.png',
+                    };
+                @endphp
+
                 <div class="col-12 col-md-6">
                     <div class="ticket-card">
-                        <div class="ticket-left">
-                            <span style="font-size: 18px;">{{ $vouch['value'] }}</span>
-                            <span style="font-size: 10px; text-transform: uppercase; letter-spacing: 0.05em;">Voucher</span>
-                        </div>
+                        {{-- Gambar voucher sebagai background --}}
+                        <img src="{{ asset('image/vouchers/' . $voucherImage) }}" 
+                            alt="voucher"
+                            style="width: 120px; height: 100%; object-fit: cover; flex-shrink: 0;">
+                        
                         <div class="ticket-right">
                             <div>
-                                <h3 class="ticket-title">{{ $vouch['title'] }}</h3>
-                                <p class="ticket-expiry">{{ $vouch['expiry'] }}</p>
+                                <h3 class="ticket-title">{{ $vouch->name }}</h3>
+                                <p class="ticket-expiry">
+                                    Max Rp {{ number_format($vouch->max_discount, 0, ',', '.') }} &bull;
+                                    Valid until {{ \Carbon\Carbon::parse($vouch->expiry_date)->format('d M Y') }}
+                                </p>
                             </div>
-                            <div class="d-flex justify-content-between align-items-center mt-2">
-                                <span style="font-family: monospace; font-weight: 700; color: var(--jaced-brown-dark); font-size: 13px;">
-                                    {{ $vouch['code'] }}
-                                </span>
-                                <button class="copy-code-btn" onclick="copyCode('{{ $vouch['code'] }}', this)">
-                                    Copy Code
+                            <form action="{{ route('reward.use-voucher') }}" method="POST">
+                                @csrf
+                                <input type="hidden" name="voucher_id" value="{{ $vouch->id }}">
+                                <button type="submit" class="copy-code-btn" style="border-color: var(--jaced-caramel); color: var(--jaced-caramel);">
+                                    Use Now →
                                 </button>
-                            </div>
+                            </form>
                         </div>
                     </div>
                 </div>
@@ -203,22 +196,19 @@
         {{-- SECTION 2: HISTORY VOUCHERS --}}
         <div id="history-sec" class="voucher-section row g-3 d-none">
             @forelse($historyVouchers as $vouch)
-                <div class="col-12 col-md-6">
-                    <div class="ticket-card expired">
-                        <div class="ticket-left">
-                            <span style="font-size: 14px;">{{ $vouch['value'] }}</span>
-                        </div>
-                        <div class="ticket-right">
-                            <div>
-                                <h3 class="ticket-title">{{ $vouch['title'] }}</h3>
-                                <p class="ticket-expiry text-danger">{{ $vouch['expiry'] }}</p>
-                            </div>
-                            <div class="d-flex align-items-center mt-2">
-                                <span style="font-family: monospace; text-decoration: line-through; color: var(--jaced-muted); font-size: 13px;">
-                                    {{ $vouch['code'] }}
-                                </span>
-                            </div>
-                        </div>
+                <div class="ticket-left">
+                    <span style="font-size: 14px;">
+                        {{ $vouch->redeemed_at ? 'USED' : 'EXPIRED' }}
+                    </span>
+                </div>
+                <div class="ticket-right">
+                    <div>
+                        <h3 class="ticket-title">{{ $vouch->name }}</h3>
+                        <p class="ticket-expiry text-danger">
+                            {{ $vouch->redeemed_at 
+                                ? 'Used on ' . \Carbon\Carbon::parse($vouch->redeemed_at)->format('d M Y')
+                                : 'Expired on ' . \Carbon\Carbon::parse($vouch->expiry_date)->format('d M Y') }}
+                        </p>
                     </div>
                 </div>
             @empty

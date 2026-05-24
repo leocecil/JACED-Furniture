@@ -17,7 +17,6 @@ class UserRoleMiddleware
     public function handle(Request $request, Closure $next, ...$roles): Response
 {
     if (!Auth::check()) {
-        // Cek apakah URL mengandung /admin
         if ($request->is('admin/*') || $request->is('admin')) {
             return redirect()->route('admin.login.show');
         }

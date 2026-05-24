@@ -12,13 +12,14 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('voucher_types', function (Blueprint $table) {
-            $table->id();
+            $table->string('id')->primary();
             $table->string('name')->unique();
             $table->text('description');
             $table->string('used_for');
             $table->integer('point_cost');
             $table->integer('discount_percentage');
             $table->decimal('max_discount', 10, 2);
+            $table->boolean('is_active')->default(true);
             $table->timestamps();
         });
     }

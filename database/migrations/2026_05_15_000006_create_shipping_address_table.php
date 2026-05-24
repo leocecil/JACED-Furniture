@@ -26,6 +26,7 @@ return new class extends Migration
             $table->string('village_code');
             $table->string('village_name');
             $table->string('postal_code');
+            $table->boolean('is_default')->default(false);
             $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
             $table->timestamps();
         });

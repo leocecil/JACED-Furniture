@@ -4,6 +4,20 @@
 <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="{{ asset('css/jaced.css') }}">
 <style>
+
+    .nav-pills .nav-link::after,
+    .nav-pills .nav-link::before {
+        display: none !important;
+        content: none !important;
+    }
+
+    .nav-pills a.nav-link {
+        text-decoration: none !important;
+    }
+
+    .nav-pills a.nav-link:hover {
+        text-decoration: none !important;
+    }
     .page-title {
         font-family: 'DM Serif Display', serif;
         font-size: 2.8rem;
@@ -21,8 +35,10 @@
         padding: 7px 20px;
         background: transparent;
         transition: all .2s;
+        text-decoration: none !important;
     }
     .nav-pills .nav-link:hover {
+        border: 1px solid var(--jaced-sage) !important;
         border-color: var(--jaced-sage);
         color: var(--jaced-sage);
     }
@@ -90,50 +106,25 @@
 
 @section('content')
 @php
-    $orders = [
-        [
-            'name'   => 'The Kyoto Lounge Chair',
-            'id'     => 'CL-8924',
-            'date'   => 'Oct 20, 2024',
-            'status' => 'shipped',
-            'eta'    => 'Thursday, Oct 26',
-            'image'  => 'https://images.unsplash.com/photo-1567538096630-e0c55bd6374c?w=400&h=400&fit=crop',
-            'total'  => 'Rp 18.500.000',
-        ],
-        [
-            'name'   => 'Oka Dining Table',
-            'id'     => 'CL-8801',
-            'date'   => 'Oct 10, 2024',
-            'status' => 'completed',
-            'eta'    => null,
-            'image'  => 'https://images.unsplash.com/photo-1577140917170-285929fb55b7?w=400&h=400&fit=crop',
-            'total'  => 'Rp 31.200.000',
-        ],
-        [
-            'name'   => 'Washi Side Cabinet',
-            'id'     => 'CL-8750',
-            'date'   => 'Sep 28, 2024',
-            'status' => 'cancelled',
-            'eta'    => null,
-            'image'  => 'https://images.unsplash.com/photo-1555041469-a586c61ea9bc?w=400&h=400&fit=crop',
-            'total'  => 'Rp 9.800.000',
-        ],
-    ];
-
     $statusLabel = [
-        'shipped'    => 'Shipped',
-        'processing' => 'Processing',
-        'completed'  => 'Completed',
-        'cancelled'  => 'Cancelled',
-        'unpaid'     => 'Unpaid',
-        'returns'    => 'Returns',
+        'unpaid'    => 'Unpaid',
+        'packed'    => 'Packed',
+        'delivered' => 'Delivered',
+        'arrived'   => 'Arrived',
+        'cancelled' => 'Cancelled',
+    ];
+    $statusClass = [
+        'unpaid'    => 'unpaid',
+        'packed'    => 'processing',
+        'delivered' => 'shipped',
+        'arrived'   => 'completed',
+        'cancelled' => 'cancelled',
     ];
 @endphp
 
 <div class="jaced-page">
     <div style="max-width: 860px; margin: 0 auto;">
 
-        {{-- PAGE HEADER --}}
         <div class="mb-4">
             <h1 class="fw-bold mb-1">My Orders</h1>
             <p class="text-jaced-muted mb-0" style="font-size: 14px; line-height: 1.6;">
@@ -145,42 +136,75 @@
         <ul class="nav nav-pills flex-wrap gap-2 mb-4">
             @foreach ($filters as $filter)
                 <li class="nav-item">
-                    <button class="nav-link {{ $filter === $activeFilter ? 'active' : '' }}">
+                    <a href="{{ route('store.orderhistory', ['filter' => $filter]) }}"
+                       class="nav-link text-decoration-none {{ $filter === $activeFilter ? 'active' : '' }}">
                         {{ $filter }}
-                    </button>
+                    </a>
                 </li>
             @endforeach
         </ul>
 
         {{-- ORDER LIST --}}
         <div class="jaced-card">
-            @foreach ($orders as $order)
+            @forelse ($orders as $order)
+                @php
+                    $firstDetail = $order->orderDetails->first();
+                    $productName = $firstDetail?->product?->name ?? 'Order #' . $order->id;
+                    $productImage = $firstDetail?->product?->image
+                        ? asset('storage/' . $firstDetail->product->image)
+                        : asset('image/placeholder.png');
+                    $extraCount = $order->orderDetails->count() - 1;
+                @endphp
 
                 <div class="d-flex align-items-center gap-4 p-4">
 
-                    {{-- Product Image --}}
-                    <img src="{{ $order['image'] }}" alt="{{ $order['name'] }}" class="order-product-img">
+                    <img src="{{ $productImage }}"
+                         alt="{{ $productName }}"
+                         class="order-product-img">
 
-                    {{-- Order Info --}}
                     <div class="flex-grow-1">
-                        <h2 class="fw-bold mb-1" style=" font-size: 18px; font-weight: 400;">
-                            {{ $order['name'] }}
+                        <h2 class="fw-bold mb-1" style="font-size: 18px; font-weight: 400;">
+                            {{ $productName }}
+                            @if ($extraCount > 0)
+                                <span style="font-size: 13px; color: var(--jaced-muted); font-weight: 400;">
+                                    +{{ $extraCount }} other item{{ $extraCount > 1 ? 's' : '' }}
+                                </span>
+                            @endif
                         </h2>
-                        <p class="order-id-label mb-2">ORDER {{ $order['id'] }} &nbsp;·&nbsp; {{ $order['date'] }}</p>
-                        <span class="status-badge {{ $order['status'] }}">
-                            {{ $statusLabel[$order['status']] }}
+
+                        <p class="order-id-label mb-2">
+                            ORDER #{{ $order->id }} &nbsp;·&nbsp; {{ $order->created_at->format('M d, Y') }}
+                        </p>
+
+                        <span class="status-badge {{ $statusClass[$order->status] ?? '' }}">
+                            {{ $statusLabel[$order->status] ?? ucfirst($order->status) }}
                         </span>
-                        @if ($order['eta'])
+
+                        @if ($order->status === 'delivered' && $order->delivered_at)
                             <p class="text-jaced-muted mb-0 mt-2" style="font-size: 12px;">
-                                Arriving by <span class="text-jaced-dark fw-semibold">{{ $order['eta'] }}</span>
+                                Delivered on
+                                <span class="fw-semibold">
+                                    {{ $order->delivered_at->format('l, M d') }}
+                                </span>
+                            </p>
+                        @elseif ($order->status === 'packed' && $order->packed_at)
+                            <p class="text-jaced-muted mb-0 mt-2" style="font-size: 12px;">
+                                Packed on
+                                <span class="fw-semibold">
+                                    {{ $order->packed_at->format('l, M d') }}
+                                </span>
                             </p>
                         @endif
                     </div>
 
-                    {{-- Right: total + CTA --}}
                     <div class="d-flex flex-column align-items-end gap-3 flex-shrink-0">
-                        <p class="fw-bold text-jaced-dark mb-0" style="font-size: 16px;">{{ $order['total'] }}</p>
-                        <a href="{{ route('store.transactionhistory_detail.show', $order['id']) }}" class="btn-order-details">Order Details</a>
+                        <p class="fw-bold text-jaced-dark mb-0" style="font-size: 16px;">
+                            Rp {{ number_format($order->total_price, 0, ',', '.') }}
+                        </p>
+                        <a href="{{ route('store.transactionhistory_detail.show', $order->id) }}"
+                           class="btn-order-details">
+                            Order Details
+                        </a>
                     </div>
 
                 </div>
@@ -189,7 +213,13 @@
                     <hr class="order-divider">
                 @endif
 
-            @endforeach
+            @empty
+                <div class="p-5 text-center">
+                    <p style="color: var(--jaced-muted); font-size: 14px; margin: 0;">
+                        No orders found.
+                    </p>
+                </div>
+            @endforelse
         </div>
 
     </div>

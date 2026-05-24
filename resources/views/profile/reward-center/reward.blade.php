@@ -11,6 +11,15 @@
 
     /* HEADER CARD */
     .header-card {
+        position: relative;
+        z-index: 10;
+}
+
+    .redeem-card {
+        position: relative;
+        z-index: 1;
+    }
+    .header-card {
         background: white;
         border-radius: 16px;
         padding: 28px 32px;
@@ -116,7 +125,7 @@
         z-index: 999; 
         box-shadow: 0 4px 24px rgba(0,0,0,.15);
     }
-    .stage-popover.open { display: block; }
+    .stage-popover.open { display: block !important; }
     .popover-title {
         font-size: 13px;
         font-weight: 700;
@@ -385,6 +394,24 @@
         cursor: pointer;
         transition: background .2s;
     }
+
+    /* Class baru untuk tombol outline View Details */
+    .btn-view-details {
+        background: transparent;
+        color: var(--jaced-sage);
+        border: 1px solid var(--jaced-sage);
+        border-radius: 8px;
+        padding: 9px 16px;
+        font-size: 12px;
+        font-weight: 600;
+        width: 100%;
+        cursor: pointer;
+        transition: all .2s;
+    }
+    .btn-view-details:hover {
+        background: var(--jaced-sage);
+        color: white;
+    }
     .btn-redeem-now:hover { background: #4a5d4b; }
     .btn-redeem-locked {
         background: var(--jaced-input);
@@ -412,74 +439,56 @@
         cursor: pointer;
         box-shadow: 0 1px 4px rgba(0,0,0,.1);
     }
+    .jaced-modal-overlay {
+        position: fixed;
+        top: 0; left: 0; right: 0; bottom: 0;
+        background: rgba(28, 28, 26, 0.6);
+        backdrop-filter: blur(4px);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 9999;
+        transition: opacity 0.3s ease;
+        pointer-events: none;
+    }
+    .jaced-modal-box {
+        background: white;
+        border-radius: 16px;
+        box-shadow: 0 10px 30px rgba(39, 46, 29, 0.08);
+        transform: scale(1);
+    }
+    .btn-modal-secondary {
+        background: transparent;
+        border: 1px solid var(--jaced-input);
+        color: var(--jaced-brown-dark);
+        padding: 11px 20px;
+        border-radius: 8px;
+        font-weight: 500;
+        font-size: 13px;
+        cursor: pointer;
+        transition: all 0.2s;
+    }
+    .benefit-link {
+        cursor: pointer;
+        text-decoration: none;
+    }
+
+    .benefit-link:hover {
+        opacity: 0.7;
+        text-decoration: underline;
+    }
+
+    /* Pastikan popover wrap tidak block hover */
+    .popover-wrap {
+        position: relative;
+        display: inline-block;
+    }
+
+    
 </style>
 @endpush
 
 @section('content')
-@php
-    // =================================================================
-    // FIX : AMBIL DATA DARI DB USER SECARA REALTIME
-    // =================================================================
-    $currentPoints = Auth::user()->current_points ?? 0;
-    $accumulatedPoints = Auth::user()->accumulated_points ?? 0;
-
-    // Tentukan Stage secara dinamis berdasarkan Akumulasi Poin
-    $stage = 'Bronze';
-    if ($accumulatedPoints >= 5000) {
-        $stage = 'Gold';
-    } elseif ($accumulatedPoints >= 2500) {
-        $stage = 'Silver';
-    }
-
-    $pointHistoryItems = [
-        [
-            'points' => '200 Points',
-            'source' => 'Workshop Attendance',
-            'date'   => '15 May 2026',
-            'type'   => 'earned',
-        ],
-        [
-            'points' => '450 Points',
-            'source' => 'Redeem Candle',
-            'date'   => '14 May 2026',
-            'type'   => 'redeemed',
-        ],
-        [
-            'points' => '50 Points',
-            'source' => 'Social Share Post',
-            'date'   => '12 May 2026',
-            'type'   => 'earned',
-        ],
-        [
-            'points' => '150 Points',
-            'source' => 'Referral Reward',
-            'date'   => '10 May 2026',
-            'type'   => 'earned',
-        ],
-    ];
-
-    $redeemGoals = [
-        [
-            'name'     => 'Artisan Scented Candle',
-            'image'    => 'https://images.unsplash.com/photo-1603905600016-2f0a09924a49?w=400&h=300&fit=crop',
-            'goal'     => 450,
-            'favorited'=> true,
-        ],
-        [
-            'name'     => 'Asymmetric Vase',
-            'image'    => 'https://images.unsplash.com/photo-1612196808214-b8e1d6145a8c?w=400&h=300&fit=crop',
-            'goal'     => 850,
-            'favorited'=> false,
-        ],
-        [
-            'name'     => 'Handwoven Wool Throw',
-            'image'    => 'https://images.unsplash.com/photo-1580301762395-21ce84d00bc6?w=400&h=300&fit=crop',
-            'goal'     => 2000,
-            'favorited'=> false,
-        ],
-    ];
-@endphp
-
 <div class="loyalty-page">
     <div style="max-width: 1000px; margin: 0 auto;">
         {{-- BACK --}}
@@ -515,7 +524,7 @@
                         <span class="stage-valid">Active until 31 Dec 2026</span>
                         <span style="color: var(--jaced-input);">·</span>
                         <div class="popover-wrap">
-                            <button class="benefit-link" onclick="togglePopover('bronze-pop')">
+                            <button class="benefit-link" onclick="toggleStagePopover(event, 'bronze-pop')">
                                 See benefits
                                 <svg xmlns="http://www.w3.org/2000/svg" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
                             </button>
@@ -531,29 +540,41 @@
 
                     {{-- Stage Tabs dengan Highlight Class Current Otomatis --}}
                     <div class="stage-tabs">
-                        <div class="popover-wrap" style="flex: 1; position: relative;">
-                            <div class="stage-tab {{ $stage == 'Bronze' ? 'current' : '' }}" onclick="togglePopover(event, 'bronze-tab-pop')">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="6"/><path d="M15.477 12.89L17 22l-5-3-5 3 1.523-9.11"/></svg>
-                                Bronze
-                            </div>
+                        {{-- Bronze --}}
+                        <div class="stage-tab {{ $stage == 'Bronze' ? 'current' : 'locked' }}"
+                            data-stage="bronze"
+                            onclick="switchStage(event, 'bronze', 'bronze-tab-pop')">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <circle cx="12" cy="8" r="6"/>
+                                <path d="M15.477 12.89L17 22l-5-3-5 3 1.523-9.11"/>
+                            </svg>
+                            Bronze
                         </div>
 
-                        <div class="popover-wrap" style="flex: 1; position: relative;">
-                            <div class="stage-tab {{ $stage == 'Silver' ? 'current' : 'locked' }} w-100" onclick="togglePopover(event, 'silver-pop')">
-                                @if($stage == 'Bronze')
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
-                                @endif
-                                Silver
-                            </div>
+                        {{-- Silver --}}
+                        <div class="stage-tab {{ $stage == 'Silver' ? 'current' : 'locked' }} w-100"
+                            data-stage="silver"
+                            onclick="switchStage(event, 'silver', 'silver-pop')">
+                            @if($stage == 'Bronze') 
+                                <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
+                                    <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+                                </svg>
+                            @endif
+                            Silver
                         </div>
 
-                        <div class="popover-wrap" style="flex: 1; position: relative;">
-                            <div class="stage-tab {{ $stage == 'Gold' ? 'current' : 'locked' }} w-100" onclick="togglePopover(event, 'gold-pop')">
-                                @if($stage != 'Gold')
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
-                                @endif
-                                Gold
-                            </div>
+                        {{-- Gold --}}
+                        <div class="stage-tab {{ $stage == 'Gold' ? 'current' : 'locked' }} w-100"
+                            data-stage="gold"
+                            onclick="switchStage(event, 'gold', 'gold-pop')">
+                            @if($stage != 'Gold') 
+                                <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
+                                    <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+                                </svg> 
+                            @endif
+                            Gold
                         </div>
                     </div>
                 </div>
@@ -650,41 +671,56 @@
 
                 <div class="row g-3">
                     @foreach ($redeemGoals as $goal)
-                        @php
-                            // FIX DOSEN: Menggunakan currentPoints asli milik user untuk memvalidasi tombol redeem goals
-                            $isEnough = $currentPoints >= $goal['goal'];
+                        @php 
+                            $isEnough = $currentPoints >= $goal->point_cost; 
+                            $voucherImage = match(true) {
+                                $goal->used_for === 'delivery'       => 'disc-ongkir.png',
+                                $goal->discount_percentage === 100     => 'disc-100.png',
+                                $goal->discount_percentage === 90     => 'disc-90.png',
+                                $goal->discount_percentage === 80     => 'disc-80.png',
+                                $goal->discount_percentage === 70     => 'disc-70.png',
+                                $goal->discount_percentage === 60     => 'disc-60.png',
+                                $goal->discount_percentage === 50     => 'disc-50.png',
+                                $goal->discount_percentage === 40     => 'disc-40.png',
+                                $goal->discount_percentage === 30     => 'disc-30.png',
+                                $goal->discount_percentage === 20     => 'disc-20.png',
+                                $goal->discount_percentage === 10     => 'disc-10.png',
+                                default                               => 'disc-product-default.png',
+                            };
                         @endphp
-
-                        <div class="col-12 col-sm-4">
-                            <div class="redeem-card position-relative">
-                                <div style="background: #f5f4f0; height: 160px; width: 100%;">
-                                    <img src="{{ $goal['image'] }}" alt="{{ $goal['name'] }}" class="redeem-card-img">
-                                </div>
-
+                        <div class="col-12 col-sm-6">
+                            <div class="redeem-card position-relative" style="border: 1px solid var(--jaced-input);">
+                                <img src="{{ asset('image/vouchers/' . $voucherImage) }}"
+                                    alt="{{ $goal->name }}"
+                                    style="width: 100%; height: 120px; object-fit: cover;">
                                 <div class="redeem-card-body">
-                                    <p class="redeem-card-name mb-2">{{ $goal['name'] }}</p>
-
-                                    <p class="mb-2" style="font-size: 13px; font-weight: 600; color: var(--jaced-brown-dark);">
-                                        <span style="color: var(--jaced-caramel); font-weight: 700; font-size: 18px;">{{ number_format($goal['goal']) }} </span> Points
-                                    </p>
-
-                                    <div class="mb-3">
-                                        @if ($isEnough)
-                                            <span class="badge" style="background-color: #e6f4ea; color: #137333; font-size: 0.7rem; font-weight: 700; padding: 4px 8px;">
-                                                🎉 Enough Points!
-                                            </span>
+                                    <div class="mb-2">
+                                        @if($goal->used_for === 'delivery')
+                                            <span class="badge" style="background-color: #f1f4f2; color: #5c695d; font-size: 11px;">🚚 Gratis Ongkir</span>
                                         @else
-                                            <span class="badge" style="background-color: #fff3cd; color: #856404; font-size: 0.7rem; font-weight: 700; padding: 4px 8px;">
-                                                🔒 Need {{ number_format($goal['goal'] - $currentPoints) }} Pts
-                                            </span>
+                                            <span class="badge" style="background-color: #fcf5f3; color: #bd654e; font-size: 11px;">🏷️ Diskon Produk</span>
                                         @endif
                                     </div>
+                                    <p class="redeem-card-name mb-2">{{ $goal->name }}</p>
+                                    <p class="mb-1" style="font-size: 13px;">
+                                        <span style="color: var(--jaced-caramel); font-weight: 700; font-size: 18px;">
+                                            {{ number_format($goal->point_cost) }}
+                                        </span> Points
+                                    </p>
 
-                                    @if ($isEnough)
-                                        <button class="btn-redeem-now">Redeem Now</button>
-                                    @else
-                                        <button class="btn-redeem-locked" disabled>Redeem Now</button>
-                                    @endif
+                                    <button class="btn-view-details"
+                                        onclick="openGoalDetail(
+                                            '{{ $goal->name }}',
+                                            '{{ $goal->used_for }}',
+                                            {{ $goal->discount_percentage }},
+                                            {{ $goal->max_discount }},
+                                            {{ $goal->point_cost }},
+                                            '{{ $goal->id }}',
+                                            '{{ asset('image/vouchers/' . $voucherImage) }}',
+                                            {{ $isEnough ? 'true' : 'false' }}
+                                        )">
+                                        View Details
+                                    </button>
                                 </div>
                             </div>
                         </div>
@@ -696,33 +732,155 @@
     </div>
 </div>
 
+{{-- MODAL DETAIL VOUCHER --}}
+<div class="jaced-modal-overlay" id="goalDetailModal" style="display:none; opacity:0;">
+    <div class="jaced-modal-box" style="max-width: 380px; text-align: left; padding: 0; overflow: hidden;">
+        
+        <img id="goalDetailImg" src="" alt="" style="width: 100%; height: 160px; object-fit: cover;">
+        
+        <div style="padding: 24px;">
+            <div class="mb-2" id="goalDetailBadge"></div>
+            <h3 style="font-size: 16px; font-weight: 700; color: var(--jaced-brown-dark); margin: 0 0 8px;" id="goalDetailName"></h3>
+            
+            <div style="font-size: 13px; color: var(--jaced-muted); margin-bottom: 16px;">
+                <div class="d-flex justify-content-between mb-1">
+                    <span>Persentase Diskon</span>
+                    <strong id="goalDetailPct" style="color: var(--jaced-brown-dark);"></strong>
+                </div>
+                <div class="d-flex justify-content-between mb-1">
+                    <span>Maksimal Potongan</span>
+                    <strong id="goalDetailMax" style="color: var(--jaced-brown-dark);"></strong>
+                </div>
+                <div class="d-flex justify-content-between">
+                    <span>Point Dibutuhkan</span>
+                    <strong id="goalDetailPts" style="color: var(--jaced-caramel);"></strong>
+                </div>
+            </div>
+
+            <div class="d-flex gap-2">
+                <button class="btn-modal-secondary" onclick="closeGoalDetail()">Tutup</button>
+                <div id="goalDetailAction" style="flex: 1;"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
 @push('scripts')
 <script>
-    function togglePopover(event, id) {
-        event.stopPropagation(); 
-        
+    // ─── STAGE TABS ───────────────────────────────────────────────
+    const stageData = {
+        bronze: {
+            name: 'Bronze',
+            popId: 'bronze-tab-pop',
+            benefits: ['Benefit active for Bronze member']
+        },
+        silver: {
+            name: 'Silver',
+            popId: 'silver-pop',
+            benefits: ['Diskon 5% setiap transaksi', 'Priority customer support']
+        },
+        gold: {
+            name: 'Gold',
+            popId: 'gold-pop',
+            benefits: ['Diskon 10% setiap transaksi', 'Free ongkir setiap bulan', 'Early access promo']
+        }
+    };
+
+    function switchStage(event, stageKey, popId) {
+        event.stopPropagation();
+        event.preventDefault();
+
+        // Cari tab yang punya data-stage sesuai, bukan pakai currentTarget
+        const allTabs = document.querySelectorAll('.stage-tab');
+        allTabs.forEach(tab => {
+            tab.classList.remove('current');
+            tab.classList.add('locked');
+        });
+
+        // Tandai tab yang diklik sebagai current
+        const clickedTab = document.querySelector(`[data-stage="${stageKey}"]`);
+        if (clickedTab) {
+            clickedTab.classList.remove('locked');
+            clickedTab.classList.add('current');
+        }
+
+        // Update nama stage di header
+        const data = stageData[stageKey];
+        document.querySelector('.stage-name').innerText = data.name;
+
+        // Tutup semua popover
+        document.querySelectorAll('.stage-popover').forEach(p => p.style.display = 'none');
+    }
+
+    // Tombol "See benefits" (di atas stage tabs)
+    function toggleStagePopover(event, id) {
+        event.stopPropagation();
+        event.preventDefault();
+
         const targetPopover = document.getElementById(id);
         if (!targetPopover) return;
 
-        const isOpen = targetPopover.classList.contains('open');
-
-        document.querySelectorAll('.stage-popover').forEach(p => {
-            p.classList.remove('open');
-        });
-
-        if (!isOpen) {
-            targetPopover.classList.add('open');
-        }
+        const isVisible = targetPopover.style.display === 'block';
+        document.querySelectorAll('.stage-popover').forEach(p => p.style.display = 'none');
+        targetPopover.style.display = isVisible ? 'none' : 'block';
     }
 
     document.addEventListener('click', function(e) {
-        if (!e.target.closest('.stage-popover')) {
-            document.querySelectorAll('.stage-popover').forEach(p => {
-                p.classList.remove('open');
-            });
+        if (!e.target.closest('.popover-wrap')) {
+            document.querySelectorAll('.stage-popover').forEach(p => p.style.display = 'none');
         }
     });
-</script>
+
+
+    // ─── GOAL DETAIL MODAL ────────────────────────────────────────
+    const goalModal = document.getElementById('goalDetailModal');
+
+    function openGoalDetail(name, usedFor, pct, maxDiscount, pointCost, voucherTypeId, imgSrc, isEnough) {
+        document.getElementById('goalDetailImg').src = imgSrc;
+        document.getElementById('goalDetailName').innerText = name;
+        document.getElementById('goalDetailPct').innerText = pct + '%';
+        document.getElementById('goalDetailMax').innerText = 'Rp ' + maxDiscount.toLocaleString('id-ID');
+        document.getElementById('goalDetailPts').innerText = pointCost.toLocaleString('id-ID') + ' Pts';
+
+        const badge = document.getElementById('goalDetailBadge');
+        badge.innerHTML = usedFor === 'delivery'
+            ? `<span class="badge" style="background-color: #f1f4f2; color: #5c695d; font-size: 11px;">🚚 Gratis Ongkir</span>`
+            : `<span class="badge" style="background-color: #fcf5f3; color: #bd654e; font-size: 11px;">🏷️ Diskon Produk</span>`;
+
+        const action = document.getElementById('goalDetailAction');
+        if (isEnough) {
+            action.innerHTML = `
+                <form action="{{ route('reward.redeem') }}" method="POST" style="width:100%">
+                    @csrf
+                    <input type="hidden" name="voucher_type_id" value="${voucherTypeId}">
+                    <button type="submit" class="btn-redeem-now" style="width:100%">Redeem Now</button>
+                </form>
+            `;
+        } else {
+            action.innerHTML = `
+                <button class="btn-redeem-locked" disabled style="width:100%">
+                    Need ${pointCost.toLocaleString('id-ID')} Pts
+                </button>
+            `;
+        }
+
+        goalModal.style.display = 'flex';
+        setTimeout(() => {
+            goalModal.style.opacity = '1';
+            goalModal.style.pointerEvents = 'auto';
+        }, 10);
+    }
+
+    function closeGoalDetail() {
+        goalModal.style.opacity = '0';
+        goalModal.style.pointerEvents = 'none';
+        setTimeout(() => goalModal.style.display = 'none', 300);
+    }
+
+    goalModal.addEventListener('click', function(e) {
+        if (e.target === goalModal) closeGoalDetail();
+    });
+    </script>
 @endpush
 
 @endsection

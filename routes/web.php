@@ -4,9 +4,13 @@ use App\Http\Controllers\AnalyticsController;
 use App\Http\Controllers\Auth\GoogleController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\CartController;
+use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\InventoryController;
 use App\Http\Controllers\OrderController;
+use App\Http\Controllers\OrderHistoryController;
+use App\Http\Controllers\OrderManagementController;
 use App\Http\Controllers\ProductController;
+use App\Http\Controllers\RewardController;
 use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
 
@@ -27,8 +31,9 @@ Route::get('/register', [AuthController::class, 'show_register_form'])
 
 Route::post('/register', [AuthController::class, 'register'])
     ->name('register');
-    
-Route::get('/', [ProductController::class, 'home'])->name('home');
+
+Route::get('/', [ProductController::class, 'landing'])->name('landing');
+Route::get('/home', [ProductController::class, 'home'])->name('home');
 Route::get('/shop', [ProductController::class, 'shop'])->name('shop');
 
 // MIDDLEWARE CUSTOMER
@@ -40,29 +45,25 @@ Route::middleware(['role:customer'])->group(function() {
         return view('profile.tos');
     })->name('tos');
     
-    Route::get('/reward', function () {
-        return view('profile.reward-center.reward');
-    })->name('reward');
+    Route::get('/reward', [RewardController::class, 'index'])->name('reward');
 
     Route::get('/reward/voucher', function () {
         return view('profile.reward-center.voucher');
     })->name('voucher');
 
-    Route::get('/reward', function () {
-        return view('profile.reward-center.reward');
-    })->name('reward');
-
-    Route::get('/reward/voucher', function () {
-        return view('profile.reward-center.voucher');
-    })->name('voucher');
-
+    Route::post('/reward/redeem', [RewardController::class, 'redeem'])->name('reward.redeem');
     Route::get('/reward/redeem-point', function () {
         return view('profile.reward-center.redeem-point');
     })->name('redeem-point');
+    Route::get('/reward/redeem-point', [RewardController::class, 'redeemPage'])->name('redeem-point');
 
-    Route::get('/reward/point-history', function () {
-        return view('profile.reward-center.point-history');
-    })->name('point-history');
+    Route::get('/reward/point-history', [RewardController::class, 'pointHistory'])->name('point-history');
+    Route::post('/reward/use-voucher', [RewardController::class, 'useVoucher'])->name('reward.use-voucher');
+    Route::post('/voucher/clear-session', function() {
+        session()->forget('pending_voucher_id');
+        return response()->json(['ok' => true]);
+    })->name('voucher.clear-session');
+    Route::get('/reward/voucher', [RewardController::class, 'voucherPage'])->name('voucher');
 
     Route::get('/terms-of-service', function () {
         return view('profile.tos');
@@ -111,11 +112,22 @@ Route::middleware(['role:customer'])->group(function() {
     Route::get('/api/villages', [OrderController::class, 'getVillages'])->name('api.villages');
     Route::get('/api/shipping-cost', [OrderController::class, 'getShippingCost']);
 
+    // CART
+    Route::get('/api/cart', [CartController::class, 'index']);
+    Route::post('/api/cart/add', [CartController::class, 'add'])->name('cart.add');
+    Route::put('/api/cart/update/{id}', [CartController::class, 'update'])->name('cart.update');
+    Route::delete('/api/cart/remove/{id}', [CartController::class, 'remove'])->name('cart.remove');
+
+    // SHIPPING API
+    Route::get('/api/districts', [OrderController::class, 'getDistricts'])->name('api.districts');
+    Route::get('/api/villages', [OrderController::class, 'getVillages'])->name('api.villages');
+    Route::get('/api/shipping-cost', [OrderController::class, 'getShippingCost']);
+
     Route::get('/payment/status/{order_id}', [OrderController::class, 'payment_status'])->name('payment_status');
     Route::get('/payment/return/{order_id}', [OrderController::class, 'payment_return'])->name('payment_return');
 
-    Route::get('/transactionhistory', [OrderController::class, 'index'])
-        ->name('store.transactionhistory');
+    Route::get('/orderhistory', [OrderHistoryController::class, 'index'])
+        ->name('store.orderhistory');
 
     Route::get('/transactionhistory/{id}', [OrderController::class, 'show'])
         ->name('store.transactionhistory_detail.show');
@@ -139,18 +151,19 @@ Route::middleware(['role:admin'])->group(function() {
     Route::get('/admin/main', [OrderController::class, 'index'])->name('orders.index');
 
 Route::get('/admin/inventory', [InventoryController::class, 'index'])->name('inventory.index');
-Route::get('/admin/dashboard', function () {
-    return view('admin.dashboard');
-})->name('dashboard');
-Route::get('/admin/order_management', function () {
-        return view('admin.order_management');
-    })->name('order_management');
 
+Route::get('/admin/dashboard', [DashboardController::class, 'index'])->name('admin.dashboard');
+Route::get('/admin/dashboard/sales-chart', [DashboardController::class, 'salesChart'])->name('admin.dashboard.salesChart');
+Route::post('/admin/dashboard/set-target', [DashboardController::class, 'setTarget'])->name('admin.dashboard.setTarget');
 
-    Route::get('/admin/inventory', [InventoryController::class, 'index'])->name('inventory.index');
+Route::get('/admin/order_management', [OrderManagementController::class, 'index'])->name('order_management');
+Route::get('/admin/order_management/search', [OrderManagementController::class, 'search'])->name('admin.order_management.search');
+Route::post('/admin/orders/{id}/status', [OrderManagementController::class, 'updateStatus'])->name('admin.orders.updateStatus');
 
     Route::get('/admin/dashboard', function () {
         return view('admin.dashboard');
     })->name('dashboard');
 }); 
 Route::get('/admin/analytics', [AnalyticsController::class, 'index'])->name('analytics.customers');
+Route::get('/admin/inventory', [InventoryController::class, 'index'])->name('inventory.index');
+

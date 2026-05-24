@@ -21,6 +21,7 @@ return new class extends Migration
             $table->string('unit');
             $table->decimal('price', 10, 2);
             $table->integer('stock')->default(0);
+            $table->integer('low_stock')->default(3);
             // $table->string('image_path');
             $table->string('label')->nullable();
             $table->unsignedBigInteger('category_id');
