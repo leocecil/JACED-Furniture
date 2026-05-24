@@ -6,6 +6,7 @@ use App\Http\Controllers\CartController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\InventoryController;
 use App\Http\Controllers\OrderController;
+use App\Http\Controllers\OrderHistoryController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\RewardController;
 use App\Http\Controllers\UserController;
@@ -123,8 +124,8 @@ Route::middleware(['role:customer'])->group(function() {
     Route::get('/payment/status/{order_id}', [OrderController::class, 'payment_status'])->name('payment_status');
     Route::get('/payment/return/{order_id}', [OrderController::class, 'payment_return'])->name('payment_return');
 
-    Route::get('/transactionhistory', [OrderController::class, 'index'])
-        ->name('store.transactionhistory');
+    Route::get('/orderhistory', [OrderHistoryController::class, 'index'])
+        ->name('store.orderhistory');
 
     Route::get('/transactionhistory/{id}', [OrderController::class, 'show'])
         ->name('store.transactionhistory_detail.show');

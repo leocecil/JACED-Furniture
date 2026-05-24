@@ -375,7 +375,7 @@
                     TOTAL VALUE
                 </div>
                 <div class="cart-total-price">
-                    Rp 3.350.000
+                    Rp {{ number_format($globalCartItems->sum(fn($item) => $item->product->price * $item->quantity), 0, ',', '.') }}
                 </div>
             </div>
         </div>

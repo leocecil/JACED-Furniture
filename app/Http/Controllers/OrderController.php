@@ -402,13 +402,13 @@ class OrderController extends Controller
             }
 
             // Arahkan ke riwayat transaksi dengan flash message jumlah poin yang didapat
-            return redirect()->route('store.transactionhistory')
+            return redirect()->route('store.orderhistory')
                              ->with('success', 'Payment successful! You earned ' . $poinBaru . ' points.');
                              
         } elseif ($order->status == 'pending') {
-            return redirect()->route('store.transactionhistory')->with('error', 'Payment is pending. Please complete it.');
+            return redirect()->route('store.orderhistory')->with('error', 'Payment is pending. Please complete it.');
         } else {
-            return redirect()->route('store.transactionhistory')->with('error', 'Payment failed or expired.');
+            return redirect()->route('store.orderhistory')->with('error', 'Payment failed or expired.');
         }
     }
 
