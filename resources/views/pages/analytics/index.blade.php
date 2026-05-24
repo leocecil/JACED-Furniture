@@ -48,9 +48,9 @@
             <div class="jaced-card tier-card tier-bronze shadow-sm p-4 h-100 d-flex flex-column justify-content-between">
                 <div>
                     <span class="badge rounded-pill tier-badge text-dark bg-opacity-10 mb-2" style="background-color: #CD7F32;">BRONZE TIER</span>
-                    <h3 class="fw-bold m-0 mt-1">1,240</h3>
+                    <h3 class="fw-bold m-0 mt-1">{{ number_format($tiers->bronze) }}</h3>
                 </div>
-                <small class="text-jaced-muted mt-3 d-block"><i class="bi bi-arrow-up-short text-success"></i> 4.2% dari bulan lalu</small>
+                <small class="text-jaced-muted mt-3 d-block"><i class="bi bi-people-fill text-muted"></i> Registered Members</small>
             </div>
         </div>
 
@@ -58,9 +58,9 @@
             <div class="jaced-card tier-card tier-silver shadow-sm p-4 h-100 d-flex flex-column justify-content-between">
                 <div>
                     <span class="badge rounded-pill tier-badge text-dark bg-opacity-10 mb-2" style="background-color: #A6A6A6;">SILVER TIER</span>
-                    <h3 class="fw-bold m-0 mt-1">852</h3>
+                    <h3 class="fw-bold m-0 mt-1">{{ number_format($tiers->silver) }}</h3>
                 </div>
-                <small class="text-jaced-muted mt-3 d-block"><i class="bi bi-arrow-up-short text-success"></i> 8.1% dari bulan lalu</small>
+                <small class="text-jaced-muted mt-3 d-block"><i class="bi bi-people-fill text-muted"></i> Registered Members</small>
             </div>
         </div>
 
@@ -68,9 +68,9 @@
             <div class="jaced-card tier-card tier-gold shadow-sm p-4 h-100 d-flex flex-column justify-content-between">
                 <div>
                     <span class="badge rounded-pill tier-badge text-dark bg-opacity-10 mb-2" style="background-color: #D4AF37;">GOLD TIER</span>
-                    <h3 class="fw-bold m-0 mt-1">415</h3>
+                    <h3 class="fw-bold m-0 mt-1">{{ number_format($tiers->gold) }}</h3>
                 </div>
-                <small class="text-jaced-muted mt-3 d-block"><i class="bi bi-arrow-up-short text-success"></i> 2.5% dari bulan lalu</small>
+                <small class="text-jaced-muted mt-3 d-block"><i class="bi bi-people-fill text-muted"></i> Registered Members</small>
             </div>
         </div>
 
@@ -78,9 +78,9 @@
             <div class="jaced-card tier-card tier-platinum shadow-sm p-4 h-100 d-flex flex-column justify-content-between">
                 <div>
                     <span class="badge rounded-pill tier-badge text-dark bg-opacity-10 mb-2" style="background-color: #708090;">PLATINUM TIER</span>
-                    <h3 class="fw-bold m-0 mt-1">98</h3>
+                    <h3 class="fw-bold m-0 mt-1">{{ number_format($tiers->platinum) }}</h3>
                 </div>
-                <small class="text-jaced-muted mt-3 d-block"><i class="bi bi-arrow-up-short text-success"></i> 12.0% dari bulan lalu</small>
+                <small class="text-jaced-muted mt-3 d-block"><i class="bi bi-people-fill text-muted"></i> Registered Members</small>
             </div>
         </div>
     </div>
@@ -88,10 +88,10 @@
     <div class="row g-4 mb-4">
         <div class="col-12 col-xl-8">
             <div class="jaced-card shadow-sm h-100">
-                <div class="d-flex justify-content-between align-items-center mb-4">
-                    <h5 class="fw-bold m-0">Revenue & Growth Trend</h5>
-                    <span class="badge bg-white text-dark border px-3 py-2 small" style="border-color: var(--jaced-input) !important;">Tahun 2026</span>
-                </div>
+               <div class="d-flex justify-content-between align-items-center mb-4">
+    <h5 class="fw-bold m-0">Revenue & Transactions Trend</h5>
+    <span class="badge bg-white text-dark border px-3 py-2 small" style="border-color: var(--jaced-input) !important;">IDR (Rp)</span>
+</div>
                 <div style="position: relative; height: 320px; width: 100%;">
                     <canvas id="trendChart"></canvas>
                 </div>
@@ -105,10 +105,15 @@
                     <canvas id="regionsChart"></canvas>
                 </div>
                 <div class="d-flex justify-content-center gap-3 mt-3 flex-wrap small">
-                    <span class="fw-medium"><i class="bi bi-circle-fill me-1" style="color: #272E1D;"></i> DKI Jakarta</span>
-                    <span class="fw-medium"><i class="bi bi-circle-fill me-1" style="color: #5F7568;"></i> Jawa Barat</span>
-                    <span class="fw-medium"><i class="bi bi-circle-fill me-1" style="color: #C99A6B;"></i> Jawa Timur</span>
-                    <span class="fw-medium"><i class="bi bi-circle-fill me-1" style="color: #DDD6CE;"></i> Lainnya</span>
+                    @foreach($regionsLabels as $index => $label)
+                        @php
+                            $colors = ['#272E1D', '#5F7568', '#C99A6B', '#DDD6CE'];
+                            $color = $colors[$index] ?? '#DDD6CE';
+                        @endphp
+                        <span class="fw-medium">
+                            <i class="bi bi-circle-fill me-1" style="color: {{ $color }};"></i> {{ $label }}
+                        </span>
+                    @endforeach
                 </div>
             </div>
         </div>
@@ -119,6 +124,7 @@
             <div class="jaced-card shadow-sm">
                 <div class="d-flex justify-content-between align-items-center mb-3">
                     <h5 class="fw-bold m-0">Top 5 VIP Spenders</h5>
+                    <a href="{{ route('analytics.customers.all') }}" class="text-decoration-none small fw-bold" style="color: var(--jaced-caramel);">View All Customers</a>
                 </div>
                 <div class="table-responsive">
                     <table class="table table-custom align-middle m-0" style="--bs-table-bg: transparent;">
@@ -131,38 +137,27 @@
                             </tr>
                         </thead>
                         <tbody>
-                            @php
-                                $spenders = [
-                                    ['name' => 'Amira Kartika', 'email' => 'amira@designhouse.co', 'id' => 'JCF-9921', 'tier' => 'PLATINUM', 'badge' => '#708090', 'spend' => '$48,250.00'],
-                                    ['name' => 'Bambang Utomo', 'email' => 'bambang.u@studio.com', 'id' => 'JCF-8812', 'tier' => 'GOLD', 'badge' => '#D4AF37', 'spend' => '$32,100.00'],
-                                    ['name' => 'Clara Dian', 'email' => 'clara.dian@gmail.com', 'id' => 'JCF-7489', 'tier' => 'GOLD', 'badge' => '#D4AF37', 'spend' => '$28,450.00'],
-                                    ['name' => 'Dimas Raditya', 'email' => 'dimas.radit@corporate.id', 'id' => 'JCF-8341', 'tier' => 'SILVER', 'badge' => '#A6A6A6', 'spend' => '$19,800.00'],
-                                    ['name' => 'Eka Prasetya', 'email' => 'eka.p@jaced-furniture.test', 'id' => 'JCF-9021', 'tier' => 'BRONZE', 'badge' => '#CD7F32', 'spend' => '$14,250.00'],
-                                ];
-                            @endphp
-
                             @foreach($spenders as $spender)
                             <tr style="border-bottom: 1px solid var(--jaced-input);">
                                 <td class="py-3 ps-0">
                                     <div class="d-flex align-items-center">
                                         <div class="rounded-circle d-flex align-items-center justify-content-center fw-bold me-2" 
                                              style="width: 32px; height: 32px; background-color: var(--jaced-input); color: var(--jaced-brown-dark); font-size: 11px;">
-                                            {{ strtoupper(substr($spender['name'], 0, 2)) }}
+                                            {{ strtoupper(substr($spender->name, 0, 2)) }}
                                         </div>
                                         <div>
-                                            <div class="fw-bold small">{{ $spender['name'] }}</div>
-                                            <div class="text-jaced-muted" style="font-size: 11px;">{{ $spender['email'] }}</div>
+                                            <div class="fw-bold small">{{ $spender->name }}</div>
+                                            <div class="text-jaced-muted" style="font-size: 11px;">{{ $spender->email }}</div>
                                         </div>
                                     </div>
                                 </td>
-                                <td class="small fw-semibold text-jaced-muted">{{ $spender['id'] }}</td>
+                                <td class="small fw-semibold text-jaced-muted">JCF-{{ $spender->id }}</td>
                                 <td>
-                                    <span class="badge rounded-pill px-3 py-1.5 fw-bold" style="background-color: {{ $spender['badge'] }}20; color: {{ $spender['badge'] }}; font-size: 9px;">
-                                        {{ $spender['tier'] }}
+                                    <span class="badge rounded-pill px-3 py-1.5 fw-bold" style="background-color: {{ $spender->badge }}20; color: {{ $spender->badge }}; font-size: 9px;">
+                                        {{ $spender->tier }}
                                     </span>
                                 </td>
-                                <td class="fw-bold small text-end pe-0">{{ $spender['spend'] }}</td>
-                            </tr>
+                                <td class="fw-bold small text-end pe-0">Rp {{ number_format($spender->total_spend, 0, ',', '.') }}</td>
                             @endforeach
                         </tbody>
                     </table>
@@ -178,14 +173,14 @@
 
 <script>
     document.addEventListener("DOMContentLoaded", function() {
-        // 1. CONFIG: PROVINSI TERBANYAK BERBELANJA (Pie/Donut Chart)
+        // 1. CONFIG: PROVINSI TERBANYAK BERBELANJA (Pie/Donut Chart Dinamis)
         const regionsCtx = document.getElementById('regionsChart').getContext('2d');
         new Chart(regionsCtx, {
             type: 'doughnut',
             data: {
-                labels: ['DKI Jakarta', 'Jawa Barat', 'Jawa Timur', 'Lainnya'],
+                labels: {!! json_encode($regionsLabels) !!},
                 datasets: [{
-                    data: [45, 25, 18, 12],
+                    data: {!! json_encode($regionsData) !!},
                     backgroundColor: ['#272E1D', '#5F7568', '#C99A6B', '#DDD6CE'],
                     borderWidth: 0,
                     hoverOffset: 4
@@ -195,23 +190,23 @@
                 responsive: true,
                 maintainAspectRatio: false,
                 plugins: {
-                    legend: { display: false } // Custom legend dibuat manual di bawah HTML
+                    legend: { display: false }
                 },
-                cutout: '75%' // Membuat ring lebih tipis dan mewah
+                cutout: '75%'
             }
         });
 
-        // 2. CONFIG: REVENUE & GROWTH TREND CHART (Ide Tambahan)
+        // 2. CONFIG: REVENUE & TRANSACTIONS TREND CHART (Mixed Dinamis)
         const trendCtx = document.getElementById('trendChart').getContext('2d');
         new Chart(trendCtx, {
             type: 'bar',
             data: {
-                labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
+                labels: {!! json_encode($trendLabels) !!},
                 datasets: [
                     {
                         type: 'line',
-                        label: 'Growth Rate (%)',
-                        data: [10, 15, 8, 22, 18, 25],
+                        label: 'Transactions Count',
+                        data: {!! json_encode($trendOrders) !!},
                         borderColor: '#C99A6B',
                         backgroundColor: '#C99A6B',
                         borderWidth: 2,
@@ -219,12 +214,12 @@
                         yAxisID: 'y1',
                     },
                     {
-                        label: 'Revenue ($)',
-                        data: [12000, 19000, 15000, 25000, 22000, 30000],
-                        backgroundColor: '#272E1D',
-                        borderRadius: 4,
-                        yAxisID: 'y',
-                    }
+    label: 'Revenue (Rp)', // ── Ganti teks label grafik di sini
+    data: {!! json_encode($trendRevenue) !!},
+    backgroundColor: '#272E1D',
+    borderRadius: 4,
+    yAxisID: 'y',
+}
                 ]
             },
             options: {
@@ -245,8 +240,8 @@
                         type: 'linear',
                         display: true,
                         position: 'right',
-                        grid: { drawOnChartArea: false }, // Menghindari grid ganda bertumpuk
-                        ticks: { font: { family: 'Lexend', size: 11 }, callback: value => value + '%' }
+                        grid: { drawOnChartArea: false },
+                        ticks: { font: { family: 'Lexend', size: 11 } }
                     },
                     x: {
                         ticks: { font: { family: 'Lexend', size: 11 } },
