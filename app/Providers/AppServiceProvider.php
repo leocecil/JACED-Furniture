@@ -23,8 +23,7 @@ class AppServiceProvider extends ServiceProvider
     {
         View::composer('*', function ($view) {
 
-            $cartItems = [];
-
+            $cartItems = collect();
             $cartTotal = 0;
 
             if(auth()->check()){

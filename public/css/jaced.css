@@ -1,7 +1,5 @@
 :root {
-    --jaced-cream: #EDE8E3;
     --jaced-white: #F9F9F7;
-    --jaced-card: #FAF6F1;
     --jaced-cream: #F2EDE6;
     --jaced-card: #FAF7F2;
     --jaced-brown-dark: #272E1D;
@@ -15,11 +13,15 @@
 }
 
 body {
-    /* font-family: 'Lexend', sans-serif !important; */
-    background-color: var(--jaced-cream) !important;
-    /* font-family: 'Lexend', sans-serif ; */
+    font-family: 'Lexend', sans-serif !important;
+    /* background-color: var(--jaced-cream) !important; */
     background-color: var(--jaced-caramel-bg) !important; ;
     color: var(--jaced-brown-dark) !important;
+}
+
+body, h1, h2, h3, h4, h5, h6, p, a, span, div, 
+input, button, select, textarea, label, td, th, li {
+    font-family: 'Lexend', sans-serif !important;
 }
 
 .main-content {
@@ -41,16 +43,6 @@ body {
     border-radius: 12px;
     border: none;
 }
-
-/* .jaced-item-card {
-    background-color: white;
-    border-radius: 12px;
-    padding: 16px;
-    display: flex;
-    align-items: center;
-    gap: 16px;
-    margin-bottom: 12px;
-} */
 
 .jaced-item-card img {
     width: 80px;

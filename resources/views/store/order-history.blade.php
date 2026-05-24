@@ -1,8 +1,6 @@
 @extends('base.base')
 
 @push('styles')
-<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="{{ asset('css/jaced.css') }}">
 <style>
 
     .nav-pills .nav-link::after,
@@ -19,7 +17,6 @@
         text-decoration: none !important;
     }
     .page-title {
-        font-family: 'DM Serif Display', serif;
         font-size: 2.8rem;
         font-weight: 400;
         line-height: 1.1;
