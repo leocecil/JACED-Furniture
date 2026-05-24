@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\AnalyticsController;
 use App\Http\Controllers\Auth\GoogleController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\CartController;
@@ -152,3 +153,4 @@ Route::get('/admin/order_management', function () {
         return view('admin.dashboard');
     })->name('dashboard');
 }); 
+Route::get('/admin/analytics', [AnalyticsController::class, 'index'])->name('analytics.customers');

@@ -7,8 +7,10 @@
     <li class="breadcrumb-item active">Inventory</li>
 @endsection
 
+{{-- 1. MENGIRIM DATA JUDUL AGAR HEADER DI LAYOUT UTAMA MUNCUL --}}
 @section('page-title', 'Inventory Ledger')
 
+{{-- 2. MENGIRIM ACTION BUTTON AGAR SEJAJAR DENGAN JUDUL UTAMA --}}
 @section('page-actions')
     <button type="button"
             class="btn btn-sm px-4 py-2 d-flex align-items-center gap-2"
@@ -69,8 +71,18 @@
 
 @section('content')
 <div class="container-fluid">
-
-    <p class="text-muted small mb-4">Manage your premium stock items, monitor material availability, and track upcoming shipments.</p>
+    <!-- Header Section -->
+    <div class="d-flex justify-content-between align-items-start mb-4">
+        <div>
+            <h2 class="fw-bold mb-1">Inventory Ledger</h2>
+            <p class="text-jaced-muted small">Manage your premium stock items, monitor material availability, and track upcoming shipments.</p>
+        </div>
+        <div class="d-flex gap-2">
+            <button class="btn btn-jaced-primary px-4 py-2" data-bs-toggle="modal" data-bs-target="#addItemModal">
+            <i class="bi bi-plus-lg me-2"></i> Add New Item
+            </button>
+        </div>
+    </div>
 
     {{-- Filter Bar --}}
     <div class="d-flex justify-content-between align-items-center mb-2 pb-2 border-bottom">
@@ -78,6 +90,7 @@
             <div class="category-wrapper" style="max-width: 500px; overflow: hidden;">
                 <div class="d-flex gap-2 overflow-auto category-scroll flex-nowrap py-1" id="categoryFilterList">
                     <button class="btn btn-sm rounded-pill px-4 py-2 fw-bold flex-shrink-0"
+                            id="cat-all"
                             style="background: #c4a882; color: white;"
                             onclick="filterByCategory(null, this)">All Collections</button>
                     @foreach($categories as $cat)
@@ -127,42 +140,6 @@
 </div>
 @endsection
 
-@push('scripts')
-<script>
-    document.addEventListener('DOMContentLoaded', function () {
-        const toggleWrap  = document.getElementById('inv-toggle-wrap');
-        const placeholder = document.getElementById('togglePlaceholder');
-        if (toggleWrap && placeholder) placeholder.replaceWith(toggleWrap);
-    });
-
-    function filterByCategory(catId, btn) {
-        document.querySelectorAll('#categoryFilterList .btn').forEach(b => {
-            b.classList.add('btn-category-inactive');
-            b.classList.remove('fw-bold');
-            b.style.background = '';
-            b.style.color = '';
-        });
-        btn.classList.remove('btn-category-inactive');
-        btn.classList.add('fw-bold');
-        btn.style.background = '#c4a882';
-        btn.style.color = 'white';
-
-        const url = new URL(window.location.href);
-        catId ? url.searchParams.set('category_id', catId) : url.searchParams.delete('category_id');
-        window.location.href = url.toString();
-    }
-
-    function sortBy(value, label, el) {
-        document.querySelectorAll('.dropdown-menu .dropdown-item').forEach(i => i.classList.remove('active'));
-        el.classList.add('active');
-        document.getElementById('sortLabel').textContent = label;
-        const url = new URL(window.location.href);
-        url.searchParams.set('sort', value);
-        window.location.href = url.toString();
-    }
-</script>
-@endpush
-
 
 {{-- ═══════ MODAL: ADD PRODUCT ═══════ --}}
 @push('modals')
@@ -174,7 +151,6 @@
                 <h5 class="modal-title fw-bold" id="addItemModalLabel">Add New Product</h5>
                 <button type="button" class="btn-close shadow-none" data-bs-dismiss="modal"></button>
             </div>
-{{-- {{ route('inventory.store') }} --}}
             <form action="#" method="POST" enctype="multipart/form-data">
                 @csrf
                 <div class="modal-body px-4 pb-2" style="max-height: 68vh; overflow-y: auto;">
@@ -310,7 +286,7 @@
                 <label class="form-label">New Category Name</label>
                 <div class="input-group mb-1">
                     <input type="text" class="form-control" id="newCategoryInput"
-                           placeholder="e.g., Outdoor, Bedroom..." maxlength="255"
+                           placeholder="e.g., Bedroom, Accent..." maxlength="255"
                            style="border-radius: 8px 0 0 8px !important;"
                            onkeydown="if(event.key==='Enter'){event.preventDefault(); saveCategory();}">
                     <button type="button" class="btn px-3 fw-bold"
@@ -344,130 +320,182 @@
 
 @push('scripts')
 <script>
-/* ── IMAGE PREVIEW + SET MAIN ── */
-let previewCount = 0;
+    document.addEventListener('DOMContentLoaded', function () {
+        // Pindahkan tombol grid view jika placeholder ada
+        const toggleWrap  = document.getElementById('inv-toggle-wrap');
+        const placeholder = document.getElementById('togglePlaceholder');
+        if (toggleWrap && placeholder) placeholder.replaceWith(toggleWrap);
 
-function previewImages(input) {
-    const wrap = document.getElementById('imagePreviewWrap');
-    Array.from(input.files).forEach((file, idx) => {
-        if (!file.type.startsWith('image/')) return;
-        const reader = new FileReader();
-        const currentIdx = previewCount++;
-        reader.onload = e => {
-            const div = document.createElement('div');
-            div.className = 'image-preview-item' + (currentIdx === 0 && wrap.children.length === 0 ? ' is-main' : '');
-            div.dataset.index = currentIdx;
-            div.innerHTML = `
-                <img src="${e.target.result}" alt="">
-                <button type="button" class="remove-img" onclick="removePreview(this)">×</button>
-                ${currentIdx === 0 && wrap.children.length === 0 ? '<div class="main-badge">Main</div>' : ''}
-            `;
-            div.addEventListener('click', function(e) {
-                if (e.target.classList.contains('remove-img')) return;
-                setMainImage(div);
-            });
-            wrap.appendChild(div);
-            // Auto-set first image as main
-            if (wrap.children.length === 1) setMainImage(div);
-        };
-        reader.readAsDataURL(file);
+        // ── AUTO SINKRONISASI STATE DATA BERDASARKAN URL SAAT PAGE RELOAD ──
+        const urlParams = new URLSearchParams(window.location.search);
+        const currentSort = urlParams.get('sort');
+        const currentCat  = urlParams.get('category_id');
+
+        // 1. Ambil state Dropdown Sort dari URL
+        if (currentSort) {
+            const activeItem = document.querySelector(`.dropdown-menu .dropdown-item[onclick*="'${currentSort}'"]`);
+            if (activeItem) {
+                document.querySelectorAll('.dropdown-menu .dropdown-item').forEach(i => i.classList.remove('active'));
+                activeItem.classList.add('active');
+
+                const onclickAttr = activeItem.getAttribute('onclick');
+                const match = onclickAttr.match(/sortBy\('[^']+'\s*,\s*'([^']+)'/);
+                if (match && match[1]) {
+                    document.getElementById('sortLabel').textContent = match[1];
+                }
+            }
+        }
+
+        // 2. Ambil state Tombol Kategori Aktif dari URL
+        if (currentCat) {
+            const activeCatBtn = document.querySelector(`#categoryFilterList button[data-cat-id="${currentCat}"]`);
+            if (activeCatBtn) {
+                document.querySelectorAll('#categoryFilterList .btn').forEach(b => {
+                    b.classList.add('btn-category-inactive');
+                    b.classList.remove('fw-bold');
+                    b.style.background = '';
+                    b.style.color = '';
+                });
+                activeCatBtn.classList.remove('btn-category-inactive');
+                activeCatBtn.classList.add('fw-bold');
+                activeCatBtn.style.background = '#c4a882';
+                activeCatBtn.style.color = 'white';
+            }
+        }
     });
-}
 
-function setMainImage(div) {
-    document.querySelectorAll('.image-preview-item').forEach(el => {
-        el.classList.remove('is-main');
-        const badge = el.querySelector('.main-badge');
-        if (badge) badge.remove();
-    });
-    div.classList.add('is-main');
-    div.insertAdjacentHTML('beforeend', '<div class="main-badge">Main</div>');
-    document.getElementById('mainImageIndex').value = div.dataset.index;
-}
-
-function removePreview(btn) {
-    const item = btn.closest('.image-preview-item');
-    const wasMain = item.classList.contains('is-main');
-    item.remove();
-    // Jika yang dihapus adalah main, set ke item pertama
-    if (wasMain) {
-        const first = document.querySelector('.image-preview-item');
-        if (first) setMainImage(first);
-    }
-}
-
-/* ── ADD CATEGORY (AJAX) ── */
-function saveCategory() {
-    const input  = document.getElementById('newCategoryInput');
-    const errMsg = document.getElementById('catErrorMsg');
-    const val    = input.value.trim();
-    errMsg.textContent = '';
-
-    if (!val) return;
-    if (!/^[a-zA-Z\s\-]+$/.test(val)) {
-        errMsg.textContent = '⚠ Only letters, spaces, and hyphens are allowed.';
-        return;
+    // ── REDIRECT REFRESH DENGAN QUERY STRING URL ──
+    function filterByCategory(catId, btn) {
+        const url = new URL(window.location.href);
+        catId ? url.searchParams.set('category_id', catId) : url.searchParams.delete('category_id');
+        window.location.href = url.toString();
     }
 
-    fetch('#', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
-        },
-        body: JSON.stringify({ name: val }),
-    })
-    .then(r => r.json())
-    .then(data => {
-        if (!data.success) {
-            errMsg.textContent = '⚠ ' + (data.errors?.name?.[0] ?? data.message ?? 'Error.');
+    function sortBy(value, label, el) {
+        const url = new URL(window.location.href);
+        url.searchParams.set('sort', value);
+        window.location.href = url.toString();
+    }
+
+    /* ── IMAGE PREVIEW + SET MAIN ── */
+    let previewCount = 0;
+
+    function previewImages(input) {
+        const wrap = document.getElementById('imagePreviewWrap');
+        Array.from(input.files).forEach((file, idx) => {
+            if (!file.type.startsWith('image/')) return;
+            const reader = new FileReader();
+            const currentIdx = previewCount++;
+            reader.onload = e => {
+                const div = document.createElement('div');
+                div.className = 'image-preview-item' + (currentIdx === 0 && wrap.children.length === 0 ? ' is-main' : '');
+                div.dataset.index = currentIdx;
+                div.innerHTML = `
+                    <img src="${e.target.result}" alt="">
+                    <button type="button" class="remove-img" onclick="removePreview(this)">×</button>
+                    ${currentIdx === 0 && wrap.children.length === 0 ? '<div class="main-badge">Main</div>' : ''}
+                `;
+                div.addEventListener('click', function(e) {
+                    if (e.target.classList.contains('remove-img')) return;
+                    setMainImage(div);
+                });
+                wrap.appendChild(div);
+                if (wrap.children.length === 1) setMainImage(div);
+            };
+            reader.readAsDataURL(file);
+        });
+    }
+
+    function setMainImage(div) {
+        document.querySelectorAll('.image-preview-item').forEach(el => {
+            el.classList.remove('is-main');
+            const badge = el.querySelector('.main-badge');
+            if (badge) badge.remove();
+        });
+        div.classList.add('is-main');
+        div.insertAdjacentHTML('beforeend', '<div class="main-badge">Main</div>');
+        document.getElementById('mainImageIndex').value = div.dataset.index;
+    }
+
+    function removePreview(btn) {
+        const item = btn.closest('.image-preview-item');
+        const wasMain = item.classList.contains('is-main');
+        item.remove();
+        if (wasMain) {
+            const first = document.querySelector('.image-preview-item');
+            if (first) setMainImage(first);
+        }
+    }
+
+    /* ── ADD CATEGORY (AJAX) ── */
+    function saveCategory() {
+        const input  = document.getElementById('newCategoryInput');
+        const errMsg = document.getElementById('catErrorMsg');
+        const val    = input.value.trim();
+        errMsg.textContent = '';
+
+        if (!val) return;
+        if (!/^[a-zA-Z\s\-]+$/.test(val)) {
+            errMsg.textContent = '⚠ Only letters, spaces, and hyphens are allowed.';
             return;
         }
-        const cat = data.category;
 
-        // Chip
-        const chips = document.getElementById('categoryChips');
-        const span  = document.createElement('span');
-        span.className = 'cat-chip';
-        span.dataset.catId = cat.id;
-        span.innerHTML = `${cat.name} <button class="remove-cat" onclick="deleteCategory(${cat.id}, this)">×</button>`;
-        chips.appendChild(span);
+        fetch('#', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+            },
+            body: JSON.stringify({ name: val }),
+        })
+        .then(r => r.json())
+        .then(data => {
+            if (!data.success) {
+                errMsg.textContent = '⚠ ' + (data.errors?.name?.[0] ?? data.message ?? 'Error.');
+                return;
+            }
+            const cat = data.category;
 
-        // Filter bar
-        const filterList = document.getElementById('categoryFilterList');
-        const btn = document.createElement('button');
-        btn.className = 'btn btn-sm btn-category-inactive px-4 py-2 flex-shrink-0 border-0';
-        btn.dataset.catId = cat.id;
-        btn.textContent = cat.name;
-        btn.onclick = function () { filterByCategory(cat.id, this); };
-        filterList.appendChild(btn);
+            const chips = document.getElementById('categoryChips');
+            const span  = document.createElement('span');
+            span.className = 'cat-chip';
+            span.dataset.catId = cat.id;
+            span.innerHTML = `${cat.name} <button class="remove-cat" onclick="deleteCategory(${cat.id}, this)">×</button>`;
+            chips.appendChild(span);
 
-        // Select
-        const sel = document.getElementById('categorySelect');
-        const opt = document.createElement('option');
-        opt.value = cat.id;
-        opt.textContent = cat.name;
-        sel.appendChild(opt);
+            const filterList = document.getElementById('categoryFilterList');
+            const btn = document.createElement('button');
+            btn.className = 'btn btn-sm btn-category-inactive px-4 py-2 flex-shrink-0 border-0';
+            btn.dataset.catId = cat.id;
+            btn.textContent = cat.name;
+            btn.onclick = function () { filterByCategory(cat.id, this); };
+            filterList.appendChild(btn);
 
-        input.value = '';
-        input.focus();
-    })
-    .catch(() => { errMsg.textContent = '⚠ Something went wrong.'; });
-}
+            const sel = document.getElementById('categorySelect');
+            const opt = document.createElement('option');
+            opt.value = cat.id;
+            opt.textContent = cat.name;
+            sel.appendChild(opt);
 
-/* ── DELETE CATEGORY (AJAX) ── */
-function deleteCategory(id, btn) {
-    fetch(`/categories/${id}`, {
-        method: 'DELETE',
-        headers: { 'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content },
-    })
-    .then(r => r.json())
-    .then(data => {
-        if (!data.success) { alert(data.message); return; }
-        btn.closest('.cat-chip').remove();
-        document.querySelectorAll(`#categoryFilterList [data-cat-id="${id}"]`).forEach(el => el.remove());
-        document.querySelectorAll(`#categorySelect option[value="${id}"]`).forEach(el => el.remove());
-    });
-}
+            input.value = '';
+            input.focus();
+        })
+        .catch(() => { errMsg.textContent = '⚠ Something went wrong.'; });
+    }
+
+    /* ── DELETE CATEGORY (AJAX) ── */
+    function deleteCategory(id, btn) {
+        fetch(`/categories/${id}`, {
+            method: 'DELETE',
+            headers: { 'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content },
+        })
+        .then(r => r.json())
+        .then(data => {
+            if (!data.success) { alert(data.message); return; }
+            btn.closest('.cat-chip').remove();
+            document.querySelectorAll(`#categoryFilterList [data-cat-id="${id}"]`).forEach(el => el.remove());
+            document.querySelectorAll(`#categorySelect option[value="${id}"]`).forEach(el => el.remove());
+        });
+    }
 </script>
-@endpush
+@endpush    

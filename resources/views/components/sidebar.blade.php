@@ -199,7 +199,7 @@
             <i class="bi bi-box-seam"></i> <span class="menu-text">Inventory</span>
         </a>
 
-        <a href="#"
+        <a href="{{ route('analytics.customers') }}"
            class="nav-link {{ request()->routeIs('analytics.*') ? 'active' : '' }}"
            onclick="if(window.innerWidth<=768) closeSidebar()">
             <i class="bi bi-bar-chart-line"></i> <span class="menu-text">Customer Analytics</span>
