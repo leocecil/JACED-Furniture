@@ -7,6 +7,7 @@ use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\InventoryController;
 use App\Http\Controllers\OrderController;
 use App\Http\Controllers\OrderHistoryController;
+use App\Http\Controllers\OrderManagementController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\RewardController;
 use App\Http\Controllers\UserController;
@@ -149,21 +150,14 @@ Route::middleware(['role:admin'])->group(function() {
     Route::get('/admin/main', [OrderController::class, 'index'])->name('orders.index');
 
 Route::get('/admin/inventory', [InventoryController::class, 'index'])->name('inventory.index');
+
 Route::get('/admin/dashboard', [DashboardController::class, 'index'])->name('admin.dashboard');
-Route::get('/admin/order_management', function () {
-        return view('admin.order_management');
-    })->name('order_management');
+Route::get('/admin/dashboard/sales-chart', [DashboardController::class, 'salesChart'])->name('admin.dashboard.salesChart');
+Route::post('/admin/dashboard/set-target', [DashboardController::class, 'setTarget'])->name('admin.dashboard.setTarget');
 
-Route::get('/admin/inventory', [InventoryController::class, 'index'])
-    ->name('inventory.index');
+Route::get('/admin/order_management', [OrderManagementController::class, 'index'])->name('order_management');
+Route::get('/admin/order_management/search', [OrderManagementController::class, 'search'])->name('admin.order_management.search');
+Route::post('/admin/orders/{id}/status', [OrderManagementController::class, 'updateStatus'])->name('admin.orders.updateStatus');
 
-Route::get('/admin/dashboard', [DashboardController::class, 'index'])
-    ->name('admin.dashboard');
-
-});
-
-Route::get('/wishlist', function () {
-    return view('store.wishlist');
-})->name('wishlist');
-
-Route::get('/api/products/batch', [ProductController::class, 'batchProducts']);
+Route::get('/admin/inventory', [InventoryController::class, 'index'])->name('inventory.index');
+}); 
