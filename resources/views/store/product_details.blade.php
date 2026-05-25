@@ -378,9 +378,10 @@
                     {{ strtoupper($product->label) }}
                 </span>
 
-                <a href="#" class="fw-semibold text-secondary">
-                    <i class="fa-solid fa-star me-2"></i>4.9 (124 reviews)
-                </a>
+                <div class="fw-semibold text-secondary">
+                    <i class="fa-solid fa-bag-shopping me-2"></i>
+                    {{ $totalSold }} people bought this
+                </div>
                 {{-- ★ --}}
                 <button class="wishlist-btn">
                     <i class="fa-regular fa-heart"></i>

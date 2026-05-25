@@ -86,7 +86,7 @@ Route::middleware(['role:customer'])->group(function() {
     // })->name('product_details');
 
     // CART
-    Route::post('/cart/add', [CartController::class, 'add'])->name('cart');
+    Route::post('/cart/add', [CartController::class, 'add'])->name('cart.add');
     Route::patch('/cart/{id}/increase', [CartController::class, 'increase'])
         ->name('cart.increase');
     Route::patch('/cart/{id}/decrease', [CartController::class, 'decrease'])
@@ -94,13 +94,17 @@ Route::middleware(['role:customer'])->group(function() {
     Route::delete('/cart/{id}', [CartController::class, 'delete'])
         ->name('cart.delete');
 
+    // Route::post('/cart/increase/{id}', [CartController::class, 'increase']);
+    // Route::post('/cart/decrease/{id}', [CartController::class, 'decrease']);
+    // Route::delete('/cart/delete/{id}', [CartController::class, 'delete']);
+
     Route::get('/product/{slug}', [ProductController::class, 'show'])->name('product.show');
 
     // CART
-    Route::get('/api/cart', [CartController::class, 'index']);
-    Route::post('/api/cart/add', [CartController::class, 'add'])->name('cart.add');
-    Route::put('/api/cart/update/{id}', [CartController::class, 'update'])->name('cart.update');
-    Route::delete('/api/cart/remove/{id}', [CartController::class, 'remove'])->name('cart.remove');
+    // Route::get('/api/cart', [CartController::class, 'index']);
+    // Route::post('/api/cart/add', [CartController::class, 'add'])->name('cart.add');
+    // Route::put('/api/cart/update/{id}', [CartController::class, 'update'])->name('cart.update');
+    // Route::delete('/api/cart/remove/{id}', [CartController::class, 'remove'])->name('cart.remove');
     
     //CHECKOUT
     Route::get('/checkout', [OrderController::class, 'showCheckout'])->name('checkout.index');

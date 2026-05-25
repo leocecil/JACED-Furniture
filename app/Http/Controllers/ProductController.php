@@ -300,9 +300,14 @@ class ProductController extends Controller
         $product = Product::with([
             'images',
             'category',
-            'mainImage'
+            'mainImage',
+            'orderDetails',
+            'wishlists',
         ])->findOrFail($id);
 
-        return view('store.product_details', compact('product'));
+        // TOTAL SOLD
+        $totalSold = $product->orderDetails->sum('quantity');
+
+        return view('store.product_details', compact('product', 'totalSold'));
     }
 }
