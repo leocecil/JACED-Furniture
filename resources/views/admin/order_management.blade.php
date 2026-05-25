@@ -283,11 +283,6 @@ $transitions = [
             <div class="d-none d-md-flex align-items-center px-4 py-3 order-row-trigger"
                 style="cursor:pointer; transition:background .15s; gap:0;"
                 onclick="togglePanel({{ $order->id }})">
-                <div style="width:40px; flex-shrink:0;">
-                    <input type="checkbox" class="order-checkbox"
-                        style="width:16px; height:16px; accent-color:var(--jaced-sage); cursor:pointer;"
-                        onclick="event.stopPropagation()">
-                </div>
                 <div style="flex:0 0 12%; font-size:13px; font-weight:600; color:var(--jaced-brown-dark);">
                     #ORD-{{ str_pad($order->id, 4, '0', STR_PAD_LEFT) }}
                 </div>
@@ -490,7 +485,9 @@ $transitions = [
                     No orders found
                 @endif
             </span>
-            <div>
+            
+            {{-- WRAP THIS IN AN ID CONTAINER SO AJAX CAN SWAP IT OVER --}}
+            <div id="paginationLinksContainer">
                 {{ $orders->onEachSide(1)->links('pagination::bootstrap-5') }}
             </div>
         </div>
@@ -560,6 +557,29 @@ $transitions = [
         searchTimer = setTimeout(() => fetchOrders(1), 400);
     });
 
+    // ── Intercept Pagination Clicks globally ──────────────────────────
+    document.addEventListener('click', function (e) {
+        // Intercept clicks coming from page elements
+        const pageLink = e.target.closest('.pagination .page-link');
+        
+        if (pageLink) {
+            e.preventDefault(); // Stop standard browser routing page load
+            
+            const urlString = pageLink.getAttribute('href');
+            if (urlString) {
+                try {
+                    const url = new URL(urlString, window.location.origin);
+                    const page = url.searchParams.get('page'); // Extract destination page integer
+                    if (page) {
+                        fetchOrders(page); // Execute search containing filters + requested page
+                    }
+                } catch (err) {
+                    console.error('Error tracking pagination routing:', err);
+                }
+            }
+        }
+    });
+
     // ── Filters ───────────────────────────────────────────────────────
     function applyFilters() { fetchOrders(1); }
 
@@ -585,13 +605,26 @@ $transitions = [
         })
         .then(r => r.json())
         .then(data => {
+            // 1. Update the main order table body rows
             document.getElementById('orderTableBody').innerHTML = data.html;
+            
+            // 2. Update the pagination numeric blocks dynamically
+            if (data.pagination) {
+                document.getElementById('paginationLinksContainer').innerHTML = data.pagination;
+            }
+
+            // 3. Update the description info text tracking
             const info = document.getElementById('paginationInfo');
             if (data.total > 0) {
                 info.textContent = `Showing ${data.from}–${data.to} of ${data.total} orders`;
             } else {
                 info.textContent = 'No orders found';
             }
+
+            // 4. Force override styles on dynamically freshly generated links
+            document.querySelectorAll('.pagination').forEach(el => {
+                el.classList.add('jaced-pagination');
+            });
         });
     }
 
@@ -693,7 +726,6 @@ $transitions = [
     .pagination .page-item.disabled .page-link { color:var(--jaced-muted); background:#f9f9f9; }
     .pagination .page-item:not(.active):not(.disabled) .page-link:hover { background:var(--jaced-caramel-bg); }
 </style>
-
 @endpush
 
 @endsection
