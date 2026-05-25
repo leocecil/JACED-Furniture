@@ -35,10 +35,31 @@
     
     {{-- GLOBAL CART --}}
     @include('partials.cart-sidebar')
-    
+
     @include('include.footer')
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js">
+        // reopen cart after reload
+        if(localStorage.getItem('cartOpen') === 'true'){
+            const cartSidebar = document.getElementById('cartSidebar');
+            const bsOffcanvas = new bootstrap.Offcanvas(cartSidebar);
+            bsOffcanvas.show();
+        }
+
+        // save state when opened
+        const cartSidebar = document.getElementById('cartSidebar');
+
+        if(cartSidebar){
+
+            cartSidebar.addEventListener('shown.bs.offcanvas', () => {
+                localStorage.setItem('cartOpen', 'true');
+            });
+
+            cartSidebar.addEventListener('hidden.bs.offcanvas', () => {
+                localStorage.setItem('cartOpen', 'false');
+            });
+        }
+    </script>
     @stack('scripts')
 </body>
 </html>

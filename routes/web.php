@@ -36,7 +36,6 @@ Route::get('/', [ProductController::class, 'landing'])->name('landing');
 Route::get('/home', [ProductController::class, 'home'])->name('home');
 Route::get('/shop', [ProductController::class, 'shop'])->name('shop');
 Route::get('/product/{slug}', [ProductController::class, 'show'])->name('product.show');
-Route::get('/product_details/{id}', [ProductController::class, 'show'])->name('product_details');
 Route::get('/wishlist', function () { return view('store.wishlist'); })->name('wishlist');
 
 // ── MIDDLEWARE CUSTOMER ROLE ──
@@ -68,11 +67,14 @@ Route::middleware(['role:customer'])->group(function() {
         return response()->json(['ok' => true]);
     })->name('voucher.clear-session');
 
-    // Web & API Cart System
-    Route::post('/cart/add', [CartController::class, 'add'])->name('cart');
-    Route::patch('/cart/{id}/increase', [CartController::class, 'increase'])->name('cart.increase');
-    Route::patch('/cart/{id}/decrease', [CartController::class, 'decrease'])->name('cart.decrease');
-    Route::delete('/cart/{id}', [CartController::class, 'delete'])->name('cart.delete');
+    // CART
+    Route::post('/cart/add', [CartController::class, 'add'])->name('cart.add');
+    Route::patch('/cart/{id}/increase', [CartController::class, 'increase'])
+        ->name('cart.increase');
+    Route::patch('/cart/{id}/decrease', [CartController::class, 'decrease'])
+        ->name('cart.decrease');
+    Route::delete('/cart/{id}', [CartController::class, 'delete'])
+        ->name('cart.delete');
 
     Route::get('/api/cart', [CartController::class, 'index']);
     Route::post('/api/cart/add', [CartController::class, 'add'])->name('cart.add');

@@ -324,7 +324,7 @@
                                     @csrf
                                     @method('PATCH')
 
-                                    <button class="cart-qty-btn">
+                                    <button class="cart-qty-btn decrease-btn" data-id="{{ $cart->id }}">
                                         -
                                     </button>
                                 </form>
@@ -341,7 +341,7 @@
                                     @csrf
                                     @method('PATCH')
 
-                                    <button class="cart-qty-btn">
+                                    <button class="cart-qty-btn increase-btn" data-id="{{ $cart->id }}">
                                         +
                                     </button>
                                 </form>
@@ -353,7 +353,7 @@
                             @csrf
                             @method('DELETE')
 
-                            <button class="remove-item-btn">
+                            <button class="remove-item-btn delete-btn" data-id="{{ $cart->id }}">
                                 <i class="fa-solid fa-trash"></i>
                             </button>
                         </form>
@@ -381,8 +381,75 @@
         </div>
 
         <!-- CHECKOUT BUTTON -->
-        <a href="/checkout" class="checkout-btn d-flex align-items-center justify-content-center text-decoration-none">
+        <a href="{{ route('checkout.index') }}" class="checkout-btn d-flex align-items-center justify-content-center text-decoration-none">
             Proceed to Checkout
         </a>
     </div>
 </div>
+
+<script>
+    // INCREASE
+    document.querySelectorAll('.increase-btn').forEach(button => {
+        button.addEventListener('click', function(){
+            event.preventDefault();
+            const id = this.dataset.id;
+
+            fetch(`/cart/${id}/increase`, {
+                method: 'PATCH',
+                headers: {
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                    'Accept': 'application/json'
+                }
+            })
+            .then(res => res.json())
+            .then(data => {
+                localStorage.setItem('cartOpen', 'true');
+                location.reload();
+            });
+        });
+    });
+
+    // DECREASE
+    document.querySelectorAll('.decrease-btn').forEach(button => {
+        button.addEventListener('click', function(){
+            event.preventDefault();
+            const id = this.dataset.id;
+
+            fetch(`/cart/${id}/decrease`, {
+                method: 'PATCH',
+                headers: {
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                    'Accept': 'application/json'
+                }
+            })
+            .then(res => res.json())
+            .then(data => {
+                localStorage.setItem('cartOpen', 'true');
+                location.reload();
+            });
+        });
+    });
+
+    // DELETE
+    document.querySelectorAll('.delete-btn').forEach(button => {
+        button.addEventListener('click', function(){
+            event.preventDefault();
+            const id = this.dataset.id;
+
+            fetch(`/cart/${id}`, {
+                method: 'DELETE',
+                headers: {
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                    'Accept': 'application/json'
+                }
+            })
+            .then(res => res.json())
+            .then(data => {
+                localStorage.setItem('cartOpen', 'true');
+                alert('Product deleted from cart');
+
+                location.reload();
+            });
+        });
+    });
+</script>
