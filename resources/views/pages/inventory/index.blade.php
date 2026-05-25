@@ -3,7 +3,7 @@
 @section('title', 'Inventory')
 
 @section('breadcrumb')
-    <li class="breadcrumb-item"><a href="{{ route('dashboard') }}">Studio</a></li>
+    <li class="breadcrumb-item"><a href="{{ route('admin.dashboard') }}">Studio</a></li>
     <li class="breadcrumb-item active">Inventory</li>
 @endsection
 
@@ -20,11 +20,12 @@
 
 @push('styles')
 <style>
+    /* Filter bar */
     .category-wrapper { mask-image: linear-gradient(to right, black 85%, transparent 100%); -webkit-mask-image: linear-gradient(to right, black 85%, transparent 100%); }
     .category-scroll { scroll-behavior: smooth; -ms-overflow-style: none; scrollbar-width: none; }
     .category-scroll::-webkit-scrollbar { display: none; }
-    .btn-category-inactive { color: #6b6860 !important; opacity: 0.7; transition: all 0.2s ease; }
-    .btn-category-inactive:hover { opacity: 1; background-color: rgba(0,0,0,0.05); border-radius: 50px; }
+    .btn-category-inactive { color: #6b6860 !important; opacity: 0.7; transition: all 0.2s ease; background: transparent; }
+    .btn-category-inactive:hover { opacity: 1; background-color: rgba(0,0,0,0.05) !important; border-radius: 50px; }
     .btn-add-category { color: #6b8f71 !important; font-weight: 600 !important; }
     .dropdown-item { transition: all 0.2s; }
     .dropdown-item:hover { background-color: #f0eeeb !important; }
@@ -33,44 +34,88 @@
     .btn-close:focus { box-shadow: none !important; }
 
     /* Modal */
-    .modal-section-title { font-size: 11px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: #9c9890; margin-bottom: 12px; padding-bottom: 6px; border-bottom: 1px solid #f0eeeb; }
+    .modal-section-title {
+        font-size: 11px; font-weight: 700; letter-spacing: 0.1em;
+        text-transform: uppercase; color: #9c9890;
+        margin: 20px 0 12px; padding-bottom: 6px;
+        border-bottom: 1px solid #f0eeeb;
+    }
+    .modal-section-title:first-child { margin-top: 0; }
+
     .form-label { font-size: 12px; font-weight: 600; color: #3a3a36; margin-bottom: 5px; }
-    .form-control, .form-select { border: 1px solid #e2ddd8; border-radius: 8px; font-size: 13px; background: #faf9f7; box-shadow: none !important; }
+    .form-control, .form-select {
+        border: 1px solid #e2ddd8; border-radius: 8px;
+        font-size: 13px; background: #faf9f7; box-shadow: none !important;
+    }
     .form-control:focus, .form-select:focus { border-color: #c4a882; background: #fff; }
     .input-group .form-control { border-radius: 0 8px 8px 0 !important; }
-    .input-group-text { background: #f0eeeb; border: 1px solid #e2ddd8; border-right: none; border-radius: 8px 0 0 8px !important; font-size: 12px; font-weight: 600; color: #6b6860; }
+    .input-group-text {
+        background: #f0eeeb; border: 1px solid #e2ddd8;
+        border-right: none; border-radius: 8px 0 0 8px !important;
+        font-size: 12px; font-weight: 600; color: #6b6860;
+    }
+
+    /* Switch */
+    .form-check-input:checked { background-color: #c4a882 !important; border-color: #c4a882 !important; }
+    .switch-row { display: flex; align-items: center; gap: 10px; padding: 10px 14px; background: #faf9f7; border-radius: 8px; border: 1px solid #e2ddd8; }
+    .switch-row label { font-size: 13px; font-weight: 600; color: #3a3a36; margin: 0; cursor: pointer; }
+    .switch-row small { font-size: 11px; color: #9c9890; }
 
     /* Image upload */
     .image-upload-area {
-        border: 2px dashed #e2ddd8; border-radius: 10px; padding: 24px;
-        text-align: center; background: #faf9f7; cursor: pointer;
-        transition: border-color 0.2s; position: relative;
+        border: 2px dashed #e2ddd8; border-radius: 10px;
+        padding: 20px; text-align: center; background: #faf9f7;
+        cursor: pointer; transition: border-color 0.2s, background 0.2s;
+        position: relative;
     }
     .image-upload-area:hover { border-color: #c4a882; background: #fdf8f3; }
-    .image-upload-area input[type="file"] { position: absolute; inset: 0; opacity: 0; cursor: pointer; width: 100%; height: 100%; }
-    .image-preview-wrap { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
+    .image-upload-area input[type="file"] {
+        position: absolute; inset: 0; opacity: 0;
+        cursor: pointer; width: 100%; height: 100%;
+    }
+    .image-preview-wrap { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; }
     .image-preview-item {
-        position: relative; width: 80px; height: 80px;
+        position: relative; width: 72px; height: 72px;
         border-radius: 8px; overflow: hidden;
-        border: 2px solid #e2ddd8; flex-shrink: 0; cursor: pointer;
-        transition: border-color 0.15s;
+        border: 1px solid #e2ddd8; flex-shrink: 0;
     }
     .image-preview-item img { width: 100%; height: 100%; object-fit: cover; }
-    .image-preview-item .remove-img { position: absolute; top: 2px; right: 2px; width: 18px; height: 18px; border-radius: 50%; background: rgba(0,0,0,0.6); color: white; border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 11px; z-index: 2; }
-    .image-preview-item.is-main { border-color: #c4a882; }
-    .image-preview-item .main-badge { position: absolute; bottom: 0; left: 0; right: 0; background: #c4a882; color: white; font-size: 9px; font-weight: 700; text-align: center; padding: 2px; text-transform: uppercase; letter-spacing: .05em; }
+    .image-preview-item .remove-img {
+        position: absolute; top: 2px; right: 2px;
+        width: 18px; height: 18px; border-radius: 50%;
+        background: rgba(0,0,0,0.65); color: white;
+        border: none; cursor: pointer;
+        display: flex; align-items: center; justify-content: center;
+        font-size: 11px; line-height: 1;
+    }
 
     /* Category chips */
-    .cat-chip { display: inline-flex; align-items: center; gap: 6px; background: #f0eeeb; border-radius: 20px; padding: 5px 12px; font-size: 12px; font-weight: 600; color: #3a3a36; }
-    .cat-chip .remove-cat { background: none; border: none; cursor: pointer; color: #9c9890; font-size: 14px; padding: 0; line-height: 1; display: flex; align-items: center; }
+    .cat-chip {
+        display: inline-flex; align-items: center; gap: 6px;
+        background: #f0eeeb; border-radius: 20px;
+        padding: 5px 12px; font-size: 12px; font-weight: 600; color: #3a3a36;
+    }
+    .cat-chip .remove-cat {
+        background: none; border: none; cursor: pointer;
+        color: #9c9890; font-size: 15px; padding: 0; line-height: 1;
+    }
     .cat-chip .remove-cat:hover { color: #c0392b; }
 </style>
 @endpush
 
 @section('content')
 <div class="container-fluid">
-
-    <p class="text-muted small mb-4">Manage your premium stock items, monitor material availability, and track upcoming shipments.</p>
+     <div class="d-flex justify-content-between align-items-start mb-4">
+       <div>
+            <h2 class="fw-bold mb-1">Inventory Ledger</h2>
+            <p class="text-jaced-muted small">Manage your premium stock items, monitor material availability, and track upcoming shipments.</p>
+        </div>
+        <div class="d-flex gap-2">
+            <button class="btn btn-jaced-primary px-4 py-2" data-bs-toggle="modal" data-bs-target="#addItemModal">
+            <i class="bi bi-plus-lg me-2"></i> Add New Item
+            </button>
+        </div>
+     </div>
 
     {{-- Filter Bar --}}
     <div class="d-flex justify-content-between align-items-center mb-2 pb-2 border-bottom">
@@ -78,12 +123,15 @@
             <div class="category-wrapper" style="max-width: 500px; overflow: hidden;">
                 <div class="d-flex gap-2 overflow-auto category-scroll flex-nowrap py-1" id="categoryFilterList">
                     <button class="btn btn-sm rounded-pill px-4 py-2 fw-bold flex-shrink-0"
+                            id="cat-all"
                             style="background: #c4a882; color: white;"
                             onclick="filterByCategory(null, this)">All Collections</button>
                     @foreach($categories as $cat)
                         <button class="btn btn-sm btn-category-inactive px-4 py-2 flex-shrink-0 border-0"
                                 data-cat-id="{{ $cat->id }}"
-                                onclick="filterByCategory({{ $cat->id }}, this)">{{ $cat->name }}</button>
+                                onclick="filterByCategory({{ $cat->id }}, this)">
+                            {{ $cat->name }}
+                        </button>
                     @endforeach
                 </div>
             </div>
@@ -101,7 +149,7 @@
                     SORT BY: <span class="ms-1 text-dark" id="sortLabel">NEWEST</span>
                 </button>
                 <ul class="dropdown-menu dropdown-menu-end shadow-sm border-0 p-2"
-                    style="background-color: #fff; border-radius: 12px; min-width: 160px;">
+                    style="background:#fff; border-radius:12px; min-width:160px;">
                     <li><a class="dropdown-item rounded-2 small py-2 fw-medium active" href="#" onclick="sortBy('newest','NEWEST',this)">Newest</a></li>
                     <li><a class="dropdown-item rounded-2 small py-2 fw-medium" href="#" onclick="sortBy('oldest','OLDEST',this)">Oldest</a></li>
                     <li><a class="dropdown-item rounded-2 small py-2 fw-medium" href="#" onclick="sortBy('price_high','PRICE ↓',this)">Price: High to Low</a></li>
@@ -113,7 +161,7 @@
         </div>
     </div>
 
-    {{-- Inventory items --}}
+    {{-- Inventory Grid --}}
     @include('pages.inventory.item-grid')
 
     {{-- Pagination --}}
@@ -123,7 +171,6 @@
         </p>
         {{ $products->links('pagination::bootstrap-5') }}
     </div>
-
 </div>
 @endsection
 
@@ -133,14 +180,70 @@
         const toggleWrap  = document.getElementById('inv-toggle-wrap');
         const placeholder = document.getElementById('togglePlaceholder');
         if (toggleWrap && placeholder) placeholder.replaceWith(toggleWrap);
+
+        // ── AUTO SINKRONISASI FILTER WARNA CARAMEL BERDASARKAN URL SAAT PAGE LOAD ──
+        const urlParams = new URLSearchParams(window.location.search);
+        const currentSort = urlParams.get('sort');
+        const currentCat  = urlParams.get('category_id');
+
+        // 1. Sinkronisasi Dropdown Sort
+        if (currentSort) {
+            const activeItem = document.querySelector(`.dropdown-menu .dropdown-item[onclick*="'${currentSort}'"]`);
+            if (activeItem) {
+                document.querySelectorAll('.dropdown-menu .dropdown-item').forEach(i => i.classList.remove('active'));
+                activeItem.classList.add('active');
+
+                const onclickAttr = activeItem.getAttribute('onclick');
+                const match = onclickAttr.match(/sortBy\('[^']+'\s*,\s*'([^']+)'/);
+                if (match && match[1]) {
+                    document.getElementById('sortLabel').textContent = match[1];
+                }
+            }
+        }
+
+        // 2. Sinkronisasi Tombol Kategori Aktif (Memindahkan warna orange #c4a882)
+        if (currentCat) {
+            const activeCatBtn = document.querySelector(`#categoryFilterList button[data-cat-id="${currentCat}"]`);
+            if (activeCatBtn) {
+                // Reset semua tombol menjadi pasif
+                document.querySelectorAll('#categoryFilterList .btn').forEach(b => {
+                    b.classList.add('btn-category-inactive');
+                    b.classList.remove('fw-bold');
+                    b.style.background = 'transparent';
+                    b.style.color = '#6b6860';
+                });
+                
+                // Nyalakan tombol kategori terpilih
+                activeCatBtn.classList.remove('btn-category-inactive');
+                activeCatBtn.classList.add('fw-bold');
+                activeCatBtn.style.background = '#c4a882';
+                activeCatBtn.style.color = 'white';
+            }
+        } else {
+            // Jika tidak ada parameter category_id, pastikan "All Collections" yang orange
+            const catAll = document.getElementById('cat-all');
+            if (catAll) {
+                document.querySelectorAll('#categoryFilterList .btn').forEach(b => {
+                    b.classList.add('btn-category-inactive');
+                    b.classList.remove('fw-bold');
+                    b.style.background = 'transparent';
+                    b.style.color = '#6b6860';
+                });
+                catAll.classList.remove('btn-category-inactive');
+                catAll.classList.add('fw-bold');
+                catAll.style.background = '#c4a882';
+                catAll.style.color = 'white';
+            }
+        }
     });
 
     function filterByCategory(catId, btn) {
+        // Optimasi UX: Ubah warna instan sebelum memicu reload halaman
         document.querySelectorAll('#categoryFilterList .btn').forEach(b => {
             b.classList.add('btn-category-inactive');
             b.classList.remove('fw-bold');
-            b.style.background = '';
-            b.style.color = '';
+            b.style.background = 'transparent';
+            b.style.color = '#6b6860';
         });
         btn.classList.remove('btn-category-inactive');
         btn.classList.add('fw-bold');
@@ -163,73 +266,96 @@
 </script>
 @endpush
 
-
-{{-- ═══════ MODAL: ADD PRODUCT ═══════ --}}
+{{-- MODAL: ADD PRODUCT & MANAGE CATEGORIES TETAP SAMA SEPERTI DI BAWAH --}}
 @push('modals')
 <div class="modal fade" id="addItemModal" tabindex="-1" aria-labelledby="addItemModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered modal-lg">
         <div class="modal-content border-0 shadow" style="border-radius: 16px;">
-
-            <div class="modal-header border-0 pt-4 px-4 pb-2">
+            <div class="modal-header border-0 pt-4 px-4 pb-0">
                 <h5 class="modal-title fw-bold" id="addItemModalLabel">Add New Product</h5>
                 <button type="button" class="btn-close shadow-none" data-bs-dismiss="modal"></button>
             </div>
-{{-- {{ route('inventory.store') }} --}}
-            <form action="#" method="POST" enctype="multipart/form-data">
+            <form action="{{ route('inventory.store') }}" method="POST" enctype="multipart/form-data">
                 @csrf
-                <div class="modal-body px-4 pb-2" style="max-height: 68vh; overflow-y: auto;">
-
-                    {{-- Basic Info --}}
+                <div class="modal-body px-4 pb-2" style="max-height: 70vh; overflow-y: auto;">
                     <div class="modal-section-title">Basic Information</div>
                     <div class="mb-3">
                         <label class="form-label">Product Name <span class="text-danger">*</span></label>
-                        <input type="text" class="form-control" name="name"
-                               placeholder="e.g., Sculptural Lounge Chair" required>
+                        <input type="text" class="form-control" name="name" placeholder="e.g., Sculptural Lounge Chair" required oninput="autoSlug(this.value)">
                     </div>
                     <div class="mb-3">
-                        <label class="form-label">Short Description</label>
-                        <input type="text" class="form-control" name="short_description"
-                               placeholder="Brief summary shown on product card" maxlength="500">
+                        <label class="form-label">Slug <span class="text-muted fw-normal">(auto-filled)</span></label>
+                        <div class="input-group">
+                            <span class="input-group-text">/</span>
+                            <input type="text" class="form-control" name="slug" id="slugInput" placeholder="sculptural-lounge-chair">
+                        </div>
                     </div>
                     <div class="mb-3">
-                        <label class="form-label">Full Description</label>
-                        <textarea class="form-control" name="description" rows="3"
-                                  placeholder="Detailed product description..." style="resize:none;"></textarea>
+                        <label class="form-label">Description</label>
+                        <textarea class="form-control" name="description" rows="3" placeholder="Describe the product, materials, and craftsmanship..." style="resize: none;"></textarea>
                     </div>
 
-                    {{-- Pricing & Stock --}}
-                    <div class="modal-section-title mt-4">Pricing & Stock</div>
+                    <div class="modal-section-title">Dimensions</div>
+                    <div class="row g-3 mb-3">
+                        <div class="col-4">
+                            <label class="form-label">Length <span class="text-danger">*</span></label>
+                            <div class="input-group">
+                                <span class="input-group-text">L</span>
+                                <input type="number" class="form-control" name="length" placeholder="0" min="0" step="0.1" required>
+                            </div>
+                        </div>
+                        <div class="col-4">
+                            <label class="form-label">Width <span class="text-danger">*</span></label>
+                            <div class="input-group">
+                                <span class="input-group-text">W</span>
+                                <input type="number" class="form-control" name="width" placeholder="0" min="0" step="0.1" required>
+                            </div>
+                        </div>
+                        <div class="col-4">
+                            <label class="form-label">Height <span class="text-danger">*</span></label>
+                            <div class="input-group">
+                                <span class="input-group-text">H</span>
+                                <input type="number" class="form-control" name="height" placeholder="0" min="0" step="0.1" required>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Unit (Satuan) <span class="text-danger">*</span></label>
+                        <select class="form-select" name="unit" required>
+                            <option value="cm" selected>cm — Centimeter</option>
+                            <option value="m">m — Meter</option>
+                            <option value="inch">inch — Inch</option>
+                        </select>
+                    </div>
+
+                    <div class="modal-section-title">Pricing & Stock</div>
                     <div class="row g-3 mb-3">
                         <div class="col-md-4">
                             <label class="form-label">Price <span class="text-danger">*</span></label>
                             <div class="input-group">
                                 <span class="input-group-text">$</span>
-                                <input type="number" class="form-control" name="price"
-                                       placeholder="0.00" min="0" step="0.01" required>
+                                <input type="number" class="form-control" name="price" placeholder="0.00" min="0" step="0.01" required>
                             </div>
                         </div>
                         <div class="col-md-4">
-                            <label class="form-label">Old Price <span class="text-muted fw-normal">(optional)</span></label>
+                            <label class="form-label">Old Price <span class="text-muted fw-normal">(coret)</span></label>
                             <div class="input-group">
                                 <span class="input-group-text">$</span>
-                                <input type="number" class="form-control" name="old_price"
-                                       placeholder="0.00" min="0" step="0.01">
+                                <input type="number" class="form-control" name="old_price" placeholder="0.00" min="0" step="0.01">
                             </div>
                         </div>
                         <div class="col-md-4">
                             <label class="form-label">Stock <span class="text-danger">*</span></label>
                             <div class="input-group">
                                 <span class="input-group-text"><i class="bi bi-box-seam" style="font-size:12px;"></i></span>
-                                <input type="number" class="form-control" name="stock"
-                                       placeholder="0" min="0" required>
+                                <input type="number" class="form-control" name="stock" placeholder="0" min="0" required>
                             </div>
                         </div>
                     </div>
 
-                    {{-- Category & Badge --}}
-                    <div class="modal-section-title mt-4">Category & Badge</div>
+                    <div class="modal-section-title">Category, Label & Badge</div>
                     <div class="row g-3 mb-3">
-                        <div class="col-md-6">
+                        <div class="col-md-4">
                             <label class="form-label">Category <span class="text-danger">*</span></label>
                             <select class="form-select" name="category_id" id="categorySelect" required>
                                 <option value="" selected disabled>Select Category</option>
@@ -238,67 +364,57 @@
                                 @endforeach
                             </select>
                         </div>
-                        <div class="col-md-6">
-                            <label class="form-label">Badge <span class="text-muted fw-normal">(e.g. New, Sale)</span></label>
-                            <input type="text" class="form-control" name="badge"
-                                   placeholder="e.g., New Arrival, Best Seller">
+                        <div class="col-md-4">
+                            <label class="form-label">Label <span class="text-muted fw-normal">(tag produk)</span></label>
+                            <input type="text" class="form-control" name="label" placeholder="e.g., Bestseller, Featured">
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label">Badge <span class="text-muted fw-normal">(stiker)</span></label>
+                            <input type="text" class="form-control" name="badge" placeholder="e.g., New, Sale, -20%">
                         </div>
                     </div>
 
-                    {{-- Status --}}
+                    <div class="modal-section-title">Status</div>
                     <div class="row g-3 mb-3">
                         <div class="col-md-6">
-                            <div class="form-check form-switch">
-                                <input class="form-check-input" type="checkbox" name="is_active" id="isActive" value="1" checked>
-                                <label class="form-check-label fw-semibold" for="isActive" style="font-size:13px;">
-                                    Active <span class="text-muted fw-normal">(visible to customers)</span>
-                                </label>
+                            <div class="switch-row">
+                                <input class="form-check-input flex-shrink-0" type="checkbox" name="is_active" id="isActive" value="1" checked style="width:38px; height:20px; cursor:pointer;">
+                                <div>
+                                    <label class="form-check-label" for="isActive">Active</label>
+                                    <small class="d-block">Visible to customers</small>
+                                </div>
                             </div>
                         </div>
                         <div class="col-md-6">
-                            <div class="form-check form-switch">
-                                <input class="form-check-input" type="checkbox" name="is_recommended" id="isRecommended" value="1">
-                                <label class="form-check-label fw-semibold" for="isRecommended" style="font-size:13px;">
-                                    Recommended <span class="text-muted fw-normal">(featured)</span>
-                                </label>
+                            <div class="switch-row">
+                                <input class="form-check-input flex-shrink-0" type="checkbox" name="is_recommended" id="isRecommended" value="1" style="width:38px; height:20px; cursor:pointer;">
+                                <div>
+                                    <label class="form-check-label" for="isRecommended">Recommended</label>
+                                    <small class="d-block">Show in featured section</small>
+                                </div>
                             </div>
                         </div>
                     </div>
 
-                    {{-- Images --}}
-                    <div class="modal-section-title mt-4">Product Images</div>
-                    <p style="font-size:12px; color:#9c9890; margin-bottom:10px;">
-                        Upload multiple images. <strong>Click a preview</strong> to set it as the main image.
-                    </p>
+                    <div class="modal-section-title">Product Images</div>
                     <div class="image-upload-area">
-                        <input type="file" name="images[]" id="imageInput"
-                               accept="image/*" multiple onchange="previewImages(this)">
+                        <input type="file" name="images[]" id="imageInput" accept="image/*" multiple onchange="previewImages(this)">
                         <i class="bi bi-cloud-upload fs-3 text-muted d-block mb-2"></i>
                         <div style="font-size:13px; font-weight:600; color:#3a3a36;">Click or drag & drop images here</div>
-                        <div style="font-size:11px; color:#9c9890; margin-top:4px;">JPG, PNG, WEBP — max 2MB each</div>
+                        <div style="font-size:11px; color:#9c9890; margin-top:4px;">JPG, PNG, WEBP — max 2MB each — multiple images allowed</div>
                     </div>
                     <div class="image-preview-wrap" id="imagePreviewWrap"></div>
-                    <input type="hidden" name="main_image_index" id="mainImageIndex" value="0">
-
                 </div>
 
                 <div class="modal-footer border-0 pb-4 px-4 pt-3 d-flex gap-2">
-                    <button type="button" class="btn btn-sm flex-grow-1 py-2 rounded-3"
-                            data-bs-dismiss="modal" style="background:#f0eeeb; color:#1a1a18; border:none;">
-                        Cancel
-                    </button>
-                    <button type="submit" class="btn btn-sm flex-grow-1 py-2 rounded-3 fw-bold"
-                            style="background:#c4a882; color:white; border:none;">
-                        <i class="bi bi-check-lg me-1"></i> Save Product
-                    </button>
+                    <button type="button" class="btn btn-sm flex-grow-1 py-2 rounded-3" data-bs-dismiss="modal" style="background:#f0eeeb; color:#1a1a18; border:none;">Cancel</button>
+                    <button type="submit" class="btn btn-sm flex-grow-1 py-2 rounded-3 fw-bold" style="background:#c4a882; color:white; border:none;"><i class="bi bi-check-lg me-1"></i> Save Product</button>
                 </div>
             </form>
         </div>
     </div>
 </div>
 
-
-{{-- ═══════ MODAL: ADD CATEGORY ═══════ --}}
 <div class="modal fade" id="addCategoryModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered" style="max-width: 420px;">
         <div class="modal-content border-0 shadow" style="border-radius: 16px;">
@@ -309,154 +425,86 @@
             <div class="modal-body px-4 pb-2">
                 <label class="form-label">New Category Name</label>
                 <div class="input-group mb-1">
-                    <input type="text" class="form-control" id="newCategoryInput"
-                           placeholder="e.g., Outdoor, Bedroom..." maxlength="255"
-                           style="border-radius: 8px 0 0 8px !important;"
-                           onkeydown="if(event.key==='Enter'){event.preventDefault(); saveCategory();}">
-                    <button type="button" class="btn px-3 fw-bold"
-                            style="background:#1e1c18; color:#f5f2ee; border:none; border-radius:0 8px 8px 0;"
-                            onclick="saveCategory()">
-                        <i class="bi bi-plus-lg"></i> Add
-                    </button>
+                    <input type="text" class="form-control" id="newCategoryInput" placeholder="e.g., Outdoor, Bedroom..." maxlength="255" style="border-radius: 8px 0 0 8px !important;" onkeydown="if(event.key==='Enter'){event.preventDefault(); saveCategory();}">
+                    <button type="button" class="btn px-3 fw-bold" style="background:#1e1c18; color:#f5f2ee; border:none; border-radius:0 8px 8px 0;" onclick="saveCategory()"><i class="bi bi-plus-lg"></i> Add</button>
                 </div>
-                <div class="form-text mb-3" style="font-size:11px; color:#c0392b;" id="catErrorMsg"></div>
-
-                <div style="font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:.1em; color:#9c9890; margin-bottom:10px;">
-                    Current Categories
-                </div>
+                <div id="catErrorMsg" class="mb-3" style="font-size:11px; min-height:16px;"></div>
+                <div style="font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:.1em; color:#9c9890; margin-bottom:10px;">Current Categories</div>
                 <div class="d-flex flex-wrap gap-2 pb-2" id="categoryChips">
                     @foreach($categories as $cat)
-                        <span class="cat-chip" data-cat-id="{{ $cat->id }}">
-                            {{ $cat->name }}
-                            <button class="remove-cat" onclick="deleteCategory({{ $cat->id }}, this)">×</button>
-                        </span>
+                        <span class="cat-chip" data-cat-id="{{ $cat->id }}">{{ $cat->name }}<button class="remove-cat" onclick="deleteCategory({{ $cat->id }}, this)" title="Remove">×</button></span>
                     @endforeach
                 </div>
             </div>
             <div class="modal-footer border-0 pb-4 px-4 pt-2">
-                <button type="button" class="btn btn-sm w-100 py-2 rounded-3 fw-bold"
-                        data-bs-dismiss="modal" style="background:#1e1c18; color:#f5f2ee; border:none;">Done</button>
+                <button type="button" class="btn btn-sm w-100 py-2 rounded-3 fw-bold" data-bs-dismiss="modal" style="background:#1e1c18; color:#f5f2ee; border:none;">Done</button>
             </div>
         </div>
     </div>
 </div>
 @endpush
 
+{{-- PREVIEW & AJAX SCRIPTS TETAP SAMA --}}
 @push('scripts')
 <script>
-/* ── IMAGE PREVIEW + SET MAIN ── */
-let previewCount = 0;
+function autoSlug(val) {
+    document.getElementById('slugInput').value = val.toLowerCase().replace(/[^a-z0-9\s-]/g, '').trim().replace(/\s+/g, '-');
+}
 
 function previewImages(input) {
     const wrap = document.getElementById('imagePreviewWrap');
-    Array.from(input.files).forEach((file, idx) => {
+    Array.from(input.files).forEach(file => {
         if (!file.type.startsWith('image/')) return;
         const reader = new FileReader();
-        const currentIdx = previewCount++;
         reader.onload = e => {
             const div = document.createElement('div');
-            div.className = 'image-preview-item' + (currentIdx === 0 && wrap.children.length === 0 ? ' is-main' : '');
-            div.dataset.index = currentIdx;
-            div.innerHTML = `
-                <img src="${e.target.result}" alt="">
-                <button type="button" class="remove-img" onclick="removePreview(this)">×</button>
-                ${currentIdx === 0 && wrap.children.length === 0 ? '<div class="main-badge">Main</div>' : ''}
-            `;
-            div.addEventListener('click', function(e) {
-                if (e.target.classList.contains('remove-img')) return;
-                setMainImage(div);
-            });
+            div.className = 'image-preview-item';
+            div.innerHTML = `<img src="${e.target.result}" alt=""><button type="button" class="remove-img" onclick="this.closest('.image-preview-item').remove()">×</button>`;
             wrap.appendChild(div);
-            // Auto-set first image as main
-            if (wrap.children.length === 1) setMainImage(div);
         };
         reader.readAsDataURL(file);
     });
 }
 
-function setMainImage(div) {
-    document.querySelectorAll('.image-preview-item').forEach(el => {
-        el.classList.remove('is-main');
-        const badge = el.querySelector('.main-badge');
-        if (badge) badge.remove();
-    });
-    div.classList.add('is-main');
-    div.insertAdjacentHTML('beforeend', '<div class="main-badge">Main</div>');
-    document.getElementById('mainImageIndex').value = div.dataset.index;
-}
-
-function removePreview(btn) {
-    const item = btn.closest('.image-preview-item');
-    const wasMain = item.classList.contains('is-main');
-    item.remove();
-    // Jika yang dihapus adalah main, set ke item pertama
-    if (wasMain) {
-        const first = document.querySelector('.image-preview-item');
-        if (first) setMainImage(first);
-    }
-}
-
-/* ── ADD CATEGORY (AJAX) ── */
 function saveCategory() {
     const input  = document.getElementById('newCategoryInput');
     const errMsg = document.getElementById('catErrorMsg');
     const val    = input.value.trim();
     errMsg.textContent = '';
-
     if (!val) return;
-    if (!/^[a-zA-Z\s\-]+$/.test(val)) {
-        errMsg.textContent = '⚠ Only letters, spaces, and hyphens are allowed.';
-        return;
-    }
+    if (!/^[a-zA-Z\s\-]+$/.test(val)) { errMsg.style.color = '#c0392b'; errMsg.textContent = '⚠ Only letters, spaces, and hyphens are allowed.'; return; }
 
-    fetch('#', {
+    fetch('{{ route('categories.store') }}', {
         method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
-        },
+        headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content },
         body: JSON.stringify({ name: val }),
     })
     .then(r => r.json())
     .then(data => {
-        if (!data.success) {
-            errMsg.textContent = '⚠ ' + (data.errors?.name?.[0] ?? data.message ?? 'Error.');
-            return;
-        }
+        if (!data.success) { errMsg.style.color = '#c0392b'; errMsg.textContent = '⚠ ' + (data.message ?? 'Error.'); return; }
         const cat = data.category;
-
-        // Chip
         const chips = document.getElementById('categoryChips');
         const span  = document.createElement('span');
-        span.className = 'cat-chip';
-        span.dataset.catId = cat.id;
+        span.className = 'cat-chip'; span.dataset.catId = cat.id;
         span.innerHTML = `${cat.name} <button class="remove-cat" onclick="deleteCategory(${cat.id}, this)">×</button>`;
         chips.appendChild(span);
 
-        // Filter bar
         const filterList = document.getElementById('categoryFilterList');
         const btn = document.createElement('button');
         btn.className = 'btn btn-sm btn-category-inactive px-4 py-2 flex-shrink-0 border-0';
-        btn.dataset.catId = cat.id;
-        btn.textContent = cat.name;
+        btn.dataset.catId = cat.id; btn.textContent = cat.name;
         btn.onclick = function () { filterByCategory(cat.id, this); };
         filterList.appendChild(btn);
 
-        // Select
         const sel = document.getElementById('categorySelect');
-        const opt = document.createElement('option');
-        opt.value = cat.id;
-        opt.textContent = cat.name;
-        sel.appendChild(opt);
-
-        input.value = '';
-        input.focus();
+        sel.appendChild(new Option(cat.name, cat.id));
+        input.value = ''; input.focus();
     })
-    .catch(() => { errMsg.textContent = '⚠ Something went wrong.'; });
+    .catch(() => { errMsg.style.color = '#c0392b'; errMsg.textContent = '⚠ Something went wrong. Please try again.'; });
 }
 
-/* ── DELETE CATEGORY (AJAX) ── */
 function deleteCategory(id, btn) {
+    if (!confirm('Delete this category?')) return;
     fetch(`/categories/${id}`, {
         method: 'DELETE',
         headers: { 'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content },

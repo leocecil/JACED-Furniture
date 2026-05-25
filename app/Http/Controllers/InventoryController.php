@@ -43,37 +43,34 @@ class InventoryController extends Controller
     {
         DB::transaction(function () use ($request) {
 
-            // Upload main_image jika ada
-            $mainImagePath = null;
-            if ($request->hasFile('main_image')) {
-                $mainImagePath = $request->file('main_image')->store('products', 'public');
-            }
-
-            // Buat product
+            // Buat product sesuai fillable model terbaru
             $product = Product::create([
-                'name'              => $request->name,
-                'slug'              => $request->slug ?? Str::slug($request->name),
-                'short_description' => $request->short_description,
-                'description'       => $request->description,
-                'price'             => $request->price,
-                'old_price'         => $request->old_price,
-                'stock'             => $request->stock,
-                'badge'             => $request->badge,
-                'main_image'        => $mainImagePath,
-                'is_active'         => $request->boolean('is_active', true),
-                'is_recommended'    => $request->boolean('is_recommended', false),
-                'category_id'       => $request->category_id,
+                'name'           => $request->name,
+                'slug'           => $request->slug ?? Str::slug($request->name),
+                'description'    => $request->description,
+                'length'         => $request->length,
+                'width'          => $request->width,
+                'height'         => $request->height,
+                'unit'           => $request->unit,
+                'price'          => $request->price,
+                'old_price'      => $request->old_price,
+                'stock'          => $request->stock,
+                'label'          => $request->label,
+                'badge'          => $request->badge,
+                'is_active'      => $request->boolean('is_active', true),
+                'is_recommended' => $request->boolean('is_recommended', false),
+                'category_id'    => $request->category_id,
             ]);
 
-            // Upload additional images
+            // Upload images[] → ProductImage
             if ($request->hasFile('images')) {
                 foreach ($request->file('images') as $index => $image) {
                     $path = $image->store('products', 'public');
                     ProductImage::create([
                         'product_id' => $product->id,
-                        'image_path' => $path,       // sesuai fillable ProductImage
-                        'is_main'    => false,
-                        'sort_order' => $index,      // sesuai fillable ProductImage
+                        'image_path' => $path,
+                        'is_main'    => $index === 0, // gambar pertama jadi main
+                        'sort_order' => $index,
                     ]);
                 }
             }
@@ -87,34 +84,32 @@ class InventoryController extends Controller
     // ── PUT /inventory/{inventory}
     public function update(StoreProductRequest $request, Product $inventory)
     {
+        // Override rule slug agar ignore ID produk ini sendiri
+        $request->validate([
+            'slug' => 'nullable|string|max:255|unique:products,slug,' . $inventory->id,
+        ]);
+
         DB::transaction(function () use ($request, $inventory) {
 
-            $data = [
-                'name'              => $request->name,
-                'slug'              => $request->slug ?? Str::slug($request->name),
-                'short_description' => $request->short_description,
-                'description'       => $request->description,
-                'price'             => $request->price,
-                'old_price'         => $request->old_price,
-                'stock'             => $request->stock,
-                'badge'             => $request->badge,
-                'is_active'         => $request->boolean('is_active', true),
-                'is_recommended'    => $request->boolean('is_recommended', false),
-                'category_id'       => $request->category_id,
-            ];
+            $inventory->update([
+                'name'           => $request->name,
+                'slug'           => $request->slug ?? Str::slug($request->name),
+                'description'    => $request->description,
+                'length'         => $request->length,
+                'width'          => $request->width,
+                'height'         => $request->height,
+                'unit'           => $request->unit,
+                'price'          => $request->price,
+                'old_price'      => $request->old_price,
+                'stock'          => $request->stock,
+                'label'          => $request->label,
+                'badge'          => $request->badge,
+                'is_active'      => $request->boolean('is_active', true),
+                'is_recommended' => $request->boolean('is_recommended', false),
+                'category_id'    => $request->category_id,
+            ]);
 
-            // Ganti main_image jika ada upload baru
-            if ($request->hasFile('main_image')) {
-                // Hapus gambar lama
-                if ($inventory->main_image) {
-                    Storage::disk('public')->delete($inventory->main_image);
-                }
-                $data['main_image'] = $request->file('main_image')->store('products', 'public');
-            }
-
-            $inventory->update($data);
-
-            // Tambah additional images baru
+            // Tambah gambar baru jika ada
             if ($request->hasFile('images')) {
                 $lastOrder = $inventory->images()->max('sort_order') ?? -1;
                 foreach ($request->file('images') as $index => $image) {
@@ -134,31 +129,26 @@ class InventoryController extends Controller
             ->with('success', 'Product "' . $request->name . '" updated.');
     }
 
-    // ── DELETE /inventory/{inventory}
+    // ── DELETE /inventory/{inventory} — soft delete
     public function destroy(Product $inventory)
     {
-        // Hapus main_image dari storage
-        if ($inventory->main_image) {
-            Storage::disk('public')->delete($inventory->main_image);
-        }
-
-        // Hapus semua additional images
+        // Hapus semua images dari storage
         foreach ($inventory->images as $img) {
             Storage::disk('public')->delete($img->image_path);
         }
 
         $name = $inventory->name;
-        $inventory->delete();
+        $inventory->delete(); // SoftDeletes — deleted_at terisi
 
         return redirect()
             ->route('inventory.index')
             ->with('success', 'Product "' . $name . '" removed.');
     }
 
-    // ── DELETE /inventory/image/{image}  — hapus 1 gambar (AJAX)
+    // ── DELETE /inventory/image/{image} — hapus 1 gambar (AJAX)
     public function destroyImage(ProductImage $image)
     {
-        Storage::disk('public')->delete($image->image_path); // field: image_path
+        Storage::disk('public')->delete($image->image_path);
         $image->delete();
         return response()->json(['success' => true]);
     }

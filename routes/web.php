@@ -1,9 +1,11 @@
-<?php
+﻿<?php
 
 use App\Http\Controllers\AboutController;
+use App\Http\Controllers\AnalyticsController;
 use App\Http\Controllers\Auth\GoogleController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\CartController;
+use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\InventoryController;
 use App\Http\Controllers\OrderController;
@@ -14,83 +16,62 @@ use App\Http\Controllers\RewardController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\VoucherManagementController;
 use Illuminate\Support\Facades\Route;
+// use session;
 
+/*
+|--------------------------------------------------------------------------
+| Web Routes — Jaced Furniture
+|--------------------------------------------------------------------------
+*/
 
-
-// LOGIN & REGISTER CUSTOMER
+// ── LOGIN & REGISTER CUSTOMER ──
 Route::get('/auth/google', [GoogleController::class, 'redirect'])->name('auth.google');
 Route::get('/auth/google/callback', [GoogleController::class, 'callback'])->name('auth.google.callback');
+Route::get('/login', [AuthController::class, 'show_login_form'])->name('login');
+Route::post('/login_auth', [AuthController::class, 'login_auth'])->name('login.auth');
+Route::get('/register', [AuthController::class, 'show_register_form'])->name('register.show');
+Route::post('/register', [AuthController::class, 'register'])->name('register');
+Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 
-Route::get('/login', [AuthController::class, 'show_login_form'])
-    ->name('login');
-
-Route::post('/login_auth', [AuthController::class, 'login_auth'])
-    ->name('login.auth');
-
-Route::get('/register', [AuthController::class, 'show_register_form'])
-    ->name('register.show');
-
-Route::post('/register', [AuthController::class, 'register'])
-    ->name('register');
-
+// ── PUBLIC VIEW SHOP ──
 Route::get('/', [ProductController::class, 'landing'])->name('landing');
 Route::get('/home', [ProductController::class, 'home'])->name('home');
 Route::get('/shop', [ProductController::class, 'shop'])->name('shop');
 Route::get('/about', [AboutController::class, 'index'])->name('about');
+Route::get('/product/{slug}', [ProductController::class, 'show'])->name('product.show');
+Route::get('/wishlist', function () { return view('store.wishlist'); })->name('wishlist');
 
-// MIDDLEWARE CUSTOMER
+// ── MIDDLEWARE CUSTOMER ROLE ──
 Route::middleware(['role:customer'])->group(function() {
+    // Profile Management
     Route::get('/profile', [UserController::class, 'show_profile'])->name('profile');
     Route::get('/profile/edit/{id}', [UserController::class, 'edit_profile'])->name('profile.edit');
+    Route::post('/profile/edit/{id}', [UserController::class, 'update_profile'])->name('profile.update');
+    Route::get('/profile/addresses', [UserController::class, 'addresses'])->name('profile.addresses');
+    Route::post('/profile/addresses', [UserController::class, 'storeAddress'])->name('profile.addresses.store');
+    Route::put('/profile/addresses/{id}', [UserController::class, 'updateAddress'])->name('profile.addresses.update');
+    Route::delete('/profile/addresses/{id}', [UserController::class, 'destroyAddress'])->name('profile.addresses.destroy');
+    Route::patch('/profile/addresses/{id}/default', [UserController::class, 'setDefaultAddress'])->name('profile.addresses.default');
 
-    Route::get('/terms-of-service', function () {
-        return view('profile.tos');
-    })->name('tos');
-    
+    // Informational Static Pages
+    Route::get('/terms-of-service', function () { return view('profile.tos'); })->name('tos');
+    Route::get('/privacy-policy', function () { return view('profile.privacy-policy'); })->name('privacy');
+    Route::get('/help-center', function () { return view('profile.help-center'); })->name('help');
+
+    // Reward & Loyalty Points Center
     Route::get('/reward', [RewardController::class, 'index'])->name('reward');
-
-    Route::get('/reward/voucher', function () {
-        return view('profile.reward-center.voucher');
-    })->name('voucher');
-
     Route::post('/reward/redeem', [RewardController::class, 'redeem'])->name('reward.redeem');
-    Route::get('/reward/redeem-point', function () {
-        return view('profile.reward-center.redeem-point');
-    })->name('redeem-point');
     Route::get('/reward/redeem-point', [RewardController::class, 'redeemPage'])->name('redeem-point');
-
     Route::get('/reward/point-history', [RewardController::class, 'pointHistory'])->name('point-history');
+    Route::get('/reward/voucher', [RewardController::class, 'voucherPage'])->name('voucher');
     Route::post('/reward/use-voucher', [RewardController::class, 'useVoucher'])->name('reward.use-voucher');
     Route::post('/voucher/clear-session', function() {
         session()->forget('pending_voucher_id');
         return response()->json(['ok' => true]);
     })->name('voucher.clear-session');
-    Route::get('/reward/voucher', [RewardController::class, 'voucherPage'])->name('voucher');
-
-    Route::get('/terms-of-service', function () {
-        return view('profile.tos');
-    })->name('tos');
-    Route::get('/terms-of-service', function () {
-        return view('profile.tos');
-    })->name('tos');
-
-    Route::get('/privacy-policy', function () {
-        return view('profile.privacy-policy');
-    })->name('privacy');
-
-    Route::get('/help-center', function () {
-        return view('profile.help-center');
-    })->name('help');
-
-    Route::get('/product_details/{id}', [ProductController::class, 'show'])
-    ->name('product_details');
-
-    // Route::get('/product_details', function () {
-    //     return view('store.product_details');
-    // })->name('product_details');
 
     // CART
-    Route::post('/cart/add', [CartController::class, 'add'])->name('cart');
+    Route::post('/cart/add', [CartController::class, 'add'])->name('cart.add');
     Route::patch('/cart/{id}/increase', [CartController::class, 'increase'])
         ->name('cart.increase');
     Route::patch('/cart/{id}/decrease', [CartController::class, 'decrease'])
@@ -98,41 +79,27 @@ Route::middleware(['role:customer'])->group(function() {
     Route::delete('/cart/{id}', [CartController::class, 'delete'])
         ->name('cart.delete');
 
-    Route::get('/product/{slug}', [ProductController::class, 'show'])->name('product.show');
-
-    // CART
     Route::get('/api/cart', [CartController::class, 'index']);
     Route::post('/api/cart/add', [CartController::class, 'add'])->name('cart.add');
     Route::put('/api/cart/update/{id}', [CartController::class, 'update'])->name('cart.update');
     Route::delete('/api/cart/remove/{id}', [CartController::class, 'remove'])->name('cart.remove');
-    
-    //CHECKOUT
+
+    // Checkout & Courier Shipping API
     Route::get('/checkout', [OrderController::class, 'showCheckout'])->name('checkout.index');
     Route::post('/checkout', [OrderController::class, 'processCheckout'])->name('checkout.store');
+
     Route::get('/api/cities', [OrderController::class, 'getCities'])->name('api.cities');
     Route::get('/api/districts', [OrderController::class, 'getDistricts'])->name('api.districts');
     Route::get('/api/villages', [OrderController::class, 'getVillages'])->name('api.villages');
     Route::get('/api/shipping-cost', [OrderController::class, 'getShippingCost']);
 
-    // CART
-    Route::get('/api/cart', [CartController::class, 'index']);
-    Route::post('/api/cart/add', [CartController::class, 'add'])->name('cart.add');
-    Route::put('/api/cart/update/{id}', [CartController::class, 'update'])->name('cart.update');
-    Route::delete('/api/cart/remove/{id}', [CartController::class, 'remove'])->name('cart.remove');
-
-    // SHIPPING API
-    Route::get('/api/districts', [OrderController::class, 'getDistricts'])->name('api.districts');
-    Route::get('/api/villages', [OrderController::class, 'getVillages'])->name('api.villages');
-    Route::get('/api/shipping-cost', [OrderController::class, 'getShippingCost']);
-
+    // Payment Gateway Status Callback
     Route::get('/payment/status/{order_id}', [OrderController::class, 'payment_status'])->name('payment_status');
     Route::get('/payment/return/{order_id}', [OrderController::class, 'payment_return'])->name('payment_return');
 
-    Route::get('/orderhistory', [OrderHistoryController::class, 'index'])
-        ->name('store.orderhistory');
-
-    Route::get('/transactionhistory/{id}', [OrderController::class, 'show'])
-        ->name('store.transactionhistory_detail.show');
+    // Customer Purchase History
+    Route::get('/orderhistory', [OrderHistoryController::class, 'index'])->name('store.orderhistory');
+    Route::get('/transactionhistory/{id}', [OrderController::class, 'show'])->name('store.transactionhistory_detail.show');
 });
 
 Route::get('/wishlist', function () {
@@ -141,34 +108,48 @@ Route::get('/wishlist', function () {
 Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 
 // ADMIN LOGIN
-Route::get('/admin/login', [AuthController::class, 'show_login_admin_form'])
-        ->name('admin.login.show');
-
-Route::post('/admin/login_auth', [AuthController::class, 'login_admin_auth'])
-    ->name('admin.login.auth');
-
-Route::post('/admin/logout', [AuthController::class, 'logout_admin'])
-    ->name('admin.logout');
+Route::get('/admin/login', [AuthController::class, 'show_login_admin_form'])->name('admin.login.show');
+Route::post('/admin/login_auth', [AuthController::class, 'login_admin_auth'])->name('admin.login.auth');
+Route::post('/admin/logout', [AuthController::class, 'logout_admin'])->name('admin.logout');
     
-// MIDDLEWARE ADMIN
+// ── MIDDLEWARE ADMIN ROLE ──
 Route::middleware(['role:admin'])->group(function() {
+    // Admin Dashboard Summary
+    Route::get('/admin/dashboard', [DashboardController::class, 'index'])->name('admin.dashboard');
+    Route::get('/admin/dashboard/sales-chart', [DashboardController::class, 'salesChart'])->name('admin.dashboard.salesChart');
+    Route::post('/admin/dashboard/set-target', [DashboardController::class, 'setTarget'])->name('admin.dashboard.setTarget');
 
+    // Order Overview & Operational Management
     Route::get('/admin/main', [OrderController::class, 'index'])->name('orders.index');
+    Route::get('/admin/order_management', [OrderManagementController::class, 'index'])->name('order_management');
+    Route::get('/admin/order_management/search', [OrderManagementController::class, 'search'])->name('admin.order_management.search');
+    Route::post('/admin/orders/{id}/status', [OrderManagementController::class, 'updateStatus'])->name('admin.orders.updateStatus');
 
-Route::get('/admin/inventory', [InventoryController::class, 'index'])->name('inventory.index');
+    // CORE CUSTOMER ANALYTICS SYSTEMS (Sudah Sinkron & Dinamis)
+    Route::get('/admin/analytics', [AnalyticsController::class, 'index'])->name('analytics.customers');
+    Route::get('/admin/analytics/customers/all', [AnalyticsController::class, 'allCustomers'])->name('analytics.customers.all');
 
-Route::get('/admin/dashboard', [DashboardController::class, 'index'])->name('admin.dashboard');
-Route::get('/admin/dashboard/sales-chart', [DashboardController::class, 'salesChart'])->name('admin.dashboard.salesChart');
-Route::post('/admin/dashboard/set-target', [DashboardController::class, 'setTarget'])->name('admin.dashboard.setTarget');
+    // Inventory Stock Control
+    Route::get('/admin/inventory', [InventoryController::class, 'index'])->name('inventory.index');
+    Route::post('/admin/inventory', [InventoryController::class, 'store'])->name('inventory.store');
+    Route::put('/admin/inventory/{inventory}', [InventoryController::class, 'update'])->name('inventory.update');
+    Route::delete('/admin/inventory/{inventory}', [InventoryController::class, 'destroy'])->name('inventory.destroy');
+    Route::delete('/admin/inventory/image/{image}', [InventoryController::class, 'destroyImage'])->name('inventory.image.destroy');
 
-Route::get('/admin/order_management', [OrderManagementController::class, 'index'])->name('order_management');
-Route::get('/admin/order_management/search', [OrderManagementController::class, 'search'])->name('admin.order_management.search');
-Route::post('/admin/orders/{id}/status', [OrderManagementController::class, 'updateStatus'])->name('admin.orders.updateStatus');
+    Route::get('/admin/order_management', [OrderManagementController::class, 'index'])->name('order_management');
+    Route::get('/admin/order_management/search', [OrderManagementController::class, 'search'])->name('admin.order_management.search');
+    Route::post('/admin/orders/{id}/status', [OrderManagementController::class, 'updateStatus'])->name('admin.orders.updateStatus');
 
-Route::get('/admin/inventory', [InventoryController::class, 'index'])->name('inventory.index');
+    Route::get('/admin/inventory', [InventoryController::class, 'index'])->name('inventory.index');
 
-Route::get('/admin/vouchers', [VoucherManagementController::class, 'index'])->name('admin.vouchers');
-Route::post('/admin/vouchers', [VoucherManagementController::class, 'store'])->name('admin.vouchers.store');
-Route::post('/admin/vouchers/{id}/toggle', [VoucherManagementController::class, 'toggle'])->name('admin.vouchers.toggle');
-Route::delete('/admin/vouchers/{id}', [VoucherManagementController::class, 'destroy'])->name('admin.vouchers.destroy');
+    Route::get('/admin/vouchers', [VoucherManagementController::class, 'index'])->name('admin.vouchers');
+    Route::post('/admin/vouchers', [VoucherManagementController::class, 'store'])->name('admin.vouchers.store');
+    Route::post('/admin/vouchers/{id}/toggle', [VoucherManagementController::class, 'toggle'])->name('admin.vouchers.toggle');
+    Route::delete('/admin/vouchers/{id}', [VoucherManagementController::class, 'destroy'])->name('admin.vouchers.destroy');
+
+    // Product Category Manager
+    Route::post('/admin/categories', [CategoryController::class, 'store'])->name('categories.store');
+    Route::delete('/admin/categories/{category}', [CategoryController::class, 'destroy'])->name('categories.destroy');
 }); 
+    
+
