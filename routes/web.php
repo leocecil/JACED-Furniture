@@ -119,7 +119,7 @@ Route::middleware(['role:admin'])->group(function() {
     Route::put('/admin/inventory/{inventory}', [InventoryController::class, 'update'])->name('inventory.update');
     Route::delete('/admin/inventory/{inventory}', [InventoryController::class, 'destroy'])->name('inventory.destroy');
     Route::delete('/admin/inventory/image/{image}', [InventoryController::class, 'destroyImage'])->name('inventory.image.destroy');
-
+    Route::post('/admin/inventory/{id}/restore', [InventoryController::class, 'restore'])->name('inventory.restore');
     // Product Category Manager
     Route::post('/admin/categories', [CategoryController::class, 'store'])->name('categories.store');
     Route::delete('/admin/categories/{category}', [CategoryController::class, 'destroy'])->name('categories.destroy');

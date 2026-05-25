@@ -15,29 +15,30 @@ class InventoryController extends Controller
 {
     // ── GET /inventory
     public function index(Request $request)
-    {
-        $query = Product::with(['category', 'images']);
+{
+    // PERBAIKAN: Tambahkan withTrashed() agar produk yang terhapus tetap ikut terbaca oleh query filter & sort
+    $query = Product::withTrashed()->with(['category', 'images']);
 
-        // Filter by category
-        if ($request->filled('category_id')) {
-            $query->where('category_id', (int) $request->category_id);
-        }
-
-        // Sort
-        match ($request->get('sort', 'newest')) {
-            'oldest'     => $query->oldest(),
-            'price_high' => $query->orderByDesc('price'),
-            'price_low'  => $query->orderBy('price'),
-            'stock_low'  => $query->orderBy('stock'),
-            default      => $query->latest(),
-        };
-
-        $products   = $query->paginate(6)->withQueryString();
-        $categories = ProductCategory::orderBy('name')->get();
-
-        return view('pages.inventory.index', compact('products', 'categories'));
+    // Filter by category
+    if ($request->filled('category_id')) {
+        $query->where('category_id', (int) $request->category_id);
     }
 
+    // Sort
+    match ($request->get('sort', 'newest')) {
+        'oldest'     => $query->oldest(),
+        'price_high' => $query->orderByDesc('price'),
+        'price_low'  => $query->orderBy('price'),
+        'stock_low'  => $query->orderBy('stock'),
+        default      => $query->latest(),
+    };
+
+    // Pagination tetap berjalan aman dengan mempertahankan query parameter di URL (?category_id=X&sort=Y)
+    $products   = $query->paginate(6)->withQueryString();
+    $categories = ProductCategory::orderBy('name')->get();
+
+    return view('pages.inventory.index', compact('products', 'categories'));
+}
     // ── POST /inventory
     public function store(StoreProductRequest $request)
     {
@@ -130,21 +131,26 @@ class InventoryController extends Controller
     }
 
     // ── DELETE /inventory/{inventory} — soft delete
-    public function destroy(Product $inventory)
-    {
-        // Hapus semua images dari storage
-        foreach ($inventory->images as $img) {
-            Storage::disk('public')->delete($img->image_path);
-        }
+   public function destroy(Product $inventory)
+{
+    // 1. Paksa tipe data stock menjadi Integer agar akurat secara matematika
+    $stokAktif = (int) $inventory->stock;
 
-        $name = $inventory->name;
-        $inventory->delete(); // SoftDeletes — deleted_at terisi
-
+    // 2. ATURAN BISNIS: Periksa apakah stok produk masih ada
+    if ($stokAktif > 0) {
         return redirect()
-            ->route('inventory.index')
-            ->with('success', 'Product "' . $name . '" removed.');
+            ->back()
+            ->with('error', 'Gagal menghapus! Produk "' . $inventory->name . '" tidak bisa dihapus karena masih memiliki sisa stok (' . $stokAktif . ' unit). Kosongkan stok terlebih dahulu.');
     }
 
+    // 3. SOFT DELETE BAWAAN: Mengisi kolom deleted_at secara otomatis
+    $name = $inventory->name;
+    $inventory->delete(); 
+
+    return redirect()
+        ->route('inventory.index')
+        ->with('success', 'Product "' . $name . '" berhasil dinonaktifkan.');
+}
     // ── DELETE /inventory/image/{image} — hapus 1 gambar (AJAX)
     public function destroyImage(ProductImage $image)
     {
@@ -152,4 +158,16 @@ class InventoryController extends Controller
         $image->delete();
         return response()->json(['success' => true]);
     }
+    public function restore($id)
+{
+    // Menggunakan withTrashed() karena data yang sudah di-soft delete disembunyikan oleh Laravel
+    $product = Product::withTrashed()->findOrFail($id);
+
+    // Mengembalikan data (mengubah deleted_at menjadi NULL kembali)
+    $product->restore();
+
+    return redirect()
+        ->route('inventory.index')
+        ->with('success', 'Product "' . $product->name . '" berhasil dikembalikan ke katalog.');
+}
 }

@@ -100,10 +100,65 @@
         color: #9c9890; font-size: 15px; padding: 0; line-height: 1;
     }
     .cat-chip .remove-cat:hover { color: #c0392b; }
+
+    /* Customisasi Tampilan Tombol Pagination Jaced Premium (Override Bootstrap) */
+    .pagination {
+        margin: 0 !important;
+        gap: 4px;
+    }
+    .pagination .page-item .page-link {
+        color: #6b6860 !important;
+        border: 1px solid #e2ddd8 !important;
+        background-color: #fff !important;
+        padding: 8px 16px !important;
+        font-size: 13px;
+        font-weight: 600;
+        border-radius: 8px !important;
+        box-shadow: none !important;
+        transition: all 0.2s ease;
+    }
+    .pagination .page-item.active .page-link {
+        background-color: #c4a882 !important;
+        border-color: #c4a882 !important;
+        color: #fff !important;
+    }
+    .pagination .page-item.disabled .page-link {
+        opacity: 0.5;
+        background-color: #faf9f7 !important;
+    }
+
+    /* Mengubah Teks & Simbol Menjadi < dan > secara bersih */
+    .pagination .page-item:first-child .page-link,
+    .pagination .page-item:last-child .page-link {
+        font-size: 0px !important;
+    }
+    .pagination .page-item:first-child .page-link::before {
+        content: "<";
+        font-size: 14px;
+        font-weight: bold;
+    }
+    .pagination .page-item:last-child .page-link::before {
+        content: ">";
+        font-size: 14px;
+        font-weight: bold;
+    }
 </style>
 @endpush
 
 @section('content')
+@if(session('success'))
+    <div class="alert alert-success alert-dismissible fade show small fw-medium py-2.5 mb-3 border-0 shadow-sm" role="alert" style="border-radius: 8px;">
+        <i class="bi bi-check-circle-fill me-1"></i> {{ session('success') }}
+        <button type="button" class="btn-close shadow-none" data-bs-dismiss="alert" aria-label="Close" style="padding: 0.9rem 1rem;"></button>
+    </div>
+@endif
+
+@if(session('error'))
+    <div class="alert alert-danger alert-dismissible fade show small fw-medium py-2.5 mb-3 border-0 shadow-sm" role="alert" style="border-radius: 8px; background-color: #fdecea; color: #c0392b;">
+        <i class="bi bi-exclamation-triangle-fill me-1"></i> {{ session('error') }}
+        <button type="button" class="btn-close shadow-none" data-bs-dismiss="alert" aria-label="Close" style="padding: 0.9rem 1rem;"></button>
+    </div>
+@endif
 <div class="container-fluid">
      <div class="d-flex justify-content-between align-items-start mb-4">
        <div>
@@ -164,12 +219,11 @@
     {{-- Inventory Grid --}}
     @include('pages.inventory.item-grid')
 
-    {{-- Pagination --}}
-    <div class="text-center mt-5">
-        <p class="text-muted small mb-3">
-            Showing {{ $products->firstItem() }}–{{ $products->lastItem() }} of {{ $products->total() }} products
-        </p>
-        {{ $products->links('pagination::bootstrap-5') }}
+    {{-- PERBAIKAN: Kontainer navigasi halaman yang bersih sejajar tengah --}}
+    <div class="d-flex flex-column align-items-left justify-content-center mt-5">
+        <div class="jaced-pagination-wrap">
+            {{ $products->links('pagination::bootstrap-5') }}
+        </div>
     </div>
 </div>
 @endsection
@@ -205,22 +259,18 @@
         if (currentCat) {
             const activeCatBtn = document.querySelector(`#categoryFilterList button[data-cat-id="${currentCat}"]`);
             if (activeCatBtn) {
-                // Reset semua tombol menjadi pasif
                 document.querySelectorAll('#categoryFilterList .btn').forEach(b => {
                     b.classList.add('btn-category-inactive');
                     b.classList.remove('fw-bold');
                     b.style.background = 'transparent';
                     b.style.color = '#6b6860';
                 });
-                
-                // Nyalakan tombol kategori terpilih
                 activeCatBtn.classList.remove('btn-category-inactive');
                 activeCatBtn.classList.add('fw-bold');
                 activeCatBtn.style.background = '#c4a882';
                 activeCatBtn.style.color = 'white';
             }
         } else {
-            // Jika tidak ada parameter category_id, pastikan "All Collections" yang orange
             const catAll = document.getElementById('cat-all');
             if (catAll) {
                 document.querySelectorAll('#categoryFilterList .btn').forEach(b => {
@@ -238,7 +288,6 @@
     });
 
     function filterByCategory(catId, btn) {
-        // Optimasi UX: Ubah warna instan sebelum memicu reload halaman
         document.querySelectorAll('#categoryFilterList .btn').forEach(b => {
             b.classList.add('btn-category-inactive');
             b.classList.remove('fw-bold');
@@ -266,7 +315,6 @@
 </script>
 @endpush
 
-{{-- MODAL: ADD PRODUCT & MANAGE CATEGORIES TETAP SAMA SEPERTI DI BAWAH --}}
 @push('modals')
 <div class="modal fade" id="addItemModal" tabindex="-1" aria-labelledby="addItemModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered modal-lg">
@@ -333,15 +381,15 @@
                         <div class="col-md-4">
                             <label class="form-label">Price <span class="text-danger">*</span></label>
                             <div class="input-group">
-                                <span class="input-group-text">$</span>
-                                <input type="number" class="form-control" name="price" placeholder="0.00" min="0" step="0.01" required>
+                                <span class="input-group-text">Rp</span>
+                                <input type="number" class="form-control" name="price" placeholder="0" min="0" required>
                             </div>
                         </div>
                         <div class="col-md-4">
                             <label class="form-label">Old Price <span class="text-muted fw-normal">(coret)</span></label>
                             <div class="input-group">
-                                <span class="input-group-text">$</span>
-                                <input type="number" class="form-control" name="old_price" placeholder="0.00" min="0" step="0.01">
+                                <span class="input-group-text">Rp</span>
+                                <input type="number" class="form-control" name="old_price" placeholder="0" min="0">
                             </div>
                         </div>
                         <div class="col-md-4">
@@ -444,7 +492,6 @@
 </div>
 @endpush
 
-{{-- PREVIEW & AJAX SCRIPTS TETAP SAMA --}}
 @push('scripts')
 <script>
 function autoSlug(val) {

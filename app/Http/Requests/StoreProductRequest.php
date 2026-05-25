@@ -7,7 +7,10 @@ use Illuminate\Support\Str;
 
 class StoreProductRequest extends FormRequest
 {
-    public function authorize(): bool { return true; }
+    public function authorize(): bool 
+    { 
+        return true; // Pastikan ini diubah ke true agar request diizinkan
+    }
 
     public function rules(): array
     {
@@ -49,7 +52,6 @@ class StoreProductRequest extends FormRequest
         ];
     }
 
-    // Auto-generate slug jika kosong
     protected function prepareForValidation(): void
     {
         if (!$this->filled('slug') && $this->filled('name')) {

@@ -18,13 +18,7 @@ class Product extends Model
         'height',
         'unit',
         'price',
-        'old_price',
         'stock',
-        'label',
-        'badge',
-        'slug',
-        'is_recommended',
-        'is_active',
         'category_id',
     ];
 
@@ -33,10 +27,7 @@ class Product extends Model
         'width'          => 'decimal:2',
         'height'         => 'decimal:2',
         'price'          => 'decimal:2',
-        'old_price'      => 'decimal:2',
         'stock'          => 'integer',
-        'is_recommended' => 'boolean',
-        'is_active'      => 'boolean',
     ];
 
     public function category()

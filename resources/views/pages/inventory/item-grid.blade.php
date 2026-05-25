@@ -69,18 +69,15 @@
     @forelse($products as $product)
 
         @php
-            // Gambar utama — pakai main_image atau gambar pertama dari relasi
             $thumb = $product->main_image
                 ? asset('storage/' . $product->main_image)
                 : ($product->images->first()?->image_path
                     ? asset('storage/' . $product->images->first()->image_path)
                     : 'https://placehold.co/400x300/e8e4df/6b6860?text=No+Image');
 
-            // Harga format
-            $priceFormatted = '$' . number_format($product->price, 2);
-            $oldPriceFormatted = $product->old_price ? '$' . number_format($product->old_price, 2) : null;
+            $priceFormatted = 'Rp ' . number_format($product->price, 0, ',', '.');
+            $oldPriceFormatted = $product->old_price ? 'Rp ' . number_format($product->old_price, 0, ',', '.') : null;
 
-            // Stock status
             if ($product->stock <= 0)     { $badgeClass = 'badge-outstock'; $badgeText = 'Out of Stock'; }
             elseif ($product->stock <= 5) { $badgeClass = 'badge-lowstock'; $badgeText = 'Low Stock (' . $product->stock . ')'; }
             else                           { $badgeClass = 'badge-instock';  $badgeText = $product->stock . ' units'; }
@@ -90,17 +87,14 @@
 
             {{-- ══ GRID CARD ══ --}}
             <div class="grid-card">
-                {{-- Image --}}
                 <div class="position-relative">
                     <img src="{{ $thumb }}" alt="{{ $product->name }}" class="grid-card-img">
-                    {{-- Badge --}}
                     @if($product->badge)
                         <span class="position-absolute"
                               style="top:10px; left:10px; background:#1e1c18; color:#c4a882; font-size:10px; font-weight:700; padding:3px 8px; border-radius:4px; text-transform:uppercase; letter-spacing:.05em;">
                             {{ $product->badge }}
                         </span>
                     @endif
-                    {{-- Inactive indicator --}}
                     @if(!$product->is_active)
                         <span class="position-absolute"
                               style="top:10px; right:10px; background:#fdecea; color:#c0392b; font-size:10px; font-weight:700; padding:3px 8px; border-radius:4px;">
@@ -110,7 +104,6 @@
                 </div>
 
                 <div class="p-3">
-                    {{-- Category --}}
                     <div class="mb-2">
                         <span class="item-badge-cat">{{ $product->category?->name ?? '—' }}</span>
                         @if($product->is_recommended)
@@ -118,7 +111,6 @@
                         @endif
                     </div>
 
-                    {{-- Name & Price --}}
                     <div class="d-flex justify-content-between align-items-start mb-1">
                         <div style="font-size:14px; font-weight:700; color:#1a1a18; flex:1; padding-right:8px;">{{ $product->name }}</div>
                         <div class="text-end flex-shrink-0">
@@ -129,22 +121,23 @@
                         </div>
                     </div>
 
-                    {{-- Short description --}}
                     @if($product->short_description)
                         <p style="font-size:12px; color:#9c9890; margin-bottom:10px; overflow:hidden; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical;">
                             {{ $product->short_description }}
                         </p>
                     @endif
 
-                    {{-- Stock & Actions --}}
                     <div class="d-flex align-items-center justify-content-between mt-2">
                         <span class="stock-badge {{ $badgeClass }}">{{ $badgeText }}</span>
                         <div class="d-flex gap-1">
-                            <button class="action-btn" title="Edit"><i class="bi bi-pencil"></i></button>
-{{-- Form untuk delete, action dan method disesuaikan dengan route yang ada  --}} 
-                            <form action="#" method="POST"
-                                  onsubmit="return confirm('Remove {{ addslashes($product->name) }}?')">
-                                @csrf @method('DELETE')
+                            <button class="action-btn" title="Edit" onclick="openEditModal({{ json_encode($product) }})">
+                                <i class="bi bi-pencil"></i>
+                            </button>
+                            
+                            <form action="{{ route('inventory.destroy', $product->id) }}" method="POST"
+                                  onsubmit="return confirm('Apakah Anda yakin ingin menonaktifkan {{ addslashes($product->name) }}?')">
+                                @csrf 
+                                @method('DELETE')
                                 <button type="submit" class="action-btn delete" title="Delete"><i class="bi bi-trash"></i></button>
                             </form>
                         </div>
@@ -179,18 +172,19 @@
                 </div>
 
                 <div class="d-flex gap-1 flex-shrink-0">
-                    <button class="action-btn" title="Edit"><i class="bi bi-pencil"></i></button>
-{{-- Form untuk delete, action dan method disesuaikan dengan route yang ada --}}
-                    <form action="#" method="POST"
-                          onsubmit="return confirm('Remove {{ addslashes($product->name) }}?')">
-                        @csrf @method('DELETE')
+                    <button class="action-btn" title="Edit" onclick="openEditModal({{ json_encode($product) }})">
+                        <i class="bi bi-pencil"></i>
+                    </button>
+                    <form action="{{ route('inventory.destroy', $product->id) }}" method="POST"
+                          onsubmit="return confirm('Apakah Anda yakin ingin menonaktifkan {{ addslashes($product->name) }}?')">
+                        @csrf 
+                        @method('DELETE')
                         <button type="submit" class="action-btn delete" title="Delete"><i class="bi bi-trash"></i></button>
                     </form>
                 </div>
             </div>
 
         </div>
-        {{-- {{ route('inventory.destroy', $product->id) }} --}}
     @empty
         <div style="width:100%; text-align:center; padding:60px 0; color:#9c9890;">
             <i class="bi bi-box-seam" style="font-size:3rem; opacity:.2; display:block; margin-bottom:12px;"></i>
@@ -198,7 +192,6 @@
             <p style="font-size:13px;">Click <strong>Add New Item</strong> to add your first product.</p>
         </div>
     @endforelse
-
 </div>
 
 <script>
@@ -220,4 +213,12 @@
     document.addEventListener('DOMContentLoaded', function () {
         if (localStorage.getItem('invView') === 'list') setInvView('list');
     });
+
+    // Fungsi untuk melempar data lama ke dalam form modal edit
+    function openEditModal(product) {
+        // Logika penyiapan boks modal kustom bisa ditaruh di sini sewaktu-waktu
+        console.log("Mengedit produk:", product);
+        // Contoh memicu trigger Bootstrap Modal:
+        // jQuery('#editItemModal').modal('show');
+    }
 </script>
