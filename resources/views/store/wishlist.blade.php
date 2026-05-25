@@ -422,7 +422,6 @@
 
 <script>
 (function () {
-    const KEY = 'jaced_wishlist';
     const grid = document.getElementById('wishlistGrid');
     const emptyEl = document.getElementById('wishlistEmpty');
     const noResultsEl = document.getElementById('wishlistNoResults');
@@ -434,8 +433,8 @@
     const activeChipsEl = document.getElementById('activeFilterChips');
     const loadMoreWrap = document.getElementById('loadMoreWrap');
     const loadMoreCount = document.getElementById('loadMoreCount');
-
     const PER_PAGE = 12;
+
     let visibleCount = PER_PAGE;
     let currentSort = 'default';
     let currentFilter = 'all';
@@ -443,372 +442,532 @@
     let toastTimer = null;
     let allItems = [];
 
-    // ===== UTILS =====
-    function getWishlist() {
-        try { return JSON.parse(localStorage.getItem(KEY)) || []; }
-        catch (e) { return []; }
+    // =========================================
+    // API HELPERS
+    // =========================================
+
+    async function fetchWishlist() {
+        try {
+            const response = await fetch('/wishlist/items');
+
+            if (!response.ok) {
+                throw new Error('Failed');
+            }
+
+            return await response.json();
+
+        } catch (e) {
+            console.error(e);
+            return [];
+        }
     }
-    function saveWishlist(list) {
-        localStorage.setItem(KEY, JSON.stringify(list));
+
+    async function removeWishlist(id) {
+        return fetch(`/wishlist/${id}`, {
+            method: 'DELETE',
+            headers: {
+                'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                'Accept': 'application/json'
+            }
+        });
     }
+
+    async function clearWishlist() {
+        return fetch('/wishlist-clear', {
+            method: 'DELETE',
+            headers: {
+                'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                'Accept': 'application/json'
+            }
+        });
+    }
+
+    // =========================================
+    // UTILITIES
+    // =========================================
+
     function showToast(msg) {
         toastText.textContent = msg;
         toast.classList.add('show');
+
         clearTimeout(toastTimer);
-        toastTimer = setTimeout(() => toast.classList.remove('show'), 2500);
+
+        toastTimer = setTimeout(() => {
+            toast.classList.remove('show');
+        }, 2500);
     }
+
     let confirmCallback = null;
+
     function showConfirm(msg, onConfirm) {
         document.getElementById('wlConfirmMsg').textContent = msg;
         document.getElementById('wlConfirmBackdrop').classList.add('show');
         confirmCallback = onConfirm;
     }
+
     document.getElementById('wlConfirmOk').addEventListener('click', () => {
         document.getElementById('wlConfirmBackdrop').classList.remove('show');
-        if (confirmCallback) { confirmCallback(); confirmCallback = null; }
+
+        if (confirmCallback) {
+            confirmCallback();
+            confirmCallback = null;
+        }
     });
+
     document.getElementById('wlConfirmCancel').addEventListener('click', () => {
         document.getElementById('wlConfirmBackdrop').classList.remove('show');
         confirmCallback = null;
     });
+
     document.getElementById('wlConfirmBackdrop').addEventListener('click', (e) => {
         if (e.target === e.currentTarget) {
             document.getElementById('wlConfirmBackdrop').classList.remove('show');
             confirmCallback = null;
         }
     });
+
     function parsePrice(str) {
         if (!str) return 0;
         return parseInt(String(str).replace(/\D/g, '')) || 0;
     }
 
-    // ===== FILTER + SORT + SEARCH =====
+    // =========================================
+    // FILTER + SEARCH + SORT
+    // =========================================
+
     function getFiltered() {
+
         let items = [...allItems];
+
+        // SEARCH
         if (currentSearch) {
+
             const q = currentSearch.toLowerCase();
+
             items = items.filter(x =>
-                (x.name || '').toLowerCase().includes(q) ||
-                (x.category || '').toLowerCase().includes(q)
+                (x.product?.name || '').toLowerCase().includes(q) ||
+                (x.product?.category?.name || '').toLowerCase().includes(q)
             );
         }
+
+        // FILTER
         if (currentFilter !== 'all') {
+
             items = items.filter(x =>
-                (x.category || '').toLowerCase() === currentFilter.toLowerCase()
+                (x.product?.category?.name || '').toLowerCase() === currentFilter.toLowerCase()
             );
         }
+
+        // SORT
         switch (currentSort) {
-            case 'name_asc':   items.sort((a, b) => (a.name||'').localeCompare(b.name||'')); break;
-            case 'name_desc':  items.sort((a, b) => (b.name||'').localeCompare(a.name||'')); break;
-            case 'price_asc':  items.sort((a, b) => parsePrice(a.price) - parsePrice(b.price)); break;
-            case 'price_desc': items.sort((a, b) => parsePrice(b.price) - parsePrice(a.price)); break;
-            case 'category':   items.sort((a, b) => (a.category||'').localeCompare(b.category||'')); break;
+            case 'name_asc':
+                items.sort((a, b) => (a.product?.name || '').localeCompare(b.product?.name || ''));
+                break;
+            case 'name_desc':
+                items.sort((a, b) => (b.product?.name || '').localeCompare(a.product?.name || ''));
+                break;
+            case 'price_asc':
+                items.sort((a, b) => parsePrice(a.product?.price) - parsePrice(b.product?.price));
+                break;
+            case 'price_desc':
+                items.sort((a, b) => parsePrice(b.product?.price) - parsePrice(a.product?.price));
+                break;
+            case 'category':
+                items.sort((a, b) => (a.product?.category?.name || '').localeCompare(b.product?.category?.name || ''));
+                break;
         }
+
         return items;
     }
 
-    // ===== RENDER =====
-    function render() {
-        const list = getWishlist();
-        allItems = list;
+    // =========================================
+    // RENDER
+    // =========================================
+
+    async function render() {
+
+        allItems = await fetchWishlist();
+
         const filtered = getFiltered();
 
-        countEl.textContent = `(${list.length})`;
+        countEl.textContent = `(${allItems.length})`;
 
-        // Empty state
-        if (list.length === 0) {
+        // EMPTY STATE
+        if (allItems.length === 0) {
+
             emptyEl.style.display = 'block';
             noResultsEl.style.display = 'none';
             toolbarEl.style.display = 'none';
             loadMoreWrap.style.display = 'none';
             activeFiltersEl.style.display = 'none';
+
             grid.innerHTML = '';
+
             return;
         }
 
         emptyEl.style.display = 'none';
         toolbarEl.style.display = 'flex';
 
-        // No results state
+        // NO RESULTS
         if (filtered.length === 0) {
+
             noResultsEl.style.display = 'block';
             loadMoreWrap.style.display = 'none';
+
             grid.innerHTML = '';
+
             renderActiveFilters();
+
             return;
         }
 
         noResultsEl.style.display = 'none';
 
         const visibleItems = filtered.slice(0, visibleCount);
+
         const remaining = filtered.length - visibleCount;
 
         grid.innerHTML = visibleItems.map((item, i) => `
+
             <div class="col-6 col-md-4 col-lg-3"
                  style="opacity:0; transform:translateY(24px); transition: opacity 0.4s ease ${i * 0.05}s, transform 0.4s ease ${i * 0.05}s;"
                  data-wishcard>
+
                 <div class="wl-card">
-                    <div class="wl-card-img-wrap">
-                        <img src="${item.image || 'https://placehold.co/400x400/f2ede6/272e1d?text=' + encodeURIComponent(item.name || 'JACED')}"
-                             alt="${item.name || ''}"
-                             class="wl-card-img"
-                             onerror="this.src='https://placehold.co/400x400/f2ede6/272e1d?text=JACED'">
-                        <button class="wl-remove-btn" data-id="${item.id}" data-name="${item.name || ''}" title="Remove from wishlist">
-                            <i class="fas fa-heart"></i>
-                        </button>
-                    </div>
-                    <div class="wl-card-body">
-                        <small class="wl-card-cat">${item.category || 'Furniture'}</small>
-                        <h5 class="wl-card-name">${item.name || ''}</h5>
-                        ${item.price
-                            ? `<span class="wl-card-price">Rp ${item.price}</span>`
-                            : `<span class="wl-card-price" style="color:var(--jaced-muted);font-weight:400;font-size:13px;">Price unavailable</span>`
-                        }
-                        <div class="wl-card-actions">
-                            <button class="wl-atc-btn" data-id="${item.id}" data-name="${item.name || ''}">
-                                <i class="fas fa-shopping-bag"></i> Add to Cart
+
+                    <a href="/product/${item.product.slug}" style="text-decoration:none; color:inherit;">
+
+                        <div class="wl-card-img-wrap">
+
+                            <img src="${item.product.main_image.image_path}"
+                                 alt="${item.product.name}"
+                                 class="wl-card-img">
+
+                            <button class="wl-remove-btn"
+                                    data-id="${item.product.id}"
+                                    data-name="${item.product.name}"
+                                    title="Remove from wishlist">
+
+                                <i class="fas fa-heart"></i>
+
                             </button>
+
                         </div>
+
+                        <div class="wl-card-body">
+
+                            <small class="wl-card-cat">
+                                ${item.product.category?.name || 'Furniture'}
+                            </small>
+
+                            <h5 class="wl-card-name">
+                                ${item.product.name}
+                            </h5>
+
+                            <span class="wl-card-price">
+                                Rp ${Number(item.product.price).toLocaleString('id-ID')}
+                            </span>
+
+                        </div>
+
+                    </a>
+
+                    <div class="wl-card-actions px-3 pb-3">
+
+                        <button class="wl-atc-btn"
+                                data-id="${item.product.id}"
+                                data-name="${item.product.name}">
+
+                            <i class="fas fa-shopping-bag"></i>
+                            Add to Cart
+
+                        </button>
+
                     </div>
+
                 </div>
+
             </div>
+
         `).join('');
 
-        // Animate in
+        // ANIMATION
         requestAnimationFrame(() => {
+
             grid.querySelectorAll('[data-wishcard]').forEach(el => {
+
                 el.style.opacity = '1';
                 el.style.transform = 'translateY(0)';
             });
         });
 
-        // Load more
+        // LOAD MORE
         if (remaining > 0) {
+
             loadMoreWrap.style.display = 'flex';
             loadMoreCount.textContent = `(${remaining} more)`;
+
         } else {
+
             loadMoreWrap.style.display = 'none';
         }
 
-        // Remove buttons
+        // =========================================
+        // REMOVE ITEM
+        // =========================================
+
         grid.querySelectorAll('.wl-remove-btn').forEach(btn => {
+
             btn.addEventListener('click', (e) => {
+
+                e.preventDefault();
                 e.stopPropagation();
-                const id = btn.getAttribute('data-id');
-                const name = btn.getAttribute('data-name');
+
+                const id = btn.dataset.id;
+                const name = btn.dataset.name;
+
                 showConfirm(
                     `Remove "${name}" from wishlist?`,
-                    () => {
-                        let updated = getWishlist().filter(x => String(x.id) !== String(id));
-                        saveWishlist(updated);
-                        allItems = updated;
-                        if (visibleCount > updated.length) visibleCount = PER_PAGE;
+                    async () => {
+
+                        await removeWishlist(id);
+
                         showToast(name + ' removed');
+
                         render();
                     }
                 );
             });
         });
 
-        // Add to cart buttons
+        // ADD TO CART
         grid.querySelectorAll('.wl-atc-btn').forEach(btn => {
-            btn.addEventListener('click', (e) => {
+            btn.addEventListener('click', async (e) => {
+                e.preventDefault();
                 e.stopPropagation();
-                const id = btn.getAttribute('data-id');
-                const name = btn.getAttribute('data-name');
+                const id = btn.dataset.id;
+                const name = btn.dataset.name;
 
-                @auth
                 btn.disabled = true;
-                btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Adding...';
-                fetch('{{ route("cart.add") }}', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'X-CSRF-TOKEN': '{{ csrf_token() }}'
-                    },
-                    body: JSON.stringify({ product_id: id, quantity: 1 })
-                })
-                .then(r => r.json())
-                .then(() => {
-                    btn.innerHTML = '<i class="fas fa-check"></i> Added to Cart';
+
+                btn.innerHTML =
+                    '<i class="fas fa-spinner fa-spin"></i> Adding...';
+
+                try {
+
+                    const response = await fetch('{{ route("cart.add") }}', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Accept': 'application/json',
+                            'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                        },
+
+                        body: JSON.stringify({
+                            product_id: id,
+                            quantity: 1
+                        })
+                    });
+
+                    if (!response.ok) {
+                        throw new Error();
+                    }
+
+                    btn.innerHTML =
+                        '<i class="fas fa-check"></i> Added';
                     btn.classList.add('added');
                     showToast(name + ' added to cart');
                     setTimeout(() => {
                         btn.disabled = false;
-                        btn.innerHTML = '<i class="fas fa-shopping-bag"></i> Add to Cart';
+                        btn.innerHTML =
+                            '<i class="fas fa-shopping-bag"></i> Add to Cart';
                         btn.classList.remove('added');
                     }, 2000);
-                })
-                .catch(() => {
+
+                } catch (e) {
                     btn.disabled = false;
-                    btn.innerHTML = '<i class="fas fa-shopping-bag"></i> Add to Cart';
-                    showToast('Failed to add. Try again.');
-                });
-                @else
-                window.location.href = '/login';
-                @endauth
+                    btn.innerHTML =
+                        '<i class="fas fa-shopping-bag"></i> Add to Cart';
+
+                    showToast('Failed to add product');
+                }
             });
         });
 
-        updateCategoryOptions(list);
+        updateCategoryOptions(allItems);
         renderActiveFilters();
     }
 
-    // ===== CATEGORY OPTIONS =====
+    // CATEGORY OPTIONS
     function updateCategoryOptions(list) {
-        const cats = [...new Set(list.map(x => x.category).filter(Boolean))];
+
+        const cats = [...new Set(
+            list.map(x => x.product.category?.name).filter(Boolean)
+        )];
+
         const filterMenu = document.getElementById('filterMenu');
-        filterMenu.querySelectorAll('.wishlist-sort-option:not([data-filter="all"])').forEach(el => el.remove());
+
+        filterMenu.querySelectorAll(
+            '.wishlist-sort-option:not([data-filter="all"])'
+        ).forEach(el => el.remove());
+
         cats.forEach(cat => {
             const btn = document.createElement('button');
-            btn.className = 'wishlist-sort-option' + (currentFilter === cat.toLowerCase() ? ' active' : '');
+            btn.className =
+                'wishlist-sort-option' +
+                (currentFilter === cat.toLowerCase() ? ' active' : '');
             btn.setAttribute('data-filter', cat.toLowerCase());
             btn.textContent = cat;
             btn.addEventListener('click', () => {
                 currentFilter = cat.toLowerCase();
                 document.getElementById('filterLabel').textContent = cat;
-                filterMenu.querySelectorAll('.wishlist-sort-option').forEach(b => b.classList.remove('active'));
+                filterMenu.querySelectorAll('.wishlist-sort-option')
+                    .forEach(b => b.classList.remove('active'));
                 btn.classList.add('active');
-                document.querySelector('.wishlist-filter-wrap').classList.remove('open');
+                document.querySelector('.wishlist-filter-wrap')
+                    .classList.remove('open');
                 visibleCount = PER_PAGE;
                 render();
             });
             filterMenu.appendChild(btn);
         });
     }
-
-    // ===== ACTIVE FILTER CHIPS =====
+    // ACTIVE FILTERS
     function renderActiveFilters() {
         const chips = [];
         if (currentFilter !== 'all') {
-            chips.push({ label: `Category: ${currentFilter}`, clear: () => { currentFilter = 'all'; document.getElementById('filterLabel').textContent = 'All'; visibleCount = PER_PAGE; render(); }});
-        }
-        if (currentSort !== 'default') {
-            const names = { name_asc: 'Name A–Z', name_desc: 'Name Z–A', price_asc: 'Price ↑', price_desc: 'Price ↓', category: 'By Category' };
-            chips.push({ label: `Sort: ${names[currentSort]}`, clear: () => { currentSort = 'default'; document.getElementById('sortLabel').textContent = 'Default'; visibleCount = PER_PAGE; render(); }});
-        }
-        if (currentSearch) {
-            chips.push({ label: `"${currentSearch}"`, clear: () => { currentSearch = ''; document.getElementById('wishlistSearch').value = ''; document.getElementById('searchClearBtn').style.display = 'none'; visibleCount = PER_PAGE; render(); }});
-        }
-        if (chips.length > 0) {
-            activeFiltersEl.style.display = 'flex';
-            activeChipsEl.innerHTML = chips.map((c, i) => `
-                <span class="wishlist-chip">${c.label}
-                    <button data-chip="${i}"><i class="fas fa-times"></i></button>
-                </span>`).join('');
-            activeChipsEl.querySelectorAll('button[data-chip]').forEach(btn => {
-                btn.addEventListener('click', () => chips[parseInt(btn.getAttribute('data-chip'))].clear());
+            chips.push({
+                label: `Category: ${currentFilter}`,
+                clear: () => {
+                    currentFilter = 'all';
+                    document.getElementById('filterLabel').textContent = 'All';
+                    render();
+                }
             });
+        }
+
+        if (currentSearch) {
+            chips.push({
+                label: `"${currentSearch}"`,
+                clear: () => {
+                    currentSearch = '';
+                    document.getElementById('wishlistSearch').value = '';
+                    document.getElementById('searchClearBtn').style.display = 'none';
+                    render();
+                }
+            });
+        }
+
+        if (chips.length > 0) {
+
+            activeFiltersEl.style.display = 'flex';
+
+            activeChipsEl.innerHTML = chips.map((c, i) => `
+                <span class="wishlist-chip">
+                    ${c.label}
+                    <button data-chip="${i}">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </span>
+            `).join('');
+
+            activeChipsEl.querySelectorAll('button[data-chip]')
+                .forEach(btn => {
+                    btn.addEventListener('click', () => {
+                        chips[parseInt(btn.dataset.chip)].clear();
+                    });
+                });
+
         } else {
             activeFiltersEl.style.display = 'none';
         }
     }
 
-    // ===== SORT DROPDOWN =====
-    const sortWrap = document.querySelector('.wishlist-sort-wrap');
-    document.getElementById('sortTrigger').addEventListener('click', (e) => {
-        e.stopPropagation();
-        sortWrap.classList.toggle('open');
-        document.querySelector('.wishlist-filter-wrap').classList.remove('open');
-    });
-    document.getElementById('sortMenu').querySelectorAll('.wishlist-sort-option').forEach(btn => {
-        btn.addEventListener('click', () => {
-            currentSort = btn.getAttribute('data-sort');
-            document.getElementById('sortLabel').textContent = btn.textContent.trim();
-            document.getElementById('sortMenu').querySelectorAll('.wishlist-sort-option').forEach(b => b.classList.remove('active'));
-            btn.classList.add('active');
-            sortWrap.classList.remove('open');
-            visibleCount = PER_PAGE;
-            render();
-        });
-    });
-
-    // ===== FILTER DROPDOWN =====
-    const filterWrap = document.querySelector('.wishlist-filter-wrap');
-    document.getElementById('filterTrigger').addEventListener('click', (e) => {
-        e.stopPropagation();
-        filterWrap.classList.toggle('open');
-        sortWrap.classList.remove('open');
-    });
-    document.getElementById('filterMenu').querySelector('[data-filter="all"]').addEventListener('click', () => {
-        currentFilter = 'all';
-        document.getElementById('filterLabel').textContent = 'All';
-        document.getElementById('filterMenu').querySelectorAll('.wishlist-sort-option').forEach(b => b.classList.remove('active'));
-        document.getElementById('filterMenu').querySelector('[data-filter="all"]').classList.add('active');
-        filterWrap.classList.remove('open');
-        visibleCount = PER_PAGE;
-        render();
-    });
-
-    // Close dropdowns outside click
-    document.addEventListener('click', (e) => {
-        if (!sortWrap.contains(e.target)) sortWrap.classList.remove('open');
-        if (!filterWrap.contains(e.target)) filterWrap.classList.remove('open');
-    });
-
-    // ===== LOAD MORE =====
-    document.getElementById('loadMoreBtn').addEventListener('click', () => {
-        const btn = document.getElementById('loadMoreBtn');
-        btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Loading...';
-        btn.disabled = true;
-        setTimeout(() => {
-            visibleCount += PER_PAGE;
-            btn.disabled = false;
-            render();
-        }, 400);
-    });
-
-    // ===== SEARCH =====
+    // SEARCH
     const searchInput = document.getElementById('wishlistSearch');
     const searchClear = document.getElementById('searchClearBtn');
     let searchTimer;
     searchInput.addEventListener('input', () => {
         clearTimeout(searchTimer);
         currentSearch = searchInput.value;
-        searchClear.style.display = currentSearch ? 'block' : 'none';
-        searchTimer = setTimeout(() => { visibleCount = PER_PAGE; render(); }, 300);
+        searchClear.style.display =
+            currentSearch ? 'block' : 'none';
+        searchTimer = setTimeout(() => {
+            visibleCount = PER_PAGE;
+            render();
+        }, 300);
     });
+
     searchClear.addEventListener('click', () => {
         currentSearch = '';
         searchInput.value = '';
         searchClear.style.display = 'none';
-        visibleCount = PER_PAGE;
         render();
     });
 
-    // ===== CLEAR ALL =====
-    document.getElementById('clearAllBtn').addEventListener('click', () => {
-        if (!getWishlist().length) return;
-        if (confirm('Clear your entire wishlist?')) {
-            saveWishlist([]);
-            visibleCount = PER_PAGE;
-            showToast('Wishlist cleared');
+    // LOAD MORE
+    document.getElementById('loadMoreBtn')
+        .addEventListener('click', () => {
+            visibleCount += PER_PAGE;
             render();
+        });
+
+    // CLEAR ALL
+    document.getElementById('clearAllBtn')
+        .addEventListener('click', async () => {
+            if (!allItems.length) return;
+            showConfirm(
+                'Clear your entire wishlist?',
+                async () => {
+                    await clearWishlist();
+                    showToast('Wishlist cleared');
+                    render();
+                }
+            );
+        });
+
+    // SORT
+    const sortWrap = document.querySelector('.wishlist-sort-wrap');
+    document.getElementById('sortTrigger')
+        .addEventListener('click', (e) => {
+            e.stopPropagation();
+            sortWrap.classList.toggle('open');
+        });
+
+    document.querySelectorAll('#sortMenu .wishlist-sort-option')
+        .forEach(btn => {
+            btn.addEventListener('click', () => {
+                currentSort = btn.dataset.sort;
+                document.getElementById('sortLabel')
+                    .textContent = btn.textContent.trim();
+                document.querySelectorAll('#sortMenu .wishlist-sort-option')
+                    .forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                sortWrap.classList.remove('open');
+                render();
+            });
+        });
+
+    // FILTER
+    const filterWrap = document.querySelector('.wishlist-filter-wrap');
+    document.getElementById('filterTrigger')
+        .addEventListener('click', (e) => {
+            e.stopPropagation();
+            filterWrap.classList.toggle('open');
+        });
+
+    document.addEventListener('click', (e) => {
+        if (!sortWrap.contains(e.target)) {
+            sortWrap.classList.remove('open');
+        }
+        if (!filterWrap.contains(e.target)) {
+            filterWrap.classList.remove('open');
         }
     });
 
-    // ===== INITIAL RENDER =====
+    // INITIAL
     render();
 
-    // ===== FETCH PRODUCT DATA REAL =====
-    const initialList = getWishlist();
-    if (initialList.length > 0) {
-        const ids = initialList.map(x => x.id).join(',');
-        fetch(`/api/products/batch?ids=${ids}`)
-            .then(r => r.json())
-            .then(data => {
-                if (!data || !data.length) return;
-                const updated = getWishlist().map(item => {
-                    const found = data.find(p => String(p.id) === String(item.id));
-                    if (found) return { ...item, image: found.main_image, price: found.price_formatted, slug: found.slug, category: found.category };
-                    return item;
-                });
-                saveWishlist(updated);
-                render();
-            })
-            .catch(() => {});
-    }
 })();
 </script>
-
-@endsection

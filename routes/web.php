@@ -13,6 +13,7 @@ use App\Http\Controllers\OrderManagementController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\RewardController;
 use App\Http\Controllers\UserController;
+use App\Http\Controllers\WishlistController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -36,7 +37,6 @@ Route::get('/', [ProductController::class, 'landing'])->name('landing');
 Route::get('/home', [ProductController::class, 'home'])->name('home');
 Route::get('/shop', [ProductController::class, 'shop'])->name('shop');
 Route::get('/product/{slug}', [ProductController::class, 'show'])->name('product.show');
-Route::get('/wishlist', function () { return view('store.wishlist'); })->name('wishlist');
 
 // ── MIDDLEWARE CUSTOMER ROLE ──
 Route::middleware(['role:customer'])->group(function() {
@@ -70,17 +70,12 @@ Route::middleware(['role:customer'])->group(function() {
     Route::delete('/cart/{id}', [CartController::class, 'delete'])
         ->name('cart.delete');
 
-    // Route::post('/cart/increase/{id}', [CartController::class, 'increase']);
-    // Route::post('/cart/decrease/{id}', [CartController::class, 'decrease']);
-    // Route::delete('/cart/delete/{id}', [CartController::class, 'delete']);
-
-    // Route::get('/product/{slug}', [ProductController::class, 'show'])->name('product.show');
-
-    // CART
-    // Route::get('/api/cart', [CartController::class, 'index']);
-    // Route::post('/api/cart/add', [CartController::class, 'add'])->name('cart.add');
-    // Route::put('/api/cart/update/{id}', [CartController::class, 'update'])->name('cart.update');
-    // Route::delete('/api/cart/remove/{id}', [CartController::class, 'remove'])->name('cart.remove');
+    // WISHLIST
+    Route::get('/wishlist/items', [WishlistController::class, 'items']);
+    Route::get('/wishlist', [WishlistController::class, 'index'])->name('wishlist');
+    Route::post('/wishlist/toggle', [WishlistController::class, 'toggle'])->name('wishlist.toggle');
+    Route::delete('/wishlist/{id}', [WishlistController::class, 'remove'])->name('wishlist.remove');
+    Route::delete('/wishlist-clear', [WishlistController::class, 'clear'])->name('wishlist.clear');
     
     // Checkout & Courier Shipping API
     Route::get('/checkout', [OrderController::class, 'showCheckout'])->name('checkout.index');
