@@ -30,15 +30,17 @@ class OrderManagementController extends Controller
     }
  
     // ── AJAX search + filter ──────────────────────────────────────────
+    // ── AJAX search + filter ──────────────────────────────────────────
     public function search(Request $request)
     {
         $orders = $this->getOrders($request);
- 
+
         return response()->json([
-            'html'  => view('admin.partials.order_management_rows', compact('orders'))->render(),
-            'total' => $orders->total(),
-            'from'  => $orders->firstItem() ?? 0,
-            'to'    => $orders->lastItem()   ?? 0,
+            'html'       => view('admin.partials.order_management_rows', compact('orders'))->render(),
+            'pagination' => $orders->onEachSide(1)->links('pagination::bootstrap-5')->render(),
+            'total'      => $orders->total(),
+            'from'       => $orders->firstItem() ?? 0,
+            'to'         => $orders->lastItem()   ?? 0,
         ]);
     }
  

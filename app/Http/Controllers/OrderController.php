@@ -553,6 +553,7 @@ class OrderController extends Controller
         ]);
     }
 
+
     public function show($id)
     {
         return view('store.transactionhistory_detail', [

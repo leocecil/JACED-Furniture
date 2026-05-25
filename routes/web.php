@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\AboutController;
 use App\Http\Controllers\Auth\GoogleController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\CartController;
@@ -11,6 +12,7 @@ use App\Http\Controllers\OrderManagementController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\RewardController;
 use App\Http\Controllers\UserController;
+use App\Http\Controllers\VoucherManagementController;
 use Illuminate\Support\Facades\Route;
 
 
@@ -34,6 +36,7 @@ Route::post('/register', [AuthController::class, 'register'])
 Route::get('/', [ProductController::class, 'landing'])->name('landing');
 Route::get('/home', [ProductController::class, 'home'])->name('home');
 Route::get('/shop', [ProductController::class, 'shop'])->name('shop');
+Route::get('/about', [AboutController::class, 'index'])->name('about');
 
 // MIDDLEWARE CUSTOMER
 Route::middleware(['role:customer'])->group(function() {
@@ -132,6 +135,9 @@ Route::middleware(['role:customer'])->group(function() {
         ->name('store.transactionhistory_detail.show');
 });
 
+Route::get('/wishlist', function () {
+    return view('store.wishlist');
+})->name('wishlist');
 Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 
 // ADMIN LOGIN
@@ -160,4 +166,9 @@ Route::get('/admin/order_management/search', [OrderManagementController::class, 
 Route::post('/admin/orders/{id}/status', [OrderManagementController::class, 'updateStatus'])->name('admin.orders.updateStatus');
 
 Route::get('/admin/inventory', [InventoryController::class, 'index'])->name('inventory.index');
+
+Route::get('/admin/vouchers', [VoucherManagementController::class, 'index'])->name('admin.vouchers');
+Route::post('/admin/vouchers', [VoucherManagementController::class, 'store'])->name('admin.vouchers.store');
+Route::post('/admin/vouchers/{id}/toggle', [VoucherManagementController::class, 'toggle'])->name('admin.vouchers.toggle');
+Route::delete('/admin/vouchers/{id}', [VoucherManagementController::class, 'destroy'])->name('admin.vouchers.destroy');
 }); 
