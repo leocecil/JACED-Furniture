@@ -11,7 +11,7 @@ class CustomerUserSeeder extends Seeder
     public function run(): void
     {
         $customers = [
-            ['name' => 'Budi Santoso',       'email' => 'budi.santoso@gmail.com',       'phone_number' => '081312345601'],
+            ['name' => 'Budi Santoso',        'email' => 'budi.santoso@gmail.com',        'phone_number' => '081312345601'],
             ['name' => 'Sari Rahayu',         'email' => 'sari.rahayu@gmail.com',         'phone_number' => '081312345602'],
             ['name' => 'Andi Prasetyo',       'email' => 'andi.prasetyo@gmail.com',       'phone_number' => '081312345603'],
             ['name' => 'Dewi Kusuma',         'email' => 'dewi.kusuma@yahoo.com',         'phone_number' => '081312345604'],

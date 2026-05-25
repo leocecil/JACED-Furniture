@@ -51,7 +51,6 @@ class CartController extends Controller
         return response()->json(['success' => true]);
     }
 
-    // Ambil semua item cart user
     public function index()
     {
         $carts = Cart::with('product')

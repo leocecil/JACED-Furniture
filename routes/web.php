@@ -1,5 +1,6 @@
 ﻿<?php
 
+use App\Http\Controllers\AboutController;
 use App\Http\Controllers\AnalyticsController;
 use App\Http\Controllers\Auth\GoogleController;
 use App\Http\Controllers\AuthController;
@@ -13,6 +14,8 @@ use App\Http\Controllers\OrderManagementController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\RewardController;
 use App\Http\Controllers\UserController;
+use App\Http\Controllers\VoucherManagementController;
+use App\Http\Controllers\WishlistController;
 use Illuminate\Support\Facades\Route;
 // use session;
 
@@ -35,8 +38,8 @@ Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 Route::get('/', [ProductController::class, 'landing'])->name('landing');
 Route::get('/home', [ProductController::class, 'home'])->name('home');
 Route::get('/shop', [ProductController::class, 'shop'])->name('shop');
+Route::get('/about', [AboutController::class, 'index'])->name('about');
 Route::get('/product/{slug}', [ProductController::class, 'show'])->name('product.show');
-Route::get('/wishlist', function () { return view('store.wishlist'); })->name('wishlist');
 
 // ── MIDDLEWARE CUSTOMER ROLE ──
 Route::middleware(['role:customer'])->group(function() {
@@ -77,11 +80,18 @@ Route::middleware(['role:customer'])->group(function() {
     Route::delete('/cart/{id}', [CartController::class, 'delete'])
         ->name('cart.delete');
 
-    Route::get('/api/cart', [CartController::class, 'index']);
-    Route::post('/api/cart/add', [CartController::class, 'add'])->name('cart.add');
-    Route::put('/api/cart/update/{id}', [CartController::class, 'update'])->name('cart.update');
-    Route::delete('/api/cart/remove/{id}', [CartController::class, 'remove'])->name('cart.remove');
+    // Route::get('/api/cart', [CartController::class, 'index']);
+    // Route::post('/api/cart/add', [CartController::class, 'add'])->name('cart.add');
+    // Route::put('/api/cart/update/{id}', [CartController::class, 'update'])->name('cart.update');
+    // Route::delete('/api/cart/remove/{id}', [CartController::class, 'remove'])->name('cart.remove');
 
+    // WISHLIST
+    Route::get('/wishlist/items', [WishlistController::class, 'items']);
+    Route::get('/wishlist', [WishlistController::class, 'index'])->name('wishlist');
+    Route::post('/wishlist/toggle', [WishlistController::class, 'toggle'])->name('wishlist.toggle');
+    Route::delete('/wishlist/{id}', [WishlistController::class, 'remove'])->name('wishlist.remove');
+    Route::delete('/wishlist-clear', [WishlistController::class, 'clear'])->name('wishlist.clear');
+    
     // Checkout & Courier Shipping API
     Route::get('/checkout', [OrderController::class, 'showCheckout'])->name('checkout.index');
     Route::post('/checkout', [OrderController::class, 'processCheckout'])->name('checkout.store');
@@ -102,6 +112,8 @@ Route::middleware(['role:customer'])->group(function() {
     // Order History - Invoice
     Route::get('/orderhistory/{id}/invoice', [OrderHistoryController::class, 'invoice'])->name('store.orderhistory.invoice');
 });
+
+Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 
 // ADMIN LOGIN
 Route::get('/admin/login', [AuthController::class, 'show_login_admin_form'])->name('admin.login.show');
@@ -132,7 +144,20 @@ Route::middleware(['role:admin'])->group(function() {
     Route::delete('/admin/inventory/{inventory}', [InventoryController::class, 'destroy'])->name('inventory.destroy');
     Route::delete('/admin/inventory/image/{image}', [InventoryController::class, 'destroyImage'])->name('inventory.image.destroy');
 
+    Route::get('/admin/order_management', [OrderManagementController::class, 'index'])->name('order_management');
+    Route::get('/admin/order_management/search', [OrderManagementController::class, 'search'])->name('admin.order_management.search');
+    Route::post('/admin/orders/{id}/status', [OrderManagementController::class, 'updateStatus'])->name('admin.orders.updateStatus');
+
+    Route::get('/admin/inventory', [InventoryController::class, 'index'])->name('inventory.index');
+
+    Route::get('/admin/vouchers', [VoucherManagementController::class, 'index'])->name('admin.vouchers');
+    Route::post('/admin/vouchers', [VoucherManagementController::class, 'store'])->name('admin.vouchers.store');
+    Route::post('/admin/vouchers/{id}/toggle', [VoucherManagementController::class, 'toggle'])->name('admin.vouchers.toggle');
+    Route::delete('/admin/vouchers/{id}', [VoucherManagementController::class, 'destroy'])->name('admin.vouchers.destroy');
+
     // Product Category Manager
     Route::post('/admin/categories', [CategoryController::class, 'store'])->name('categories.store');
     Route::delete('/admin/categories/{category}', [CategoryController::class, 'destroy'])->name('categories.destroy');
-});
+}); 
+    
+
