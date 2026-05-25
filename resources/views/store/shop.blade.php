@@ -215,7 +215,7 @@
                                     $lowStock = !$soldOut && ($product->stock ?? 99) <= 3;
                                 @endphp
                                 <div class="col-md-6 col-xl-4">
-                                    <a href="{{ route('product.show', $product->slug) }}"
+                                    <a href="{{ route('product.show', $product->id) }}"
                                        class="shop-product-card {{ $soldOut ? 'is-sold-out' : '' }}"
                                        data-product-id="{{ $product->id }}"
                                        data-product-name="{{ $product->name }}"
@@ -226,7 +226,7 @@
                                        data-product-dim="{{ $product->length }}×{{ $product->width }}×{{ $product->height }} {{ $product->unit }}"
                                        data-product-material="{{ $product->material->name ?? '' }}"
                                        data-product-room="{{ $product->room->name ?? '' }}"
-                                       data-product-url="{{ route('product.show', $product->slug) }}"
+                                       data-product-url="{{ route('product.show', $product->id) }}"
                                        data-product-soldout="{{ $soldOut ? '1' : '0' }}">
                                         <div class="shop-product-img-wrap">
                                             @if($soldOut)

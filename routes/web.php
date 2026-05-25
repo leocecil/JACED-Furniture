@@ -35,8 +35,7 @@ Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 Route::get('/', [ProductController::class, 'landing'])->name('landing');
 Route::get('/home', [ProductController::class, 'home'])->name('home');
 Route::get('/shop', [ProductController::class, 'shop'])->name('shop');
-Route::get('/product/{slug}', [ProductController::class, 'show'])->name('product.show');
-Route::get('/product_details/{id}', [ProductController::class, 'show'])->name('product_details');
+Route::get('/product/{id}', [ProductController::class, 'show'])->name('product.show');
 Route::get('/wishlist', function () { return view('store.wishlist'); })->name('wishlist');
 
 // ── MIDDLEWARE CUSTOMER ROLE ──
