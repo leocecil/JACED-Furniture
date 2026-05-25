@@ -50,7 +50,7 @@ class AuthController extends Controller
 
             if ($isAdmin) {
                 $request->session()->regenerate();
-                return redirect()->route('dashboard');
+                return redirect()->route('admin.dashboard');
             }
 
             Auth::logout();

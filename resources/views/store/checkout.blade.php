@@ -427,9 +427,10 @@
         let voucherApplied = false;
 
         // Toggle radio voucher - klik lagi untuk untick
-        document.addEventListener('DOMContentLoaded', function() {
+        document.addEventListener('DOMContentLoaded', function () {
             let lastChecked = null;
 
+            // Toggle radio voucher
             document.addEventListener('click', function(e) {
                 if (e.target.classList.contains('voucher-radio-input')) {
                     if (e.target === lastChecked) {
@@ -457,6 +458,80 @@
                     }
                 }
             });
+
+            // Modal & address
+            bsModal = new bootstrap.Modal(document.getElementById('addressModal'));
+            const addressRadios = document.querySelectorAll('.address-selector-radio');
+            addressRadios.forEach(radio => {
+                radio.addEventListener('change', handleAddressChange);
+            });
+            handleAddressChange();
+
+            const btnApplyVoucher = document.getElementById('btn-apply-voucher');
+            if (btnApplyVoucher) {
+                btnApplyVoucher.addEventListener('click', function() {
+                    applyVoucherVisual();
+                    
+                    let selectedVoucher = document.querySelector('.voucher-radio-input:checked');
+                    let container = document.getElementById('active-voucher-container');
+                    let placeholderText = document.getElementById('placeholder-voucher-text');
+                
+                    if (container) {
+                        const oldBadge = container.querySelector('.badge-voucher-active');
+                        if (oldBadge) oldBadge.remove();
+                    }
+                    
+                    if (placeholderText) placeholderText.style.display = 'inline';
+
+                    if (selectedVoucher && selectedVoucher.value !== "") {
+                        let voucherName = selectedVoucher.getAttribute('data-name');
+                        let usedFor = selectedVoucher.getAttribute('data-used-for');
+
+                        if (placeholderText) placeholderText.style.display = 'none';
+
+                        let badgeHtml = '';
+                        if (usedFor === 'shipping') {
+                            badgeHtml = `<span class="badge-voucher-active px-2 py-1 rounded text-white fw-bold" 
+                                        style="background-color: #5c695d; font-size: 11px; border: 1px solid #4a544b;">
+                                            Gratis Ongkir
+                                        </span>`;
+                        } else {
+                            badgeHtml = `<span class="badge-voucher-active px-2 py-1 rounded fw-bold" 
+                                        style="background-color: #fcf5f3; color: #bd654e; border: 1px solid #bd654e; font-size: 11px;">
+                                            ${voucherName}
+                                        </span>`;
+                        }
+                        if (container) container.insertAdjacentHTML('afterbegin', badgeHtml);
+                    }
+                });
+            }
+
+            // Auto-apply pending voucher dari session
+            @if(isset($pendingVoucher) && $pendingVoucher)
+                document.getElementById('applied-voucher-id').value = '{{ $pendingVoucher->id }}';
+                
+                const textDisplay = document.getElementById('selectedVoucherText');
+                @if($pendingVoucher->used_for === 'shipping')
+                    textDisplay.innerHTML = `
+                        <span class="px-2 py-1 rounded fw-bold" style="background-color: #f1f4f2; color: #5c695d; border: 1px solid #5c695d; font-size: 11px;">🚚 Gratis Ongkir</span>
+                        <span class="ms-1" style="font-size: 13px;">{{ $pendingVoucher->name }}</span>
+                    `;
+                @else
+                    textDisplay.innerHTML = `
+                        <span class="px-2 py-1 rounded fw-bold" style="background-color: #fcf5f3; color: #bd654e; border: 1px solid #bd654e; font-size: 11px;">🏷️ Diskon Produk</span>
+                        <span class="ms-1" style="font-size: 13px;">{{ $pendingVoucher->name }}</span>
+                    `;
+                @endif
+
+                document.getElementById('voucherActiveBadge').classList.remove('d-none');
+                voucherApplied = true;
+                calculateGrandTotal();
+
+                fetch('{{ route("voucher.clear-session") }}', {
+                    method: 'POST',
+                    headers: { 'X-CSRF-TOKEN': '{{ csrf_token() }}' }
+                });
+            @endif
         });
 
         function applyVoucherVisual() {
@@ -500,59 +575,6 @@
             voucherApplied = true;
             calculateGrandTotal();
         }
-
-        document.addEventListener('DOMContentLoaded', function () {
-            bsModal = new bootstrap.Modal(document.getElementById('addressModal'));
-
-            const addressRadios = document.querySelectorAll('.address-selector-radio');
-            addressRadios.forEach(radio => {
-                radio.addEventListener('change', handleAddressChange);
-            });
-            handleAddressChange();
-
-            const btnApplyVoucher = document.getElementById('btn-apply-voucher');
-            if (btnApplyVoucher) {
-                btnApplyVoucher.addEventListener('click', function() {
-                    applyVoucherVisual();
-                    
-                    let selectedVoucher = document.querySelector('.voucher-radio-input:checked');
-                    let container = document.getElementById('active-voucher-container');
-                    let placeholderText = document.getElementById('placeholder-voucher-text');
-                
-                    if (container) {
-                        const oldBadge = container.querySelector('.badge-voucher-active');
-                        if (oldBadge) oldBadge.remove();
-                    }
-                    
-                    if (placeholderText) placeholderText.style.display = 'inline';
-
-                    if (selectedVoucher && selectedVoucher.value !== "") {
-                        let voucherName = selectedVoucher.getAttribute('data-name');
-                        let usedFor = selectedVoucher.getAttribute('data-used-for');
-
-                        if (placeholderText) placeholderText.style.display = 'none';
-
-                        let badgeHtml = '';
-                        if (usedFor === 'shipping') {
-                            badgeHtml = `
-                                <span class="badge-voucher-active px-2 py-1 rounded text-white fw-bold" 
-                                      style="background-color: #5c695d; font-size: 11px; border: 1px solid #4a544b;">
-                                    Gratis Ongkir
-                                </span>
-                            `;
-                        } else {
-                            badgeHtml = `
-                                <span class="badge-voucher-active px-2 py-1 rounded fw-bold" 
-                                      style="background-color: #fcf5f3; color: #bd654e; border: 1px solid #bd654e; font-size: 11px;">
-                                    ${voucherName}
-                                </span>
-                            `;
-                        }
-                        if (container) container.insertAdjacentHTML('afterbegin', badgeHtml);
-                    }
-                });
-            }
-        });
 
         function handleAddressChange() {
             const selectedRadio = document.querySelector('.address-selector-radio:checked');
@@ -797,7 +819,8 @@
             
             shippingSection.innerHTML = '<p class="text-jaced-muted small">Menghitung ongkir...</p>';
 
-            fetch(`/api/shipping-cost?village_name=${encodeURIComponent(villageName)}&city_name=${encodeURIComponent(cityName)}&weight=1000`)
+            // Setelah diubah
+            fetch(`/api/shipping-cost?village_name=${encodeURIComponent(villageName)}&city_name=${encodeURIComponent(cityName)}&weight={{ $totalWeight }}`)
                 .then(res => res.json())
                 .then(costs => {
                     if (costs.error || !costs.length) {

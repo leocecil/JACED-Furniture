@@ -375,13 +375,13 @@
                     TOTAL VALUE
                 </div>
                 <div class="cart-total-price">
-                    Rp {{ number_format($globalCartTotal, 0, ',', '.') }}
+                    Rp {{ number_format($globalCartItems->sum(fn($item) => $item->product->price * $item->quantity), 0, ',', '.') }}
                 </div>
             </div>
         </div>
 
         <!-- CHECKOUT BUTTON -->
-        <a href="/checkout" class="checkout-btn d-flex align-items-center justify-content-center text-decoration-none">
+        <a href="{{ route('checkout.index') }}" class="checkout-btn d-flex align-items-center justify-content-center text-decoration-none">
             Proceed to Checkout
         </a>
     </div>
