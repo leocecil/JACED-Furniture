@@ -44,6 +44,7 @@ Route::middleware(['role:customer'])->group(function() {
     Route::get('/profile', [UserController::class, 'show_profile'])->name('profile');
     Route::get('/profile/edit/{id}', [UserController::class, 'edit_profile'])->name('profile.edit');
     Route::post('/profile/edit/{id}', [UserController::class, 'update_profile'])->name('profile.update');
+    Route::delete('/profile/avatar/{id}', [UserController::class, 'delete_avatar'])->name('profile.avatar.delete');
     Route::get('/profile/addresses', [UserController::class, 'addresses'])->name('profile.addresses');
     Route::post('/profile/addresses', [UserController::class, 'storeAddress'])->name('profile.addresses.store');
     Route::put('/profile/addresses/{id}', [UserController::class, 'updateAddress'])->name('profile.addresses.update');
@@ -96,7 +97,10 @@ Route::middleware(['role:customer'])->group(function() {
 
     // Customer Purchase History
     Route::get('/orderhistory', [OrderHistoryController::class, 'index'])->name('store.orderhistory');
-    Route::get('/transactionhistory/{id}', [OrderController::class, 'show'])->name('store.transactionhistory_detail.show');
+    Route::get('/orderhistory/{id}', [OrderHistoryController::class, 'show'])->name('store.orderhistory_detail.show');
+
+    // Order History - Invoice
+    Route::get('/orderhistory/{id}/invoice', [OrderHistoryController::class, 'invoice'])->name('store.orderhistory.invoice');
 });
 
 // ADMIN LOGIN

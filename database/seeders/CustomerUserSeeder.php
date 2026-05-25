@@ -72,6 +72,7 @@ class CustomerUserSeeder extends Seeder
                 'email_verified_at' => now(),
                 'password'          => Hash::make('password123'),
                 'is_admin'          => false,
+                'avatar'            => 'image/avatars/default_avatar.png', // default avatar
                 'current_points'    => rand(0, 500),
                 'accumulated_points'=> rand(0, 2000),
                 'created_at'        => now()->subDays(rand(30, 365)),
