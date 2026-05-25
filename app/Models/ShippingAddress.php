@@ -22,6 +22,7 @@ class ShippingAddress extends Model
         'village_code',
         'village_name',
         'postal_code',
+        'is_default',
     ];
     public function user()
     {
