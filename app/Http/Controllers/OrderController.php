@@ -23,7 +23,7 @@ class OrderController extends Controller
 {
     public function showCheckout()
     {
-        $provinces = Province::orderBy('name', 'asc')->get();
+        $provinces = DB::table('indonesia_provinces')->orderBy('name', 'asc')->get(); 
         $savedAddresses = DB::table('shipping_address')
                         ->where('user_id', auth()->user()->id)
                         ->get();
@@ -411,25 +411,28 @@ class OrderController extends Controller
     // 5. Tambahkan Method Baru ini untuk melayani request AJAX dari Blade kamu
     public function getCities(Request $request)
     {
-        $cities = City::where('province_code', $request->province_code)
-                      ->orderBy('name', 'asc')
-                      ->get(['code', 'name']); // mengambil code dan name saja biar load-nya cepat
+        $cities = DB::table('indonesia_cities')
+                    ->where('province_code', $request->province_code)
+                    ->orderBy('name', 'asc') // Opsional: sekalian diurutkan biar rapi
+                    ->get(); // mengambil code dan name saja biar load-nya cepat
 
         return response()->json($cities);
     }
 
     public function getDistricts(Request $request)
     {
-        $districts = District::where('city_code', $request->city_code)
-                            ->orderBy('name', 'asc')
-                            ->get(['code', 'name']);
+        $districts = DB::table('indonesia_districts')
+                        ->where('city_code', $request->city_code)
+                        ->orderBy('name', 'asc')
+                        ->get(['code', 'name']);
 
         return response()->json($districts);
     }
 
     public function getVillages(Request $request)
     {
-        $villages = Village::where('district_code', $request->district_code)
+        $villages = DB::table('indonesia_villages')
+                        ->where('district_code', $request->district_code)
                         ->orderBy('name', 'asc')
                         ->get(['code', 'name']);
 

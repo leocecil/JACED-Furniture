@@ -6,7 +6,7 @@
     .login-wrapper {
         background: url('https://images.unsplash.com/photo-1618221195710-dd6b41faaea6?q=80&w=1920&auto=format&fit=crop') no-repeat center center fixed;
         background-size: cover;
-        position: fixed; /* Mengunci background full layar */
+        /* position: fixed; Mengunci background full layar */
         top: 0;
         left: 0;
         right: 0;
@@ -14,7 +14,7 @@
         display: flex;
         align-items: center;
         justify-content: center;
-        z-index: 1000; /* Menimpa sisa layout bawah */
+        /* z-index: 1000; Menimpa sisa layout bawah */
     }
 
     /* 2. Manipulasi Navbar bawaan biar transparan dan melayang di atas background */

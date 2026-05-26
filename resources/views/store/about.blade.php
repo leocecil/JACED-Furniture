@@ -183,72 +183,29 @@
                 </h2>
             </div>
             
-            <div class="row g-4 align-items-stretch">
-                <div class="col-12 col-md-6">
+            <div class="row g-4">
+                @foreach([
+                    ['img' => 'diah.jpeg',   'name' => 'Putu Diahloka Mahaputri',  'role' => 'CEO (Chief Executive Officer)'],
+                    ['img' => 'cecil.jpeg',  'name' => 'Cecilia Agusta Leo',        'role' => 'CFO (Chief Financial Officer)'],
+                    ['img' => 'member2.jpg', 'name' => 'Jocelyn Jolie',             'role' => '0706022410006'],
+                    ['img' => 'audric.jpeg', 'name' => 'Ignatius Audric Wijaya',    'role' => '0706022410022'],
+                    ['img' => 'member4.jpg', 'name' => 'Ekkin Kenneth Hosari',      'role' => 'CTO (Chief Technology Officer)'],
+                ] as $member)
+                <div class="col-6 col-md-4 col-lg">
                     <div class="card border-0 shadow-sm rounded-4 overflow-hidden bg-white h-100">
-                        <div class="position-relative" style="height: 400px;">
-                            <img src="{{ asset('image/team/julian.jpg') }}" alt="Putu Diahloka Mahaputri" class="w-100 h-100" style="object-fit: cover;">
+                        <div style="height: 280px;">
+                            <img src="{{ asset('image/team/' . $member['img']) }}"
+                                alt="{{ $member['name'] }}"
+                                class="w-100 h-100"
+                                style="object-fit: cover;">
                         </div>
-                        <div class="p-4 bg-white">
-                            <h4 class="h5 fw-bold mb-1 text-truncate">Putu Diahloka Mahaputri</h4>
-                            <p class="text-uppercase tracking-wider text-muted mb-0 small" style="font-size: 12px;">CEO (Chief Executive Officer)</p>
+                        <div class="p-3 bg-white">
+                            <h5 class="fw-bold mb-1 text-truncate" style="font-size: 14px;">{{ $member['name'] }}</h5>
+                            <p class="text-uppercase text-muted mb-0" style="font-size: 10px; letter-spacing: 0.5px;">{{ $member['role'] }}</p>
                         </div>
                     </div>
                 </div>
-
-                <div class="col-12 col-md-6">
-                    <div class="row g-4 h-100 content-justify-between">
-                        
-                        <div class="col-6" style="height: calc(50% - 12px);">
-                            <div class="card border-0 shadow-sm rounded-4 overflow-hidden bg-white h-100">
-                                <div class="flex-grow-1" style="height: 110px;">
-                                    <img src="{{ asset('image/team/member1.jpg') }}" alt="Cecilia Agusta Leo" class="w-100 h-100" style="object-fit: cover;">
-                                </div>
-                                <div class="p-3 bg-white">
-                                    <h5 class="h6 fw-bold mb-1 text-truncate" style="font-size: 14px;">Cecilia Agusta Leo</h5>
-                                    <p class="text-uppercase text-muted mb-0" style="font-size: 10px; letter-spacing: 0.5px;">CFO (Chief Financial Officer)</p>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="col-6" style="height: calc(50% - 12px);">
-                            <div class="card border-0 shadow-sm rounded-4 overflow-hidden bg-white h-100">
-                                <div class="flex-grow-1" style="height: 110px;">
-                                    <img src="{{ asset('image/team/member2.jpg') }}" alt="Jocelyn Jolie" class="w-100 h-100" style="object-fit: cover;">
-                                </div>
-                                <div class="p-3 bg-white">
-                                    <h5 class="h6 fw-bold mb-1 text-truncate" style="font-size: 14px;">Jocelyn Jolie</h5>
-                                    <p class="text-uppercase text-muted mb-0" style="font-size: 10px; letter-spacing: 0.5px;">0706022410006</p>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="col-6" style="height: calc(50% - 12px);">
-                            <div class="card border-0 shadow-sm rounded-4 overflow-hidden bg-white h-100">
-                                <div class="flex-grow-1" style="height: 110px;">
-                                    <img src="{{ asset('image/team/member3.jpg') }}" alt="Ignatius Audric Wijaya" class="w-100 h-100" style="object-fit: cover;">
-                                </div>
-                                <div class="p-3 bg-white">
-                                    <h5 class="h6 fw-bold mb-1 text-truncate" style="font-size: 14px;">Ignatius Audric Wijaya</h5>
-                                    <p class="text-uppercase text-muted mb-0" style="font-size: 10px; letter-spacing: 0.5px;">0706022410022</p>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="col-6" style="height: calc(50% - 12px);">
-                            <div class="card border-0 shadow-sm rounded-4 overflow-hidden bg-white h-100">
-                                <div class="flex-grow-1" style="height: 110px;">
-                                    <img src="{{ asset('image/team/member4.jpg') }}" alt="Ekkin Kenneth Hosari" class="w-100 h-100" style="object-fit: cover;">
-                                </div>
-                                <div class="p-3 bg-white">
-                                    <h5 class="h6 fw-bold mb-1 text-truncate" style="font-size: 14px;">Ekkin Kenneth Hosari</h5>
-                                    <p class="text-uppercase text-muted mb-0" style="font-size: 10px; letter-spacing: 0.5px;">CTO (Chief Technology Officer)</p>
-                                </div>
-                            </div>
-                        </div>
-
-                    </div>
-                </div>
+                @endforeach
             </div>
 
         </div>
