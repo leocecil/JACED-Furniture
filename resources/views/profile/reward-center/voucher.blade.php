@@ -68,6 +68,8 @@
         background: var(--jaced-cream);
         border: 1px solid var(--jaced-input);
         border-radius: 50%;
+        z-index: 0;            /* ← tambah ini */
+        pointer-events: none;  /* ← tambah ini, biar tidak block klik */
     }
     .ticket-left::before { top: -7px; }
     .ticket-left::after { bottom: -7px; }
@@ -179,7 +181,9 @@
                             <form action="{{ route('reward.use-voucher') }}" method="POST">
                                 @csrf
                                 <input type="hidden" name="voucher_id" value="{{ $vouch->id }}">
-                                <button type="submit" class="copy-code-btn" style="border-color: var(--jaced-caramel); color: var(--jaced-caramel);">
+                                <button type="button" class="copy-code-btn" 
+                                    style="border-color: var(--jaced-caramel); color: var(--jaced-caramel);"
+                                    onclick="useVoucher({{ $vouch->id }}, this)">
                                     Use Now →
                                 </button>
                             </form>
@@ -196,30 +200,34 @@
         {{-- SECTION 2: HISTORY VOUCHERS --}}
         <div id="history-sec" class="voucher-section row g-3 d-none">
             @forelse($historyVouchers as $vouch)
-                <div class="ticket-left">
-                    <span style="font-size: 14px;">
-                        {{ $vouch->redeemed_at ? 'USED' : 'EXPIRED' }}
-                    </span>
-                </div>
-                <div class="ticket-right">
-                    <div>
-                        <h3 class="ticket-title">{{ $vouch->name }}</h3>
-                        <p class="ticket-expiry text-danger">
-                            {{ $vouch->redeemed_at 
-                                ? 'Used on ' . \Carbon\Carbon::parse($vouch->redeemed_at)->format('d M Y')
-                                : 'Expired on ' . \Carbon\Carbon::parse($vouch->expiry_date)->format('d M Y') }}
-                        </p>
-                    </div>
-                </div>
+                <div class="col-12 col-md-6">              {{-- ← TAMBAH INI --}}
+                    <div class="ticket-card expired">       {{-- ← TAMBAH INI --}}
+                        <div class="ticket-left">
+                            <span style="font-size: 14px;">
+                                {{ $vouch->redeemed_at ? 'USED' : 'EXPIRED' }}
+                            </span>
+                        </div>
+                        <div class="ticket-right">
+                            <div>
+                                <h3 class="ticket-title">{{ $vouch->name }}</h3>
+                                <p class="ticket-expiry text-danger">
+                                    {{ $vouch->redeemed_at 
+                                        ? 'Used on ' . \Carbon\Carbon::parse($vouch->redeemed_at)->format('d M Y')
+                                        : 'Expired on ' . \Carbon\Carbon::parse($vouch->expiry_date)->format('d M Y') }}
+                                </p>
+                            </div>
+                        </div>
+                    </div>                                  {{-- ← TUTUP ticket-card --}}
+                </div>                                      {{-- ← TUTUP col --}}
             @empty
                 <div class="text-center py-5">
                     <p class="text-muted">Tidak ada riwayat voucher.</p>
                 </div>
             @endforelse
         </div>
-
     </div>
 </div>
+@endsection
 
 @push('scripts')
 <script>
@@ -247,6 +255,28 @@
             }, 2000);
         });
     }
+
+    function useVoucher(voucherId, btn) {
+        btn.disabled = true;
+        btn.innerText = 'Loading...';
+        
+        fetch('{{ route("reward.use-voucher") }}', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+            },
+            body: JSON.stringify({ voucher_id: voucherId })
+        })
+        .then(res => {
+            if (res.redirected) {
+                window.location.href = res.url;
+            }
+        })
+        .catch(() => {
+            btn.disabled = false;
+            btn.innerText = 'Use Now →';
+        });
+    }
 </script>
 @endpush
-@endsection

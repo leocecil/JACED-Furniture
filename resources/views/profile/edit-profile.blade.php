@@ -215,7 +215,7 @@
                             <input type="file" name="avatar" id="avatarFileInput" accept="image/*" style="display: none;" onchange="previewImage(this)">
                         </div>
                         {{-- Tombol trigger --}}
-                        @if(!str_contains($user->avatar, 'default_avatar'))
+                        @if($user->avatar && !str_contains($user->avatar, 'default_avatar'))
                             <button type="button" onclick="document.getElementById('deleteModal').style.display='flex'" style="
                                 background: none; 
                                 border: 1px solid #ffcccc; 
@@ -381,7 +381,7 @@
         </div>
 
         {{-- Form delete --}}
-        @if(!str_contains($user->avatar, 'default_avatar'))
+        @if($user->avatar && !str_contains($user->avatar, 'default_avatar'))
             <form id="form-delete-avatar" action="{{ route('profile.avatar.delete', $user->id) }}" method="POST">
                 @csrf
                 @method('DELETE')
