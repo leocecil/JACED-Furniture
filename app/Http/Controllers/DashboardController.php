@@ -2,8 +2,9 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
+use App\Models\Order;
 use Carbon\Carbon;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
 class DashboardController extends Controller
@@ -12,7 +13,7 @@ class DashboardController extends Controller
     {
         $months = (int) $request->get('months', 6);
         $months = max(1, min(12, $months));
-
+        $orderCount = Order::where('status', 'pending')->count();
         // ── Stat Cards ───────────────────────────────────────────────
         $totalRevenue = DB::table('orders')
             ->whereNotIn('status', ['cancelled', 'unpaid'])
@@ -77,6 +78,7 @@ class DashboardController extends Controller
             ->get();
 
         return view('admin.dashboard', compact(
+            'orderCount',
             'totalRevenue',
             'totalOrders',
             'inDelivery',

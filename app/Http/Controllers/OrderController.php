@@ -18,6 +18,7 @@ use Laravolt\Indonesia\Models\District;
 use Laravolt\Indonesia\Models\Province;
 use Laravolt\Indonesia\Models\Village;
 use Midtrans\Snap;
+use Midtrans\Config;
 
 class OrderController extends Controller
 {
@@ -523,7 +524,6 @@ class OrderController extends Controller
     public function index(Request $request)
     {
         $filters = ['All', 'Unpaid', 'Packed', 'Delivered', 'Arrived', 'Cancelled'];
-
         $activeFilter = $request->get('filter', 'All');
 
         // Mapping filter tab → status di DB

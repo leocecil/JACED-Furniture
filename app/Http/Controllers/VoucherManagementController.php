@@ -3,9 +3,10 @@
 namespace App\Http\Controllers;
 
 use App\Http\Controllers\Controller;
+use App\Models\Order;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
-use Carbon\Carbon;
 
 class VoucherManagementController extends Controller
 {
@@ -16,6 +17,7 @@ class VoucherManagementController extends Controller
         $totalTypes   = DB::table('voucher_types')->count();
         $activeTypes  = DB::table('voucher_types')->where('is_active', true)->count();
         $totalRedeemed = DB::table('vouchers')->whereNotNull('redeemed_at')->count();
+        $orderCount = Order::where('status', 'pending')->count();
         $totalDiscount = DB::table('vouchers')
             ->join('voucher_types', 'vouchers.voucher_type_id', '=', 'voucher_types.id')
             ->whereNotNull('vouchers.redeemed_at')
@@ -103,10 +105,7 @@ class VoucherManagementController extends Controller
         $paged       = $voucherTypes->slice(($currentPage - 1) * $perPage, $perPage)->values();
         $lastPage    = (int) ceil($total / $perPage);
 
-        return view('admin.voucher_management', compact(
-            'paged', 'total', 'currentPage', 'lastPage', 'perPage',
-            'totalTypes', 'activeTypes', 'totalRedeemed', 'totalDiscount'
-        ));
+        return view('admin.voucher_management', compact('orderCount', 'paged', 'total', 'currentPage', 'lastPage', 'perPage', 'totalTypes', 'activeTypes', 'totalRedeemed', 'totalDiscount'));
     }
 
     // ── Store new voucher type(s) ─────────────────────────────────────

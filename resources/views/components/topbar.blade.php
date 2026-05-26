@@ -163,18 +163,9 @@
         <i class="bi bi-list"></i>
     </button>
 
-    {{-- Search --}}
-    <div class="topbar-search">
-        <div class="input-group">
-            <span class="input-group-text"><i class="bi bi-search"></i></span>
-            <input type="text" class="form-control"
-                   placeholder="Search orders, clients, or serial numbers...">
-        </div>
-    </div>
-
     <div class="ms-auto d-flex align-items-center gap-1">
 
-        {{-- Notifications --}}
+        {{-- Notifications
         <button class="topbar-icon-btn" title="Notifications">
             <i class="bi bi-bell"></i>
             @isset($unreadNotifications)
@@ -182,14 +173,14 @@
                     <span class="notif-dot"></span>
                 @endif
             @endisset
-        </button>
+        </button> --}}
 
-        {{-- Settings --}}
+        {{-- Settings
         <a href="#" class="topbar-icon-btn" title="Settings">
             <i class="bi bi-gear"></i>
-        </a>
+        </a>--}}
 
-        <div class="topbar-divider"></div>
+        <div class="topbar-divider"></div> 
 
         {{-- ══ PROFILE DROPDOWN ══ --}}
         <div class="profile-dropdown-wrap">
