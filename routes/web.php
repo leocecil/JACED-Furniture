@@ -128,7 +128,6 @@ Route::middleware(['role:admin'])->group(function() {
     Route::post('/admin/dashboard/set-target', [DashboardController::class, 'setTarget'])->name('admin.dashboard.setTarget');
 
     // Order Overview & Operational Management
-    Route::get('/admin/main', [OrderController::class, 'index'])->name('orders.index');
     Route::get('/admin/order_management', [OrderManagementController::class, 'index'])->name('order_management');
     Route::get('/admin/order_management/search', [OrderManagementController::class, 'search'])->name('admin.order_management.search');
     Route::post('/admin/orders/{id}/status', [OrderManagementController::class, 'updateStatus'])->name('admin.orders.updateStatus');
@@ -154,6 +153,7 @@ Route::middleware(['role:admin'])->group(function() {
     Route::post('/admin/vouchers', [VoucherManagementController::class, 'store'])->name('admin.vouchers.store');
     Route::post('/admin/vouchers/{id}/toggle', [VoucherManagementController::class, 'toggle'])->name('admin.vouchers.toggle');
     Route::delete('/admin/vouchers/{id}', [VoucherManagementController::class, 'destroy'])->name('admin.vouchers.destroy');
+    Route::get('/admin/vouchers/stats', [VoucherManagementController::class, 'stats'])->name('admin.vouchers.stats');
 
     // Product Category Manager
     Route::post('/admin/categories', [CategoryController::class, 'store'])->name('categories.store');

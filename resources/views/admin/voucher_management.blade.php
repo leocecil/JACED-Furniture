@@ -215,8 +215,7 @@
 @endpush
 
 @section('content')
-<div class="jaced-page">
-<div style="max-width:1100px; margin:0 auto;">
+<div class="container-fluid">
 
     {{-- ── Page Header ── --}}
     <div style="display:flex; align-items:flex-start; justify-content:space-between; margin-bottom:32px; flex-wrap:wrap; gap:12px;">
@@ -240,23 +239,22 @@
             <div class="stat-label">
                 <i class="bi bi-ticket-perforated"></i> Total Voucher Types
             </div>
-            <div class="stat-value">{{ number_format($totalTypes) }}</div>
-            <div class="stat-sub">Unique voucher configurations</div>
+            <div class="stat-value" id="statTotalTypes">{{ number_format($totalTypes) }}</div>
         </div>
 
         <div class="stat-card">
             <div class="stat-label">
                 <i class="bi bi-check-circle"></i> Active Types
             </div>
-            <div class="stat-value">{{ number_format($activeTypes) }}</div>
-            <div class="stat-sub">{{ $totalTypes - $activeTypes }} inactive</div>
+            <div class="stat-value" id="statActiveTypes">{{ number_format($activeTypes) }}</div>
+            <div class="stat-sub" id="statInactiveTypes">{{ $totalTypes - $activeTypes }} inactive</div>
         </div>
 
         <div class="stat-card">
             <div class="stat-label">
                 <i class="bi bi-arrow-repeat"></i> Total Redeemed
             </div>
-            <div class="stat-value">{{ number_format($totalRedeemed) }}</div>
+            <div class="stat-value" id="statTotalRedeemed">{{ number_format($totalRedeemed) }}</div>
             <div class="stat-sub">
                 @if($totalTypes > 0)
                     {{ round(($totalRedeemed / $totalTypes) * 100) }}% redemption rate
@@ -270,8 +268,8 @@
             <div class="stat-label">
                 <i class="bi bi-currency-dollar"></i> Total Discount Given
             </div>
-            <div class="stat-value">Rp {{ number_format($totalDiscount / 1000000, 1) }}M</div>
-            <div class="stat-sub">Rp {{ number_format($totalDiscount, 0, ',', '.') }}</div>
+            <div class="stat-value" id="statTotalDiscount">Rp {{ number_format($totalDiscount / 1000000, 1) }}M</div>
+            <div class="stat-sub" id="statTotalDiscountFull">Rp {{ number_format($totalDiscount, 0, ',', '.') }}</div>
         </div>
 
     </div>
@@ -580,6 +578,7 @@
             if (data.success) {
                 closeDrawer();
                 showToast('✓ ' + data.message);
+                refreshStats();
                 setTimeout(() => window.location.reload(), 1500);
             } else {
                 showToast('Error: ' + (data.error || 'Something went wrong.'));
@@ -617,6 +616,7 @@
                     btn.title = 'Activate';
                 }
                 showToast('✓ ' + data.message);
+                refreshStats();
             } else {
                 showToast('Error: ' + (data.error || 'Something went wrong.'));
             }
@@ -638,6 +638,7 @@
         .then(data => {
             if (data.success) {
                 showToast('✓ ' + data.message);
+                refreshStats();
                 setTimeout(() => window.location.reload(), 1500);
             } else {
                 showToast('⚠ ' + data.error);
@@ -651,6 +652,19 @@
         t.textContent = msg;
         t.classList.add('show');
         setTimeout(() => t.classList.remove('show'), 3000);
+    }
+
+    function refreshStats() {
+        fetch('{{ route("admin.vouchers.stats") }}')
+            .then(r => r.json())
+            .then(data => {
+                document.getElementById('statTotalTypes').textContent    = data.totalTypes;
+                document.getElementById('statActiveTypes').textContent   = data.activeTypes;
+                document.getElementById('statInactiveTypes').textContent = data.inactiveTypes + ' inactive';
+                document.getElementById('statTotalRedeemed').textContent = data.totalRedeemed;
+                document.getElementById('statTotalDiscount').textContent = data.totalDiscount;
+                document.getElementById('statTotalDiscountFull').textContent = data.totalDiscountFull;
+            });
     }
 </script>
 @endpush
