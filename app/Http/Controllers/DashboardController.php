@@ -8,7 +8,6 @@ use Illuminate\Support\Facades\DB;
 
 class DashboardController extends Controller
 {
-
     public function index(Request $request)
     {
         $months = (int) $request->get('months', 6);
@@ -31,6 +30,20 @@ class DashboardController extends Controller
 
         // ── Sales Analytics ──────────────────────────────────────────
         $salesData = $this->getSalesData($months);
+
+        // ── Monthly Target (from settings table) ─────────────────────
+        $monthlyTarget = (float) DB::table('settings')
+            ->where('key', 'monthly_target')
+            ->value('value') ?? 50000000;
+
+        $currentRevenue = DB::table('orders')
+            ->whereNotIn('status', ['cancelled', 'unpaid'])
+            ->whereYear('created_at', now()->year)
+            ->whereMonth('created_at', now()->month)
+            ->sum('total_price');
+
+        $pct       = $monthlyTarget > 0 ? min(100, round(($currentRevenue / $monthlyTarget) * 100)) : 0;
+        $remaining = max(0, $monthlyTarget - $currentRevenue);
 
         // ── Best Selling Categories ──────────────────────────────────
         $bestCategories = DB::table('order_details')
@@ -71,7 +84,11 @@ class DashboardController extends Controller
             'salesData',
             'bestCategories',
             'recentOrders',
-            'months'
+            'months',
+            'monthlyTarget',
+            'currentRevenue',
+            'pct',
+            'remaining'
         ));
     }
 
@@ -82,6 +99,21 @@ class DashboardController extends Controller
         $months = max(1, min(12, $months));
 
         return response()->json($this->getSalesData($months));
+    }
+
+    // ── Set monthly target (persisted to DB) ─────────────────────────
+    public function setTarget(Request $request)
+    {
+        $request->validate([
+            'monthly_target' => 'required|numeric|min:1000000',
+        ]);
+
+        DB::table('settings')->updateOrInsert(
+            ['key' => 'monthly_target'],
+            ['value' => $request->monthly_target, 'updated_at' => now()]
+        );
+
+        return back()->with('success', 'Monthly target updated.');
     }
 
     // ── Shared helper ─────────────────────────────────────────────────

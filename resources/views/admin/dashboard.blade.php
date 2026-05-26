@@ -160,6 +160,10 @@
         letter-spacing: -.03em;
     }
 
+    #targetModal { z-index: 1055; }
+    .modal-backdrop { z-index: 1054; }
+    .modal-dialog { z-index: 1056; }
+
     /* ── Best Selling Categories ──────────────────────────────────── */
     .category-row {
         display: flex;
@@ -299,12 +303,11 @@
     .btn-set-target:hover { background: var(--accent-soft); }
 </style>
 
-<div class="dashboard-wrap container-fluid px-4 py-4">
+<div class="container-fluid">
 
     {{-- ── Page Header ── --}}
     <div class="dash-header">
         <div>
-            <p class="label mb-1">Overview</p>
             <h1>Dashboard</h1>
         </div>
         <span style="font-size:13px; color:var(--ink-muted);">
@@ -378,7 +381,7 @@
                 <div class="d-flex justify-content-between align-items-center mb-3">
                     <span class="section-title">Sales Analytics</span>
                     <div class="d-flex gap-1">
-                        @foreach([1 => '1M', 3 => '3M', 6 => '6M', 12 => '1Y'] as $val => $label)
+                        @foreach([3 => '3M', 6 => '6M', 12 => '1Y'] as $val => $label)
                             <button class="range-btn {{ $months == $val ? 'active' : '' }}"
                                     data-months="{{ $val }}">{{ $label }}</button>
                         @endforeach
@@ -395,21 +398,10 @@
             <div class="d-card p-3 h-100 text-center">
                 <div class="d-flex justify-content-between align-items-center mb-3">
                     <p class="section-title mb-0">Monthly Target</p>
-                    <button class="btn-set-target" data-bs-toggle="modal" data-bs-target="#targetModal">
+                    <button class="btn-set-target" onclick="openTargetModal()">
                         Set Target
                     </button>
                 </div>
-
-                @php
-                    $monthlyTarget  = session('monthly_target', 50000000);
-                    $currentRevenue = \Illuminate\Support\Facades\DB::table('orders')
-                        ->whereNotIn('status', ['cancelled', 'unpaid'])
-                        ->whereYear('created_at', now()->year)
-                        ->whereMonth('created_at', now()->month)
-                        ->sum('total_price');
-                    $pct = $monthlyTarget > 0 ? min(100, round(($currentRevenue / $monthlyTarget) * 100)) : 0;
-                    $remaining = max(0, $monthlyTarget - $currentRevenue);
-                @endphp
 
                 <div class="donut-wrap">
                     <canvas id="targetChart"></canvas>
@@ -481,7 +473,6 @@
                                 <th>Date</th>
                                 <th>Amount</th>
                                 <th>Status</th>
-                                <th>Action</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -502,25 +493,10 @@
                                         {{ ucfirst($order->status) }}
                                     </span>
                                 </td>
-                                <td>
-                                    <div class="dropdown">
-                                        <button class="btn-dots" data-bs-toggle="dropdown">
-                                            <i class="bi bi-three-dots-vertical"></i>
-                                        </button>
-                                        <ul class="dropdown-menu dropdown-menu-end">
-                                            <li>
-                                                <a class="dropdown-item small"
-                                                   href="#">
-                                                   View Detail
-                                                </a>
-                                            </li>
-                                        </ul>
-                                    </div>
-                                </td>
                             </tr>
                             @empty
                             <tr>
-                                <td colspan="6" class="text-center py-4 section-meta">No orders yet.</td>
+                                <td colspan="5" class="text-center py-4 section-meta">No orders yet.</td>
                             </tr>
                             @endforelse
                         </tbody>
@@ -534,30 +510,24 @@
 </div>
 
 {{-- ── Monthly Target Modal ── --}}
-<div class="modal fade" id="targetModal" tabindex="-1">
-    <div class="modal-dialog modal-sm modal-dialog-centered">
-        <div class="modal-content" style="border-radius:16px; border:1px solid var(--border);">
-            <div class="modal-header border-0 pb-0">
-                <h6 class="modal-title fw-600">Set Monthly Target</h6>
-                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-            </div>
-            <form method="POST" action="{{ route('admin.dashboard.setTarget') }}">
-                @csrf
-                <div class="modal-body pt-2">
-                    <label class="section-meta mb-1 d-block">Target Amount (Rp)</label>
-                    <input type="number" name="monthly_target" class="form-control form-control-sm"
-                           value="{{ session('monthly_target', 50000000) }}"
-                           min="1000000" step="1000000" required>
-                    <small class="section-meta">e.g. 50000000 = Rp 50.000.000</small>
-                </div>
-                <div class="modal-footer border-0 pt-0">
-                    <button type="submit" class="btn btn-sm w-100"
-                            style="background:var(--accent); color:#fff; border-radius:8px;">
-                        Save Target
-                    </button>
-                </div>
-            </form>
+<div id="targetOverlay" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,.5); z-index:99999; align-items:center; justify-content:center;">
+    <div style="background:white; border-radius:16px; border:1px solid var(--border); width:100%; max-width:320px; padding:24px; position:relative;">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
+            <h6 style="margin:0; font-weight:700; font-size:15px; color:var(--ink);">Set Monthly Target</h6>
+            <button onclick="closeTargetModal()" style="background:none; border:none; font-size:20px; color:var(--ink-muted); cursor:pointer; line-height:1;">×</button>
         </div>
+        <form method="POST" action="{{ route('admin.dashboard.setTarget') }}">
+            @csrf
+            <label class="section-meta mb-1 d-block">Target Amount (Rp)</label>
+            <input type="number" name="monthly_target" class="form-control form-control-sm mb-1"
+                    value="{{ $monthlyTarget }}"
+                    min="1000000" step="1000000" required>
+            <small class="section-meta">e.g. 50000000 = Rp 50.000.000</small>
+            <button type="submit" class="btn btn-sm w-100 mt-3"
+                    style="background:var(--accent); color:#fff; border-radius:8px;">
+                Save Target
+            </button>
+        </form>
     </div>
 </div>
 
@@ -567,9 +537,13 @@
 <script>
 document.addEventListener('DOMContentLoaded', function () {
 
-    // ── Sales data from server (initial render) ───────────────────
-    let salesLabels = @json($salesData['labels']);
-    let salesData   = @json($salesData['data']);
+    // Move modal overlay to body to avoid z-index/transform issues
+    const overlay = document.getElementById('targetOverlay');
+    if (overlay) document.body.appendChild(overlay);
+
+    // ── Sales data from server ────────────────────────────────────
+    let salesLabels  = @json($salesData['labels']);
+    let salesData    = @json($salesData['data']);
     let activeMonths = {{ $months }};
 
     // ── Sales Line Chart ──────────────────────────────────────────
@@ -577,8 +551,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
     const makeGradient = () => {
         const g = salesCtx.createLinearGradient(0, 0, 0, 190);
-        g.addColorStop(0,   'rgba(184,115,51,0.18)');
-        g.addColorStop(1,   'rgba(184,115,51,0)');
+        g.addColorStop(0, 'rgba(184,115,51,0.18)');
+        g.addColorStop(1, 'rgba(184,115,51,0)');
         return g;
     };
 
@@ -628,15 +602,13 @@ document.addEventListener('DOMContentLoaded', function () {
     document.querySelectorAll('.range-btn').forEach(btn => {
         btn.addEventListener('click', function () {
             const months = this.dataset.months;
-
             document.querySelectorAll('.range-btn').forEach(b => b.classList.remove('active'));
             this.classList.add('active');
-
             fetch(`{{ route('admin.dashboard.salesChart') }}?months=${months}`)
                 .then(r => r.json())
                 .then(json => {
-                    salesChart.data.labels              = json.labels;
-                    salesChart.data.datasets[0].data    = json.data;
+                    salesChart.data.labels           = json.labels;
+                    salesChart.data.datasets[0].data = json.data;
                     salesChart.data.datasets[0].backgroundColor = makeGradient();
                     salesChart.update();
                 });
@@ -664,6 +636,24 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     });
 
+});
+
+// ── Custom modal controls (outside DOMContentLoaded so onclick can find them) ──
+function openTargetModal() {
+    const overlay = document.getElementById('targetOverlay');
+    overlay.style.display = 'flex';
+    document.body.style.overflow = 'hidden';
+}
+
+function closeTargetModal() {
+    const overlay = document.getElementById('targetOverlay');
+    overlay.style.display = 'none';
+    document.body.style.overflow = '';
+}
+
+// Close on backdrop click
+document.getElementById('targetOverlay')?.addEventListener('click', function(e) {
+    if (e.target === this) closeTargetModal();
 });
 </script>
 @endpush

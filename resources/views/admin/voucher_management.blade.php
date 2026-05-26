@@ -215,8 +215,7 @@
 @endpush
 
 @section('content')
-<div class="jaced-page">
-<div style="max-width:1100px; margin:0 auto;">
+<div class="container-fluid">
 
     {{-- ── Page Header ── --}}
     <div style="display:flex; align-items:flex-start; justify-content:space-between; margin-bottom:32px; flex-wrap:wrap; gap:12px;">

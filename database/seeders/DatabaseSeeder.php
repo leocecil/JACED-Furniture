@@ -23,6 +23,7 @@ class DatabaseSeeder extends Seeder
             OrderSeeder::class,
             OrderDetailSeeder::class,
             StageSeeder::class,
+            SettingSeeder::class,
         ]);
     }
 }
