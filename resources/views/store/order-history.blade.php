@@ -69,9 +69,9 @@
         border-radius: 999px;
     }
     .status-badge.shipped    { color: var(--jaced-sage);    background: #E8EDE8; }
-    .status-badge.processing { color: var(--jaced-caramel); background: var(--jaced-caramel-bg); }
-    .status-badge.completed  { color: #4a7c59;              background: #e4f0e8; }
-    .status-badge.cancelled  { color: #a33d3d;              background: #f5e4e4; }
+    .status-badge.packed     { color: var(--jaced-caramel); background: var(--jaced-caramel-bg); }
+    .status-badge.delivered  { color: #4a7c59;              background: #e4f0e8; }
+    .status-badge.arrived    { color: #a33d3d;              background: #f5e4e4; }
     .status-badge.unpaid     { color: #7a6a3a;              background: #f5f0e0; }
     .status-badge.returns    { color: #5a5a8a;              background: #eeeef5; }
 
@@ -112,9 +112,9 @@
     ];
     $statusClass = [
         'unpaid'    => 'unpaid',
-        'packed'    => 'processing',
-        'delivered' => 'shipped',
-        'arrived'   => 'completed',
+        'packed'    => 'packed',
+        'delivered' => 'delivered',
+        'arrived'   => 'arrived',
         'cancelled' => 'cancelled',
     ];
 @endphp
@@ -147,17 +147,17 @@
                 @php
                     $firstDetail = $order->orderDetails->first();
                     $productName = $firstDetail?->product?->name ?? 'Order #' . $order->id;
-                    $productImage = $firstDetail?->product?->image
-                        ? asset('storage/' . $firstDetail->product->image)
-                        : asset('image/placeholder.png');
+                    $productImage = $firstDetail?->product?->images?->where('is_main', 1)->first()?->image_path
+                        ?? $firstDetail?->product?->images?->first()?->image_path
+                        ?? null;
                     $extraCount = $order->orderDetails->count() - 1;
                 @endphp
 
                 <div class="d-flex align-items-center gap-4 p-4">
 
-                    <img src="{{ $productImage }}"
-                         alt="{{ $productName }}"
-                         class="order-product-img">
+                    <img src="{{ $productImage ? asset($productImage) : asset('image/placeholder.png') }}"
+                        alt="{{ $productName }}"
+                        class="order-product-img">
 
                     <div class="flex-grow-1">
                         <h2 class="fw-bold mb-1" style="font-size: 18px; font-weight: 400;">
@@ -198,7 +198,7 @@
                         <p class="fw-bold text-jaced-dark mb-0" style="font-size: 16px;">
                             Rp {{ number_format($order->total_price, 0, ',', '.') }}
                         </p>
-                        <a href="{{ route('store.transactionhistory_detail.show', $order->id) }}"
+                        <a href="{{ route('store.orderhistory_detail.show', $order->id) }}"
                            class="btn-order-details">
                             Order Details
                         </a>

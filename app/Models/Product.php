@@ -72,19 +72,23 @@ class Product extends Model
     /**
      * main_image_url: URL lengkap buat tampil di shop/home card
      */
+    // public function getMainImageUrlAttribute(): string
+    // {
+    //     $img = $this->mainImage;
+    //     if (!$img) {
+    //         return 'https://placehold.co/800x800/f2ede6/272e1d?text=' . urlencode($this->name);
+    //     }
+    //     $path = str_replace('image/products/', 'image/', $img->image_path);
+    //     return asset($path);
+    // }
     public function getMainImageUrlAttribute(): string
     {
-        $img = $this->mainImage;
-        if (!$img) {
+        if (!$this->mainImage) {
             return 'https://placehold.co/800x800/f2ede6/272e1d?text=' . urlencode($this->name);
         }
-        $path = str_replace('image/products/', 'image/', $img->image_path);
-        return asset($path);
+        return asset($this->mainImage->image_path);
     }
-
-    /**
-     * slug: generate dari nama, ga perlu kolom di DB
-     */
+    protected $appends = ['slug'];
     public function getSlugAttribute(): string
     {
         return \Illuminate\Support\Str::slug($this->name);

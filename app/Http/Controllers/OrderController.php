@@ -127,7 +127,6 @@ class OrderController extends Controller
 
             $deliveryFee = (float) $request->input('delivery_fee', 0);
             $addressId   = $request->input('address_id');
-            dd('address_id value: ' . $addressId, $request->all());
 
             $firstName = '';
             $lastName  = '';
@@ -227,7 +226,7 @@ class OrderController extends Controller
                 'service_tax'         => $serviceTax,
                 'discount_amount'     => $discountAmount,
                 'total_price'         => $totalPrice,
-                'status'              => 'pending',
+                'status'              => 'unpaid',
             ]);
 
             foreach ($cartItems as $cartItem) {
@@ -247,32 +246,39 @@ class OrderController extends Controller
 
             $item_details = [];
             foreach ($cartItems as $cartItem) {
-                if ($deliveryFee > 0) {
-                    $item_details[] = [
-                        'id'       => 'DELIVERY',
-                        'price'    => $deliveryFee,
-                        'quantity' => 1,
-                        'name'     => 'Ongkos Kirim',
-                    ];
-                }
+                $item_details[] = [
+                    'id'       => 'PROD-' . $cartItem->product_id,
+                    'price'    => $cartItem->product->price,
+                    'quantity' => $cartItem->quantity,
+                    'name'     => $cartItem->product->name,
+                ];
+            }
 
-                if ($serviceTax > 0) {
-                    $item_details[] = [
-                        'id'       => 'TAX',
-                        'price'    => round($serviceTax),
-                        'quantity' => 1,
-                        'name'     => 'Pajak Layanan',
-                    ];
-                }
+            if ($deliveryFee > 0) {
+                $item_details[] = [
+                    'id'       => 'DELIVERY',
+                    'price'    => $deliveryFee,
+                    'quantity' => 1,
+                    'name'     => 'Ongkos Kirim',
+                ];
+            }
 
-                if ($discountAmount > 0) {
-                    $item_details[] = [
-                        'id'       => 'DISCOUNT',
-                        'price'    => -round($discountAmount),
-                        'quantity' => 1,
-                        'name'     => 'Diskon Voucher',
-                    ];
-                }
+            if ($serviceTax > 0) {
+                $item_details[] = [
+                    'id'       => 'TAX',
+                    'price'    => round($serviceTax),
+                    'quantity' => 1,
+                    'name'     => 'Pajak Layanan',
+                ];
+            }
+
+            if ($discountAmount > 0) {
+                $item_details[] = [
+                    'id'       => 'DISCOUNT',
+                    'price'    => -round($discountAmount),
+                    'quantity' => 1,
+                    'name'     => 'Diskon Voucher',
+                ];
             }
 
             $enabledPayments = [];
@@ -354,36 +360,22 @@ class OrderController extends Controller
             $transactionStatus = $statusResponse->transaction_status;
 
             if ($transactionStatus == 'capture' || $transactionStatus == 'settlement') {
-                $order->status = 'paid'; // Kolom status diisi 'paid' atau sesuaikan stringnya (misal: 'Processing')
+                $order->status = 'packed'; 
             } elseif ($transactionStatus == 'pending') {
-                $order->status = 'pending';
+                $order->status = 'unpaid';
             } elseif (in_array($transactionStatus, ['deny', 'expire', 'cancel'])) {
-                $order->status = 'failed';
+                $order->status = 'cancelled';
             }
             $order->save();
 
         } catch (\Exception $e) {
-            // =================================================================
-            // TRICK DEMO KELOMPOK: Jika Midtrans Error/Tidak Ditemukan, Kita Paksa Lunas!
-            // Ganti ke 'failed' jika ingin mensimulasikan kegagalan.
-            // =================================================================
-            $order->status = 'paid'; // Kita set paid agar demo presentasi kalian lancar lunas
             $order->save();
         }
 
-        // =================================================================
-        // LOGIKA PROSES PEMBAGIAN POIN (BERJALAN SETELAH STATUS DISET PAID)
-        // =================================================================
-        if ($order->status == 'paid') {
-            
-            // 1. Ambil total nominal belanja dari orderan ini
+        if ($order->status == 'packed') {
             $totalBelanja = $order->total_price; 
-            
-            // 2. Hitung poin (Contoh rumus: Setiap kelipatan Rp 10.000 dapat 1 Poin)
-            // floor() digunakan agar pembulatan selalu ke bawah (misal Rp 25.500 tetap dapet 2 poin)
             $poinBaru = floor($totalBelanja / 10000); 
 
-            // 3. Masukkan poin ke akun user yang sedang login jika poinnya di atas 0
             if ($poinBaru > 0 && Auth::check()) {
                 $user = Auth::user();
                 
@@ -521,45 +513,33 @@ class OrderController extends Controller
 // ======================== TRANSACTION HISTORY & DETAIL ========================
     public function index(Request $request)
     {
-        $filters = [
-            'All',
-            'Unpaid',
-            'Processing',
-            'Shipped',
-            'Completed',
-            'Returns',
-            'Cancelled'
+        $filters = ['All', 'Unpaid', 'Packed', 'Delivered', 'Arrived', 'Cancelled'];
+
+        $activeFilter = $request->get('filter', 'All');
+
+        // Mapping filter tab → status di DB
+        $statusMap = [
+            'Unpaid'     => 'unpaid',
+            'Packed'     => 'packed',
+            'Delivered'  => 'delivered',
+            'Arrived'    => 'arrived',
+            'Cancelled'  => 'cancelled',
         ];
 
-        $activeFilter = $request->get('status', 'All');
+        $query = \App\Models\Order::with(['orderDetails.product.images'])
+            ->where('user_id', Auth::id())
+            ->orderBy('created_at', 'desc');
 
-        $artisanUpdates = [
-            [
-                'time'  => 'Today, 09.14 AM',
-                'title' => 'Package Shipped',
-                'desc'  => 'Your order has been picked up by the courier and is on its way.',
-            ],
-            [
-                'time'  => 'Yesterday, 03.45 PM',
-                'title' => 'QC Inspection Passed',
-                'desc'  => 'Our master craftsmen have verified the finish on your lounge chair.',
-            ],
-        ];
+        if ($activeFilter !== 'All' && isset($statusMap[$activeFilter])) {
+            $query->where('status', $statusMap[$activeFilter]);
+        }
 
-        return view('store.transaction_history', [
-            'filters' => $filters,
+        $orders = $query->get();
+
+        return view('store.order-history-detail', [
+            'filters'      => $filters,
             'activeFilter' => $activeFilter,
-            'artisanUpdates' => $artisanUpdates,
+            'orders'       => $orders,
         ]);
     }
-
-
-    public function show($id)
-    {
-        return view('store.transactionhistory_detail', [
-            'id' => $id
-        ]);
-    }
-
-    
 }

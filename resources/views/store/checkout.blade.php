@@ -345,6 +345,8 @@
             </div>
         </div>
     </div>
+    {{-- Wadah input hidden --}}
+    <div id="hiddenAddressMutationContainer"></div>
 </form>
 
 {{-- MODAL POP-UP TAMBAH / EDIT ALAMAT --}}
@@ -413,10 +415,6 @@
         </div>
     </div>
 </div>
-
-{{-- Wadah input hidden untuk dikirim ke Controller backend saat submit form checkout --}}
-<div id="hiddenAddressMutationContainer"></div>
-
 @endsection
 
 @push('scripts')
@@ -728,7 +726,21 @@
             const villageName = vSel.options[vSel.selectedIndex] ? vSel.options[vSel.selectedIndex].text : '';
 
             const container = document.getElementById('hiddenAddressMutationContainer');
-            const wrapper = document.querySelector('.shopee-address-wrapper');
+            let wrapper = document.querySelector('.shopee-address-wrapper');
+            if (!wrapper) {
+                wrapper = document.createElement('div');
+                wrapper.className = 'shopee-address-wrapper mb-3';
+                
+                const addBtn = document.querySelector('.btn-add-address-shopee') 
+                            || document.querySelector('.btn-outline-secondary');
+                
+                if (addBtn) {
+                    const target = addBtn.closest('.p-4') || addBtn;
+                    target.parentNode.insertBefore(wrapper, target);
+                } else {
+                    document.querySelector('.mb-4').appendChild(wrapper);
+                }
+            }
             
             if (actionMode === 'add') {
                 container.innerHTML = `

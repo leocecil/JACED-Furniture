@@ -725,14 +725,16 @@
 
         // ===== WISHLIST + CONFIRM POPUP =====
         (function () {
-            const KEY = 'jaced_wishlist';
+            // --- State: track wished IDs in memory (loaded from DB on page load) ---
+            let wishedIds = new Set(
+                @json(
+                    auth()->check()
+                        ? \App\Models\Wishlist::where('user_id', auth()->id())->pluck('product_id')
+                        : []
+                )
+            );
 
-            function getWishlist() {
-                try { return JSON.parse(localStorage.getItem(KEY)) || []; }
-                catch (e) { return []; }
-            }
-            function saveWishlist(list) { localStorage.setItem(KEY, JSON.stringify(list)); }
-            function isWished(id) { return getWishlist().some(function (x) { return String(x.id) === String(id); }); }
+            function isWished(id) { return wishedIds.has(parseInt(id)); }
 
             const toast = document.getElementById('wishToast');
             const toastText = document.getElementById('wishToastText');
@@ -776,6 +778,29 @@
                 }
             }
 
+            // ===== TOGGLE WISHLIST (single API call for add & remove) =====
+            function toggleWishlist(productId, onSuccess) {
+                fetch('{{ route("wishlist.toggle") }}', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                        'Accept': 'application/json'
+                    },
+                    body: JSON.stringify({ product_id: productId })
+                })
+                .then(function(r) { return r.json(); })
+                .then(function(data) {
+                    if (data.status === 'added') {
+                        wishedIds.add(parseInt(productId));
+                    } else {
+                        wishedIds.delete(parseInt(productId));
+                    }
+                    if (onSuccess) onSuccess(data.status);
+                })
+                .catch(function(err) { console.error(err); });
+            }
+
             // ===== WISHLIST BUTTON CLICK =====
             document.querySelectorAll('.js-wishlist-btn').forEach(function (btn) {
                 const id = btn.getAttribute('data-wish-id');
@@ -785,25 +810,21 @@
                     e.preventDefault();
                     e.stopPropagation();
                     const name = btn.getAttribute('data-wish-name');
-                    const alreadyWished = isWished(id);
 
-                    if (alreadyWished) {
-                        // Tampilkan confirm popup dulu
+                    if (isWished(id)) {
                         showConfirmPopup(name, function () {
-                            let list = getWishlist().filter(function (x) { return String(x.id) !== String(id); });
-                            saveWishlist(list);
-                            setBtnState(btn, false);
-                            syncQvWishBtn(id, false);
-                            showToast(name + ' removed from wishlist');
+                            toggleWishlist(id, function(status) {
+                                setBtnState(btn, false);
+                                syncQvWishBtn(id, false);
+                                showToast(name + ' removed from wishlist');
+                            });
                         });
                     } else {
-                        // Langsung tambah
-                        let list = getWishlist();
-                        list.push({ id: id, name: name });
-                        saveWishlist(list);
-                        setBtnState(btn, true);
-                        syncQvWishBtn(id, true);
-                        showToast(name + ' added to wishlist');
+                        toggleWishlist(id, function(status) {
+                            setBtnState(btn, true);
+                            syncQvWishBtn(id, true);
+                            showToast(name + ' added to wishlist');
+                        });
                     }
                 });
             });
@@ -856,30 +877,29 @@
             if (backdrop) { backdrop.addEventListener('click', function (e) { if (e.target === backdrop) closeQuickView(); }); }
             document.addEventListener('keydown', function (e) { if (e.key === 'Escape') closeQuickView(); });
 
-            // QV wishlist button
+            // QV wishlist button — now also uses the API
             const qvWishBtn = document.getElementById('qvWishBtn');
             if (qvWishBtn) {
                 qvWishBtn.addEventListener('click', function () {
                     if (!currentQvId) return;
                     const name = document.getElementById('qvName').textContent;
-                    const alreadyWished = isWished(currentQvId);
-                    if (alreadyWished) {
+
+                    if (isWished(currentQvId)) {
                         showConfirmPopup(name, function () {
-                            let list = getWishlist().filter(function (x) { return String(x.id) !== String(currentQvId); });
-                            saveWishlist(list);
-                            setBtnState(qvWishBtn, false);
-                            const cardBtn = document.querySelector('.js-wishlist-btn[data-wish-id="' + currentQvId + '"]');
-                            if (cardBtn) setBtnState(cardBtn, false);
-                            showToast(name + ' removed from wishlist');
+                            toggleWishlist(currentQvId, function() {
+                                setBtnState(qvWishBtn, false);
+                                const cardBtn = document.querySelector('.js-wishlist-btn[data-wish-id="' + currentQvId + '"]');
+                                if (cardBtn) setBtnState(cardBtn, false);
+                                showToast(name + ' removed from wishlist');
+                            });
                         });
                     } else {
-                        let list = getWishlist();
-                        list.push({ id: currentQvId, name: name });
-                        saveWishlist(list);
-                        setBtnState(qvWishBtn, true);
-                        const cardBtn = document.querySelector('.js-wishlist-btn[data-wish-id="' + currentQvId + '"]');
-                        if (cardBtn) setBtnState(cardBtn, true);
-                        showToast(name + ' added to wishlist');
+                        toggleWishlist(currentQvId, function() {
+                            setBtnState(qvWishBtn, true);
+                            const cardBtn = document.querySelector('.js-wishlist-btn[data-wish-id="' + currentQvId + '"]');
+                            if (cardBtn) setBtnState(cardBtn, true);
+                            showToast(name + ' added to wishlist');
+                        });
                     }
                 });
             }

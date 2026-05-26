@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Stage;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -33,15 +34,26 @@ class RewardController extends Controller
             ->where('user_id', $user->id)
             ->orderBy('created_at', 'desc')
             ->limit(5)
-            ->get();
+            ->get()
+            ->map(fn($item) => [
+                'source' => $item->source,
+                'date'   => \Carbon\Carbon::parse($item->created_at)->format('d M Y'),
+                'points' => $item->points,
+                'type'   => $item->type,
+            ]);
 
         // Redeem goals dari voucher_types
         $redeemGoals = DB::table('voucher_types')->limit(2)->get();
 
+        $stages = Stage::orderBy('min_points_accumulative', 'asc')->get();
+
         return view('profile.reward-center.reward', compact(
-            'currentPoints', 'accumulatedPoints', 
-            'stage', 'totalSpending',
-            'pointHistoryItems', 'redeemGoals'
+            'stages',
+            'stage',
+            'currentPoints',
+            'accumulatedPoints',
+            'pointHistoryItems',
+            'redeemGoals'
         ));
     }
 
