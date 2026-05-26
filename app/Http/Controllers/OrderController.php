@@ -157,7 +157,7 @@ class OrderController extends Controller
                 $cityName     = $request->input('city_name');
                 $zip          = $request->input('postal_code');
                 $provinceCode = $request->input('province_code');
-                $provinceName = Province::where('code', $provinceCode)->first()?->name ?? '';
+                $provinceName = DB::table('indonesia_provinces')->where('code', $provinceCode)->first()?->name ?? '';
 
                 $shippingAddress = ShippingAddress::create([
                     'user_id'        => Auth::id(),
