@@ -37,6 +37,9 @@
                 
 
                 @auth
+                    <a href="{{ route('wishlist') }}" class="header-wishlist">
+                        <i class="fas fa-heart"></i>
+                    </a>
                     <a href="#" class="nav-icon opacity-75 hover-opacity-100 transition position-relative"
                     data-bs-toggle="offcanvas" data-bs-target="#cartSidebar">
                         <i class="fas fa-shopping-bag"></i>
@@ -103,6 +106,28 @@
         -webkit-backdrop-filter: blur(14px);
         border-bottom: 1px solid rgba(0,0,0,0.08);
         box-shadow: 0 4px 30px rgba(0,0,0,0.04);
+    }
+
+    .header-wishlist{
+        position: relative;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 42px;
+        height: 42px;
+        border-radius: 50%;
+        color: var(--jaced-brown-dark);
+        text-decoration: none;
+        transition: all 0.3s ease;
+    }
+
+    .header-wishlist:hover{
+        background: rgba(0,0,0,0.05);
+        color: var(--jaced-caramel);
+    }
+
+    .header-wishlist i{
+        font-size: 18px;
     }
 
     /* ===== LOGO SWAP (white default on home, dark everywhere else) ===== */

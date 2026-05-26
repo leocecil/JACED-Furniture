@@ -83,6 +83,7 @@ class AuthController extends Controller
             'email'        => $credentials['email'],
             'phone_number' => $credentials['phone_number'],
             'password'     => Hash::make($credentials['password']),
+            'avatar'       => 'image/avatars/default_avatar.png',
         ]);
 
         $user->roles()->create(['role' => 'customer']);

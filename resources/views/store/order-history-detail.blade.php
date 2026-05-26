@@ -162,63 +162,44 @@
 
 @section('content')
 @php
-    $order = [
-        'name'    => 'The Kyoto Lounge Chair',
-        'id'      => '#CL-8924',
-        'date'    => 'Oct 20, 2024',
-        'status'  => 'shipped',
-        'eta'     => 'Thursday, Oct 26',
-        'image'   => 'https://images.unsplash.com/photo-1567538096630-e0c55bd6374c?w=400&h=400&fit=crop',
-        'variant' => 'Cream Boucle / Walnut',
-        'qty'     => 1,
-        'address' => [
-            'name'    => 'Jane Doe',
-            'line1'   => 'Jl. Raya Darmo No. 12',
-            'line2'   => 'Surabaya, Jawa Timur 60264',
-            'country' => 'Indonesia',
-        ],
-        'subtotal'        => 'Rp 18.500.000',
-        'delivery'        => 'Rp 500.000',
-        'tax'             => 'Rp 148.000',
-        'payment_method'  => 'BCA Virtual Account',
-        'total'           => 'Rp 19.148.000',
-        'steps' => [
-            ['label' => 'Confirmed',  'state' => 'done'],
-            ['label' => 'Production', 'state' => 'done'],
-            ['label' => 'Shipped',    'state' => 'active'],
-            ['label' => 'Delivered',  'state' => 'pending'],
-        ],
-    ];
-
-    $sellerUpdates = [
-        [
-            'dot'   => 'green',
-            'time'  => 'Today, 09.14 AM',
-            'title' => 'Package Shipped',
-            'desc'  => 'Your order has been picked up by the courier and is on its way.',
-        ],
-        [
-            'dot'   => 'caramel',
-            'time'  => 'Yesterday, 03.45 PM',
-            'title' => 'QC Inspection Passed',
-            'desc'  => 'Our master craftsmen have verified the finish on your lounge chair.',
-        ],
-        [
-            'dot'   => '',
-            'time'  => 'Oct 22, 10.00 AM',
-            'title' => 'Sustainable Packaging Applied',
-            'desc'  => 'Your order is secured using 100% recycled structural fiber panels.',
-        ],
-    ];
+    $firstDetail = $order->orderDetails->first();
+    $productName = $firstDetail?->product?->name ?? 'Order #' . $order->id;
+    $extraCount  = $order->orderDetails->count() - 1;
 
     $statusLabel = [
-        'shipped'    => 'Shipped',
-        'processing' => 'Processing',
-        'completed'  => 'Completed',
-        'cancelled'  => 'Cancelled',
-        'unpaid'     => 'Unpaid',
-        'returns'    => 'Returns',
+        'unpaid'    => 'Unpaid',
+        'packed'    => 'Packed',
+        'delivered' => 'Delivered',
+        'arrived'   => 'Arrived',
+        'cancelled' => 'Cancelled',
     ];
+
+    $allSteps = [
+        ['label' => 'Confirmed',  'statuses' => ['unpaid', 'packed', 'delivered', 'arrived', 'cancelled']],
+        ['label' => 'Packed',     'statuses' => ['packed', 'delivered', 'arrived']],
+        ['label' => 'Delivered',  'statuses' => ['delivered', 'arrived']],
+        ['label' => 'Arrived',    'statuses' => ['arrived']],
+    ];
+
+    $statusOrder = ['unpaid', 'packed', 'delivered', 'arrived'];
+    $currentIndex = array_search($order->status, $statusOrder);
+
+    $steps = collect($allSteps)->map(function ($step, $i) use ($currentIndex) {
+        if ($i < $currentIndex) $state = 'done';
+        elseif ($i === $currentIndex) $state = 'active';
+        else $state = 'pending';
+        return ['label' => $step['label'], 'state' => $state];
+    })->toArray();
+
+    $updates = [];
+    if ($order->arrived_at)
+        $updates[] = ['dot' => 'green',   'time' => $order->arrived_at->format('M d, Y · h:i A'),   'title' => 'Order Arrived',   'desc' => 'Your order has arrived at its destination.'];
+    if ($order->delivered_at)
+        $updates[] = ['dot' => 'green',   'time' => $order->delivered_at->format('M d, Y · h:i A'), 'title' => 'Order Delivered', 'desc' => 'Your order has been handed off to the courier.'];
+    if ($order->packed_at)
+        $updates[] = ['dot' => 'caramel', 'time' => $order->packed_at->format('M d, Y · h:i A'),    'title' => 'Order Packed',    'desc' => 'Your order has been packed and is ready for shipping.'];
+
+    $updates[] = ['dot' => '', 'time' => $order->created_at->format('M d, Y · h:i A'), 'title' => 'Order Confirmed', 'desc' => 'Your order has been received and is being processed.'];
 @endphp
 
 <div class="jaced-page">
@@ -231,11 +212,13 @@
         </button>
 
         {{-- HEADER --}}
-        <h1 class="page-title">{{ $order['name'] }}</h1>
+        <h1 class="page-title fw-bold">Order Details</h1>
         <p class="order-meta">
-            ORDER {{ $order['id'] }} &nbsp;·&nbsp; {{ $order['date'] }}
+            ORDER #{{ $order->id }} &nbsp;·&nbsp; {{ $order->created_at->format('M d, Y') }}
             &nbsp;·&nbsp;
-            <span class="status-badge {{ $order['status'] }}">{{ $statusLabel[$order['status']] }}</span>
+            <span class="status-badge {{ $order->status }}">
+                {{ $statusLabel[$order->status] ?? ucfirst($order->status) }}
+            </span>
         </p>
 
         {{-- GRID --}}
@@ -248,14 +231,24 @@
                     {{-- Product --}}
                     <div class="jaced-card p-4">
                         <p class="section-label">Product</p>
-                        <div class="d-flex align-items-center gap-3">
-                            <img src="{{ $order['image'] }}" alt="{{ $order['name'] }}" class="product-img">
-                            <div>
-                                <p class="fw-semibold text-jaced-dark mb-1" style="font-size: 14px;">{{ $order['name'] }}</p>
-                                <p class="text-jaced-muted mb-1" style="font-size: 12px;">{{ $order['variant'] }}</p>
-                                <p class="text-jaced-muted mb-0" style="font-size: 12px;">Qty: {{ $order['qty'] }}</p>
+                        @foreach ($order->orderDetails as $detail)
+                            @php
+                                $img = $detail->product?->images?->where('is_main', 1)->first()?->image_path
+                                    ?? $detail->product?->images?->first()?->image_path;
+                            @endphp
+                            <div class="d-flex align-items-center gap-3 {{ !$loop->last ? 'mb-3' : '' }}">
+                                <img src="{{ $img ? asset($img) : asset('image/placeholder.png') }}"
+                                    alt="{{ $detail->product?->name }}" class="product-img">
+                                <div>
+                                    <p class="fw-semibold text-jaced-dark mb-1" style="font-size: 14px;">
+                                        {{ $detail->product?->name }}
+                                    </p>
+                                    <p class="text-jaced-muted mb-0" style="font-size: 12px;">
+                                        Qty: {{ $detail->quantity }}
+                                    </p>
+                                </div>
                             </div>
-                        </div>
+                        @endforeach
                     </div>
 
                     {{-- Tracking --}}
@@ -266,9 +259,9 @@
 
                         <div class="tracking-box">
                             <div class="tracking-steps">
-                                @foreach ($order['steps'] as $index => $step)
+                                @foreach ($steps as $index => $step)
                                     @if ($index > 0)
-                                        <div class="step-connector {{ $step['state'] === 'done' || $order['steps'][$index-1]['state'] === 'done' ? 'done' : '' }}"></div>
+                                        <div class="step-connector {{ $step['state'] === 'done' || $steps[$index-1]['state'] === 'done' ? 'done' : '' }}"></div>
                                     @endif
                                     <div class="step">
                                         <div class="step-circle {{ $step['state'] }}">
@@ -290,12 +283,18 @@
                     {{-- Shipping Address --}}
                     <div class="jaced-card p-4">
                         <p class="section-label">Shipping address</p>
-                        <p class="fw-semibold text-jaced-dark mb-1" style="font-size: 13px;">{{ $order['address']['name'] }}</p>
-                        <p class="text-jaced-muted mb-0" style="font-size: 13px; line-height: 1.7;">
-                            {{ $order['address']['line1'] }}<br>
-                            {{ $order['address']['line2'] }}<br>
-                            {{ $order['address']['country'] }}
-                        </p>
+                        @if ($order->shippingAddress)
+                            <p class="fw-semibold text-jaced-dark mb-1" style="font-size: 13px;">
+                                {{ $order->shippingAddress->receiver_name }}
+                            </p>
+                            <p class="text-jaced-muted mb-0" style="font-size: 13px; line-height: 1.7;">
+                                {{ $order->shippingAddress->address_line1 }}<br>
+                                {{ $order->shippingAddress->district_name }}, {{ $order->shippingAddress->city_name }}<br>
+                                {{ $order->shippingAddress->province_name }} {{ $order->shippingAddress->postal_code }}
+                            </p>
+                        @else
+                            <p class="text-jaced-muted mb-0" style="font-size: 13px;">No address on record.</p>
+                        @endif
                     </div>
 
                 </div>
@@ -311,31 +310,53 @@
 
                         <div class="summary-row">
                             <span class="text-jaced-muted">Subtotal</span>
-                            <span class="fw-semibold text-jaced-dark">{{ $order['subtotal'] }}</span>
+                            <span class="fw-semibold text-jaced-dark">
+                                Rp {{ number_format($order->total_price - $order->delivery_fee - $order->service_tax + $order->discount_amount, 0, ',', '.') }}
+                            </span>
                         </div>
                         <div class="summary-row">
                             <span class="text-jaced-muted">Delivery fee</span>
-                            <span class="fw-semibold text-jaced-dark">{{ $order['delivery'] }}</span>
+                            <span class="fw-semibold text-jaced-dark">
+                                Rp {{ number_format($order->delivery_fee, 0, ',', '.') }}
+                            </span>
                         </div>
                         <div class="summary-row">
                             <span class="text-jaced-muted">Service tax</span>
-                            <span class="fw-semibold text-jaced-dark">{{ $order['tax'] }}</span>
+                            <span class="fw-semibold text-jaced-dark">
+                                Rp {{ number_format($order->service_tax, 0, ',', '.') }}
+                            </span>
                         </div>
+                        @if ($order->discount_amount > 0)
+                        <div class="summary-row">
+                            <span class="text-jaced-muted">Discount</span>
+                            <span class="fw-semibold" style="color: var(--jaced-sage);">
+                                - Rp {{ number_format($order->discount_amount, 0, ',', '.') }}
+                            </span>
+                        </div>
+                        @endif
                         <div class="summary-row">
                             <span class="text-jaced-muted">Payment method</span>
-                            <span class="fw-semibold text-jaced-dark">{{ $order['payment_method'] }}</span>
+                            <span class="fw-semibold text-jaced-dark">
+                                {{ $order->paymentMethod?->name ?? '-' }}
+                            </span>
                         </div>
 
                         <hr class="divider-jaced my-3">
 
                         <div class="d-flex justify-content-between align-items-center">
                             <span class="fw-semibold text-jaced-dark" style="font-size: 15px;">Total</span>
-                            <span class="fw-semibold text-jaced-sage" style="font-size: 18px;">{{ $order['total'] }}</span>
+                            <span class="fw-semibold text-jaced-sage" style="font-size: 18px;">
+                                Rp {{ number_format($order->total_price, 0, ',', '.') }}
+                            </span>
                         </div>
 
-                        <button class="btn-invoice">Download Invoice</button>
+                        <a href="{{ route('store.orderhistory.invoice', $order->id) }}"
+                        target="_blank"
+                        class="btn-invoice">
+                            Download Invoice
+                        </a>
 
-                        @if ($order['status'] === 'completed')
+                        @if ($order->status === 'arrived')
                             <button class="btn-return">Request Return</button>
                         @endif
                     </div>
@@ -346,7 +367,7 @@
 
                         <div class="tl-wrapper">
                             <div class="tl-line"></div>
-                            @foreach ($sellerUpdates as $update)
+                            @foreach ($updates as $update)
                                 <div class="tl-item">
                                     <div class="tl-dot {{ $update['dot'] }}"></div>
                                     <p class="field-label mb-1">{{ $update['time'] }}</p>

@@ -27,4 +27,32 @@ class OrderHistoryController extends Controller
 
         return view('store.order-history', compact('orders', 'filters', 'activeFilter'));
     }
+
+    public function show($id)
+    {
+        $order = Order::with([
+            'orderDetails.product.images',
+            'shippingAddress',
+            'paymentMethod',
+            'voucher',
+        ])
+        ->where('user_id', Auth::id())
+        ->findOrFail($id);
+
+        return view('store.order-history-detail', compact('order'));
+    }
+
+    public function invoice($id)
+    {
+        $order = \App\Models\Order::with([
+            'orderDetails.product.images',
+            'shippingAddress',
+            'paymentMethod',
+            'user',
+        ])
+        ->where('user_id', Auth::id())
+        ->findOrFail($id);
+
+        return view('store.invoice', compact('order'));
+    }
 }

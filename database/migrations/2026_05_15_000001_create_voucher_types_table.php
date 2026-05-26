@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('voucher_types', function (Blueprint $table) {
             $table->string('id')->primary();
-            $table->string('name')->unique();
+            $table->string('name');
             $table->text('description');
             $table->string('used_for');
             $table->integer('point_cost');

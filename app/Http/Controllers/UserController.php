@@ -2,11 +2,13 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Stage; // Tambahkan import model Stage di atas
+use App\Models\User;
 use Illuminate\Http\Request;
-use Laravolt\Indonesia\Models\Province;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
-use App\Models\User;
+use Illuminate\Support\Facades\Storage;
+use Laravolt\Indonesia\Models\Province;
 
 class UserController extends Controller
 {
@@ -16,6 +18,7 @@ class UserController extends Controller
             'user' => auth()->user()
         ]);
     }
+
     public function show_profile()
     {
         $user = Auth::user();
@@ -24,47 +27,86 @@ class UserController extends Controller
         return view('profile.profile', compact('user'));
     }
 
+    // UPDATE: Ambil stage asli user agar visualisasi tier di edit profile sinkron
     public function edit_profile($id)
     {
         $user = Auth::user();
-        return view('profile.edit-profile', compact('user'));
+
+        // Cari stage yang aktif berdasarkan accumulative points miliknya
+        $stageModel = Stage::where('min_points_accumulative', '<=', $user->accumulated_points ?? 0)
+                            ->orderBy('min_points_accumulative', 'desc')
+                            ->first();
+        
+        $stage = $stageModel ? $stageModel->name : 'Bronze';
+
+        return view('profile.edit-profile', compact('user', 'stage'));
     }
 
+    // UPDATE: Menyelaraskan penamaan 'avatar' menjadi 'profile_picture' sesuai form HTML blade
     public function update_profile(Request $request, $id)
     {
         $user = Auth::user();
 
         $request->validate([
-            'name'     => 'required|string|max:255',
-            'email'    => 'required|email|unique:users,email,' . $user->id,
-            'phone'    => 'nullable|string|max:20',
-            'password' => 'nullable|min:8|confirmed',
-            'avatar'   => 'nullable|image|mimes:jpg,jpeg,png,webp|max:2048',
+            'name'            => 'required|string|max:255',
+            'email'           => 'required|email|unique:users,email,' . $user->id,
+            'phone'           => 'nullable|string|max:20',
+            'password'        => 'nullable|min:8|confirmed',
+            'avatar'          => 'nullable|image|mimes:jpg,jpeg,png,webp|max:2048', // Diubah dari 'avatar'
         ]);
 
-        $user->name         = $request->name;
-        $user->email        = $request->email;
+        $user->name        = $request->name;
+        $user->email       = $request->email;
         $user->phone_number = $request->phone;
 
+        // Proses penyimpanan file gambar ke database menggunakan kolom 'avatar'
         if ($request->hasFile('avatar')) {
-            // Hapus foto lama kalau ada
-            if ($user->avatar && \Storage::disk('public')->exists($user->avatar)) {
-                \Storage::disk('public')->delete($user->avatar);
+            if ($user->avatar !== 'image/avatars/default_avatar.png') {
+                if (file_exists(public_path($user->avatar))) {
+                    unlink(public_path($user->avatar));
+                }
             }
-            $path = $request->file('avatar')->store('avatars', 'public');
-            $user->avatar = $path;
+
+            $filename = time() . '.' . $request->file('avatar')->extension();
+            $request->file('avatar')->move(public_path('image/avatars'), $filename);
+            $user->avatar = 'image/avatars/' . $filename;
         }
 
+        $passwordChanged = false;
         if ($request->filled('password')) {
             $user->password = Hash::make($request->password);
+            $passwordChanged = true;
         }
 
         $user->save();
 
+        // Fitur Tambahan: Jika ganti password, otomatis logout & suruh login ulang demi keamanan
+        if ($passwordChanged) {
+            Auth::logout();
+            $request->session()->invalidate();
+            $request->session()->regenerateToken();
+            return redirect()->route('login')->with('success', 'Password changed successfully. Please log in with your new credentials.');
+        }
+
         return redirect()->route('profile.edit', $user->id)->with('success', 'Profile updated successfully.');
     }
 
-    // ADDRESSES
+    public function delete_avatar($id)
+    {
+        $user = Auth::user();
+
+        if ($user->avatar !== 'image/avatars/default_avatar.png') {
+            if (file_exists(public_path($user->avatar))) {
+                unlink(public_path($user->avatar));
+            }
+            $user->avatar = 'image/avatars/default_avatar.png';
+            $user->save();
+        }
+
+        return redirect()->route('profile.edit', $user->id)->with('success', 'Photo removed.');
+    }
+
+    // --- MANAJEMEN ALAMAT (TETAP AMAN & TIDAK BERUBAH) ---
     public function addresses()
     {
         $user      = Auth::user();
@@ -73,7 +115,7 @@ class UserController extends Controller
             ->orderByDesc('created_at')
             ->get();
 
-        $provinces = \App\Models\Province::orderBy('name')->get();
+        $provinces = Province::orderBy('name')->get();
 
         return view('profile.addresses', compact('addresses', 'provinces'));
     }

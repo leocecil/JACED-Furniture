@@ -11,6 +11,7 @@ class VoucherType extends Model
         'description',
         'used_for',
         'point_cost',
+        'discount_percentage',
         'max_discount',
     ];
 

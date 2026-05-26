@@ -302,6 +302,39 @@
     body{
         background: #f9f9f7;
     }
+
+    .cart-toast{
+        position: fixed;
+        bottom: 28px;
+        left: 50%;
+        transform: translateX(-50%);
+        background: var(--jaced-brown-dark);
+        color: var(--jaced-cream);
+        padding: 14px 26px;
+        border-radius: 999px;
+        font-size: 14px;
+        font-weight: 500;
+        display: inline-flex;
+        align-items: center;
+        gap: 10px;
+        width: fit-content;
+        max-width: 320px;
+        white-space: nowrap;
+        z-index: 3000;
+        box-shadow: 0 12px 32px rgba(0,0,0,0.2);
+        animation: toastIn 0.4s ease;
+    }
+    @keyframes toastIn{
+        from{
+            opacity:0;
+            transform:translateX(-50%) translateY(20px);
+        }
+        to{
+            opacity:1;
+            transform:translateX(-50%) translateY(0);
+        }
+    }
+
     @media(max-width: 992px){
         .sticky-gallery{
             position: relative;
@@ -466,17 +499,6 @@
                         Add to Collection
                     </button>
                 </form>
-                {{-- <div class="col-md-6">
-                    <button class="btn btn-dark-custom action-btn w-100">
-                        <i class="fa-solid fa-bag-shopping me-2"></i> Add to Collection
-                    </button>
-                </div>
-
-                <div class="col-md-6">
-                    <button class="btn btn-outline-custom action-btn w-100">
-                        <i class="fa-solid fa-cube me-2"></i> 3D Simulation
-                    </button>
-                </div> --}}
             </div>
 
             <!-- BOOTSTRAP ACCORDION -->
@@ -500,8 +522,14 @@
                     </div>
                 </div>
             </div>
-
         </div>
+
+        @if(session('success'))
+            <div class="cart-toast show" id="cartToast">
+                <i class="fas fa-check-circle"></i>
+                <span>{{ session('success') }}</span>
+            </div>
+        @endif
     </div>
 </div>
 
@@ -594,6 +622,50 @@
         updateCartQty();
     }
 
+
+    const cartToast = document.getElementById('cartToast');
+    const cartToastText = document.getElementById('cartToastText');
+
+    let cartToastTimer = null;
+
+    // function showCartToast(message) {
+    //     cartToastText.textContent = message;
+    //     cartToast.classList.add('show');
+    //     clearTimeout(cartToastTimer);
+    //     cartToastTimer = setTimeout(() => {
+    //         cartToast.classList.remove('show');
+    //     }, 2500);
+    // }
+    setTimeout(() => {
+        const toast = document.getElementById('cartToast');
+
+        if(toast){
+            toast.style.opacity = '0';
+
+            setTimeout(() => {
+                toast.remove();
+            }, 300);
+        }
+    }, 2500);
+
+    function showCartToast(message, type = 'success') {
+        const icon = cartToast.querySelector('i');
+        if(type === 'delete'){
+            icon.className = 'fas fa-trash';
+        }
+        else if(type === 'update'){
+            icon.className = 'fas fa-pen';
+        }
+        else{
+            icon.className = 'fas fa-check-circle';
+        }
+        cartToastText.textContent = message;
+        cartToast.classList.add('show');
+        clearTimeout(cartToastTimer);
+        cartToastTimer = setTimeout(() => {
+            cartToast.classList.remove('show');
+        }, 2500);
+    }
 </script>
 
 @endsection
