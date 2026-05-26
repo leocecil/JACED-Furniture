@@ -282,8 +282,9 @@
 
     .wl-card-body { padding: 16px; }
     .wl-card-cat { font-size: 10px; text-transform: uppercase; letter-spacing: 0.2em; color: var(--jaced-caramel); font-weight: 600; margin-bottom: 4px; display: block; }
-    .wl-card-name { font-size: 15px; font-weight: 600; color: var(--jaced-brown-dark); margin-bottom: 4px; letter-spacing: -0.01em; line-height: 1.3; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
-    .wl-card-price { font-size: 15px; font-weight: 700; color: var(--jaced-brown-dark); margin-bottom: 12px; display: block; }
+    .wl-card-name { font-size: 16px; font-weight: 600; color: var(--jaced-brown-dark); margin-bottom: 4px; letter-spacing: -0.01em; line-height: 1.3; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; 
+        display: -webkit-box; -webkit-line-clamp: 1; -webkit-box-orient: vertical; }
+    .wl-card-price { font-family: 'Outfit', serif !important; font-size: 20px; font-weight: 700; color: var(--jaced-sage); margin-bottom: 6px; display: block; }
     .wl-card-actions { display: flex; gap: 8px; }
 
     .wl-atc-btn {
@@ -680,7 +681,7 @@
                                 data-name="${item.product.name}">
 
                             <i class="fas fa-shopping-bag"></i>
-                            Add to Cart
+                            Add to Collection
 
                         </button>
 
@@ -781,14 +782,14 @@
                     setTimeout(() => {
                         btn.disabled = false;
                         btn.innerHTML =
-                            '<i class="fas fa-shopping-bag"></i> Add to Cart';
+                            '<i class="fas fa-shopping-bag"></i> Add to Collection';
                         btn.classList.remove('added');
                     }, 2000);
 
                 } catch (e) {
                     btn.disabled = false;
                     btn.innerHTML =
-                        '<i class="fas fa-shopping-bag"></i> Add to Cart';
+                        '<i class="fas fa-shopping-bag"></i> Add to Collection';
 
                     showToast('Failed to add product');
                 }
