@@ -184,7 +184,7 @@
             <i class="bi bi-grid-1x2"></i> <span class="menu-text">Overview</span>
         </a>
 
-        <a href="{{ route('orders.index') }}"
+        <a href="{{ route('order_management') }}"
             class="nav-link {{ request()->routeIs('orders.*') ? 'active' : '' }}"
             onclick="if(window.innerWidth<=768) closeSidebar()">
             <i class="bi bi-bag-check"></i> <span class="menu-text">Orders</span>
@@ -200,12 +200,12 @@
         </a>
 
         <a href="{{ route('analytics.customers') }}"
-           class="nav-link {{ request()->routeIs('analytics.*') ? 'active' : '' }}"
-           onclick="if(window.innerWidth<=768) closeSidebar()">
+            class="nav-link {{ request()->routeIs('analytics.*') ? 'active' : '' }}"
+            onclick="if(window.innerWidth<=768) closeSidebar()">
             <i class="bi bi-bar-chart-line"></i> <span class="menu-text">Customer Analytics</span>
         </a>
 
-        <a href="#"
+        <a href="{{ route('admin.vouchers') }}"
             class="nav-link {{ request()->routeIs('logistics.*') ? 'active' : '' }}"
             onclick="if(window.innerWidth<=768) closeSidebar()">
             <i class="bi bi-ticket-perforated"></i> <span class="menu-text">Voucher</span>

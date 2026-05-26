@@ -220,4 +220,25 @@ class VoucherManagementController extends Controller
             'message' => 'Voucher type deleted successfully.',
         ]);
     }
+
+    // ── Stats (AJAX) ──────────────────────────────────────────────────
+    public function stats()
+    {
+        $totalTypes    = DB::table('voucher_types')->count();
+        $activeTypes   = DB::table('voucher_types')->where('is_active', true)->count();
+        $totalRedeemed = DB::table('vouchers')->whereNotNull('redeemed_at')->count();
+        $totalDiscount = DB::table('vouchers')
+            ->join('voucher_types', 'vouchers.voucher_type_id', '=', 'voucher_types.id')
+            ->whereNotNull('vouchers.redeemed_at')
+            ->sum('voucher_types.max_discount');
+
+        return response()->json([
+            'totalTypes'    => number_format($totalTypes),
+            'activeTypes'   => number_format($activeTypes),
+            'inactiveTypes' => number_format($totalTypes - $activeTypes),
+            'totalRedeemed' => number_format($totalRedeemed),
+            'totalDiscount' => 'Rp ' . number_format($totalDiscount / 1000000, 1) . 'M',
+            'totalDiscountFull' => 'Rp ' . number_format($totalDiscount, 0, ',', '.'),
+        ]);
+    }
 }

@@ -469,7 +469,7 @@
 
                 <div class="d-flex justify-content-between align-items-center mb-3">
                     <span class="section-title">Recent Orders</span>
-                    <a href="{{ route('orders.index') }}" class="view-all">View All →</a>
+                    <a href="{{ route('order_management') }}" class="view-all">View All →</a>
                 </div>
 
                 <div class="table-responsive">
