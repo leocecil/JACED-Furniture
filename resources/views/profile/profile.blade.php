@@ -167,7 +167,9 @@
         {{-- Profile Header --}}
         <div class="d-flex align-items-center gap-3 mb-4">
             <div class="position-relative" style="flex-shrink:0;">
-                <img src="{{ $user->avatar ?? asset('image/avatar-placeholder.png') }}"
+                <img src="{{ $user->avatar 
+                    ? (str_starts_with($user->avatar, 'http') ? $user->avatar : asset($user->avatar)) 
+                    : asset('image/avatars/default_avatar.png') }}?v={{ time() }}"
                      alt="{{ $user->name }}"
                      class="avatar-img">
                 <div class="avatar-badge">

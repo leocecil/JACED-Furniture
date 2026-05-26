@@ -129,8 +129,7 @@ $transitions = [
 ];
 @endphp
 
-<div class="jaced-page" style="min-height:100vh;">
-<div style="max-width:1200px; margin:0 auto;">
+<div class="container-fluid">
 
     {{-- ── Page Header ── --}}
     <div class="d-flex flex-wrap align-items-start justify-content-between gap-3 mb-4">

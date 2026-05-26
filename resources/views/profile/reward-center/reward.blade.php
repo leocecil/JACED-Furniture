@@ -4,441 +4,211 @@
 <link rel="stylesheet" href="{{ asset('css/jaced.css') }}">
 <style>
     .loyalty-page {
-        background-color: var(--jaced-cream);
+        background-color: var(--jaced-caramel-bg);
         padding: 40px 24px;
         min-height: 100vh;
     }
 
-    /* HEADER CARD */
-    .header-card {
+    /* PREMIUM DYNAMIC GRADIENT TIER CARDS */
+    .premium-tier-card {
+        border-radius: 24px;
+        padding: 40px;
         position: relative;
-        z-index: 10;
-}
-
-    .redeem-card {
-        position: relative;
-        z-index: 1;
-    }
-    .header-card {
-        background: white;
-        border-radius: 16px;
-        padding: 28px 32px;
-        border: 1px solid var(--jaced-input);
-    }
-    .header-vdivider {
-        width: 1px;
-        background: var(--jaced-input);
-        align-self: stretch;
-        margin: 4px 0;
-    }
-
-    /* STAGE */
-    .stage-badge {
-        display: inline-flex;
-        align-items: center;
-        gap: 6px;
-        background: var(--jaced-caramel-bg);
-        border-radius: 999px;
-        padding: 4px 12px;
-        margin-bottom: 10px;
-    }
-    .stage-badge-text {
-        font-size: 12px;
-        font-weight: 600;
-        color: var(--jaced-caramel);
-    }
-    .stage-name {
-        font-size: 28px;
-        font-weight: 700;
-        color: var(--jaced-brown-dark);
-        margin: 0 0 6px;
-    }
-    .stage-meta {
-        display: flex;
-        align-items: center;
-        gap: 8px;
-        margin-bottom: 20px;
-        flex-wrap: wrap;
-    }
-    .stage-valid {
-        font-size: 12px;
-        color: var(--jaced-muted);
-        margin: 0;
-    }
-    .benefit-link {
-        font-size: 12px;
-        color: var(--jaced-caramel);
-        background: none;
-        border: none;
-        cursor: pointer;
-        padding: 0;
-        display: inline-flex;
-        align-items: center;
-        gap: 4px;
-        transition: opacity .2s;
-    }
-    .benefit-link:hover { opacity: .7; }
-
-    /* STAGE TABS */
-    .stage-tabs {
-        display: flex;
-        gap: 6px;
-    }
-    .stage-tab {
-        flex: 1;
-        text-align: center;
-        padding: 7px 4px;
-        border-radius: 8px;
-        font-size: 12px;
-        font-weight: 600;
-        border: 1px solid var(--jaced-input);
-        color: var(--jaced-muted);
-        background: var(--jaced-cream);
-        cursor: pointer;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        gap: 4px;
-        transition: all .15s;
-    }
-    .stage-tab.current {
-        background: var(--jaced-caramel-bg);
-        border-color: var(--jaced-caramel);
-        color: var(--jaced-caramel);
-    }
-    .stage-tab.locked { opacity: 0.55; cursor: pointer; }
-    .stage-tab.locked:hover { opacity: 0.8; }
-
-    /* POPOVER */
-    .popover-wrap { position: relative; }
-    .stage-popover {
-        display: none;
-        position: absolute;
-        top: calc(100% + 8px);
-        left: 0;
-        width: 260px;
-        background: white;
-        border: 1px solid var(--jaced-input);
-        border-radius: 12px;
-        padding: 14px 16px;
-        /* Naikkan z-index menjadi 999 agar berada di lapisan paling atas */
-        z-index: 999; 
-        box-shadow: 0 4px 24px rgba(0,0,0,.15);
-    }
-    .stage-popover.open { display: block !important; }
-    .popover-title {
-        font-size: 13px;
-        font-weight: 700;
-        color: var(--jaced-brown-dark);
-        margin: 0 0 10px;
-    }
-    .benefit-item {
-        display: flex;
-        align-items: center;
-        gap: 10px;
-        padding: 7px 0;
-        border-bottom: 1px solid var(--jaced-input);
-        font-size: 13px;
-        color: var(--jaced-brown-dark);
-    }
-    .benefit-item:last-of-type { border-bottom: none; }
-    .benefit-item.locked { opacity: 0.4; }
-    .benefit-item svg { flex-shrink: 0; color: var(--jaced-muted); }
-    .how-to-link {
-        font-size: 12px;
-        color: var(--jaced-caramel);
-        text-decoration: none;
-        display: block;
-        margin-top: 10px;
-        font-weight: 500;
-    }
-    .how-to-link:hover { text-decoration: underline; color: var(--jaced-caramel); }
-
-    /* POINTS + BUTTONS */
-    .pts-label {
-        font-size: 11px;
-        font-weight: 600;
-        letter-spacing: .08em;
-        text-transform: uppercase;
-        color: var(--jaced-muted);
-        margin: 0 0 4px;
-    }
-    .pts-val {
-        font-size: 32px;
-        font-weight: 700;
-        color: var(--jaced-brown-dark);
-        margin: 0;
-        line-height: 1;
-    }
-    .pts-unit {
-        font-size: 13px;
-        color: var(--jaced-caramel);
-        font-weight: 500;
-        margin: 0 0 20px;
-    }
-    .btn-redeem {
-        background: var(--jaced-caramel);
+        overflow: hidden;
         color: white;
-        border: none;
-        border-radius: 8px;
-        padding: 9px 16px;
-        font-size: 13px;
-        font-weight: 600;
-        cursor: pointer;
-        width: 100%;
-        margin-bottom: 8px;
-        transition: background .2s;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+        transition: all 0.5s cubic-bezier(0.25, 0.8, 0.25, 1);
     }
-    .btn-redeem:hover { background: #b8854f; }
-    .btn-voucher {
-        background: transparent;
-        color: var(--jaced-sage);
-        border: 1.5px solid var(--jaced-sage);
-        border-radius: 8px;
-        padding: 8px 16px;
-        font-size: 13px;
-        font-weight: 600;
-        cursor: pointer;
-        width: 100%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        gap: 6px;
-        transition: all .2s;
-    }
-    .btn-voucher:hover { background: var(--jaced-sage); color: white; }
 
-    /* STATS */
-    .stat-pill {
+    /* Efek kilau eksklusif di background */
+    .premium-tier-card::before {
+        content: '';
+        position: absolute;
+        top: -50%; right: -30%;
+        width: 300px; height: 300px;
+        background: rgba(255, 255, 255, 0.06);
+        border-radius: 50%;
+        filter: blur(40px);
+    }
+
+    /* Warna Gradasi Tiap Stage */
+    .tier-gradient-bronze { background: linear-gradient(135deg, var(--jaced-caramel), #6E4524); }
+    .tier-gradient-silver { background: linear-gradient(135deg, #8A95A5, #4A5361); }
+    .tier-gradient-gold { background: linear-gradient(135deg, #DFBA73, #A17B30); }
+    .tier-gradient-platinum { background: linear-gradient(135deg, #2D3748, #1A202C); }
+
+    /* OVERLAY JIKA PREVIEW TIER YANG TERKUNCI */
+    .tier-locked-overlay {
+        position: absolute;
+        top: 0; left: 0; right: 0; bottom: 0;
+        background: rgba(0, 0, 0, 0.45);
+        backdrop-filter: blur(6px);
         display: flex;
         flex-direction: column;
         align-items: center;
         justify-content: center;
-        min-width: 60px;
+        z-index: 30;
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity 0.4s ease;
     }
-    .stat-val {
-        font-size: 20px;
-        font-weight: 700;
-        color: var(--jaced-brown-dark);
-        line-height: 1;
-        margin: 0 0 3px;
-    }
-    .stat-label {
-        font-size: 10px;
-        color: var(--jaced-muted);
-        text-align: center;
-        margin: 0;
-    }
-    .stat-divider {
-        width: 1px;
-        height: 32px;
-        background: var(--jaced-input);
+    .premium-tier-card.is-preview-locked .tier-locked-overlay {
+        opacity: 1;
+        pointer-events: auto;
     }
 
-    /* SECTION TITLES */
-    .section-title {
-        font-size: 16px;
-        font-weight: 700;
-        color: var(--jaced-brown-dark);
-        margin: 0 0 16px;
-    }
-    .section-badge {
-        font-size: 11px;
-        font-weight: 600;
-        color: #3da353;
-        background: #ddf4e0;
-        border-radius: 999px;
-        padding: 3px 10px;
-        margin-left: 8px;
-    }
-
-    /* EXPIRING CARD */
-    .point-history-card {
-        background: white;
-        border-radius: 14px;
-        padding: 15px 24px;
-        padding-top: 5px;
-        display: block !important;
-        height: auto !important;
-        min-height: 0 !important;
-    }
-    .point-history-item {
-        display: flex;
-        align-items: center;
-        gap: 14px;
-        padding: 12px 0;
-        border-bottom: 1px solid var(--jaced-input);
-    }
-    .point-history-item:last-child { border-bottom: none; }
-    .point-history-icon {
-        width: 36px;
-        height: 36px;
-        border-radius: 10px;
-        background: var(--jaced-caramel-bg);
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        flex-shrink: 0;
-        color: var(--jaced-caramel);
-    }
-    .point-history-pts {
-        font-size: 14px;
-        font-weight: 700;
-        color: var(--jaced-brown-dark);
-        margin: 0 0 2px;
-    }
-    .point-history-src {
-        font-size: 12px;
-        color: var(--jaced-muted);
-        margin: 0;
-    }
-    .point-history-date {
-        font-size: 12px;
-        font-weight: 600;
-        color: #3da353;
-        margin: 0;
-        white-space: nowrap;
-    }
-    .point-history-days-label {
-        font-size: 11px;
-        color: var(--jaced-muted);
-        margin: 0;
-    }
-    .view-all-link {
-        font-size: 13px;
-        color: var(--jaced-caramel);
-        text-decoration: none;
-        font-weight: 500;
-        display: inline-block;
-        margin-top: 14px;
-    }
-    .view-all-link:hover { text-decoration: underline; color: var(--jaced-caramel); }
-
-    /* REDEEM GOALS */
-    .redeem-header {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        margin-bottom: 16px;
-    }
-    .favorites-btn {
-        background: none;
-        border: 1px solid var(--jaced-input);
-        border-radius: 8px;
+    .tier-badge {
+        background: rgba(255, 255, 255, 0.15);
+        backdrop-filter: blur(6px);
+        border: 1px solid rgba(255, 255, 255, 0.2);
         padding: 6px 14px;
-        font-size: 12px;
-        color: var(--jaced-muted);
-        cursor: pointer;
-        display: flex;
+        border-radius: 999px;
+        font-size: 11px;
+        font-weight: 600;
+        letter-spacing: 0.05em;
+        display: inline-flex;
         align-items: center;
         gap: 6px;
-        transition: all .2s;
     }
-    .favorites-btn:hover { border-color: var(--jaced-sage); color: var(--jaced-sage); }
 
-    .redeem-card {
-        background: white;
-        border-radius: 14px;
-        overflow: hidden;
-        border: none;
+    .tier-title {
+        font-size: 32px;
+        font-weight: 800;
+        letter-spacing: -0.02em;
+        margin-top: 15px;
+        margin-bottom: 5px;
     }
-    .redeem-card-img {
-        width: 100%;
-        height: 160px;
-        object-fit: cover;
-        display: block;
+
+    /* PROGRESS BAR BANNER */
+    .tier-progress-wrap {
+        max-width: 350px;
+        margin-top: 20px;
     }
-    .redeem-card-body {
-        padding: 16px;
-    }
-    .redeem-card-name {
-        font-size: 14px;
-        font-weight: 600;
-        color: var(--jaced-brown-dark);
-        margin: 0 0 12px;
-    }
-    .progress-label {
-        display: flex;
-        justify-content: space-between;
-        font-size: 11px;
-        color: var(--jaced-muted);
-        margin-bottom: 6px;
-    }
-    .progress-bar-wrap {
-        background: var(--jaced-input);
-        border-radius: 999px;
+    .custom-progress {
         height: 6px;
-        margin-bottom: 14px;
+        background: rgba(255, 255, 255, 0.2);
+        border-radius: 999px;
         overflow: hidden;
     }
-    .progress-bar-fill {
+    .custom-progress-bar {
         height: 100%;
+        background: white;
         border-radius: 999px;
-        background: var(--jaced-caramel);
-    }
-    .goal-status {
-        font-size: 11px;
-        font-weight: 600;
-        color: var(--jaced-sage);
-        margin: 0 0 8px;
-    }
-    .btn-redeem-now {
-        background: var(--jaced-sage);
-        color: white;
-        border: none;
-        border-radius: 8px;
-        padding: 9px 16px;
-        font-size: 13px;
-        font-weight: 600;
-        width: 100%;
-        cursor: pointer;
-        transition: background .2s;
+        transition: width 0.5s ease;
     }
 
-    /* Class baru untuk tombol outline View Details */
+    /* ACTION BUTTONS IN BANNER */
+    .btn-banner-primary {
+        background: white;
+        color: var(--jaced-dark);
+        font-weight: 600;
+        border: none;
+        padding: 10px 22px;
+        border-radius: 10px;
+        transition: all 0.2s;
+    }
+    .btn-banner-primary:hover { background: var(--jaced-white); transform: translateY(-1px); }
+    
+    .btn-banner-outline {
+        background: rgba(255, 255, 255, 0.1);
+        color: white;
+        font-weight: 600;
+        border: 1px solid rgba(255, 255, 255, 0.3);
+        padding: 10px 22px;
+        border-radius: 10px;
+        backdrop-filter: blur(4px);
+        transition: all 0.2s;
+    }
+    .btn-banner-outline:hover { background: rgba(255, 255, 255, 0.2); color: white; }
+
+    /* STAGE TABS UNDER BANNER */
+    .stage-tabs-container {
+        display: flex;
+        gap: 10px;
+        background: var(--jaced-cream);
+        padding: 6px;
+        border-radius: 14px;
+        margin-top: -15px;
+        margin-bottom: 35px;
+        position: relative;
+        z-index: 40;
+        max-width: 450px;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.02);
+    }
+    .stage-tab-new {
+        flex: 1;
+        text-align: center;
+        padding: 8px 12px;
+        border-radius: 10px;
+        font-size: 12px;
+        font-weight: 600;
+        color: var(--jaced-muted);
+        cursor: pointer;
+        transition: all 0.3s ease;
+        border: none;
+        background: transparent;
+    }
+    .stage-tab-new.active-tab {
+        background: white;
+        color: var(--jaced-dark);
+        box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+    }
+    .stage-tab-new:hover:not(.active-tab) {
+        background: rgba(255, 255, 255, 0.4);
+        color: var(--jaced-dark);
+    }
+
+    /* LAYOUT CARDS BELOW */
+    .premium-box {
+        background: white;
+        border-radius: 20px;
+        padding: 28px;
+        border: 1px solid var(--jaced-input);
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.01);
+    }
+
+    .section-title-new {
+        font-size: 18px;
+        font-weight: 700;
+        color: var(--jaced-brown-dark);
+    }
+
+    /* RENDER CLEAN HISTORY */
+    .history-row {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 14px 0;
+        border-bottom: 1px solid var(--jaced-card);
+    }
+    .history-row:last-child { border-bottom: none; }
+
+    /* REDEEM GOALS OVERHAUL */
+    .goal-card-new {
+        background: white;
+        border-radius: 16px;
+        overflow: hidden;
+        border: 1px solid var(--jaced-input);
+        transition: all 0.3s ease;
+    }
+    .goal-card-new:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 12px 24px rgba(0,0,0,0.04);
+    }
     .btn-view-details {
         background: transparent;
         color: var(--jaced-sage);
         border: 1px solid var(--jaced-sage);
         border-radius: 8px;
-        padding: 9px 16px;
-        font-size: 12px;
-        font-weight: 600;
-        width: 100%;
-        cursor: pointer;
-        transition: all .2s;
-    }
-    .btn-view-details:hover {
-        background: var(--jaced-sage);
-        color: white;
-    }
-    .btn-redeem-now:hover { background: #4a5d4b; }
-    .btn-redeem-locked {
-        background: var(--jaced-input);
-        color: var(--jaced-muted);
-        border: none;
-        border-radius: 8px;
-        padding: 9px 16px;
+        padding: 8px 16px;
         font-size: 13px;
         font-weight: 600;
         width: 100%;
-        cursor: not-allowed;
+        transition: all 0.2s;
     }
-    .heart-btn {
-        position: absolute;
-        top: 10px;
-        right: 10px;
-        background: white;
-        border: none;
-        border-radius: 50%;
-        width: 30px;
-        height: 30px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        cursor: pointer;
-        box-shadow: 0 1px 4px rgba(0,0,0,.1);
-    }
+    .btn-view-details:hover { background: var(--jaced-sage); color: white; }
+
+    /* MODAL EXTRAS */
     .jaced-modal-overlay {
         position: fixed;
         top: 0; left: 0; right: 0; bottom: 0;
@@ -449,164 +219,167 @@
         justify-content: center;
         z-index: 9999;
         transition: opacity 0.3s ease;
-        pointer-events: none;
     }
     .jaced-modal-box {
         background: white;
         border-radius: 16px;
-        box-shadow: 0 10px 30px rgba(39, 46, 29, 0.08);
-        transform: scale(1);
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
     }
-    .btn-modal-secondary {
-        background: transparent;
-        border: 1px solid var(--jaced-input);
-        color: var(--jaced-brown-dark);
-        padding: 11px 20px;
+    .btn-redeem-now {
+        background: var(--jaced-sage);
+        color: white;
+        border: none;
         border-radius: 8px;
-        font-weight: 500;
+        padding: 11px 20px;
         font-size: 13px;
-        cursor: pointer;
-        transition: all 0.2s;
+        font-weight: 600;
+        width: 100%;
     }
-    .benefit-link {
-        cursor: pointer;
-        text-decoration: none;
+    .btn-redeem-locked {
+        background: var(--jaced-card);
+        color: var(--jaced-muted);
+        border: none;
+        border-radius: 8px;
+        padding: 11px 20px;
+        font-size: 13px;
+        font-weight: 600;
+        width: 100%;
+        cursor: not-allowed;
     }
-
-    .benefit-link:hover {
-        opacity: 0.7;
-        text-decoration: underline;
-    }
-
-    /* Pastikan popover wrap tidak block hover */
-    .popover-wrap {
-        position: relative;
-        display: inline-block;
-    }
-
-    
 </style>
 @endpush
 
 @section('content')
 <div class="loyalty-page">
-    <div style="max-width: 1000px; margin: 0 auto;">
-        {{-- BACK --}}
-        <a href="{{ route('profile') }}" class="back-link">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+    @if(session('success'))
+        <div id="successToast" style="
+            position: fixed;
+            top: 24px;
+            right: 24px;
+            z-index: 99999;
+            background: white;
+            border-radius: 14px;
+            padding: 16px 20px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.12);
+            border-left: 4px solid #4a7c59;
+            max-width: 340px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            animation: slideIn 0.3s ease;
+        ">
+            <div style="width: 36px; height: 36px; background: #edf7ed; border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+                ✅
+            </div>
+            <div>
+                <p class="mb-0 fw-bold" style="font-size: 13px; color: var(--jaced-brown-dark);">Success!</p>
+                <p class="mb-0" style="font-size: 12px; color: var(--jaced-muted);">{{ session('success') }}</p>
+            </div>
+            <button onclick="document.getElementById('successToast').remove()" style="background: none; border: none; color: var(--jaced-muted); cursor: pointer; font-size: 16px; margin-left: auto;">×</button>
+        </div>
+
+        <style>
+            @keyframes slideIn {
+                from { transform: translateX(100px); opacity: 0; }
+                to { transform: translateX(0); opacity: 1; }
+            }
+        </style>
+
+        <script>
+            setTimeout(() => {
+                const toast = document.getElementById('successToast');
+                if (toast) toast.remove();
+            }, 4000);
+        </script>
+    @endif
+    <div style="max-width: 1100px; margin: 0 auto;">
+        
+        {{-- BACK BUTTON --}}
+        <a href="{{ route('profile') }}" class="back-link mb-4 d-inline-flex align-items-center gap-2 text-decoration-none text-jaced-muted small fw-semibold">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
                 <line x1="19" y1="12" x2="5" y2="12"></line>
                 <polyline points="12 19 5 12 12 5"></polyline>
             </svg>
-            <span>Back</span>
+            <span>Back to Profile</span>
         </a>
 
-        {{-- PAGE TITLE --}}
-        <div class="mb-4">
-            <h1 style="font-size: 2rem; font-weight: 700; color: var(--jaced-brown-dark); margin: 0 0 4px;">Reward Center</h1>
-            <p style="font-size: 13px; color: var(--jaced-muted); margin: 0;">Earn points, redeem rewards, and enjoy exclusive perks.</p>
+        {{-- PAGE HEADER TITLE --}}
+        <div class="mb-4 mt-2">
+            <h1 class="fw-bold tracking-tight" style="color: var(--jaced-brown-dark); font-size: 2.25rem;">Reward Center</h1>
+            <p class="text-jaced-muted small">Accumulate points on every furniture purchase and tier up for VIP rewards.</p>
         </div>
 
-        {{-- HEADER CARD --}}
-        <div class="header-card mb-4">
-            <div class="row align-items-center g-0">
+        {{-- MAIN BANNER OVERHAUL (DENGAN IDENTITAS ASLI & OVERLAY PREVIEW) --}}
+        <div id="mainTierCard" class="premium-tier-card tier-gradient-{{ strtolower($stage) }} mb-4">
+            
+            {{-- BLURRED LOCK OVERLAY --}}
+            <div class="tier-locked-overlay">
+                <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.25" stroke-linecap="round" stroke-linejoin="round" class="mb-2 text-white-75"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
+                <h5 class="fw-bold mb-1 text-white" id="lockOverlayTitle">Silver Stage Locked</h5>
+                <p class="small text-white-50 mb-3" id="lockOverlayDesc">This tier will unlock automatically once points criteria met.</p>
+                <button class="btn btn-sm btn-light fw-bold px-3 py-1.5" style="border-radius: 8px; font-size: 11px;" onclick="resetToCurrentTier()">Return to My Current Stage</button>
+            </div>
 
-                {{-- Col 1: Stage --}}
-                <div class="col-12 col-md-7 pe-md-4">
-                    <div class="stage-badge">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="6"/><path d="M15.477 12.89L17 22l-5-3-5 3 1.523-9.11"/></svg>
-                        <span class="stage-badge-text">Current stage</span>
-                    </div>
-
-                    {{-- FIX DOSEN: Teks Stage Dinamis --}}
-                    <p class="stage-name">{{ $stage }}</p>
-
-                    <div class="stage-meta">
-                        <span class="stage-valid">Active until 31 Dec 2026</span>
-                        <span style="color: var(--jaced-input);">·</span>
-                        <div class="popover-wrap">
-                            <button class="benefit-link" onclick="toggleStagePopover(event, 'bronze-pop')">
-                                See benefits
-                                <svg xmlns="http://www.w3.org/2000/svg" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
-                            </button>
-                            <div class="stage-popover" id="bronze-pop">
-                                <p class="popover-title">{{ $stage }} benefits</p>
-                                <div class="benefit-item">
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>
-                                    Benefit active for {{ $stage }} member
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    {{-- Stage Tabs dengan Highlight Class Current Otomatis --}}
-                    <div class="stage-tabs">
-                        {{-- Bronze --}}
-                        <div class="stage-tab {{ $stage == 'Bronze' ? 'current' : 'locked' }}"
-                            data-stage="bronze"
-                            onclick="switchStage(event, 'bronze', 'bronze-tab-pop')">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                <circle cx="12" cy="8" r="6"/>
-                                <path d="M15.477 12.89L17 22l-5-3-5 3 1.523-9.11"/>
-                            </svg>
-                            Bronze
-                        </div>
-
-                        {{-- Silver --}}
-                        <div class="stage-tab {{ $stage == 'Silver' ? 'current' : 'locked' }} w-100"
-                            data-stage="silver"
-                            onclick="switchStage(event, 'silver', 'silver-pop')">
-                            @if($stage == 'Bronze') 
-                                <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                    <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
-                                    <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
-                                </svg>
-                            @endif
-                            Silver
-                        </div>
-
-                        {{-- Gold --}}
-                        <div class="stage-tab {{ $stage == 'Gold' ? 'current' : 'locked' }} w-100"
-                            data-stage="gold"
-                            onclick="switchStage(event, 'gold', 'gold-pop')">
-                            @if($stage != 'Gold') 
-                                <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                    <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
-                                    <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
-                                </svg> 
-                            @endif
-                            Gold
-                        </div>
-                    </div>
-                </div>
-
-                <div class="header-vdivider d-none d-md-block mx-4"></div>
-
-                {{-- Col 2: Points Display --}}
-                <div class="col-12 col-md-4 py-3 py-md-0">
-                    <p class="pts-label">Points Available to Redeem</p>
-                    <div class="d-flex align-items-baseline gap-2 mb-1">
-                        {{-- FIX DOSEN: Tampilkan Current Points --}}
-                        <p class="pts-val mb-0">{{ number_format($currentPoints) }}</p>
-                        <p class="pts-unit mb-0">Points</p>
+            <div class="row align-items-center g-4">
+                
+                {{-- Sisi Kiri: Member Level & Progress --}}
+                <div class="col-12 col-md-7">
+                    <div class="tier-badge">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="6"/><path d="M15.477 12.89L17 22l-5-3-5 3 1.523-9.11"/></svg>
+                        <span id="tierLabelContext">CURRENT MEMBERSHIP STAGE</span>
                     </div>
                     
-                    {{-- FIX DOSEN: Tambahkan Info Akumulasi Poin Di Sini --}}
-                    <p class="text-muted mb-4" style="font-size: 12px;">
+                    <h2 class="tier-title" id="tierCardTitle">{{ strtoupper($stage) }} MEMBER</h2>
+                    <p class="small text-white-75 mb-0">Active Tier Period: Valid until 31 Dec 2026</p>
+
+                    {{-- Dinamis Progress Bar --}}
+                    <div class="tier-progress-wrap">
+                        <div class="custom-progress">
+                            <div id="tierProgressBar" class="custom-progress-bar" style="width: {{ $stage == 'Bronze' ? '35%' : ($stage == 'Silver' ? '65%' : '100%') }};"></div>
+                        </div>
+                        <div class="d-flex justify-content-between text-white-75 small mt-2">
+                            <span>Benefits Status: Active</span>
+                            <span id="tierPointsInfo" class="fw-semibold">
+                                @if($stage == 'Bronze')
+                                    180 Pts to Silver
+                                @elseif($stage == 'Silver')
+                                    500 Pts to Gold
+                                @else
+                                    Maximum Tier Reached
+                                @endif
+                            </span>
+                        </div>
+                    </div>
+                    {{-- Perks aktif user --}}
+                    @php $activeStage = $stages->firstWhere('name', $stage); @endphp
+                    @if($activeStage && $activeStage->additional_perks)
+                        <div class="d-flex flex-wrap gap-2 mt-3">
+                            @foreach($activeStage->additional_perks as $perk)
+                                <span class="tier-badge" style="font-size: 10px;">✓ {{ $perk }}</span>
+                            @endforeach
+                        </div>
+                    @endif
+                </div>
+
+                {{-- Sisi Kanan: Poin Angka Besar --}}
+                <div class="col-12 col-md-5 text-md-end border-start-md border-white-opacity-25 ps-md-5">
+                    <p class="text-white-75 small text-uppercase tracking-wider mb-1" style="font-size: 11px; font-weight: 600;">Available Points</p>
+                    <div class="d-flex align-items-baseline justify-content-md-end gap-2 mb-1">
+                        <h1 class="display-4 fw-bold mb-0 text-white" style="line-height: 1;">{{ number_format($currentPoints) }}</h1>
+                        <span class="h5 mb-0 text-white-75">Pts</span>
+                    </div>
+                    <p class="text-white-50 small mb-4">
                         Lifetime Accumulation: <strong>{{ number_format($accumulatedPoints) }} Pts</strong>
                     </p>
 
-                    <div class="d-flex gap-2">
-                        <a href="{{ route('redeem-point') }}" style="flex: 1; text-decoration: none;">
-                            <button class="btn-redeem mb-0" style="width: 100%; white-space: nowrap;">
-                                Redeem Now
-                            </button>
+                    {{-- Actions Button --}}
+                    <div class="d-flex justify-content-md-end gap-2">
+                        <a href="{{ route('redeem-point') }}" class="text-decoration-none">
+                            <button class="btn-banner-primary">Redeem Points</button>
                         </a>
-                        <a href="{{ route('voucher') }}" class="btn-voucher text-decoration-none" style="flex: 1; white-space: nowrap;">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <a href="{{ route('voucher') }}" class="btn-banner-outline text-decoration-none">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="me-1">
                                 <path d="M2 9a3 3 0 0 1 0 6v2a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-2a3 3 0 0 1 0-6V7a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2Z"/>
-                                <path d="M13 5v2"/>
-                                <path d="M13 17v2"/>
-                                <path d="M13 11v2"/>
                             </svg>
                             My Vouchers
                         </a>
@@ -616,115 +389,108 @@
             </div>
         </div>
 
-        {{-- BOTTOM SECTION --}}
+        {{-- STAGE TABS SELECTOR LOOK --}}
+        <div class="stage-tabs-container">
+            <button id="tab-Bronze" class="stage-tab-new {{ $stage == 'Bronze' ? 'active-tab' : '' }}" onclick="switchTierPreview('Bronze', false)">Bronze</button>
+            <button id="tab-Silver" class="stage-tab-new {{ $stage == 'Silver' ? 'active-tab' : '' }}" onclick="switchTierPreview('Silver', {{ $stage == 'Bronze' ? 'true' : 'false' }})">Silver</button>
+            <button id="tab-Gold" class="stage-tab-new {{ $stage == 'Gold' ? 'active-tab' : '' }}" onclick="switchTierPreview('Gold', {{ ($stage == 'Bronze' || $stage == 'Silver') ? 'true' : 'false' }})">Gold</button>
+            <button id="tab-Platinum" class="stage-tab-new {{ $stage == 'Platinum' ? 'active-tab' : '' }}" onclick="switchTierPreview('Platinum', {{ $stage != 'Platinum' ? 'true' : 'false' }})">Platinum</button>
+        </div>
+
+        {{-- BOTTOM CONTROLLER LAYOUT --}}
         <div class="row g-4 align-items-start">
-
-            {{-- LEFT: Point History --}}
-            <div class="col-12 col-lg-4">
-                <div class="d-flex align-items-center mb-3">
-                    <p class="section-title mb-0">Point History</p>
-                    <span class="section-badge">Last 30 days</span>
-                </div>
-
-                <div class="point-history-card">
-                    @foreach ($pointHistoryItems as $item)
-                        <div class="point-history-item d-flex align-items-center">
-                            <div class="point-history-icon">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-                            </div>
-                            
-                            <div class="flex-grow-1 ms-2">
-                                <p class="point-history-pts mb-0 {{ ($item['type'] ?? 'earned') === 'redeemed' ? 'text-danger' : '' }}">
-                                    {{ ($item['type'] ?? 'earned') === 'redeemed' ? '-' : '+' }} {{ $item['points'] }}
-                                </p>
-                                <p class="point-history-src mb-0">{{ $item['source'] }}</p>
-                            </div>
-
-                            <div class="text-end">
-                                @if(($item['type'] ?? 'earned') === 'redeemed')
-                                    <span class="badge mb-1" style="background-color: #fce8e6; color: #c5221f; font-size: 0.7rem; font-weight: 700;">
-                                        Redeemed
-                                    </span>
-                                @else
-                                    <span class="badge mb-1" style="background-color: #e6f4ea; color: #137333; font-size: 0.7rem; font-weight: 700;">
-                                        Earned
-                                    </span>
-                                @endif
-                                <p class="point-history-days mb-0 text-muted" style="font-size: 0.75rem;">{{ $item['date'] }}</p>
-                            </div>
+            
+            {{-- LAYOUT KIRI: POINT HISTORY --}}
+            <div class="col-12 col-lg-5">
+                <div class="premium-box">
+                    <div class="d-flex align-items-center justify-content-between mb-4">
+                        <div class="d-flex align-items-center gap-2">
+                            <h3 class="section-title-new mb-0">Point History</h3>
+                            <span class="badge" style="background: var(--jaced-caramel-bg); color: var(--jaced-sage); font-size: 11px;">Last 30 Days</span>
                         </div>
-                    @endforeach
+                    </div>
 
-                    <a href="{{ route('point-history') }}" class="view-all-link">View All History Details</a>
+                    <div class="history-list mb-3">
+                        @forelse ($pointHistoryItems as $item)
+                            <div class="history-row">
+                                <div class="d-flex align-items-center gap-3">
+                                    <div class="point-history-icon" style="background: var(--jaced-cream); color: var(--jaced-brown-dark); width: 36px; height: 36px; border-radius: 10px; display: flex; align-items: center; justify-content: center;">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                                    </div>
+                                    <div>
+                                        <p class="mb-0 fw-bold small text-jaced-dark">{{ $item['source'] }}</p>
+                                        <p class="mb-0 text-jaced-muted" style="font-size: 11px;">{{ $item['date'] }}</p>
+                                    </div>
+                                </div>
+                                <div class="text-end">
+                                    <span class="fw-bold {{ ($item['type'] ?? 'earned') === 'redeemed' ? 'text-danger' : 'text-success' }}">
+                                        {{ ($item['type'] ?? 'earned') === 'earned' ? '+' : '' }}{{ $item['points'] }}
+                                    </span>
+                                </div>
+                            </div>
+                        @empty
+                            <p class="text-jaced-muted text-center py-4 small">No point transaction recorded recently.</p>
+                        @endforelse
+                    </div>
+
+                    <a href="{{ route('point-history') }}" class="text-decoration-none fw-semibold small text-jaced-dark" style="border-bottom: 1px solid var(--jaced-dark);">View All History Details →</a>
                 </div>
             </div>
 
-            {{-- RIGHT: Redeem Goals --}}
-            <div class="col-12 col-lg-8">
-                <div class="redeem-header mb-3" style="min-height: 34px; display: flex; align-items: center; justify-content: space-between;">
-                    <p class="section-title mb-0">Redeem Goals</p>
-                    <a href="{{ route('redeem-point') }}" class="favorites-btn text-decoration-none">
-                        See All
-                        <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
-                    </a>
-                </div>
+            {{-- LAYOUT KANAN: REDEEM GOALS --}}
+            <div class="col-12 col-lg-7">
+                <div class="premium-box">
+                    <div class="d-flex align-items-center justify-content-between mb-4">
+                        <h3 class="section-title-new mb-0">Available Redeem Goals</h3>
+                        <a href="{{ route('redeem-point') }}" class="text-decoration-none text-jaced-muted small fw-medium">See All Goals</a>
+                    </div>
 
-                <div class="row g-3">
-                    @foreach ($redeemGoals as $goal)
-                        @php 
-                            $isEnough = $currentPoints >= $goal->point_cost; 
-                            $voucherImage = match(true) {
-                                $goal->used_for === 'delivery'       => 'disc-ongkir.png',
-                                $goal->discount_percentage === 100     => 'disc-100.png',
-                                $goal->discount_percentage === 90     => 'disc-90.png',
-                                $goal->discount_percentage === 80     => 'disc-80.png',
-                                $goal->discount_percentage === 70     => 'disc-70.png',
-                                $goal->discount_percentage === 60     => 'disc-60.png',
-                                $goal->discount_percentage === 50     => 'disc-50.png',
-                                $goal->discount_percentage === 40     => 'disc-40.png',
-                                $goal->discount_percentage === 30     => 'disc-30.png',
-                                $goal->discount_percentage === 20     => 'disc-20.png',
-                                $goal->discount_percentage === 10     => 'disc-10.png',
-                                default                               => 'disc-product-default.png',
-                            };
-                        @endphp
-                        <div class="col-12 col-sm-6">
-                            <div class="redeem-card position-relative" style="border: 1px solid var(--jaced-input);">
-                                <img src="{{ asset('image/vouchers/' . $voucherImage) }}"
-                                    alt="{{ $goal->name }}"
-                                    style="width: 100%; height: 120px; object-fit: cover;">
-                                <div class="redeem-card-body">
-                                    <div class="mb-2">
-                                        @if($goal->used_for === 'delivery')
-                                            <span class="badge" style="background-color: #f1f4f2; color: #5c695d; font-size: 11px;">🚚 Gratis Ongkir</span>
-                                        @else
-                                            <span class="badge" style="background-color: #fcf5f3; color: #bd654e; font-size: 11px;">🏷️ Diskon Produk</span>
-                                        @endif
+                    <div class="row g-3">
+                        @foreach ($redeemGoals as $goal)
+                            @php 
+                                $isEnough = $currentPoints >= $goal->point_cost; 
+                                $voucherImage = match(true) {
+                                    $goal->used_for === 'delivery'         => 'disc-ongkir.png',
+                                    $goal->discount_percentage === 100     => 'disc-100.png',
+                                    $goal->discount_percentage === 50      => 'disc-50.png',
+                                    default                                => 'disc-product-default.png',
+                                };
+                            @endphp
+                            <div class="col-12 col-sm-6">
+                                <div class="goal-card-new">
+                                    <img src="{{ asset('image/vouchers/' . $voucherImage) }}" alt="{{ $goal->name }}" style="width: 100%; height: 130px; object-fit: cover;">
+                                    <div class="p-3">
+                                        <div class="mb-2">
+                                            @if($goal->used_for === 'delivery')
+                                                <span class="badge" style="background-color: var(--jaced-caramel-bg); color: var(--jaced-sage); font-size: 10px;">🚚 Gratis Ongkir</span>
+                                            @else
+                                                <span class="badge" style="background-color: #fcf5f3; color: #bd654e; font-size: 10px;">🏷️ Diskon Produk</span>
+                                            @endif
+                                        </div>
+                                        <h5 class="fw-bold mb-2 text-jaced-dark" style="font-size: 13px; min-height: 38px; line-height: 1.4;">{{ $goal->name }}</h5>
+                                        <p class="mb-3 text-jaced-muted small">
+                                            Cost: <span class="text-jaced-dark fw-bold" style="font-size: 15px;">{{ number_format($goal->point_cost) }}</span> Pts
+                                        </p>
+
+                                        <button class="btn-view-details"
+                                            onclick="openGoalDetail(
+                                                '{{ $goal->name }}',
+                                                '{{ $goal->used_for }}',
+                                                {{ $goal->discount_percentage }},
+                                                {{ $goal->max_discount }},
+                                                {{ $goal->point_cost }},
+                                                '{{ $goal->id }}',
+                                                '{{ asset('image/vouchers/' . $voucherImage) }}',
+                                                {{ $isEnough ? 'true' : 'false' }}
+                                            )">
+                                            View Details
+                                        </button>
                                     </div>
-                                    <p class="redeem-card-name mb-2">{{ $goal->name }}</p>
-                                    <p class="mb-1" style="font-size: 13px;">
-                                        <span style="color: var(--jaced-caramel); font-weight: 700; font-size: 18px;">
-                                            {{ number_format($goal->point_cost) }}
-                                        </span> Points
-                                    </p>
-
-                                    <button class="btn-view-details"
-                                        onclick="openGoalDetail(
-                                            '{{ $goal->name }}',
-                                            '{{ $goal->used_for }}',
-                                            {{ $goal->discount_percentage }},
-                                            {{ $goal->max_discount }},
-                                            {{ $goal->point_cost }},
-                                            '{{ $goal->id }}',
-                                            '{{ asset('image/vouchers/' . $voucherImage) }}',
-                                            {{ $isEnough ? 'true' : 'false' }}
-                                        )">
-                                        View Details
-                                    </button>
                                 </div>
                             </div>
-                        </div>
-                    @endforeach
+                        @endforeach
+                    </div>
+
                 </div>
             </div>
 
@@ -734,22 +500,20 @@
 
 {{-- MODAL DETAIL VOUCHER --}}
 <div class="jaced-modal-overlay" id="goalDetailModal" style="display:none; opacity:0;">
-    <div class="jaced-modal-box" style="max-width: 380px; text-align: left; padding: 0; overflow: hidden;">
-        
+    <div class="jaced-modal-box" style="max-width: 380px; width: 90%; text-align: left; padding: 0; overflow: hidden;">
         <img id="goalDetailImg" src="" alt="" style="width: 100%; height: 160px; object-fit: cover;">
-        
         <div style="padding: 24px;">
             <div class="mb-2" id="goalDetailBadge"></div>
-            <h3 style="font-size: 16px; font-weight: 700; color: var(--jaced-brown-dark); margin: 0 0 8px;" id="goalDetailName"></h3>
+            <h3 style="font-size: 16px; font-weight: 700; color: var(--jaced-dark); margin: 0 0 12px;" id="goalDetailName"></h3>
             
-            <div style="font-size: 13px; color: var(--jaced-muted); margin-bottom: 16px;">
-                <div class="d-flex justify-content-between mb-1">
+            <div style="font-size: 13px; color: var(--jaced-muted); margin-bottom: 20px;">
+                <div class="d-flex justify-content-between mb-2">
                     <span>Persentase Diskon</span>
-                    <strong id="goalDetailPct" style="color: var(--jaced-brown-dark);"></strong>
+                    <strong id="goalDetailPct" style="color: var(--jaced-dark);"></strong>
                 </div>
-                <div class="d-flex justify-content-between mb-1">
+                <div class="d-flex justify-content-between mb-2">
                     <span>Maksimal Potongan</span>
-                    <strong id="goalDetailMax" style="color: var(--jaced-brown-dark);"></strong>
+                    <strong id="goalDetailMax" style="color: var(--jaced-dark);"></strong>
                 </div>
                 <div class="d-flex justify-content-between">
                     <span>Point Dibutuhkan</span>
@@ -758,81 +522,62 @@
             </div>
 
             <div class="d-flex gap-2">
-                <button class="btn-modal-secondary" onclick="closeGoalDetail()">Tutup</button>
+                <button class="btn-modal-secondary" onclick="closeGoalDetail()" style="background: transparent; border: 1px solid var(--jaced-input); border-radius: 8px; padding: 10px 16px; font-size: 13px; color: var(--jaced-brown-dark);">Tutup</button>
                 <div id="goalDetailAction" style="flex: 1;"></div>
             </div>
         </div>
     </div>
 </div>
+@endsection
 
 @push('scripts')
 <script>
-    // ─── STAGE TABS ───────────────────────────────────────────────
-    const stageData = {
-        bronze: {
-            name: 'Bronze',
-            popId: 'bronze-tab-pop',
-            benefits: ['Benefit active for Bronze member']
-        },
-        silver: {
-            name: 'Silver',
-            popId: 'silver-pop',
-            benefits: ['Diskon 5% setiap transaksi', 'Priority customer support']
-        },
-        gold: {
-            name: 'Gold',
-            popId: 'gold-pop',
-            benefits: ['Diskon 10% setiap transaksi', 'Free ongkir setiap bulan', 'Early access promo']
-        }
+    // Inisialisasi data asli dari backend Laravel
+    const userRealStage = "{{ $stage }}";
+    const initialProgress = "{{ $stage == 'Bronze' ? '35%' : ($stage == 'Silver' ? '65%' : '100%') }}";
+    
+    const tierDetails = {
+        'Bronze': { pct: '35%', info: '180 Pts to Silver' },
+        'Silver': { pct: '65%', info: '500 Pts to Gold' },
+        'Gold': { pct: '100%', info: 'Maximum Tier Reached' },
+        'Platinum': { pct: '100%', info: 'Maximum Tier Reached' }
     };
 
-    function switchStage(event, stageKey, popId) {
-        event.stopPropagation();
-        event.preventDefault();
+    const cardEl = document.getElementById('mainTierCard');
+    const barEl = document.getElementById('tierProgressBar');
+    const titleEl = document.getElementById('tierCardTitle');
+    const infoEl = document.getElementById('tierPointsInfo');
+    const contextEl = document.getElementById('tierLabelContext');
+    const overlayTitle = document.getElementById('lockOverlayTitle');
 
-        // Cari tab yang punya data-stage sesuai, bukan pakai currentTarget
-        const allTabs = document.querySelectorAll('.stage-tab');
-        allTabs.forEach(tab => {
-            tab.classList.remove('current');
-            tab.classList.add('locked');
-        });
+    function switchTierPreview(targetTier, isLocked) {
+        // Atur status active class pada tab menu bawah
+        document.querySelectorAll('.stage-tab-new').forEach(btn => btn.classList.remove('active-tab'));
+        document.getElementById(`tab-${targetTier}`).classList.add('active-tab');
 
-        // Tandai tab yang diklik sebagai current
-        const clickedTab = document.querySelector(`[data-stage="${stageKey}"]`);
-        if (clickedTab) {
-            clickedTab.classList.remove('locked');
-            clickedTab.classList.add('current');
+        // Ganti class gradasi warna background card utama
+        cardEl.className = `premium-tier-card tier-gradient-${targetTier.toLowerCase()} mb-4`;
+        
+        // Update teks & visual bar pendukung di dalam card
+        titleEl.innerText = `${targetTier.toUpperCase()} MEMBER`;
+        barEl.style.width = tierDetails[targetTier].pct;
+        infoEl.innerText = tierDetails[targetTier].info;
+
+        if (isLocked) {
+            contextEl.innerText = "PREVIEW MEMBERSHIP STAGE";
+            overlayTitle.innerText = `${targetTier} Stage Locked`;
+            cardEl.classList.add('is-preview-locked');
+        } else {
+            contextEl.innerText = targetTier === userRealStage ? "CURRENT MEMBERSHIP STAGE" : "UNLOCKED MEMBERSHIP STAGE";
+            cardEl.classList.remove('is-preview-locked');
         }
-
-        // Update nama stage di header
-        const data = stageData[stageKey];
-        document.querySelector('.stage-name').innerText = data.name;
-
-        // Tutup semua popover
-        document.querySelectorAll('.stage-popover').forEach(p => p.style.display = 'none');
     }
 
-    // Tombol "See benefits" (di atas stage tabs)
-    function toggleStagePopover(event, id) {
-        event.stopPropagation();
-        event.preventDefault();
-
-        const targetPopover = document.getElementById(id);
-        if (!targetPopover) return;
-
-        const isVisible = targetPopover.style.display === 'block';
-        document.querySelectorAll('.stage-popover').forEach(p => p.style.display = 'none');
-        targetPopover.style.display = isVisible ? 'none' : 'block';
+    function resetToCurrentTier() {
+        switchTierPreview(userRealStage, false);
     }
 
-    document.addEventListener('click', function(e) {
-        if (!e.target.closest('.popover-wrap')) {
-            document.querySelectorAll('.stage-popover').forEach(p => p.style.display = 'none');
-        }
-    });
-
-
-    // ─── GOAL DETAIL MODAL ────────────────────────────────────────
+    // Script Modal Detail Voucher
     const goalModal = document.getElementById('goalDetailModal');
 
     function openGoalDetail(name, usedFor, pct, maxDiscount, pointCost, voucherTypeId, imgSrc, isEnough) {
@@ -840,47 +585,35 @@
         document.getElementById('goalDetailName').innerText = name;
         document.getElementById('goalDetailPct').innerText = pct + '%';
         document.getElementById('goalDetailMax').innerText = 'Rp ' + maxDiscount.toLocaleString('id-ID');
-        document.getElementById('goalDetailPts').innerText = pointCost.toLocaleString('id-ID') + ' Pts';
+        document.getElementById('goalDetailPts').innerText = pointCost.toLocaleString('id-ID') + ' Points';
+        
+        const badgeEl = document.getElementById('goalDetailBadge');
+        if(usedFor === 'delivery') {
+            badgeEl.innerHTML = '<span class="badge" style="background-color: var(--jaced-caramel-bg); color: var(--jaced-sage); font-size: 11px;">🚚 Gratis Ongkir</span>';
+        } else {
+            badgeEl.innerHTML = '<span class="badge" style="background-color: #fcf5f3; color: #bd654e; font-size: 11px;">🏷️ Diskon Produk</span>';
+        }
 
-        const badge = document.getElementById('goalDetailBadge');
-        badge.innerHTML = usedFor === 'delivery'
-            ? `<span class="badge" style="background-color: #f1f4f2; color: #5c695d; font-size: 11px;">🚚 Gratis Ongkir</span>`
-            : `<span class="badge" style="background-color: #fcf5f3; color: #bd654e; font-size: 11px;">🏷️ Diskon Produk</span>`;
-
-        const action = document.getElementById('goalDetailAction');
-        if (isEnough) {
-            action.innerHTML = `
-                <form action="{{ route('reward.redeem') }}" method="POST" style="width:100%">
+        const actionEl = document.getElementById('goalDetailAction');
+        if(isEnough) {
+            actionEl.innerHTML = `
+                <form action="{{ route('reward.redeem') }}" method="POST">
                     @csrf
                     <input type="hidden" name="voucher_type_id" value="${voucherTypeId}">
-                    <button type="submit" class="btn-redeem-now" style="width:100%">Redeem Now</button>
+                    <button type="submit" class="btn-redeem-now">Redeem Now</button>
                 </form>
             `;
         } else {
-            action.innerHTML = `
-                <button class="btn-redeem-locked" disabled style="width:100%">
-                    Need ${pointCost.toLocaleString('id-ID')} Pts
-                </button>
-            `;
+            actionEl.innerHTML = '<button class="btn-redeem-locked" disabled>Points Insufficient</button>';
         }
 
         goalModal.style.display = 'flex';
-        setTimeout(() => {
-            goalModal.style.opacity = '1';
-            goalModal.style.pointerEvents = 'auto';
-        }, 10);
+        setTimeout(() => { goalModal.style.opacity = '1'; }, 10);
     }
 
     function closeGoalDetail() {
         goalModal.style.opacity = '0';
-        goalModal.style.pointerEvents = 'none';
-        setTimeout(() => goalModal.style.display = 'none', 300);
+        setTimeout(() => { goalModal.style.display = 'none'; }, 300);
     }
-
-    goalModal.addEventListener('click', function(e) {
-        if (e.target === goalModal) closeGoalDetail();
-    });
-    </script>
+</script>
 @endpush
-
-@endsection

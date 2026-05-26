@@ -105,7 +105,7 @@
                                         <div class="fw-semibold text-jaced-dark" style="font-size: 14px;">Rp {{ number_format($item['price'], 2) }}</div>
                                     </div>
                                 @empty
-                                    <p class="text-jaced-muted">Keranjang kamu kosong.</p>
+                                    <p class="text-jaced-muted">Your cart is empty.</p>
                                 @endforelse
                             </div>
                         </div>
@@ -114,7 +114,7 @@
                     {{-- Shipping Address Selection Section --}}
                     <div class="mb-4">
                         <div class="d-flex justify-content-between align-items-center mb-3">
-                            <h2 class="fw-bold text-jaced-sage m-0" style="font-size: 1.3rem; font-weight: 400;">Alamat Pengiriman</h2>
+                            <h2 class="fw-bold text-jaced-sage m-0" style="font-size: 1.3rem; font-weight: 400;">Delivery Address</h2>
                         </div>
                         
                         @if(isset($savedAddresses) && $savedAddresses->isNotEmpty())
@@ -159,22 +159,22 @@
 
                             <button type="button" class="btn-add-address-shopee" onclick="openAddAddressModal()">
                                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-plus-lg" viewBox="0 0 14 14"><path fill-rule="evenodd" d="M8 2a.5.5 0 0 1 .5.5v5h5a.5.5 0 0 1 0 1h-5v5a.5.5 0 0 1-1 0v-5h-5a.5.5 0 0 1 0-1h5v-5A.5.5 0 0 1 8 2Z"/></svg>
-                                Tambah Alamat Baru
+                                Add New Address
                             </button>
                         @else
                             <div class="p-4 text-center border rounded bg-light">
-                                <p class="text-jaced-muted small">Kamu belum memiliki alamat tersimpan.</p>
+                                <p class="text-jaced-muted small">You haven't saved any addresses yet.</p>
                                 <button type="button" class="btn btn-sm btn-outline-secondary" onclick="openAddAddressModal()">
-                                    + Buat Alamat Pertama
+                                    + Create First Address
                                 </button>
                             </div>
                         @endif
 
                         {{-- SELEKSI KURIR --}}
                         <div class="jaced-card p-3 mt-4" style="border: 1px solid #d1cbbf;">
-                            <label class="fw-bold text-jaced-dark mb-2" style="font-size: 14px;">Metode Pengiriman</label>
+                            <label class="fw-bold text-jaced-dark mb-2" style="font-size: 14px;">Delivery Method</label>
                             <div id="shippingOptions" style="max-height: 200px; overflow-y: auto;">
-                                <p class="text-jaced-muted small">Silakan pilih alamat terlebih dahulu.</p>
+                                <p class="text-jaced-muted small">Please select an address first.</p>
                             </div>
                             <input type="hidden" name="delivery_fee" id="deliveryFeeInput" value="0">
                         </div>
@@ -193,23 +193,23 @@
                             <span class="text-jaced-dark fw-medium" id="summary-subtotal" data-raw="{{ $subtotal }}">Rp {{ number_format($subtotal, 0, ',', '.') }}</span>
                         </div>
                         <div class="d-flex justify-content-between mb-2" style="font-size: 13px;">
-                            <span class="text-jaced-muted">Ongkos Kirim</span>
+                            <span class="text-jaced-muted">Shipping Fee</span>
                             <span class="text-jaced-dark fw-medium" id="deliveryFeeDisplay">Rp {{ number_format($shipping, 0, ',', '.') }}</span>
                         </div>
                         <div class="d-flex justify-content-between mb-2" style="font-size: 13px;">
-                            <span class="text-jaced-muted">Pajak Layanan</span>
+                            <span class="text-jaced-muted">Service Tax</span>
                             {{-- Tambahkan id="summary-tax" dan data-raw --}}
                             <span class="text-jaced-dark fw-medium" id="summary-tax" data-raw="{{ $tax }}">Rp {{ number_format($tax, 0, ',', '.') }}</span>
                         </div>
 
                         {{-- BARIS DISKON VOUCHER (ZONA POTONGAN) --}}
                         <div class="d-flex justify-content-between text-danger d-none" id="row-discount-shipping">
-                            <span>Total Diskon Pengiriman</span>
+                            <span>Total Discount Shipping</span>
                             <span class="fw-bold" id="summary-discount-shipping">-Rp 0</span>
                         </div>
                         
                         <div class="d-flex justify-content-between text-danger d-none" id="row-discount-product">
-                            <span>Voucher Diskon</span>
+                            <span>Discount Voucher</span>
                             <span class="fw-bold" id="summary-discount-product">-Rp 0</span>
                         </div>
 
@@ -227,16 +227,16 @@
                                 <span class="fw-medium text-jaced-dark mb-0" id="selectedVoucherText" style="font-size: 13px;">Voucher Jaced</span>
                             </div>
                             <div class="d-flex align-items-center gap-1">
-                                <span class="badge bg-danger d-none" id="voucherActiveBadge" style="font-size: 10px;">1 Terpasang</span>
+                                <span class="badge bg-danger d-none" id="voucherActiveBadge" style="font-size: 10px;">1 Applied</span>
                                 <span class="text-muted small">❯</span>
                             </div>
                         </div>
 
                         {{-- Payment Method --}}
                         <div class="payment-section mt-3 pt-3 border-top">
-                            <span class="field-label small mb-2 d-block fw-medium text-jaced-dark">Metode Pembayaran</span>
+                            <span class="field-label small mb-2 d-block fw-medium text-jaced-dark">Payment Method</span>
                             <select name="payment_method" class="form-select form-select-sm" id="paymentMethod" onchange="handlePaymentChange(this.value)" required style="border-color: #d1cbbf;">
-                                <option value="">Pilih Metode Pembayaran</option>
+                                <option value="">Choose Payment Method</option>
                                 @foreach ($paymentMethods as $method)
                                     <option value="{{ $method['value'] }}">{{ $method['label'] }}</option>
                                 @endforeach
@@ -256,7 +256,7 @@
                         <hr class="my-3" style="border-color: #e2dcd0;">
 
                         <div class="d-flex justify-content-between align-items-center mb-3">
-                            <span class="fw-bold text-jaced-dark" style="font-size: 16px;">Total Pembayaran</span>
+                            <span class="fw-bold text-jaced-dark" style="font-size: 16px;">Grand Total</span>
                             {{-- Bersihkan desimal (.00) dari backend agar sinkron saat JS melakukan kalkulasi matematika --}}
                             <span class="fw-bold text-jaced-sage" style="font-size: 22px;" id="totalDisplay" data-raw="{{ $total }}">Rp {{ number_format($total, 0, ',', '.') }}</span>
                         </div>
@@ -266,7 +266,7 @@
                         <input type="hidden" name="discount_amount" id="applied-discount-amount" value="0">
 
                         <button type="submit" class="btn-jaced w-100 py-2" style="font-size: 15px;">
-                            Buat Pesanan
+                            Make Order
                         </button>
                     </div>
                 </div>
@@ -345,6 +345,8 @@
             </div>
         </div>
     </div>
+    {{-- Wadah input hidden --}}
+    <div id="hiddenAddressMutationContainer"></div>
 </form>
 
 {{-- MODAL POP-UP TAMBAH / EDIT ALAMAT --}}
@@ -413,10 +415,6 @@
         </div>
     </div>
 </div>
-
-{{-- Wadah input hidden untuk dikirim ke Controller backend saat submit form checkout --}}
-<div id="hiddenAddressMutationContainer"></div>
-
 @endsection
 
 @push('scripts')
@@ -728,7 +726,21 @@
             const villageName = vSel.options[vSel.selectedIndex] ? vSel.options[vSel.selectedIndex].text : '';
 
             const container = document.getElementById('hiddenAddressMutationContainer');
-            const wrapper = document.querySelector('.shopee-address-wrapper');
+            let wrapper = document.querySelector('.shopee-address-wrapper');
+            if (!wrapper) {
+                wrapper = document.createElement('div');
+                wrapper.className = 'shopee-address-wrapper mb-3';
+                
+                const addBtn = document.querySelector('.btn-add-address-shopee') 
+                            || document.querySelector('.btn-outline-secondary');
+                
+                if (addBtn) {
+                    const target = addBtn.closest('.p-4') || addBtn;
+                    target.parentNode.insertBefore(wrapper, target);
+                } else {
+                    document.querySelector('.mb-4').appendChild(wrapper);
+                }
+            }
             
             if (actionMode === 'add') {
                 container.innerHTML = `

@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Stage;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -16,32 +17,42 @@ class RewardController extends Controller
         $accumulatedPoints = $user->accumulated_points ?? 0;
 
         // Stage berdasarkan total spending order paid
-        $totalSpending = DB::table('orders')
-            ->where('user_id', $user->id)
-            ->where('status', 'paid')
-            ->sum('total_price');
-
-        $stage = match(true) {
-            $totalSpending >= 500_000_000 => 'Platinum',
-            $totalSpending >= 200_000_000 => 'Gold',
-            $totalSpending >= 50_000_000  => 'Silver',
-            default                        => 'Bronze',
-        };
+        $stageModel = DB::table('stages')
+                ->where('min_points_accumulative', '<=', $accumulatedPoints)
+                ->orderBy('min_points_accumulative', 'desc')
+                ->first();
+        $stage = $stageModel ? $stageModel->name : 'Bronze';
 
         // Point history dari DB
         $pointHistoryItems = DB::table('point_histories')
             ->where('user_id', $user->id)
             ->orderBy('created_at', 'desc')
             ->limit(5)
-            ->get();
+            ->get()
+            ->map(fn($item) => [
+                'source' => match($item->source) {
+                    'purchase'       => 'Purchase Reward',
+                    'redeem_voucher' => 'Voucher Redeemed',
+                    'redeem'         => 'Points Redeemed',
+                    default          => ucfirst($item->source),
+                },
+                'date'   => \Carbon\Carbon::parse($item->created_at)->format('d M Y'),
+                'points' => $item->points,
+                'type'   => $item->type,
+            ]);
 
         // Redeem goals dari voucher_types
         $redeemGoals = DB::table('voucher_types')->limit(2)->get();
 
+        $stages = Stage::orderBy('min_points_accumulative', 'asc')->get();
+
         return view('profile.reward-center.reward', compact(
-            'currentPoints', 'accumulatedPoints', 
-            'stage', 'totalSpending',
-            'pointHistoryItems', 'redeemGoals'
+            'stages',
+            'stage',
+            'currentPoints',
+            'accumulatedPoints',
+            'pointHistoryItems',
+            'redeemGoals'
         ));
     }
 

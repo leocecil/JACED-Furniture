@@ -47,6 +47,7 @@ Route::middleware(['role:customer'])->group(function() {
     Route::get('/profile', [UserController::class, 'show_profile'])->name('profile');
     Route::get('/profile/edit/{id}', [UserController::class, 'edit_profile'])->name('profile.edit');
     Route::post('/profile/edit/{id}', [UserController::class, 'update_profile'])->name('profile.update');
+    Route::delete('/profile/avatar/{id}', [UserController::class, 'delete_avatar'])->name('profile.avatar.delete');
     Route::get('/profile/addresses', [UserController::class, 'addresses'])->name('profile.addresses');
     Route::post('/profile/addresses', [UserController::class, 'storeAddress'])->name('profile.addresses.store');
     Route::put('/profile/addresses/{id}', [UserController::class, 'updateAddress'])->name('profile.addresses.update');
@@ -106,7 +107,10 @@ Route::middleware(['role:customer'])->group(function() {
 
     // Customer Purchase History
     Route::get('/orderhistory', [OrderHistoryController::class, 'index'])->name('store.orderhistory');
-    Route::get('/transactionhistory/{id}', [OrderController::class, 'show'])->name('store.transactionhistory_detail.show');
+    Route::get('/orderhistory/{id}', [OrderHistoryController::class, 'show'])->name('store.orderhistory_detail.show');
+
+    // Order History - Invoice
+    Route::get('/orderhistory/{id}/invoice', [OrderHistoryController::class, 'invoice'])->name('store.orderhistory.invoice');
 });
 
 Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
@@ -124,7 +128,6 @@ Route::middleware(['role:admin'])->group(function() {
     Route::post('/admin/dashboard/set-target', [DashboardController::class, 'setTarget'])->name('admin.dashboard.setTarget');
 
     // Order Overview & Operational Management
-    Route::get('/admin/main', [OrderController::class, 'index'])->name('orders.index');
     Route::get('/admin/order_management', [OrderManagementController::class, 'index'])->name('order_management');
     Route::get('/admin/order_management/search', [OrderManagementController::class, 'search'])->name('admin.order_management.search');
     Route::post('/admin/orders/{id}/status', [OrderManagementController::class, 'updateStatus'])->name('admin.orders.updateStatus');
@@ -150,6 +153,7 @@ Route::middleware(['role:admin'])->group(function() {
     Route::post('/admin/vouchers', [VoucherManagementController::class, 'store'])->name('admin.vouchers.store');
     Route::post('/admin/vouchers/{id}/toggle', [VoucherManagementController::class, 'toggle'])->name('admin.vouchers.toggle');
     Route::delete('/admin/vouchers/{id}', [VoucherManagementController::class, 'destroy'])->name('admin.vouchers.destroy');
+    Route::get('/admin/vouchers/stats', [VoucherManagementController::class, 'stats'])->name('admin.vouchers.stats');
 
     // Product Category Manager
     Route::post('/admin/categories', [CategoryController::class, 'store'])->name('categories.store');
