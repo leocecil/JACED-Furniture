@@ -67,7 +67,7 @@ class OrderController extends Controller
 
         $subtotal = $items->sum(fn($i) => $i['price'] * $i['qty']);
         $shipping = 0;
-        $tax      = $subtotal * 0.0836;
+        $tax      = $subtotal * 0.05;
         $total    = $subtotal + $shipping + $tax;
 
         $paymentMethods = PaymentMethod::all()
@@ -524,7 +524,6 @@ class OrderController extends Controller
     public function index(Request $request)
     {
         $filters = ['All', 'Unpaid', 'Packed', 'Delivered', 'Arrived', 'Cancelled'];
-
         $activeFilter = $request->get('filter', 'All');
 
         // Mapping filter tab → status di DB

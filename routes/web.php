@@ -17,7 +17,6 @@ use App\Http\Controllers\UserController;
 use App\Http\Controllers\VoucherManagementController;
 use App\Http\Controllers\WishlistController;
 use Illuminate\Support\Facades\Route;
-// use session;
 
 /*
 |--------------------------------------------------------------------------
@@ -73,17 +72,9 @@ Route::middleware(['role:customer'])->group(function() {
 
     // CART
     Route::post('/cart/add', [CartController::class, 'add'])->name('cart.add');
-    Route::patch('/cart/{id}/increase', [CartController::class, 'increase'])
-        ->name('cart.increase');
-    Route::patch('/cart/{id}/decrease', [CartController::class, 'decrease'])
-        ->name('cart.decrease');
-    Route::delete('/cart/{id}', [CartController::class, 'delete'])
-        ->name('cart.delete');
-
-    // Route::get('/api/cart', [CartController::class, 'index']);
-    // Route::post('/api/cart/add', [CartController::class, 'add'])->name('cart.add');
-    // Route::put('/api/cart/update/{id}', [CartController::class, 'update'])->name('cart.update');
-    // Route::delete('/api/cart/remove/{id}', [CartController::class, 'remove'])->name('cart.remove');
+    Route::patch('/cart/{id}/increase', [CartController::class, 'increase'])->name('cart.increase');
+    Route::patch('/cart/{id}/decrease', [CartController::class, 'decrease'])->name('cart.decrease');
+    Route::delete('/cart/{id}', [CartController::class, 'delete'])->name('cart.delete');
 
     // WISHLIST
     Route::get('/wishlist/items', [WishlistController::class, 'items']);
@@ -113,9 +104,7 @@ Route::middleware(['role:customer'])->group(function() {
     Route::get('/orderhistory/{id}/invoice', [OrderHistoryController::class, 'invoice'])->name('store.orderhistory.invoice');
 });
 
-Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
-
-// ADMIN LOGIN
+// ADMIN AUTHENTICATION
 Route::get('/admin/login', [AuthController::class, 'show_login_admin_form'])->name('admin.login.show');
 Route::post('/admin/login_auth', [AuthController::class, 'login_admin_auth'])->name('admin.login.auth');
 Route::post('/admin/logout', [AuthController::class, 'logout_admin'])->name('admin.logout');
@@ -132,23 +121,19 @@ Route::middleware(['role:admin'])->group(function() {
     Route::get('/admin/order_management/search', [OrderManagementController::class, 'search'])->name('admin.order_management.search');
     Route::post('/admin/orders/{id}/status', [OrderManagementController::class, 'updateStatus'])->name('admin.orders.updateStatus');
 
-    // CORE CUSTOMER ANALYTICS SYSTEMS (Sudah Sinkron & Dinamis)
+    // Core Customer Analytics Systems
     Route::get('/admin/analytics', [AnalyticsController::class, 'index'])->name('analytics.customers');
     Route::get('/admin/analytics/customers/all', [AnalyticsController::class, 'allCustomers'])->name('analytics.customers.all');
 
-    // Inventory Stock Control
+    // Inventory Stock Control (Mendukung SoftDeletes & Restore)
     Route::get('/admin/inventory', [InventoryController::class, 'index'])->name('inventory.index');
     Route::post('/admin/inventory', [InventoryController::class, 'store'])->name('inventory.store');
     Route::put('/admin/inventory/{inventory}', [InventoryController::class, 'update'])->name('inventory.update');
-    Route::delete('/admin/inventory/{inventory}', [InventoryController::class, 'destroy'])->name('inventory.destroy');
     Route::delete('/admin/inventory/image/{image}', [InventoryController::class, 'destroyImage'])->name('inventory.image.destroy');
+    Route::delete('/admin/inventory/{inventory}', [InventoryController::class, 'destroy'])->name('inventory.destroy');
+    Route::post('/admin/inventory/{id}/restore', [InventoryController::class, 'restore'])->name('inventory.restore');
 
-    Route::get('/admin/order_management', [OrderManagementController::class, 'index'])->name('order_management');
-    Route::get('/admin/order_management/search', [OrderManagementController::class, 'search'])->name('admin.order_management.search');
-    Route::post('/admin/orders/{id}/status', [OrderManagementController::class, 'updateStatus'])->name('admin.orders.updateStatus');
-
-    Route::get('/admin/inventory', [InventoryController::class, 'index'])->name('inventory.index');
-
+    // Voucher Operational Management Systems
     Route::get('/admin/vouchers', [VoucherManagementController::class, 'index'])->name('admin.vouchers');
     Route::post('/admin/vouchers', [VoucherManagementController::class, 'store'])->name('admin.vouchers.store');
     Route::post('/admin/vouchers/{id}/toggle', [VoucherManagementController::class, 'toggle'])->name('admin.vouchers.toggle');
@@ -158,6 +143,4 @@ Route::middleware(['role:admin'])->group(function() {
     // Product Category Manager
     Route::post('/admin/categories', [CategoryController::class, 'store'])->name('categories.store');
     Route::delete('/admin/categories/{category}', [CategoryController::class, 'destroy'])->name('categories.destroy');
-}); 
-    
-
+});

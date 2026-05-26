@@ -86,7 +86,7 @@
         color: #f5f2ee;
     }
 
-    /* Kustomisasi Balon Tooltip Asli Bootstrap agar Sesuai Tema (image_b18482.png) */
+    /* Kustomisasi Balon Tooltip Asli Bootstrap agar Sesuai Tema */
     .tooltip .tooltip-inner {
         background-color: #e0e0e0 !important;
         color: #1a1a18 !important;
@@ -177,15 +177,16 @@
     {{-- Navigation --}}
     <nav class="sidebar-nav">
 
-
+        {{-- 1. Overview --}}
         <a href="{{ route('admin.dashboard') }}"
-            class="nav-link {{ request()->routeIs('dashboard') ? 'active' : '' }}"
+            class="nav-link {{ request()->routeIs('admin.dashboard') ? 'active' : '' }}"
             onclick="if(window.innerWidth<=768) closeSidebar()">
             <i class="bi bi-grid-1x2"></i> <span class="menu-text">Overview</span>
         </a>
 
+        {{-- 2. Orders (SINKRON: Mendukung rute order_management & admin.orders.*) --}}
         <a href="{{ route('order_management') }}"
-            class="nav-link {{ request()->routeIs('orders.*') ? 'active' : '' }}"
+            class="nav-link {{ request()->routeIs('order_management') || request()->is('admin/order_management*') || request()->is('admin/orders*') ? 'active' : '' }}"
             onclick="if(window.innerWidth<=768) closeSidebar()">
             <i class="bi bi-bag-check"></i> <span class="menu-text">Orders</span>
             @isset($orderCount)
@@ -193,20 +194,23 @@
             @endisset
         </a>
 
+        {{-- 3. Inventory --}}
         <a href="{{ route('inventory.index') }}"
             class="nav-link {{ request()->routeIs('inventory.*') ? 'active' : '' }}"
             onclick="if(window.innerWidth<=768) closeSidebar()">
             <i class="bi bi-box-seam"></i> <span class="menu-text">Inventory</span>
         </a>
 
+        {{-- 4. Customer Analytics --}}
         <a href="{{ route('analytics.customers') }}"
             class="nav-link {{ request()->routeIs('analytics.*') ? 'active' : '' }}"
             onclick="if(window.innerWidth<=768) closeSidebar()">
             <i class="bi bi-bar-chart-line"></i> <span class="menu-text">Customer Analytics</span>
         </a>
 
+        {{-- 5. Voucher (SINKRON BARU: Mengunci pola rute admin.vouchers secara mutlak) --}}
         <a href="{{ route('admin.vouchers') }}"
-            class="nav-link {{ request()->routeIs('logistics.*') ? 'active' : '' }}"
+            class="nav-link {{ request()->routeIs('admin.vouchers*') || request()->is('admin/vouchers*') ? 'active' : '' }}"
             onclick="if(window.innerWidth<=768) closeSidebar()">
             <i class="bi bi-ticket-perforated"></i> <span class="menu-text">Voucher</span>
         </a>
