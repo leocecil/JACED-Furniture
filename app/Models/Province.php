@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 
 class Province extends Model
 {
@@ -21,7 +22,7 @@ class Province extends Model
             ->orderByDesc('created_at')
             ->get();
 
-        $provinces = Province::orderBy('name', 'asc')->get(); // pakai Laravolt
+        $provinces = DB::table('indonesia_provinces')->orderBy('name', 'asc')->get(); 
 
         return view('profile.addresses', compact('addresses', 'provinces'));
     }

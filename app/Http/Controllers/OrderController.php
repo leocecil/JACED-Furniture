@@ -23,7 +23,7 @@ class OrderController extends Controller
 {
     public function showCheckout()
     {
-        $provinces = Province::orderBy('name', 'asc')->get();
+        $provinces = DB::table('indonesia_provinces')->orderBy('name', 'asc')->get();
         $savedAddresses = DB::table('shipping_address')
                         ->where('user_id', auth()->user()->id)
                         ->get();
