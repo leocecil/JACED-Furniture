@@ -164,7 +164,7 @@
 
                 <div class="bestseller-list">
                     @forelse($recommended as $index => $product)
-                        <a href="{{ route('product.show', $product->slug) }}" class="bestseller-row text-decoration-none" data-reveal="slide-up" data-reveal-delay="{{ $index * 100 }}">
+                        <a href="{{ route('product.show', $product->id) }}" class="bestseller-row text-decoration-none" data-reveal="slide-up" data-reveal-delay="{{ $index * 100 }}">
                             <div class="bestseller-name">
                                 <small class="text-uppercase bestseller-cat">{{ $product->category->name ?? 'Furniture' }}</small>
                                 <h5 class="mb-0 fw-semibold">{{ $product->name }}</h5>

@@ -185,35 +185,8 @@
                 </p>
             </div>
         </div>
-
-        {{-- Stat Cards --}}
-        <div class="row g-3 mb-4">
-            <div class="col-6">
-                <div class="stat-card">
-                    <div class="stat-icon">
-                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none"
-                             stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-                            <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
-                        </svg>
-                    </div>
-                    <div class="stat-value">{{ number_format($user->artisan_points ?? 1250) }} Artisan Points</div>
-                    <a href="{{ route('reward') }}" class="stat-link">Redeem</a>
-                </div>
-            </div>
-            <div class="col-6">
-                <div class="stat-card">
-                    <div class="stat-icon">
-                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none"
-                             stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-                            <rect x="1" y="4" width="22" height="16" rx="2" ry="2"/>
-                            <line x1="1" y1="10" x2="23" y2="10"/>
-                        </svg>
-                    </div>
-                    <div class="stat-value">{{ $user->vouchers_count ?? 3 }} Available Vouchers</div>
-                    <a href="#" class="stat-link">View All</a>
-                </div>
-            </div>
-        </div>
+{{-- 
+      --}}
 
         {{-- Preferences & Account --}}
         <div class="section-label">Preferences &amp; Account</div>
@@ -227,13 +200,6 @@
                 <span class="menu-chevron"><svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg></span>
             </a>
 
-            <a href="{{ route('reward') }}" class="menu-item">
-                <div class="menu-icon-wrap">
-                    <svg viewBox="0 0 24 24"><polyline points="20 12 20 22 4 22 4 12"/><rect x="2" y="7" width="20" height="5"/><path d="M12 22V7"/><path d="M12 7H7.5a2.5 2.5 0 0 1 0-5C11 2 12 7 12 7z"/><path d="M12 7h4.5a2.5 2.5 0 0 0 0-5C13 2 12 7 12 7z"/></svg>
-                </div>
-                <span class="menu-label">Reward Center</span>
-                <span class="menu-chevron"><svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg></span>
-            </a>
 
             <a href="{{ route('tos') }}" class="menu-item">
                 <div class="menu-icon-wrap">

@@ -172,9 +172,28 @@
                 </div>
 
                 <div class="d-flex gap-1 flex-shrink-0">
-                    <button class="action-btn" title="Edit" onclick="openEditModal({{ json_encode($product) }})">
-                        <i class="bi bi-pencil"></i>
-                    </button>
+                    <button class="action-btn" title="Edit"
+        onclick="openEdititemModal({{ json_encode([
+            'id'          => $product->id,
+            'name'        => $product->name,
+            'description' => $product->description,
+            'length'      => $product->length,
+            'width'       => $product->width,
+            'height'      => $product->height,
+            'unit'        => $product->unit,
+            'price'       => $product->price,
+            'stock'       => $product->stock,
+            'low_stock'   => $product->low_stock,
+            'label'       => $product->label,
+            'category_id' => $product->category_id,
+            'images'      => $product->images->map(fn($img) => [
+                'id'         => $img->id,
+                'image_path' => $img->image_path,
+                'is_main'    => $img->is_main,
+            ])->values()->toArray(),
+        ]) }})">
+    <i class="bi bi-pencil"></i>
+</button>
                     <form action="{{ route('inventory.destroy', $product->id) }}" method="POST"
                           onsubmit="return confirm('Apakah Anda yakin ingin menonaktifkan {{ addslashes($product->name) }}?')">
                         @csrf 
@@ -222,3 +241,277 @@
         // jQuery('#editItemModal').modal('show');
     }
 </script>
+@push('modals')
+<div class="modal fade" id="editItemModal" tabindex="-1" aria-labelledby="editItemModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content border-0 shadow" style="border-radius: 16px;">
+
+            <div class="modal-header border-0 pt-4 px-4 pb-0">
+                <h5 class="modal-title fw-bold" id="editItemModalLabel">Edit Product</h5>
+                <button type="button" class="btn-close shadow-none" data-bs-dismiss="modal"></button>
+            </div>
+
+            <form id="editProductForm" method="POST" enctype="multipart/form-data">
+                @csrf
+                @method('PUT')
+
+                <div class="modal-body px-4 pb-2" style="max-height: 70vh; overflow-y: auto;">
+
+                    {{-- 1. BASIC INFORMATION --}}
+                    <div class="modal-section-title">Basic Information</div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Product Name <span class="text-danger">*</span></label>
+                        <input type="text" class="form-control" name="name" id="edit_name"
+                               placeholder="e.g., Sculptural Lounge Chair" required>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Description</label>
+                        <textarea class="form-control" name="description" id="edit_description"
+                                  rows="3" placeholder="Describe the product..."
+                                  style="resize: none;"></textarea>
+                    </div>
+
+                    {{-- 2. DIMENSIONS --}}
+                    <div class="modal-section-title">Dimensions</div>
+
+                    <div class="row g-3 mb-3">
+                        <div class="col-4">
+                            <label class="form-label">Length <span class="text-danger">*</span></label>
+                            <div class="input-group">
+                                <span class="input-group-text">L</span>
+                                <input type="number" class="form-control" name="length" id="edit_length"
+                                       placeholder="0" min="0" step="0.1" required>
+                            </div>
+                        </div>
+                        <div class="col-4">
+                            <label class="form-label">Width <span class="text-danger">*</span></label>
+                            <div class="input-group">
+                                <span class="input-group-text">W</span>
+                                <input type="number" class="form-control" name="width" id="edit_width"
+                                       placeholder="0" min="0" step="0.1" required>
+                            </div>
+                        </div>
+                        <div class="col-4">
+                            <label class="form-label">Height <span class="text-danger">*</span></label>
+                            <div class="input-group">
+                                <span class="input-group-text">H</span>
+                                <input type="number" class="form-control" name="height" id="edit_height"
+                                       placeholder="0" min="0" step="0.1" required>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Unit (Satuan) <span class="text-danger">*</span></label>
+                        <select class="form-select" name="unit" id="edit_unit" required>
+                            <option value="cm">cm — Centimeter</option>
+                            <option value="m">m — Meter</option>
+                            <option value="inch">inch — Inch</option>
+                        </select>
+                    </div>
+
+                    {{-- 3. PRICING & STOCK --}}
+                    <div class="modal-section-title">Pricing & Stock</div>
+
+                    <div class="row g-3 mb-3">
+                        <div class="col-md-4">
+                            <label class="form-label">Price <span class="text-danger">*</span></label>
+                            <div class="input-group">
+                                <span class="input-group-text">Rp</span>
+                                <input type="number" class="form-control" name="price" id="edit_price"
+                                       placeholder="0" min="0" required>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label">Stock <span class="text-danger">*</span></label>
+                            <div class="input-group">
+                                <span class="input-group-text">
+                                    <i class="bi bi-box-seam" style="font-size:12px;"></i>
+                                </span>
+                                <input type="number" class="form-control" name="stock" id="edit_stock"
+                                       placeholder="0" min="0" required>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label">
+                                Low Stock Alert
+                                <span class="text-muted fw-normal">(threshold)</span>
+                            </label>
+                            <div class="input-group">
+                                <span class="input-group-text">
+                                    <i class="bi bi-exclamation-triangle" style="font-size:12px;"></i>
+                                </span>
+                                <input type="number" class="form-control" name="low_stock" id="edit_low_stock"
+                                       placeholder="5" min="0">
+                            </div>
+                        </div>
+                    </div>
+
+                    {{-- 4. CATEGORY & LABEL --}}
+                    <div class="modal-section-title">Category & Label</div>
+
+                    <div class="row g-3 mb-3">
+                        <div class="col-md-6">
+                            <label class="form-label">Category <span class="text-danger">*</span></label>
+                            <select class="form-select" name="category_id" id="edit_category_id" required>
+                                <option value="" disabled>Select Category</option>
+                                @foreach($categories as $cat)
+                                    <option value="{{ $cat->id }}">{{ $cat->name }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">
+                                Label
+                                <span class="text-muted fw-normal">(tag produk)</span>
+                            </label>
+                            <input type="text" class="form-control" name="label" id="edit_label"
+                                   placeholder="e.g., Bestseller, New Arrival">
+                        </div>
+                    </div>
+
+                    {{-- 5. EXISTING IMAGES --}}
+                    <div class="modal-section-title">Current Images</div>
+                    <div class="d-flex flex-wrap gap-2 mb-3" id="editExistingImages">
+                        {{-- diisi via JS --}}
+                    </div>
+
+                    {{-- 6. ADD NEW IMAGES --}}
+                    <div class="modal-section-title">Add New Images</div>
+                    <div class="image-upload-area">
+                        <input type="file" name="images[]" id="editImageInput"
+                               accept="image/*" multiple onchange="previewEditImages(this)">
+                        <i class="bi bi-cloud-upload fs-3 text-muted d-block mb-2"></i>
+                        <div style="font-size:13px; font-weight:600; color:#3a3a36;">
+                            Click or drag & drop to add more images
+                        </div>
+                        <div style="font-size:11px; color:#9c9890; margin-top:4px;">
+                            JPG, PNG, WEBP — max 2MB each
+                        </div>
+                    </div>
+                    <div class="image-preview-wrap" id="editImagePreviewWrap"></div>
+
+                </div>{{-- end modal-body --}}
+
+                <div class="modal-footer border-0 pb-4 px-4 pt-3 d-flex gap-2">
+                    <button type="button"
+                            class="btn btn-sm flex-grow-1 py-2 rounded-3"
+                            data-bs-dismiss="modal"
+                            style="background:#f0eeeb; color:#1a1a18; border:none;">
+                        Cancel
+                    </button>
+                    <button type="submit"
+                            class="btn btn-sm flex-grow-1 py-2 rounded-3 fw-bold"
+                            style="background:#c4a882; color:white; border:none;">
+                        <i class="bi bi-check-lg me-1"></i> Update Product
+                    </button>
+                </div>
+            </form>
+
+        </div>
+    </div>
+</div>
+
+
+{{-- ══════════════════════════════════════
+     SCRIPT: openEditModal
+══════════════════════════════════════ --}}
+<script>
+function openEditModal(product) {
+    // ── Set action form ke route update produk ini
+    const form = document.getElementById('editProductForm');
+    form.action = '/admin/inventory/' + product.id;
+
+    // ── Isi semua field dengan data produk
+    document.getElementById('edit_name').value        = product.name        ?? '';
+    document.getElementById('edit_description').value = product.description ?? '';
+    document.getElementById('edit_length').value      = product.length      ?? '';
+    document.getElementById('edit_width').value       = product.width       ?? '';
+    document.getElementById('edit_height').value      = product.height      ?? '';
+    document.getElementById('edit_price').value       = product.price       ?? '';
+    document.getElementById('edit_stock').value       = product.stock       ?? '';
+    document.getElementById('edit_low_stock').value   = product.low_stock   ?? 5;
+    document.getElementById('edit_label').value       = product.label       ?? '';
+
+    // ── Unit select
+    const unitSelect = document.getElementById('edit_unit');
+    unitSelect.value = product.unit ?? 'cm';
+
+    // ── Category select
+    const catSelect = document.getElementById('edit_category_id');
+    catSelect.value = product.category_id ?? '';
+
+    // ── Reset preview gambar baru
+    document.getElementById('editImagePreviewWrap').innerHTML = '';
+    document.getElementById('editImageInput').value = '';
+
+    // ── Tampilkan gambar yang sudah ada
+    const existingWrap = document.getElementById('editExistingImages');
+    existingWrap.innerHTML = '';
+
+    if (product.images && product.images.length > 0) {
+        product.images.forEach(function (img) {
+            const imgUrl = '/storage/' + img.image_path;
+            const div = document.createElement('div');
+            div.className = 'image-preview-item';
+            div.dataset.imgId = img.id;
+            div.innerHTML = `
+                <img src="${imgUrl}" alt="">
+                <button type="button" class="remove-img"
+                        onclick="deleteExistingImage(${img.id}, this)"
+                        title="Remove image">×</button>
+            `;
+            existingWrap.appendChild(div);
+        });
+    } else {
+        existingWrap.innerHTML = '<p class="text-muted small">No images yet.</p>';
+    }
+
+    // ── Buka modal
+    const modal = new bootstrap.Modal(document.getElementById('editItemModal'));
+    modal.show();
+}
+
+// ── Preview gambar baru yang akan ditambahkan
+function previewEditImages(input) {
+    const wrap = document.getElementById('editImagePreviewWrap');
+    Array.from(input.files).forEach(file => {
+        if (!file.type.startsWith('image/')) return;
+        const reader = new FileReader();
+        reader.onload = e => {
+            const div = document.createElement('div');
+            div.className = 'image-preview-item';
+            div.innerHTML = `
+                <img src="${e.target.result}" alt="">
+                <button type="button" class="remove-img"
+                        onclick="this.closest('.image-preview-item').remove()">×</button>`;
+            wrap.appendChild(div);
+        };
+        reader.readAsDataURL(file);
+    });
+}
+
+// ── Hapus gambar existing via AJAX
+function deleteExistingImage(imageId, btn) {
+    if (!confirm('Remove this image?')) return;
+
+    fetch('/admin/inventory/image/' + imageId, {
+        method: 'DELETE',
+        headers: {
+            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+        },
+    })
+    .then(r => r.json())
+    .then(data => {
+        if (data.success) {
+            btn.closest('.image-preview-item').remove();
+        } else {
+            alert('Failed to delete image.');
+        }
+    })
+    .catch(() => alert('Something went wrong.'));
+}
+</script>
+@endpush

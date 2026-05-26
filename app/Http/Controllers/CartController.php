@@ -9,7 +9,6 @@ use Illuminate\Support\Facades\Auth;
 
 class CartController extends Controller
 {
-    // Tambah produk ke cart
     public function add(Request $request)
     {
         $existingCart = Cart::where('user_id', auth()->id())
@@ -34,7 +33,7 @@ class CartController extends Controller
         $cart = Cart::findOrFail($id);
         $cart->quantity++;
         $cart->save();
-        return back();
+        return response()->json(['success' => true]);
     }
     public function decrease($id)
     {
@@ -43,35 +42,13 @@ class CartController extends Controller
             $cart->quantity--;
             $cart->save();
         }
-        return back();
-    }
-
-    // Update quantity
-    public function update(Request $request, $id)
-    {
-        $cart = Cart::where('id', $id)
-                ->where('user_id', Auth::id())
-                    ->firstOrFail();
-
-        $cart->update(['quantity' => $request->quantity]);
-
-        return response()->json(['message' => 'Cart diupdate']);
-    }
-
-    // Hapus item dari cart
-    public function remove($id)
-    {
-        Cart::where('id', $id)
-            ->where('user_id', Auth::id())
-            ->delete();
-
-        return response()->json(['message' => 'Item dihapus dari cart']);
+        return response()->json(['success' => true]);
     }
     public function delete($id)
     {
         $cart = Cart::findOrFail($id);
         $cart->delete();
-        return back();
+        return response()->json(['success' => true]);
     }
 
     // Ambil semua item cart user

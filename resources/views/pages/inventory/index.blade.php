@@ -319,54 +319,62 @@
 <div class="modal fade" id="addItemModal" tabindex="-1" aria-labelledby="addItemModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered modal-lg">
         <div class="modal-content border-0 shadow" style="border-radius: 16px;">
+ 
             <div class="modal-header border-0 pt-4 px-4 pb-0">
                 <h5 class="modal-title fw-bold" id="addItemModalLabel">Add New Product</h5>
                 <button type="button" class="btn-close shadow-none" data-bs-dismiss="modal"></button>
             </div>
+ 
             <form action="{{ route('inventory.store') }}" method="POST" enctype="multipart/form-data">
                 @csrf
                 <div class="modal-body px-4 pb-2" style="max-height: 70vh; overflow-y: auto;">
+ 
+                    {{-- 1. BASIC INFORMATION --}}
                     <div class="modal-section-title">Basic Information</div>
+ 
                     <div class="mb-3">
                         <label class="form-label">Product Name <span class="text-danger">*</span></label>
-                        <input type="text" class="form-control" name="name" placeholder="e.g., Sculptural Lounge Chair" required oninput="autoSlug(this.value)">
+                        <input type="text" class="form-control" name="name"
+                               placeholder="e.g., Sculptural Lounge Chair" required>
                     </div>
-                    <div class="mb-3">
-                        <label class="form-label">Slug <span class="text-muted fw-normal">(auto-filled)</span></label>
-                        <div class="input-group">
-                            <span class="input-group-text">/</span>
-                            <input type="text" class="form-control" name="slug" id="slugInput" placeholder="sculptural-lounge-chair">
-                        </div>
-                    </div>
+ 
                     <div class="mb-3">
                         <label class="form-label">Description</label>
-                        <textarea class="form-control" name="description" rows="3" placeholder="Describe the product, materials, and craftsmanship..." style="resize: none;"></textarea>
+                        <textarea class="form-control" name="description" rows="3"
+                                  placeholder="Describe the product, materials, and craftsmanship..."
+                                  style="resize: none;"></textarea>
                     </div>
-
+ 
+                    {{-- 2. DIMENSIONS --}}
                     <div class="modal-section-title">Dimensions</div>
+ 
                     <div class="row g-3 mb-3">
                         <div class="col-4">
                             <label class="form-label">Length <span class="text-danger">*</span></label>
                             <div class="input-group">
                                 <span class="input-group-text">L</span>
-                                <input type="number" class="form-control" name="length" placeholder="0" min="0" step="0.1" required>
+                                <input type="number" class="form-control" name="length"
+                                       placeholder="0" min="0" step="0.1" required>
                             </div>
                         </div>
                         <div class="col-4">
                             <label class="form-label">Width <span class="text-danger">*</span></label>
                             <div class="input-group">
                                 <span class="input-group-text">W</span>
-                                <input type="number" class="form-control" name="width" placeholder="0" min="0" step="0.1" required>
+                                <input type="number" class="form-control" name="width"
+                                       placeholder="0" min="0" step="0.1" required>
                             </div>
                         </div>
                         <div class="col-4">
                             <label class="form-label">Height <span class="text-danger">*</span></label>
                             <div class="input-group">
                                 <span class="input-group-text">H</span>
-                                <input type="number" class="form-control" name="height" placeholder="0" min="0" step="0.1" required>
+                                <input type="number" class="form-control" name="height"
+                                       placeholder="0" min="0" step="0.1" required>
                             </div>
                         </div>
                     </div>
+ 
                     <div class="mb-3">
                         <label class="form-label">Unit (Satuan) <span class="text-danger">*</span></label>
                         <select class="form-select" name="unit" required>
@@ -375,35 +383,52 @@
                             <option value="inch">inch — Inch</option>
                         </select>
                     </div>
-
+ 
+                    {{-- 3. PRICING & STOCK --}}
                     <div class="modal-section-title">Pricing & Stock</div>
+ 
                     <div class="row g-3 mb-3">
                         <div class="col-md-4">
                             <label class="form-label">Price <span class="text-danger">*</span></label>
                             <div class="input-group">
                                 <span class="input-group-text">Rp</span>
-                                <input type="number" class="form-control" name="price" placeholder="0" min="0" required>
-                            </div>
-                        </div>
-                        <div class="col-md-4">
-                            <label class="form-label">Old Price <span class="text-muted fw-normal">(coret)</span></label>
-                            <div class="input-group">
-                                <span class="input-group-text">Rp</span>
-                                <input type="number" class="form-control" name="old_price" placeholder="0" min="0">
+                                <input type="number" class="form-control" name="price"
+                                       placeholder="0" min="0" required>
                             </div>
                         </div>
                         <div class="col-md-4">
                             <label class="form-label">Stock <span class="text-danger">*</span></label>
                             <div class="input-group">
-                                <span class="input-group-text"><i class="bi bi-box-seam" style="font-size:12px;"></i></span>
-                                <input type="number" class="form-control" name="stock" placeholder="0" min="0" required>
+                                <span class="input-group-text">
+                                    <i class="bi bi-box-seam" style="font-size:12px;"></i>
+                                </span>
+                                <input type="number" class="form-control" name="stock"
+                                       placeholder="0" min="0" required>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label">
+                                Low Stock Alert
+                                <span class="text-muted fw-normal">(threshold)</span>
+                            </label>
+                            <div class="input-group">
+                                <span class="input-group-text">
+                                    <i class="bi bi-exclamation-triangle" style="font-size:12px;"></i>
+                                </span>
+                                <input type="number" class="form-control" name="low_stock"
+                                       placeholder="5" min="0" value="5">
+                            </div>
+                            <div class="form-text" style="font-size:11px;">
+                                Warn when stock drops below this number
                             </div>
                         </div>
                     </div>
-
-                    <div class="modal-section-title">Category, Label & Badge</div>
+ 
+                    {{-- 4. CATEGORY & LABEL --}}
+                    <div class="modal-section-title">Category & Label</div>
+ 
                     <div class="row g-3 mb-3">
-                        <div class="col-md-4">
+                        <div class="col-md-6">
                             <label class="form-label">Category <span class="text-danger">*</span></label>
                             <select class="form-select" name="category_id" id="categorySelect" required>
                                 <option value="" selected disabled>Select Category</option>
@@ -412,57 +437,55 @@
                                 @endforeach
                             </select>
                         </div>
-                        <div class="col-md-4">
-                            <label class="form-label">Label <span class="text-muted fw-normal">(tag produk)</span></label>
-                            <input type="text" class="form-control" name="label" placeholder="e.g., Bestseller, Featured">
-                        </div>
-                        <div class="col-md-4">
-                            <label class="form-label">Badge <span class="text-muted fw-normal">(stiker)</span></label>
-                            <input type="text" class="form-control" name="badge" placeholder="e.g., New, Sale, -20%">
+                        <div class="col-md-6">
+                            <label class="form-label">
+                                Label
+                                <span class="text-muted fw-normal">(tag produk)</span>
+                            </label>
+                            <input type="text" class="form-control" name="label"
+                                   placeholder="e.g., Bestseller, New Arrival, Featured">
                         </div>
                     </div>
-
-                    <div class="modal-section-title">Status</div>
-                    <div class="row g-3 mb-3">
-                        <div class="col-md-6">
-                            <div class="switch-row">
-                                <input class="form-check-input flex-shrink-0" type="checkbox" name="is_active" id="isActive" value="1" checked style="width:38px; height:20px; cursor:pointer;">
-                                <div>
-                                    <label class="form-check-label" for="isActive">Active</label>
-                                    <small class="d-block">Visible to customers</small>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-md-6">
-                            <div class="switch-row">
-                                <input class="form-check-input flex-shrink-0" type="checkbox" name="is_recommended" id="isRecommended" value="1" style="width:38px; height:20px; cursor:pointer;">
-                                <div>
-                                    <label class="form-check-label" for="isRecommended">Recommended</label>
-                                    <small class="d-block">Show in featured section</small>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
+ 
+                    {{-- 5. PRODUCT IMAGES --}}
                     <div class="modal-section-title">Product Images</div>
+ 
                     <div class="image-upload-area">
-                        <input type="file" name="images[]" id="imageInput" accept="image/*" multiple onchange="previewImages(this)">
+                        <input type="file" name="images[]" id="imageInput"
+                               accept="image/*" multiple onchange="previewImages(this)">
                         <i class="bi bi-cloud-upload fs-3 text-muted d-block mb-2"></i>
-                        <div style="font-size:13px; font-weight:600; color:#3a3a36;">Click or drag & drop images here</div>
-                        <div style="font-size:11px; color:#9c9890; margin-top:4px;">JPG, PNG, WEBP — max 2MB each — multiple images allowed</div>
+                        <div style="font-size:13px; font-weight:600; color:#3a3a36;">
+                            Click or drag & drop images here
+                        </div>
+                        <div style="font-size:11px; color:#9c9890; margin-top:4px;">
+                            JPG, PNG, WEBP — max 2MB each — multiple images allowed
+                        </div>
+                        <div style="font-size:11px; color:#c4a882; font-weight:600; margin-top:4px;">
+                            First image will be set as main image
+                        </div>
                     </div>
                     <div class="image-preview-wrap" id="imagePreviewWrap"></div>
-                </div>
-
+ 
+                </div>{{-- end modal-body --}}
+ 
                 <div class="modal-footer border-0 pb-4 px-4 pt-3 d-flex gap-2">
-                    <button type="button" class="btn btn-sm flex-grow-1 py-2 rounded-3" data-bs-dismiss="modal" style="background:#f0eeeb; color:#1a1a18; border:none;">Cancel</button>
-                    <button type="submit" class="btn btn-sm flex-grow-1 py-2 rounded-3 fw-bold" style="background:#c4a882; color:white; border:none;"><i class="bi bi-check-lg me-1"></i> Save Product</button>
+                    <button type="button"
+                            class="btn btn-sm flex-grow-1 py-2 rounded-3"
+                            data-bs-dismiss="modal"
+                            style="background:#f0eeeb; color:#1a1a18; border:none;">
+                        Cancel
+                    </button>
+                    <button type="submit"
+                            class="btn btn-sm flex-grow-1 py-2 rounded-3 fw-bold"
+                            style="background:#c4a882; color:white; border:none;">
+                        <i class="bi bi-check-lg me-1"></i> Save Product
+                    </button>
                 </div>
             </form>
+ 
         </div>
     </div>
 </div>
-
 <div class="modal fade" id="addCategoryModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered" style="max-width: 420px;">
         <div class="modal-content border-0 shadow" style="border-radius: 16px;">

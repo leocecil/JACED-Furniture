@@ -34,7 +34,7 @@
             </ul>
 
             <div class="d-flex align-items-center gap-4 ms-lg-4">
-                <a href="#" class="nav-icon opacity-75 hover-opacity-100 transition"><i class="fas fa-search"></i></a>
+                
 
                 @auth
                     <a href="#" class="nav-icon opacity-75 hover-opacity-100 transition position-relative"

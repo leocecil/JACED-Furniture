@@ -1,7 +1,4 @@
 <style>
-    /* ══════════════════════════════
-        SIDEBAR GLOBAL STYLING
-    ══════════════════════════════ */
     .sidebar {
         width: 220px;
         min-width: 220px;
@@ -179,7 +176,7 @@
 
 
         <a href="{{ route('admin.dashboard') }}"
-            class="nav-link {{ request()->routeIs('dashboard') ? 'active' : '' }}"
+            class="nav-link {{ request()->routeIs('admin.dashboard') ? 'active' : '' }}"
             onclick="if(window.innerWidth<=768) closeSidebar()">
             <i class="bi bi-grid-1x2"></i> <span class="menu-text">Overview</span>
         </a>
