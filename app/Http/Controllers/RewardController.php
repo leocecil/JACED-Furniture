@@ -17,17 +17,11 @@ class RewardController extends Controller
         $accumulatedPoints = $user->accumulated_points ?? 0;
 
         // Stage berdasarkan total spending order paid
-        $totalSpending = DB::table('orders')
-            ->where('user_id', $user->id)
-            ->where('status', 'paid')
-            ->sum('total_price');
-
-        $stage = match(true) {
-            $totalSpending >= 500_000_000 => 'Platinum',
-            $totalSpending >= 200_000_000 => 'Gold',
-            $totalSpending >= 50_000_000  => 'Silver',
-            default                        => 'Bronze',
-        };
+        $stageModel = DB::table('stages')
+                ->where('min_points_accumulative', '<=', $accumulatedPoints)
+                ->orderBy('min_points_accumulative', 'desc')
+                ->first();
+        $stage = $stageModel ? $stageModel->name : 'Bronze';
 
         // Point history dari DB
         $pointHistoryItems = DB::table('point_histories')
@@ -36,7 +30,12 @@ class RewardController extends Controller
             ->limit(5)
             ->get()
             ->map(fn($item) => [
-                'source' => $item->source,
+                'source' => match($item->source) {
+                    'purchase'       => 'Purchase Reward',
+                    'redeem_voucher' => 'Voucher Redeemed',
+                    'redeem'         => 'Points Redeemed',
+                    default          => ucfirst($item->source),
+                },
                 'date'   => \Carbon\Carbon::parse($item->created_at)->format('d M Y'),
                 'points' => $item->points,
                 'type'   => $item->type,

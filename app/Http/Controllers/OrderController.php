@@ -289,7 +289,13 @@ class OrderController extends Controller
                     $enabledPayments[] = $chosenBank . '_va';
                 }
             } elseif (!empty($paymentMethod)) {
-                $enabledPayments[] = $paymentMethod;
+                $enabledPayments[] = match($paymentMethod) {
+                    'qris'            => 'other_qris',
+                    'credit_card'     => 'credit_card',
+                    'ovo'             => 'ovo',
+                    'dana'            => 'dana',
+                    default           => $paymentMethod,
+                };
             }
 
             $params = [

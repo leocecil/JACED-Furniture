@@ -251,6 +251,47 @@
 
 @section('content')
 <div class="loyalty-page">
+    @if(session('success'))
+        <div id="successToast" style="
+            position: fixed;
+            top: 24px;
+            right: 24px;
+            z-index: 99999;
+            background: white;
+            border-radius: 14px;
+            padding: 16px 20px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.12);
+            border-left: 4px solid #4a7c59;
+            max-width: 340px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            animation: slideIn 0.3s ease;
+        ">
+            <div style="width: 36px; height: 36px; background: #edf7ed; border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+                ✅
+            </div>
+            <div>
+                <p class="mb-0 fw-bold" style="font-size: 13px; color: var(--jaced-brown-dark);">Success!</p>
+                <p class="mb-0" style="font-size: 12px; color: var(--jaced-muted);">{{ session('success') }}</p>
+            </div>
+            <button onclick="document.getElementById('successToast').remove()" style="background: none; border: none; color: var(--jaced-muted); cursor: pointer; font-size: 16px; margin-left: auto;">×</button>
+        </div>
+
+        <style>
+            @keyframes slideIn {
+                from { transform: translateX(100px); opacity: 0; }
+                to { transform: translateX(0); opacity: 1; }
+            }
+        </style>
+
+        <script>
+            setTimeout(() => {
+                const toast = document.getElementById('successToast');
+                if (toast) toast.remove();
+            }, 4000);
+        </script>
+    @endif
     <div style="max-width: 1100px; margin: 0 auto;">
         
         {{-- BACK BUTTON --}}
@@ -383,7 +424,7 @@
                                 </div>
                                 <div class="text-end">
                                     <span class="fw-bold {{ ($item['type'] ?? 'earned') === 'redeemed' ? 'text-danger' : 'text-success' }}">
-                                        {{ ($item['type'] ?? 'earned') === 'redeemed' ? '-' : '+' }}{{ $item['points'] }}
+                                        {{ ($item['type'] ?? 'earned') === 'earned' ? '+' : '' }}{{ $item['points'] }}
                                     </span>
                                 </div>
                             </div>
@@ -556,7 +597,7 @@
         const actionEl = document.getElementById('goalDetailAction');
         if(isEnough) {
             actionEl.innerHTML = `
-                <form action="{{ route('redeem-point') }}" method="POST">
+                <form action="{{ route('reward.redeem') }}" method="POST">
                     @csrf
                     <input type="hidden" name="voucher_type_id" value="${voucherTypeId}">
                     <button type="submit" class="btn-redeem-now">Redeem Now</button>
