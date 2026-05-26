@@ -66,7 +66,7 @@ class OrderController extends Controller
 
         $subtotal = $items->sum(fn($i) => $i['price'] * $i['qty']);
         $shipping = 0;
-        $tax      = $subtotal * 0.0836;
+        $tax      = $subtotal * 0.05;
         $total    = $subtotal + $shipping + $tax;
 
         $paymentMethods = PaymentMethod::all()

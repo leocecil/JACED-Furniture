@@ -181,9 +181,8 @@
                             <form action="{{ route('reward.use-voucher') }}" method="POST">
                                 @csrf
                                 <input type="hidden" name="voucher_id" value="{{ $vouch->id }}">
-                                <button type="button" class="copy-code-btn" 
-                                    style="border-color: var(--jaced-caramel); color: var(--jaced-caramel);"
-                                    onclick="useVoucher({{ $vouch->id }}, this)">
+                                <button type="submit" class="copy-code-btn" 
+                                    style="border-color: var(--jaced-caramel); color: var(--jaced-caramel);">
                                     Use Now →
                                 </button>
                             </form>
@@ -262,6 +261,7 @@
         
         fetch('{{ route("reward.use-voucher") }}', {
             method: 'POST',
+            redirect: 'follow',
             headers: {
                 'Content-Type': 'application/json',
                 'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
@@ -269,9 +269,7 @@
             body: JSON.stringify({ voucher_id: voucherId })
         })
         .then(res => {
-            if (res.redirected) {
-                window.location.href = res.url;
-            }
+            window.location.href = res.url;
         })
         .catch(() => {
             btn.disabled = false;
