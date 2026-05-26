@@ -299,6 +299,12 @@
         color: white;
     }
 
+    .wishlist-btn.active{
+        background: var(--jaced-brown-dark);
+        color: white;
+        border-color: var(--jaced-brown-dark);
+    }
+
     body{
         background: #f9f9f7;
     }
@@ -323,6 +329,8 @@
         z-index: 3000;
         box-shadow: 0 12px 32px rgba(0,0,0,0.2);
         animation: toastIn 0.4s ease;
+        opacity: 1;
+        transition: opacity 0.3s ease;
     }
     @keyframes toastIn{
         from{
@@ -416,8 +424,10 @@
                     {{ $totalSold }} people bought this
                 </div>
                 {{-- ★ --}}
-                <button class="wishlist-btn">
-                    <i class="fa-regular fa-heart"></i>
+                <button
+                    class="wishlist-btn {{ $isWishlisted ? 'active' : '' }}"
+                    id="wishlistBtn" data-product="{{ $product->id }}">
+                    <i class="{{ $isWishlisted ? 'fa-solid' : 'fa-regular' }} fa-heart"></i>
                 </button>
             </div>
 
@@ -524,11 +534,17 @@
             </div>
         </div>
 
+        <div class="cart-toast" id="cartToast" style="display:none;">
+            <i class="fas fa-check-circle"></i>
+            <span id="cartToastText"></span>
+        </div>
+
         @if(session('success'))
-            <div class="cart-toast show" id="cartToast">
-                <i class="fas fa-check-circle"></i>
-                <span>{{ session('success') }}</span>
-            </div>
+        <script>
+            window.addEventListener('DOMContentLoaded', () => {
+                showCartToast("{{ session('success') }}");
+            });
+        </script>
         @endif
     </div>
 </div>
@@ -636,36 +652,80 @@
     //         cartToast.classList.remove('show');
     //     }, 2500);
     // }
-    setTimeout(() => {
-        const toast = document.getElementById('cartToast');
-
-        if(toast){
-            toast.style.opacity = '0';
-
-            setTimeout(() => {
-                toast.remove();
-            }, 300);
-        }
-    }, 2500);
 
     function showCartToast(message, type = 'success') {
-        const icon = cartToast.querySelector('i');
+        const toast = document.getElementById('cartToast');
+        const text = document.getElementById('cartToastText');
+        const icon = toast.querySelector('i');
+
         if(type === 'delete'){
             icon.className = 'fas fa-trash';
         }
         else if(type === 'update'){
             icon.className = 'fas fa-pen';
         }
+        else if(type === 'wishlist'){
+            icon.className = 'fas fa-heart';
+        }
         else{
             icon.className = 'fas fa-check-circle';
         }
-        cartToastText.textContent = message;
-        cartToast.classList.add('show');
+
+        text.textContent = message;
+        toast.style.display = 'inline-flex';
+        toast.classList.add('show');
         clearTimeout(cartToastTimer);
+
         cartToastTimer = setTimeout(() => {
-            cartToast.classList.remove('show');
+            toast.style.opacity = '0';
+            setTimeout(() => {
+                toast.style.display = 'none';
+                toast.style.opacity = '1';
+                toast.classList.remove('show');
+            }, 300);
         }, 2500);
     }
+
+    const wishlistBtn = document.getElementById('wishlistBtn');
+
+    wishlistBtn.addEventListener('click', async () => {
+        const productId = wishlistBtn.dataset.product;
+
+        try{
+            const response = await fetch('/wishlist/toggle', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                    'Accept': 'application/json'
+                },
+
+                body: JSON.stringify({
+                    product_id: productId
+                })
+            });
+
+            const data = await response.json();
+            const icon = wishlistBtn.querySelector('i');
+
+            if(data.status === 'added'){
+                wishlistBtn.classList.add('active');
+                icon.classList.remove('fa-regular');
+                icon.classList.add('fa-solid');
+                showCartToast('Added to wishlist', 'wishlist');
+
+            }else{
+                wishlistBtn.classList.remove('active');
+                icon.classList.remove('fa-solid');
+                icon.classList.add('fa-regular');
+                showCartToast('Removed from wishlist', 'delete');
+            }
+
+        }catch(e){
+            console.error(e);
+            showCartToast('Failed to update wishlist', 'delete');
+        }
+    });
 </script>
 
 @endsection

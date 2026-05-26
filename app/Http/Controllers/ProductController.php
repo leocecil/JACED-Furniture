@@ -232,8 +232,16 @@ class ProductController extends Controller
         ->take(4)
         ->get();
 
+        $isWishlisted = false;
+
+        if(auth()->check()){
+            $isWishlisted = \App\Models\Wishlist::where('user_id', auth()->id())
+                ->where('product_id', $product->id)
+                ->exists();
+        }
+        
         return view('store.product_details', compact(
-            'product', 'related', 'totalSold'   
+            'product', 'related', 'totalSold', 'isWishlisted'
         ));
     }
 

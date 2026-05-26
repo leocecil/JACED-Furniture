@@ -18,6 +18,7 @@ use Laravolt\Indonesia\Models\District;
 use Laravolt\Indonesia\Models\Province;
 use Laravolt\Indonesia\Models\Village;
 use Midtrans\Snap;
+use Midtrans\Config;
 
 class OrderController extends Controller
 {
