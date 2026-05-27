@@ -163,6 +163,16 @@ class RewardController extends Controller
 
         session(['pending_voucher_id' => $voucherId]);
 
+        // Cek cart kosong atau tidak
+        $cartCount = DB::table('carts')
+            ->where('user_id', Auth::id())
+            ->count();
+
+        if ($cartCount === 0) {
+            return redirect()->route('shop')
+                ->with('info', 'Voucher berhasil dipilih! Silakan pilih produk terlebih dahulu.');
+        }
+
         return redirect()->route('checkout.index');
     }
 

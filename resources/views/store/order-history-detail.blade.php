@@ -223,14 +223,18 @@
             cursor: pointer;
             width: 100%;
             margin-top: 16px;
-            transition: background .2s;
+            /* Perubahan transisi all biar smooth */
+            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
             text-decoration: none;
             display: block;
             text-align: center;
         }
 
+        /* Hover premium: warna berubah ke caramel khas Jaced & terangkat sedikit */
         .btn-invoice:hover {
-            background: #333;
+            background: var(--jaced-caramel);
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(184, 115, 51, 0.15);
         }
 
         .btn-return {
@@ -244,11 +248,12 @@
             cursor: pointer;
             width: 100%;
             margin-top: 8px;
-            transition: all .2s;
+            transition: all .25s ease;
         }
 
         .btn-return:hover {
             background: var(--jaced-caramel-bg);
+            transform: translateY(-1px);
         }
 
         .btn-back {
@@ -262,28 +267,49 @@
             align-items: center;
             gap: 6px;
             margin-bottom: 20px;
-            transition: color .2s;
+            transition: color .25s ease;
         }
 
         .btn-back:hover {
             color: var(--jaced-brown-dark);
         }
 
+        /* Tambahan efek transisi untuk ikon panah */
         .btn-back svg {
             flex-shrink: 0;
+            transition: transform 0.25s cubic-bezier(0.25, 0.8, 0.25, 1);
         }
 
+        /* Saat tombol back di-hover, panahnya bergeser lembut ke kiri */
+        .btn-back:hover svg {
+            transform: translateX(-4px);
+        }
+
+        /* --- STAGGERED FADE-IN ANIMATION --- */
+        /* Animasi modalIn bawaanmu dioptimasi sedikit */
         @keyframes modalIn {
             from {
                 opacity: 0;
-                transform: translateY(16px) scale(.97);
+                transform: translateY(12px);
             }
-
             to {
                 opacity: 1;
-                transform: translateY(0) scale(1);
+                transform: translateY(0);
             }
         }
+
+        /* Terapkan animasi dasar pada class-class card utama di halaman detail */
+        /* Silakan sesuaikan atau tambahkan class container card kamu di sini */
+        .jaced-card, .tracking-box, .tl-wrapper, .summary-row {
+            animation: modalIn 0.5s cubic-bezier(0.25, 1, 0.5, 1) both;
+        }
+
+        /* Efek ombak pemunculan komponen berdasarkan urutan layout */
+        .jaced-card:nth-of-type(1) { animation-delay: 0.04s; } /* Card Produk */
+        .tracking-box { animation-delay: 0.08s; }             /* Card Tracking */
+        .jaced-card:nth-of-type(2) { animation-delay: 0.12s; } /* Card Shipping Address */
+        .jaced-card:nth-of-type(3) { animation-delay: 0.16s; } /* Card Order Summary (Sidebar) */
+        .jaced-card:nth-of-type(4) { animation-delay: 0.20s; } /* Card Seller Update (Sidebar) */
     </style>
 @endpush
 
@@ -307,14 +333,12 @@
         ];
 
         $allSteps = [
-            [
-                'label' => 'Confirmed',
-                'statuses' => ['unpaid', 'on_process', 'packed', 'delivered', 'shipped', 'arrived'],
-            ],
+            ['label' => 'Unpaid',     'statuses' => ['unpaid', 'on_process', 'packed', 'delivered', 'shipped', 'arrived']],
             ['label' => 'On Process', 'statuses' => ['on_process', 'packed', 'delivered', 'shipped', 'arrived']],
-            ['label' => 'Packed', 'statuses' => ['packed', 'delivered', 'shipped', 'arrived']],
-            ['label' => 'Shipped', 'statuses' => ['shipped', 'arrived']],
-            ['label' => 'Arrived', 'statuses' => ['arrived']],
+            ['label' => 'Packed',     'statuses' => ['packed', 'delivered', 'shipped', 'arrived']],
+            ['label' => 'Delivered',  'statuses' => ['delivered', 'shipped', 'arrived']],
+            ['label' => 'Shipped',    'statuses' => ['shipped', 'arrived']],
+            ['label' => 'Arrived',    'statuses' => ['arrived']],
         ];
 
         $statusOrder = ['unpaid', 'on_process', 'packed', 'delivered', 'shipped', 'arrived'];
@@ -366,7 +390,7 @@
                 'timestamp' => $order->delivered_at->timestamp,
                 'dot'   => 'green',
                 'time'  => $order->delivered_at->format('M d, Y · h:i A'),
-                'title' => 'Order Delivered',
+                'title' => 'Order Handed to Courier',
                 'desc'  => 'Your order has been handed off to the courier.',
             ];
 
@@ -376,7 +400,7 @@
                 'dot'   => 'caramel',
                 'time'  => $order->packed_at->format('M d, Y · h:i A'),
                 'title' => 'Order Packed',
-                'desc'  => 'Your order has been packed and is ready for shipping.',
+                'desc'  => 'Your order has been packed and is ready for pickup by courier.',
             ];
 
         if ($order->on_process_at)
@@ -384,8 +408,8 @@
                 'timestamp' => $order->on_process_at->timestamp,
                 'dot'   => 'caramel',
                 'time'  => $order->on_process_at->format('M d, Y · h:i A'),
-                'title' => 'Order Confirmed by Admin',
-                'desc'  => 'Your payment has been confirmed.',
+                'title' => 'Payment Confirmed',
+                'desc'  => 'Your payment has been verified. Order is being processed.',
             ];
         if ($order->disputed_at)
             $updates[] = [
@@ -458,14 +482,14 @@
         <div style="max-width: 1000px; margin: 0 auto;">
 
             {{-- BACK --}}
-            <button class="btn-back" onclick="history.back()">
+            <a href="{{ route('store.orderhistory') }}" class="btn-back" style="text-decoration: none; display: inline-flex; align-items: center; gap: 8px;">
                 <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none"
                     stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                     <line x1="19" y1="12" x2="5" y2="12" />
                     <polyline points="12 19 5 12 12 5" />
                 </svg>
                 Back to My Orders
-            </button>
+            </a>
 
             {{-- HEADER --}}
             <h1 class="page-title fw-bold">Order Details</h1>
@@ -557,7 +581,7 @@
                             <p class="field-label mb-1">Estimated arrival</p>
                             @if($order->status === 'cancelled')
                                 <p class="text-jaced-muted mb-0" style="font-size: 13px;">Order has been cancelled.</p>
-                            @elseif($order->shipped_at)
+                            @elseif($order->delivered_at)
                                 <p class="fw-semibold text-jaced-dark mb-0" style="font-size: 15px;">
                                     {{ $order->shipped_at->addDays(3)->format('d M Y') }} - {{ $order->shipped_at->addDays(7)->format('d M Y') }}
                                 </p>
@@ -670,7 +694,10 @@
                             <div class="summary-row">
                                 <span class="text-jaced-muted">Payment method</span>
                                 <span class="fw-semibold text-jaced-dark">
-                                    {{ $order->paymentMethod?->name ?? '-' }}
+                                    {{ ucwords(str_replace('_', ' ', $order->paymentMethod?->name ?? '-')) }}
+                                    @if($order->vaBank)
+                                        - {{ strtoupper($order->vaBank->name) }}
+                                    @endif
                                 </span>
                             </div>
 
@@ -685,7 +712,7 @@
                             <div class="d-flex flex-column gap-2 mt-3">
                                 {{-- Download Invoice --}}
                                 @if (!in_array($order->status, ['unpaid', 'cancelled']))
-                                    <a href="{{ route('store.orderhistory.invoice', $order->id) }}" target="_blank"
+                                    <a href="{{ route('store.orderhistory.invoice', $order->id) }}"
                                         class="btn-invoice" style="margin-top: 0;">
                                         Download Invoice
                                     </a>

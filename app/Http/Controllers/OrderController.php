@@ -13,6 +13,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Str;
 use Laravolt\Indonesia\Models\City;
 use Laravolt\Indonesia\Models\District;
@@ -68,8 +69,32 @@ class OrderController extends Controller
 
         $subtotal = $items->sum(fn($i) => $i['price'] * $i['qty']);
         $shipping = 0;
-        $tax      = $subtotal * 0.05;
-        $total    = $subtotal + $shipping + $tax;
+        $tax = (int) round($subtotal * 0.05);
+
+        $pendingVoucherId = session('pending_voucher_id');
+        $pendingVoucher = null; 
+
+        if ($pendingVoucherId) {
+            $pendingVoucher = DB::table('vouchers')
+                ->join('voucher_types', 'vouchers.voucher_type_id', '=', 'voucher_types.id')
+                ->where('vouchers.id', $pendingVoucherId)
+                ->where('vouchers.user_id', Auth::id())
+                ->where('vouchers.is_active', true)
+                ->whereNull('vouchers.redeemed_at')
+                ->select('vouchers.*', 'voucher_types.name', 'voucher_types.used_for', 'voucher_types.max_discount', 'voucher_types.discount_percentage')
+                ->first();
+        }
+        $discountAmount = 0;
+        if ($pendingVoucher) {
+            $maxDiscount = (float) $pendingVoucher->max_discount;
+            if ($pendingVoucher->used_for === 'delivery') {
+                $discountAmount = min($shipping, $maxDiscount);
+            } else {
+                $calculatedDiscount = $subtotal * ($pendingVoucher->discount_percentage / 100);
+                $discountAmount = min($calculatedDiscount, $maxDiscount);
+            }
+        }
+        $total = $subtotal + $shipping + $tax - $discountAmount;
 
         $paymentMethods = PaymentMethod::all()
             ->map(fn($p) => [
@@ -90,23 +115,14 @@ class OrderController extends Controller
                 'name'  => strtoupper($b->name),
             ]);
 
-        $pendingVoucherId = session('pending_voucher_id');
-        $pendingVoucher = null;
-
-        if ($pendingVoucherId) {
-            $pendingVoucher = DB::table('vouchers')
-                ->join('voucher_types', 'vouchers.voucher_type_id', '=', 'voucher_types.id')
-                ->where('vouchers.id', $pendingVoucherId)
-                ->where('vouchers.user_id', Auth::id())
-                ->where('vouchers.is_active', true)
-                ->whereNull('vouchers.redeemed_at')
-                ->select('vouchers.*', 'voucher_types.name', 'voucher_types.used_for', 'voucher_types.max_discount', 'voucher_types.discount_percentage')
-                ->first();
-        }
+        $defaultAddress = DB::table('shipping_address')
+            ->where('user_id', Auth::id())
+            ->where('is_default', true)
+            ->first();
 
         return view('store.checkout', compact(
-            'items', 'paymentMethods', 'banks', 'pendingVoucher',
-            'provinces', 'savedAddresses', 'totalWeight', 'subtotal', 'shipping', 'myVouchers', 'tax', 'total'
+            'items', 'paymentMethods', 'banks', 'pendingVoucher', 'defaultAddress', 
+            'provinces', 'savedAddresses', 'totalWeight', 'subtotal', 'shipping', 'myVouchers', 'tax', 'total', 'discountAmount'
         ));
     }
 
@@ -188,12 +204,17 @@ class OrderController extends Controller
             }
             $totalWeight = max(1000, (int) $totalWeight);
 
-            $subtotalPrice = $cartItems->sum(fn($item) => $item->product->price * $item->quantity);
-            $serviceTax    = $subtotalPrice * 0.1;
+            $subtotalPrice  = $cartItems->sum(fn($item) => $item->product->price * $item->quantity);
+            $serviceTax     = (int) round($subtotalPrice * 0.05);
             $voucherId      = $request->input('applied_voucher_id');
             $discountAmount = 0;
             $appliedVoucher = null;
             $paymentId = PaymentMethod::where('name', $paymentMethod)->first()?->id ?? 1;
+
+            $vaBankId = null;
+            if ($paymentMethod === 'virtual_account' && !empty($chosenBank)) {
+                $vaBankId = DB::table('va_banks')->where('name', $chosenBank)->first()?->id;
+            }
 
             if ($voucherId) {
                 $appliedVoucher = DB::table('vouchers')
@@ -209,10 +230,11 @@ class OrderController extends Controller
                 if ($appliedVoucher) {
                     $maxDiscount = (float) $appliedVoucher->max_discount;
 
-                    if ($appliedVoucher->used_for === 'shipping') {
+                    if ($appliedVoucher->used_for === 'delivery') {
                         $discountAmount = min($deliveryFee, $maxDiscount);
                     } else {
-                        $discountAmount = min($subtotalPrice, $maxDiscount);
+                        $calculatedDiscount = $subtotalPrice * ($appliedVoucher->discount_percentage / 100);
+                        $discountAmount = min($calculatedDiscount, $maxDiscount);
                     }
                 }
             }
@@ -222,6 +244,7 @@ class OrderController extends Controller
             $order = Order::create([
                 'user_id'             => Auth::id(),
                 'payment_id'          => $paymentId,
+                'va_bank_id'          => $vaBankId,
                 'voucher_id'          => $appliedVoucher?->id ?? null,
                 'shipping_address_id' => $shippingAddress->id,
                 'delivery_fee'        => $deliveryFee,
@@ -306,6 +329,7 @@ class OrderController extends Controller
             $params = [
                 'transaction_details' => [
                     'order_id'     => $midtransOrderId,
+                    'gross_amount' => (int) round($totalPrice),
                 ],
                 'item_details' => $item_details,
                 'customer_details' => [
@@ -331,8 +355,7 @@ class OrderController extends Controller
             }
 
             $snapToken = Snap::getSnapToken($params);
-
-            DB::commit();
+ 
             if ($appliedVoucher) {
                 DB::table('vouchers')
                     ->where('id', $appliedVoucher->id)
@@ -341,6 +364,7 @@ class OrderController extends Controller
                         'is_active'   => false,
                     ]);
             }
+            DB::commit();
             DB::statement('SET FOREIGN_KEY_CHECKS=1;');
 
             $userId = Auth::id();
@@ -352,7 +376,10 @@ class OrderController extends Controller
         } catch (\Exception $e) {
             DB::statement('SET FOREIGN_KEY_CHECKS=1;');
             DB::rollBack();
-            dd($e->getMessage(), $e->getFile(), $e->getLine());
+            Log::error('Checkout error: ' . $e->getMessage(), [
+                'file' => $e->getFile(),
+                'line' => $e->getLine(),
+            ]);
             return redirect()->back()->with('error', 'Checkout failed: ' . $e->getMessage());
         }
     }
@@ -389,6 +416,7 @@ class OrderController extends Controller
         }
 
         if ($order->status == 'on_process') {
+            Mail::to($order->user->email)->send(new \App\Mail\OrderConfirmationMail($order));
             return redirect()->route('store.orderhistory')
                 ->with('success', 'Payment successful! Pesanan kamu sedang diproses.');
         } elseif ($order->status == 'unpaid') {

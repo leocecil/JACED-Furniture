@@ -181,7 +181,9 @@
                             <form action="{{ route('reward.use-voucher') }}" method="POST">
                                 @csrf
                                 <input type="hidden" name="voucher_id" value="{{ $vouch->id }}">
-                                <button type="submit" class="copy-code-btn" 
+                                <button type="button" 
+                                    onclick="useVoucher({{ $vouch->id }}, this)"
+                                    class="copy-code-btn" 
                                     style="border-color: var(--jaced-caramel); color: var(--jaced-caramel);">
                                     Use Now →
                                 </button>
@@ -258,23 +260,25 @@
     function useVoucher(voucherId, btn) {
         btn.disabled = true;
         btn.innerText = 'Loading...';
-        
-        fetch('{{ route("reward.use-voucher") }}', {
-            method: 'POST',
-            redirect: 'follow',
-            headers: {
-                'Content-Type': 'application/json',
-                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
-            },
-            body: JSON.stringify({ voucher_id: voucherId })
-        })
-        .then(res => {
-            window.location.href = res.url;
-        })
-        .catch(() => {
-            btn.disabled = false;
-            btn.innerText = 'Use Now →';
-        });
+
+        const form = document.createElement('form');
+        form.method = 'POST';
+        form.action = '{{ route("reward.use-voucher") }}';
+
+        const csrf = document.createElement('input');
+        csrf.type = 'hidden';
+        csrf.name = '_token';
+        csrf.value = document.querySelector('meta[name="csrf-token"]').content;
+
+        const input = document.createElement('input');
+        input.type = 'hidden';
+        input.name = 'voucher_id';
+        input.value = voucherId;
+
+        form.appendChild(csrf);
+        form.appendChild(input);
+        document.body.appendChild(form);
+        form.submit();
     }
 </script>
 @endpush

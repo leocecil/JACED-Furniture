@@ -16,12 +16,12 @@ class OrderHistoryController extends Controller
 
         DB::table('orders')
             ->where('user_id', $user->id)
-            ->where('status', 'delivered')
+            ->where('status', 'shipped')
             ->whereNotNull('shipped_at')
             ->where('shipped_at', '<=', now()->subDays(7))
             ->update(['status' => 'arrived', 'arrived_at' => now()]);
 
-        $filters = ['All', 'Unpaid', 'On Process', 'Packed', 'Delivered', 'Arrived', 'Cancelled'];
+        $filters = ['All', 'Unpaid', 'On Process', 'Packed', 'Delivered', 'Arrived', 'Cancelled', 'Disputed'];
         $activeFilter = $request->get('filter', 'All');
 
         $query = Order::with(['orderDetails.product'])
@@ -44,6 +44,7 @@ class OrderHistoryController extends Controller
             'shippingAddress',
             'paymentMethod',
             'voucher',
+            'vaBank',
         ])
         ->where('user_id', Auth::id())
         ->findOrFail($id);

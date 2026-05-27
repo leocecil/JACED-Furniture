@@ -18,7 +18,7 @@ class Order extends Model
 
     public function paymentMethod()
     {
-        return $this->belongsTo(PaymentMethod::class);
+        return $this->belongsTo(PaymentMethod::class, 'payment_id');
     }
 
     public function orderDetails()
@@ -31,9 +31,15 @@ class Order extends Model
         return $this->belongsTo(ShippingAddress::class);
     }
 
+    public function vaBank()
+    {
+        return $this->belongsTo(VaBank::class);
+    }
+
     protected $fillable = [
         'user_id',
         'payment_id',
+        'va_bank_id',
         'voucher_id',
         'shipping_address_id',
         'delivery_fee',

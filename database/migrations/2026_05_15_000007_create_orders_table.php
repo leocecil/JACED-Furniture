@@ -16,6 +16,7 @@ return new class extends Migration
             $table->string('midtrans_order_id')->nullable();
             $table->unsignedBigInteger('user_id');
             $table->unsignedBigInteger('payment_id');
+            $table->foreignId('va_bank_id')->nullable()->constrained('va_banks')->nullOnDelete()->after('payment_id');
             $table->unsignedBigInteger('voucher_id')->nullable();
             $table->unsignedBigInteger('shipping_address_id');
             $table->decimal('delivery_fee', 10, 2);

@@ -12,13 +12,28 @@
         box-shadow: 0 2px 20px rgba(0,0,0,.07);
     }
 
+    /* Styling untuk pembungkus logo dan brand */
+    .brand-wrapper {
+        display: flex;
+        align-items: center; /* Biar logo dan tulisan sejajar tengah */
+        gap: 15px; /* Spasi antara logo dan tulisan */
+    }
+
+    /* Styling untuk gambar logo */
+    .inv-logo {
+        width: 60px; /* Atur lebar logo (misal 60px) */
+        height: 60px; /* Atur tinggi logo (biar proporsional) */
+        object-fit: contain; /* Biar gambar gak penyok */
+        display: block; /* Mencegah spasi aneh di bawah gambar */
+    }
+
     /* Sembunyikan district_name kosong */
     .ship-address p:empty { display: none; }
 
     /* Typography */
-    .inv-brand       { font-family: 'DM Serif Display', serif; font-size: 26px; color: #2a2318; }
-    .inv-brand-sub   { font-size: 11px; color: #999; margin-top: 3px; }
-    .inv-title       { font-family: 'DM Serif Display', serif; font-size: 22px; color: #2a2318; }
+    .inv-brand       { font-family: 'DM Serif Display', Arial, serif; font-size: 28px; font-weight: 800; color: #2a2318; line-height: 1.1; }
+    .inv-brand-sub   { font-size: 11px; color: #999; margin-top: 4px; letter-spacing: 0.05em; }
+    .inv-title       { font-family: 'DM Serif Display', Arial, serif; font-size: 24px; color: #2a2318; font-weight: 600; }
     .inv-id          { font-size: 11px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: #999; margin-top: 4px; }
     .inv-date        { font-size: 12px; color: #888; margin-top: 4px; }
     .inv-section-label {
@@ -35,30 +50,32 @@
     /* Info grid */
     .inv-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-bottom: 28px; }
     .inv-grid p { font-size: 13px; color: #2a2318; line-height: 1.7; margin: 0; }
-    .inv-grid .name { font-weight: 600; font-size: 14px; }
+    .inv-grid .name { font-weight: 700; font-size: 14px; margin-bottom: 2px; }
 
     /* Table */
     .inv-table { width: 100%; border-collapse: collapse; margin-bottom: 24px; }
     .inv-table thead th {
         font-size: 10px; font-weight: 700; letter-spacing: .08em;
         text-transform: uppercase; color: #aaa;
-        padding: 0 0 10px; border-bottom: 1px solid #e8e4de; text-align: left;
+        padding: 0 0 12px; border-bottom: 1px solid #e8e4de; text-align: left;
     }
-    .inv-table thead th:last-child { text-align: right; }
-    .inv-table tbody td { padding: 14px 0; border-bottom: 1px solid #f0ece6; font-size: 13px; }
+    .inv-table thead th:nth-child(2) { text-align: center; }
+    .inv-table thead th:last-child { text-align: right; padding-right: 4px; }
+    
+    .inv-table tbody td { padding: 16px 0; border-bottom: 1px solid #f0ece6; font-size: 13px; color: #2a2318; }
     .inv-table tbody td:nth-child(2) { text-align: center; color: #555; }
-    .inv-table tbody td:last-child { text-align: right; }
+    .inv-table tbody td:last-child { text-align: right; font-weight: 700; padding-right: 4px; }
 
     /* Totals */
-    .inv-totals { margin-left: auto; width: 280px; }
-    .inv-totals-row { display: flex; justify-content: space-between; font-size: 13px; margin-bottom: 8px; color: #555; }
-    .inv-totals-row.grand { font-size: 16px; font-weight: 700; color: #2a2318; }
-    .inv-totals-row.discount { color: #7a6a3a; }
+    .inv-totals { margin-left: auto; width: 300px; margin-top: 12px; }
+    .inv-totals-row { display: flex; justify-content: space-between; font-size: 13px; margin-bottom: 10px; color: #555; padding-right: 4px; }
+    .inv-totals-row.grand { font-size: 16px; font-weight: 700; color: #2a2318; margin-top: 4px; }
+    .inv-totals-row.discount { color: #4a7c59; font-weight: 600; }
     .inv-divider { border: none; border-top: 1px solid #e8e4de; margin: 12px 0; }
 
     /* Footer */
     .inv-footer {
-        margin-top: 48px; padding-top: 20px; border-top: 1px solid #e8e4de;
+        margin-top: 64px; padding-top: 24px; border-top: 1px solid #e8e4de;
         display: flex; justify-content: space-between; align-items: center;
     }
     .inv-footer-note { font-size: 11px; color: #aaa; line-height: 1.7; }
@@ -70,25 +87,29 @@
     }
     .btn-print {
         background: #2a2318; color: white; border: none; border-radius: 8px;
-        padding: 10px 24px; font-size: 13px; font-weight: 500; cursor: pointer;
+        padding: 10px 24px; font-size: 13px; font-weight: 600; cursor: pointer;
+        transition: background 0.2s;
     }
+    .btn-print:hover { background: #403525; }
     .btn-back-inv {
-        color: #888; font-size: 13px; text-decoration: none;
+        color: #666; font-size: 13px; text-decoration: none; font-weight: 500;
         border: 1px solid #ddd; border-radius: 8px; padding: 10px 18px;
-        background: none; cursor: pointer;
+        background: white; cursor: pointer; transition: all 0.2s;
     }
+    .btn-back-inv:hover { background: #f9f9f9; color: #2a2318; border-color: #bbb; }
 
     /* Status badge */
-    .status-badge { font-size: 10px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; padding: 4px 12px; border-radius: 999px; display: inline-block; margin-top: 8px; }
+    .status-badge { font-size: 10px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; padding: 5px 14px; border-radius: 999px; display: inline-block; margin-top: 8px; }
     .status-badge.unpaid    { color: #7a6a3a; background: #f5f0e0; }
     .status-badge.packed    { color: #8a6a2a; background: #f5ecd5; }
     .status-badge.delivered { color: #4a7c59; background: #e4f0e8; }
     .status-badge.arrived   { color: #a33d3d; background: #f5e4e4; }
-    .status-badge.cancelled { color: #5a5a8a; background: #eeeef5; }
+    .status-badge.cancelled { color: #777; background: #eee; }
 
     @media print {
-        .print-bar, nav, header, footer, .jaced-navbar, .jaced-footer { display: none !important; }
-        .invoice-wrap { box-shadow: none; margin: 0; border-radius: 0; }
+        .print-bar, nav, header, footer, .jaced-navbar, .jaced-footer, .btn-print, .btn-back-inv { display: none !important; }
+        body { background: white; padding: 0; }
+        .invoice-wrap { box-shadow: none; margin: 0; padding: 20px 0; border-radius: 0; width: 100%; max-width: 100%; }
     }
 </style>
 @endpush
@@ -108,9 +129,15 @@
 
     {{-- HEADER --}}
     <div class="inv-header">
-        <div>
-            <div class="inv-brand">Jaced</div>
-            <div class="inv-brand-sub">Artisan Furniture</div>
+        {{-- Pembungkus baru untuk logo dan teks brand --}}
+        <div class="brand-wrapper">
+            {{-- Panggil gambar logo kamu --}}
+            <img src="{{ asset('image/jaced_logo1.png') }}" alt="Jaced Logo" class="inv-logo">
+            
+            <div>
+                <div class="inv-brand">Jaced Furniture</div>
+                <div class="inv-brand-sub">Artisan Furniture</div>
+            </div>
         </div>
         <div style="text-align:right;">
             <div class="inv-title">Invoice</div>
@@ -138,15 +165,15 @@
                 <p>{{ $order->shippingAddress->district_name }}, {{ $order->shippingAddress->city_name }}</p>
                 <p>{{ $order->shippingAddress->province_name }} {{ $order->shippingAddress->postal_code }}</p>
             @else
-                <p>—</p>
+                <p style="color: #999;">—</p>
             @endif
         </div>
     </div>
 
     {{-- PAYMENT METHOD --}}
-    <div style="margin-bottom: 28px;">
+    <div style="margin-bottom: 36px;">
         <div class="inv-section-label">Payment Method</div>
-        <p style="font-size:13px; color:#2a2318; margin-top:4px;">{{ $order->paymentMethod?->name ?? '—' }}</p>
+        <p style="font-size:13px; color:#2a2318; font-weight: 600; margin-top:4px;">{{ $order->paymentMethod?->name ?? '—' }}</p>
     </div>
 
     {{-- ITEMS --}}
@@ -161,9 +188,9 @@
         <tbody>
             @foreach ($order->orderDetails as $detail)
                 <tr>
-                    <td><strong>{{ $detail->product?->name ?? '—' }}</strong></td>
+                    <td><span style="font-weight: 600;">{{ $detail->product?->name ?? '—' }}</span></td>
                     <td>{{ $detail->quantity }}</td>
-                    <td><strong>Rp {{ number_format($detail->subtotal, 0, ',', '.') }}</strong></td>
+                    <td>Rp {{ number_format($detail->subtotal, 0, ',', '.') }}</td>
                 </tr>
             @endforeach
         </tbody>
@@ -171,25 +198,40 @@
 
     {{-- TOTALS --}}
     <div class="inv-totals">
-        <div class="inv-totals-row"><span>Subtotal</span><span>Rp {{ number_format($subtotal, 0, ',', '.') }}</span></div>
-        <div class="inv-totals-row"><span>Delivery fee</span><span>Rp {{ number_format($order->delivery_fee, 0, ',', '.') }}</span></div>
-        <div class="inv-totals-row"><span>Service tax</span><span>Rp {{ number_format($order->service_tax, 0, ',', '.') }}</span></div>
+        <div class="inv-totals-row">
+            <span>Subtotal</span>
+            <span>Rp {{ number_format($subtotal, 0, ',', '.') }}</span>
+        </div>
+        <div class="inv-totals-row">
+            <span>Delivery fee</span>
+            <span>Rp {{ number_format($order->delivery_fee, 0, ',', '.') }}</span>
+        </div>
+        <div class="inv-totals-row">
+            <span>Service tax</span>
+            <span>Rp {{ number_format($order->service_tax, 0, ',', '.') }}</span>
+        </div>
         @if ($order->discount_amount > 0)
-            <div class="inv-totals-row discount"><span>Discount</span><span>− Rp {{ number_format($order->discount_amount, 0, ',', '.') }}</span></div>
+            <div class="inv-totals-row discount">
+                <span>Discount</span>
+                <span>− Rp {{ number_format($order->discount_amount, 0, ',', '.') }}</span>
+            </div>
         @endif
         <hr class="inv-divider">
-        <div class="inv-totals-row grand"><span>Total</span><span>Rp {{ number_format($order->total_price, 0, ',', '.') }}</span></div>
+        <div class="inv-totals-row grand">
+            <span>Total</span>
+            <span>Rp {{ number_format($order->total_price, 0, ',', '.') }}</span>
+        </div>
     </div>
 
     {{-- FOOTER --}}
     <div class="inv-footer">
         <div class="inv-footer-note">
             Thank you for your purchase.<br>
-            For any questions, contact us at hello@jaced.id
+            For any questions, contact us at <a href="mailto:ptdiahloka2006@gmail.com" style="color: #2a2318; text-decoration: none; font-weight: 500;">ptdiahloka2006@gmail.com</a>
         </div>
         <div class="inv-footer-note" style="text-align:right;">
-            Jaced Artisan Furniture<br>
-            jaced.id
+            <strong>Jaced Artisan Furniture</strong><br>
+            <span style="color: #888;">jaced.id</span>
         </div>
     </div>
 
