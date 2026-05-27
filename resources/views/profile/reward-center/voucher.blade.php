@@ -4,7 +4,7 @@
 <link rel="stylesheet" href="{{ asset('css/jaced.css') }}">
 <style>
     .voucher-page {
-        background-color: var(--jaced-cream);
+        background-color: var(--jaced-caramel-bg) !important;
         padding: 40px 24px;
         min-height: 100vh;
     }

@@ -13,6 +13,7 @@ return new class extends Migration
     {
         Schema::create('orders', function (Blueprint $table) {
             $table->id();
+            $table->string('midtrans_order_id')->nullable();
             $table->unsignedBigInteger('user_id');
             $table->unsignedBigInteger('payment_id');
             $table->unsignedBigInteger('voucher_id')->nullable();
@@ -23,10 +24,16 @@ return new class extends Migration
             $table->decimal('total_price', 10, 2);
             $table->string('status');
             $table->timestamps();
+            $table->timestamp('on_process_at')->nullable();
             $table->timestamp('packed_at')->nullable();
             $table->timestamp('delivered_at')->nullable();
             $table->timestamp('arrived_at')->nullable();
             $table->timestamp('cancelled_at')->nullable();
+            $table->timestamp('shipped_at')->nullable();
+            $table->timestamp('disputed_at')->nullable();
+            $table->string('refund_status')->nullable();
+            $table->string('refund_type')->nullable();
+            $table->decimal('refund_amount', 10, 2)->nullable();
             $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
             $table->foreign('payment_id')->references('id')->on('payment_methods')->onDelete('cascade');
             $table->foreign('voucher_id')->references('id')->on('vouchers')->onDelete('set null');

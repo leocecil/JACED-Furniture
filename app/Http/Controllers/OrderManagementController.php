@@ -12,9 +12,11 @@ class OrderManagementController extends Controller
     //
     // ── Valid forward-only status transitions (admin only) ───────────
     private array $transitions = [
-        'unpaid' => 'packed',
-        'packed' => 'delivered',
-        // delivered → arrived: customer action or auto after 1 week
+        'unpaid'    => 'on_process',
+        'on_process' => 'packed',
+        'packed'    => 'delivered',
+        'delivered' => 'shipped',
+        // shipped → arrived: customer action or auto after 7 days
     ];
  
     // ── Index (full page load) ────────────────────────────────────────
@@ -60,8 +62,10 @@ class OrderManagementController extends Controller
         }
  
         $update = ['status' => $nextStatus, 'updated_at' => now()];
-        if ($nextStatus === 'packed')    $update['packed_at']    = now();
-        if ($nextStatus === 'delivered') $update['delivered_at'] = now();
+        if ($nextStatus === 'on_process') $update['on_process_at'] = now();
+        if ($nextStatus === 'packed')     $update['packed_at']     = now();
+        if ($nextStatus === 'delivered')  $update['delivered_at']  = now();
+        if ($nextStatus === 'shipped')    $update['shipped_at']    = now();
  
         DB::table('orders')->where('id', $id)->update($update);
  
@@ -75,14 +79,99 @@ class OrderManagementController extends Controller
     // ── Auto-arrive: delivered orders older than 1 week ───────────────
     private function autoArriveOrders(): void
     {
-        DB::table('orders')
-            ->where('status', 'delivered')
-            ->where('delivered_at', '<=', Carbon::now()->subWeek())
-            ->update([
+        $autoArrived = DB::table('orders')
+            ->where('status', 'shipped')
+            ->whereNotNull('shipped_at')
+            ->where('shipped_at', '<=', Carbon::now()->subDays(7))
+            ->get();
+
+        foreach ($autoArrived as $order) {
+            DB::table('orders')->where('id', $order->id)->update([
                 'status'     => 'arrived',
                 'arrived_at' => now(),
                 'updated_at' => now(),
             ]);
+
+            $poinBaru = floor($order->total_price / 10000);
+            if ($poinBaru > 0) {
+                DB::table('users')->where('id', $order->user_id)->increment('current_points', $poinBaru);
+                DB::table('users')->where('id', $order->user_id)->increment('accumulated_points', $poinBaru);
+                DB::table('point_histories')->insert([
+                    'user_id'    => $order->user_id,
+                    'points'     => $poinBaru,
+                    'type'       => 'earned',
+                    'source'     => 'purchase',
+                    'order_id'   => $order->id,
+                    'created_at' => now(),
+                    'updated_at' => now(),
+                ]);
+            }
+        }
+    }
+
+    public function complaints(Request $request)
+    {
+        $complaints = DB::table('order_complaints')
+            ->join('orders', 'order_complaints.order_id', '=', 'orders.id')
+            ->join('users', 'order_complaints.user_id', '=', 'users.id')
+            ->select(
+                'order_complaints.*',
+                'users.name as customer_name',
+                'users.email as customer_email',
+                'orders.total_price',
+                'orders.status as order_status',
+            )
+            ->orderByDesc('order_complaints.created_at')
+            ->get();
+
+        return view('admin.complaints', compact('complaints'));
+    }
+
+    public function resolveComplaint(Request $request, $id)
+    {
+        $request->validate([
+            'resolution'     => 'required|in:refund_money,resend,reject',
+            'refund_amount'  => 'nullable|numeric|min:0',
+            'admin_note'     => 'nullable|string|max:500',
+        ]);
+
+        $complaint = DB::table('order_complaints')->where('id', $id)->first();
+        if (!$complaint) return response()->json(['error' => 'Complaint not found.'], 404);
+
+        $order = DB::table('orders')->where('id', $complaint->order_id)->first();
+
+        // Update complaint
+        DB::table('order_complaints')->where('id', $id)->update([
+            'status'     => 'resolved',
+            'admin_note' => $request->admin_note,
+            'updated_at' => now(),
+        ]);
+
+        // Update order berdasarkan resolusi
+        if ($request->resolution === 'refund_money') {
+            DB::table('orders')->where('id', $order->id)->update([
+                'refund_status' => 'approved',
+                'refund_type'   => 'money',
+                'refund_amount' => $request->refund_amount ?? $order->total_price,
+                'status'        => 'refunded',
+                'updated_at'    => now(),
+            ]);
+        } elseif ($request->resolution === 'resend') {
+            DB::table('orders')->where('id', $order->id)->update([
+                'refund_status' => 'approved',
+                'refund_type'   => 'resend',
+                'status'        => 'reshipped',
+                'updated_at'    => now(),
+            ]);
+        } elseif ($request->resolution === 'reject') {
+            DB::table('orders')->where('id', $order->id)->update([
+                'refund_status' => 'rejected',
+                'status'        => 'arrived',
+                'updated_at'    => now(),
+            ]);
+        }
+
+        return response()->json(['success' => true, 'message' => 'Complaint resolved.']);
     }
  
     // ── Stat cards ────────────────────────────────────────────────────

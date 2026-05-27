@@ -5,7 +5,7 @@
 <link rel="stylesheet" href="{{ asset('css/jaced.css') }}">
 <style>
     .profile-page {
-        background-color: var(--jaced-cream);
+        background-color: var(--jaced-caramel-bg) !important;
         min-height: calc(100vh - 60px);
         padding: 40px 16px 64px;
     }

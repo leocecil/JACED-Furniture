@@ -5,7 +5,7 @@
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
 <style>
     .edit-profile-page {
-        background-color: var(--jaced-cream);
+        background-color: var(--jaced-caramel-bg) !important;
         min-height: 100vh;
         padding: 40px 16px 80px;
     }

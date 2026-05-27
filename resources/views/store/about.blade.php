@@ -12,7 +12,7 @@
     
     /* Menetralkan pembungkus box container bawaan base template khusus untuk Hero Section */
     .force-full-bleed {
-        margin-top: -8rem !important; 
+        margin-top: -2rem !important; 
         margin-left: -3rem !important;
         margin-right: -3rem !important;
         width: calc(100% + 6rem) !important;

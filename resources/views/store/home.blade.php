@@ -395,7 +395,7 @@
                 linear-gradient(180deg, rgba(39,46,29,0.45) 0%, rgba(39,46,29,0) 25%);
         }
         .hero-content {
-            position: relative; z-index: 2; color: var(--jaced-cream);
+            position: relative; z-index: 2; color: var(--jaced-caramel-bg);
             padding-left: clamp(32px, 8vw, 120px); max-width: 780px;
         }
         .hero-subtitle { letter-spacing: 0.3em; font-size: 12px; opacity: 0.85; color: var(--jaced-caramel); }

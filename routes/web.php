@@ -96,12 +96,21 @@ Route::middleware(['role:customer'])->group(function() {
     Route::get('/payment/status/{order_id}', [OrderController::class, 'payment_status'])->name('payment_status');
     Route::get('/payment/return/{order_id}', [OrderController::class, 'payment_return'])->name('payment_return');
 
+    // Midtrans Webhook for Payment Notifications
+    Route::post('/midtrans/notification', [OrderController::class, 'handleNotification'])->name('midtrans.notification');
+
     // Customer Purchase History
     Route::get('/orderhistory', [OrderHistoryController::class, 'index'])->name('store.orderhistory');
     Route::get('/orderhistory/{id}', [OrderHistoryController::class, 'show'])->name('store.orderhistory_detail.show');
 
+    // Order actions - customer
+    Route::patch('/orderhistory/{id}/received', [OrderHistoryController::class, 'markReceived'])->name('store.orderhistory.received');
+    Route::post('/orderhistory/{id}/complaint', [OrderHistoryController::class, 'submitComplaint'])->name('store.orderhistory.complaint');
+    Route::patch('/orderhistory/{id}/cancel', [OrderHistoryController::class, 'cancelOrder'])->name('store.orderhistory.cancel');
+
     // Order History - Invoice
     Route::get('/orderhistory/{id}/invoice', [OrderHistoryController::class, 'invoice'])->name('store.orderhistory.invoice');
+    Route::patch('/orderhistory/{id}/received', [OrderHistoryController::class, 'markReceived'])->name('store.orderhistory.received');
 });
 
 // ADMIN AUTHENTICATION
@@ -120,6 +129,10 @@ Route::middleware(['role:admin'])->group(function() {
     Route::get('/admin/order_management', [OrderManagementController::class, 'index'])->name('order_management');
     Route::get('/admin/order_management/search', [OrderManagementController::class, 'search'])->name('admin.order_management.search');
     Route::post('/admin/orders/{id}/status', [OrderManagementController::class, 'updateStatus'])->name('admin.orders.updateStatus');
+
+    // Complaint management - admin
+    Route::get('/admin/complaints', [OrderManagementController::class, 'complaints'])->name('admin.complaints');
+    Route::post('/admin/complaints/{id}/resolve', [OrderManagementController::class, 'resolveComplaint'])->name('admin.complaints.resolve');
 
     // Core Customer Analytics Systems
     Route::get('/admin/analytics', [AnalyticsController::class, 'index'])->name('analytics.customers');

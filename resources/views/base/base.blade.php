@@ -17,13 +17,13 @@
             display: flex;
             flex-direction: column;
             min-height: 100vh;
-            /* background-color: var(--jaced-cream); */
+            background-color: var(--jaced-caramel);
         }
         .main-content {
             flex: 1;
         }
         .main-content.default-content {
-            padding-top: 8rem !important;
+            padding-top: 6rem !important;
         }
     </style>
 </head>

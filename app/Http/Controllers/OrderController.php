@@ -12,13 +12,14 @@ use App\Services\RajaOngkirService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 use Laravolt\Indonesia\Models\City;
 use Laravolt\Indonesia\Models\District;
 use Laravolt\Indonesia\Models\Province;
 use Laravolt\Indonesia\Models\Village;
-use Midtrans\Snap;
 use Midtrans\Config;
+use Midtrans\Snap;
 
 class OrderController extends Controller
 {
@@ -299,10 +300,12 @@ class OrderController extends Controller
                 };
             }
 
+            $midtransOrderId = 'JACED-ORD-' . $order->id . '-' . time();
+            $order->update(['midtrans_order_id' => $midtransOrderId]);
+
             $params = [
                 'transaction_details' => [
-                    'order_id'     => 'JACED-ORD-' . $order->id . '-' . time(),
-                    'gross_amount' => $totalPrice,
+                    'order_id'     => $midtransOrderId,
                 ],
                 'item_details' => $item_details,
                 'customer_details' => [
@@ -354,61 +357,77 @@ class OrderController extends Controller
         }
     }
 
-    public function payment_status($order_id){
+    public function payment_status($order_id)
+    {
         $order = Order::findOrFail($order_id);
 
         \Midtrans\Config::$serverKey = config('midtrans.server_key');
         \Midtrans\Config::$isProduction = config('midtrans.is_production');
         
         try {
-            /** @var object $statusResponse */
-            // Menggunakan ID Order karena invoice_number tidak ada di database kalian
-            $statusResponse = \Midtrans\Transaction::status($order->id);
+            if (!$order->midtrans_order_id) {
+                return redirect()->route('store.orderhistory')->with('error', 'Data transaksi tidak ditemukan.');
+            }
+
+            $statusResponse    = \Midtrans\Transaction::status($order->midtrans_order_id);
             $transactionStatus = $statusResponse->transaction_status;
 
             if ($transactionStatus == 'capture' || $transactionStatus == 'settlement') {
-                $order->status = 'packed'; 
+                $order->status       = 'on_process';
+                $order->on_process_at = now();
             } elseif ($transactionStatus == 'pending') {
                 $order->status = 'unpaid';
             } elseif (in_array($transactionStatus, ['deny', 'expire', 'cancel'])) {
-                $order->status = 'cancelled';
+                $order->status       = 'cancelled';
+                $order->cancelled_at = now();
             }
             $order->save();
 
         } catch (\Exception $e) {
-            $order->save();
+            Log::error('Midtrans status error order #' . $order->id . ': ' . $e->getMessage());
+            return redirect()->route('store.orderhistory')->with('error', 'Fail to get Midtrans status.');
         }
 
-        if ($order->status == 'packed') {
-            $totalBelanja = $order->total_price; 
-            $poinBaru = floor($totalBelanja / 10000); 
-
-            if ($poinBaru > 0 && Auth::check()) {
-                $user = Auth::user();
-                
-                $user->increment('current_points', $poinBaru);
-                $user->increment('accumulated_points', $poinBaru);
-
-                DB::table('point_histories')->insert([
-                    'user_id'    => $user->id,
-                    'points'     => $poinBaru,
-                    'type'       => 'earned',
-                    'source'     => 'purchase',
-                    'order_id'   => $order->id,
-                    'created_at' => now(),
-                    'updated_at' => now(),
-                ]);
-            }
-
-            // Arahkan ke riwayat transaksi dengan flash message jumlah poin yang didapat
+        if ($order->status == 'on_process') {
             return redirect()->route('store.orderhistory')
-                             ->with('success', 'Payment successful! You earned ' . $poinBaru . ' points.');
-                             
-        } elseif ($order->status == 'pending') {
+                ->with('success', 'Payment successful! Pesanan kamu sedang diproses.');
+        } elseif ($order->status == 'unpaid') {
             return redirect()->route('store.orderhistory')->with('error', 'Payment is pending. Please complete it.');
         } else {
             return redirect()->route('store.orderhistory')->with('error', 'Payment failed or expired.');
         }
+    }
+
+    public function handleNotification(Request $request)
+    {
+        \Midtrans\Config::$serverKey    = config('midtrans.server_key');
+        \Midtrans\Config::$isProduction = config('midtrans.is_production');
+
+        $notification      = new \Midtrans\Notification();
+        $transactionStatus = $notification->transaction_status;
+        $fraudStatus       = $notification->fraud_status;
+
+        $order = Order::where('midtrans_order_id', $notification->order_id)->firstOrFail();
+
+        if ($transactionStatus == 'capture') {
+            $order->status = $fraudStatus == 'accept' ? 'on_process' : 'cancelled';
+            if ($order->status == 'on_process') $order->on_process_at = now();
+            if ($order->status == 'cancelled')  $order->cancelled_at  = now();
+
+        } elseif ($transactionStatus == 'settlement') {
+            $order->status       = 'on_process';
+            $order->on_process_at = now();
+
+        } elseif (in_array($transactionStatus, ['cancel', 'deny', 'expire'])) {
+            $order->status      = 'cancelled';
+            $order->cancelled_at = now();
+
+        } elseif ($transactionStatus == 'pending') {
+            $order->status = 'unpaid';
+        }
+
+        $order->save();
+        return response()->json(['status' => 'ok']);
     }
 
     public function payment_return($order_id){
@@ -523,12 +542,13 @@ class OrderController extends Controller
 // ======================== TRANSACTION HISTORY & DETAIL ========================
     public function index(Request $request)
     {
-        $filters = ['All', 'Unpaid', 'Packed', 'Delivered', 'Arrived', 'Cancelled'];
+        $filters = ['All', 'On Process', 'Unpaid', 'Packed', 'Delivered', 'Arrived', 'Cancelled'];
         $activeFilter = $request->get('filter', 'All');
 
         // Mapping filter tab → status di DB
         $statusMap = [
             'Unpaid'     => 'unpaid',
+            'On Process' => 'on_process',
             'Packed'     => 'packed',
             'Delivered'  => 'delivered',
             'Arrived'    => 'arrived',

@@ -104,18 +104,20 @@
 @section('content')
 @php
     $statusLabel = [
-        'unpaid'    => 'Unpaid',
-        'packed'    => 'Packed',
-        'delivered' => 'Delivered',
-        'arrived'   => 'Arrived',
+        'unpaid'     => 'Unpaid',
+        'on_process' => 'On Process',
+        'packed'     => 'Packed',
+        'delivered'  => 'Delivered',
+        'arrived'    => 'Arrived',
         'cancelled' => 'Cancelled',
     ];
     $statusClass = [
-        'unpaid'    => 'unpaid',
-        'packed'    => 'packed',
-        'delivered' => 'delivered',
-        'arrived'   => 'arrived',
-        'cancelled' => 'cancelled',
+        'unpaid'     => 'unpaid',
+        'on_process' => 'on_process',
+        'packed'     => 'packed',
+        'delivered'  => 'delivered',
+        'arrived'    => 'arrived',
+        'cancelled'  => 'cancelled',
     ];
 @endphp
 

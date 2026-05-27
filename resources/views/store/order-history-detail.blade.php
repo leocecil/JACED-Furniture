@@ -39,11 +39,11 @@
     .status-badge.returns    { color: #5a5a8a;              background: #eeeef5; }
 
     .section-label {
-        font-size: 11px;
+        font-size: 18px;
         font-weight: 700;
         letter-spacing: .08em;
         text-transform: uppercase;
-        color: var(--jaced-muted);
+        color: var(--jaced-brown-dark);
         margin: 0 0 14px;
     }
 
@@ -117,13 +117,16 @@
         color: white;
         border: none;
         border-radius: 8px;
-        padding: 10px 20px;
+        padding: 10px 12px;
         font-size: 14px;
         font-weight: 500;
         cursor: pointer;
         width: 100%;
         margin-top: 16px;
         transition: background .2s;
+        text-decoration: none;
+        display: block;
+        text-align: center;
     }
     .btn-invoice:hover { background: #333; }
 
@@ -132,7 +135,7 @@
         color: var(--jaced-caramel);
         border: 1px solid var(--jaced-caramel);
         border-radius: 8px;
-        padding: 9px 20px;
+        padding: 9px 12px;
         font-size: 14px;
         font-weight: 500;
         cursor: pointer;
@@ -167,22 +170,29 @@
     $extraCount  = $order->orderDetails->count() - 1;
 
     $statusLabel = [
-        'unpaid'    => 'Unpaid',
-        'packed'    => 'Packed',
-        'delivered' => 'Delivered',
-        'arrived'   => 'Arrived',
-        'cancelled' => 'Cancelled',
+        'unpaid'     => 'Unpaid',
+        'on_process' => 'On Process',
+        'packed'     => 'Packed',
+        'delivered'  => 'Delivered',
+        'shipped'    => 'Shipped',
+        'arrived'    => 'Arrived',
+        'cancelled'  => 'Cancelled',
+        'disputed'   => 'Disputed',
+        'refunded'   => 'Refunded',
+        'reshipped'  => 'Reshipped',
     ];
 
     $allSteps = [
-        ['label' => 'Confirmed',  'statuses' => ['unpaid', 'packed', 'delivered', 'arrived', 'cancelled']],
-        ['label' => 'Packed',     'statuses' => ['packed', 'delivered', 'arrived']],
-        ['label' => 'Delivered',  'statuses' => ['delivered', 'arrived']],
-        ['label' => 'Arrived',    'statuses' => ['arrived']],
+        ['label' => 'Confirmed',   'statuses' => ['unpaid', 'on_process', 'packed', 'delivered', 'shipped', 'arrived']],
+        ['label' => 'On Process',  'statuses' => ['on_process', 'packed', 'delivered', 'shipped', 'arrived']],
+        ['label' => 'Packed',      'statuses' => ['packed', 'delivered', 'shipped', 'arrived']],
+        ['label' => 'Shipped',     'statuses' => ['shipped', 'arrived']],
+        ['label' => 'Arrived',     'statuses' => ['arrived']],
     ];
 
-    $statusOrder = ['unpaid', 'packed', 'delivered', 'arrived'];
+    $statusOrder = ['unpaid', 'on_process', 'packed', 'delivered', 'shipped', 'arrived'];
     $currentIndex = array_search($order->status, $statusOrder);
+    if ($currentIndex === false) $currentIndex = 0;
 
     $steps = collect($allSteps)->map(function ($step, $i) use ($currentIndex) {
         if ($i < $currentIndex) $state = 'done';
@@ -193,13 +203,17 @@
 
     $updates = [];
     if ($order->arrived_at)
-        $updates[] = ['dot' => 'green',   'time' => $order->arrived_at->format('M d, Y · h:i A'),   'title' => 'Order Arrived',   'desc' => 'Your order has arrived at its destination.'];
+        $updates[] = ['dot' => 'green',   'time' => $order->arrived_at->format('M d, Y · h:i A'),   'title' => 'Order Arrived',        'desc' => 'Your order has been confirmed received.'];
+    if ($order->shipped_at)
+        $updates[] = ['dot' => 'green',   'time' => $order->shipped_at->format('M d, Y · h:i A'),   'title' => 'Out for Delivery',     'desc' => 'Courier has arrived at your location.'];
     if ($order->delivered_at)
-        $updates[] = ['dot' => 'green',   'time' => $order->delivered_at->format('M d, Y · h:i A'), 'title' => 'Order Delivered', 'desc' => 'Your order has been handed off to the courier.'];
+        $updates[] = ['dot' => 'green',   'time' => $order->delivered_at->format('M d, Y · h:i A'), 'title' => 'Order Delivered',      'desc' => 'Your order has been handed off to the courier.'];
     if ($order->packed_at)
-        $updates[] = ['dot' => 'caramel', 'time' => $order->packed_at->format('M d, Y · h:i A'),    'title' => 'Order Packed',    'desc' => 'Your order has been packed and is ready for shipping.'];
+        $updates[] = ['dot' => 'caramel', 'time' => $order->packed_at->format('M d, Y · h:i A'),    'title' => 'Order Packed',         'desc' => 'Your order has been packed and is ready for shipping.'];
+    if ($order->on_process_at)
+        $updates[] = ['dot' => 'caramel', 'time' => $order->on_process_at->format('M d, Y · h:i A'),'title' => 'Order Confirmed by Admin', 'desc' => 'Your payment has been confirmed.'];
 
-    $updates[] = ['dot' => '', 'time' => $order->created_at->format('M d, Y · h:i A'), 'title' => 'Order Confirmed', 'desc' => 'Your order has been received and is being processed.'];
+    $updates[] = ['dot' => '', 'time' => $order->created_at->format('M d, Y · h:i A'), 'title' => 'Order Placed', 'desc' => 'Your order has been received and is being processed.'];
 @endphp
 
 <div class="jaced-page">
@@ -349,17 +363,85 @@
                                 Rp {{ number_format($order->total_price, 0, ',', '.') }}
                             </span>
                         </div>
+                    <div class="d-flex flex-column gap-2 mt-3">
+                        {{-- Download Invoice --}}
+                        @if (!in_array($order->status, ['unpaid', 'cancelled']))
+                            <a href="{{ route('store.orderhistory.invoice', $order->id) }}"
+                                target="_blank"
+                                class="btn-invoice"
+                                style="margin-top: 0;">
+                                Download Invoice
+                            </a>
+                        @endif
 
-                        <a href="{{ route('store.orderhistory.invoice', $order->id) }}"
-                        target="_blank"
-                        class="btn-invoice">
-                            Download Invoice
-                        </a>
+                        {{-- Mark as Received --}}
+                        @if ($order->status === 'shipped')
+                            <form action="{{ route('store.orderhistory.received', $order->id) }}" method="POST">
+                                @csrf
+                                @method('PATCH')
+                                <button type="submit" class="btn-return"
+                                    style="margin-top: 0; background: var(--jaced-sage); color: white; border: none; width: 100%;">
+                                    ✓ Pesanan Diterima
+                                </button>
+                            </form>
+                        @endif
 
-                        @if ($order->status === 'arrived')
-                            <button class="btn-return">Request Return</button>
+                        {{-- Tombol Komplain --}}
+                        @if (in_array($order->status, ['shipped', 'arrived']))
+                            <button class="btn-return" style="margin-top: 0; width: 100%;"
+                                onclick="document.getElementById('complaint-form').classList.toggle('d-none')">
+                                Apply Return/Complaint
+                            </button>
+                        @endif
+
+                        {{-- Cancel Order --}}
+                        @if ($order->status === 'unpaid')
+                            <form action="{{ route('store.orderhistory.cancel', $order->id) }}" method="POST">
+                                @csrf
+                                @method('PATCH')
+                                <button type="submit" class="btn-return"
+                                    style="margin-top: 0; width: 100%; color: #a33d3d; border-color: #a33d3d;"
+                                    onclick="return confirm('Yakin batalkan order ini?')">
+                                    Cancel Order
+                                </button>
+                            </form>
                         @endif
                     </div>
+
+                    {{-- FORM KOMPLAIN --}}
+                    @if (in_array($order->status, ['shipped', 'arrived']))
+                    <div id="complaint-form" class="d-none mt-3">
+                        <div class="jaced-card p-4">
+                            <p class="section-label">Apply Complain</p>
+                            <form action="{{ route('store.orderhistory.complaint', $order->id) }}" method="POST" enctype="multipart/form-data">
+                                @csrf
+                                <div class="mb-3">
+                                    <label style="font-size: 13px; font-weight: 600;">Problem Description</label>
+                                    <select name="type" class="form-select mt-1" style="font-size: 13px;">
+                                        <option value="missing">Item Not Received / Lost</option>
+                                        <option value="damaged">Item Damaged</option>
+                                        <option value="wrong_item">Wrong Item Sent</option>
+                                    </select>
+                                </div>
+                                <div class="mb-3">
+                                    <label style="font-size: 13px; font-weight: 600;">Description</label>
+                                    <textarea name="description" class="form-control mt-1" rows="3"
+                                        style="font-size: 13px;" placeholder="Explain your issue..."></textarea>
+                                </div>
+                                <div class="mb-3">
+                                    <label style="font-size: 13px; font-weight: 600;">Proof Photo (Optional)</label>
+                                    <input type="file" name="photo" class="form-control mt-1" accept="image/*">
+                                </div>
+                                <button type="submit" class="btn-invoice" style="margin-top: 0;">
+                                    Submit Complain
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                    @endif
+                </div>
+
+                    
 
                     {{-- Seller Update --}}
                     <div class="jaced-card p-4">
