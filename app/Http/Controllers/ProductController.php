@@ -117,8 +117,12 @@ class ProductController extends Controller
 
     public function shop(Request $request)
     {
-        $query = Product::with(['images', 'category'])
+        $query = Product::with(['images', 'category', 'orderDetails'])
             ->where('stock', '>=', 0);
+
+        // $query = Product::with(['images', 'category'])
+        //     ->withSum('orderDetails as total_sold', 'quantity')
+        //     ->where('stock', '>=', 0);
 
         if ($request->filled('search')) {
             $query->where('name', 'like', '%' . $request->input('search') . '%');
@@ -170,7 +174,12 @@ class ProductController extends Controller
 
         $totalProducts = Product::count();
         $paginated = $query->paginate(9)->withQueryString();
-        $items = $paginated->getCollection()->map(fn($p) => $this->normalize($p));
+        // $items = $paginated->getCollection()->map(fn($p) => $this->normalize($p));
+        $items = $paginated->getCollection()->map(function ($p) {
+            $normalized = $this->normalize($p);
+            $normalized->total_sold = $p->orderDetails->sum('quantity');
+            return $normalized;
+        });
         $paginated->setCollection($items);
         $products = $paginated;
 
@@ -198,6 +207,8 @@ class ProductController extends Controller
             (object) ['slug' => 'dining-room', 'name' => 'Dining Room',  'products_count' => 4],
             (object) ['slug' => 'office',      'name' => 'Office',       'products_count' => 3],
         ]);
+
+
 
         return view('store.shop', compact('products', 'categories', 'materials', 'rooms', 'totalProducts'));
     }
@@ -239,7 +250,7 @@ class ProductController extends Controller
                 ->where('product_id', $product->id)
                 ->exists();
         }
-        
+
         return view('store.product_details', compact(
             'product', 'related', 'totalSold', 'isWishlisted'
         ));
