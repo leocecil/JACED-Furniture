@@ -73,8 +73,8 @@ class CustomerUserSeeder extends Seeder
                 'password'          => Hash::make('password123'),
                 'is_admin'          => false,
                 'avatar'            => 'image/avatars/default_avatar.png', // default avatar
-                'current_points'    => rand(0, 500),
-                'accumulated_points'=> rand(0, 2000),
+                'current_points'    => 0,
+                'accumulated_points'=> 0,
                 'created_at'        => now()->subDays(rand(30, 365)),
                 'updated_at'        => now(),
             ];
@@ -95,4 +95,5 @@ class CustomerUserSeeder extends Seeder
 
         DB::table('user_roles')->insert($roles);
     }
+
 }
