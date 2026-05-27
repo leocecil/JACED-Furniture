@@ -129,6 +129,12 @@
             color: var(--jaced-muted);
         }
 
+        .step-circle.cancelled {
+            background: #FFEBEE;
+            border-color: var(--jaced-muted);
+            color: var(--jaced-muted);
+        }
+
         .step-label {
             font-size: 10px;
             color: var(--jaced-muted);
@@ -311,62 +317,130 @@
             ['label' => 'Arrived', 'statuses' => ['arrived']],
         ];
 
-        $statusOrder = ['unpaid', 'on_process', 'packed', 'delivered', 'shipped', 'arrived', 'disputed'];
+        $statusOrder = ['unpaid', 'on_process', 'packed', 'delivered', 'shipped', 'arrived'];
         $currentIndex = array_search($order->status, $statusOrder);
-        if ($currentIndex === false) {
-            $currentIndex = 0;
+        if ($currentIndex === false) $currentIndex = 0;
+
+        // Kalau disputed, tampilkan tracking di posisi shipped
+        if ($order->status === 'disputed') {
+            if ($dispute && $dispute->resolution_type === 'exchange' && $dispute->replacement_arrived_at) {
+                $currentIndex = array_search('arrived', $statusOrder);
+            } else {
+                $currentIndex = array_search('shipped', $statusOrder);
+            }
         }
-        if ($order->status === 'disputed') $currentIndex = array_search('shipped', $statusOrder);
+
+        $isCancelled = $order->status === 'cancelled';
 
         $steps = collect($allSteps)
-            ->map(function ($step, $i) use ($currentIndex) {
-                if ($i < $currentIndex) {
-                    $state = 'done';
-                } elseif ($i === $currentIndex) {
-                    $state = 'active';
-                } else {
-                    $state = 'pending';
-                }
+            ->map(function ($step, $i) use ($currentIndex, $isCancelled) {
+                if ($isCancelled) return ['label' => $step['label'], 'state' => 'cancelled'];
+                if ($i < $currentIndex) $state = 'done';
+                elseif ($i === $currentIndex) $state = 'active';
+                else $state = 'pending';
                 return ['label' => $step['label'], 'state' => $state];
             })
             ->toArray();
 
         $updates = [];
-        if ($order->arrived_at) {
+        if ($order->arrived_at && $order->status !== 'disputed')
             $updates[] = [
-                'dot' => 'green',
-                'time' => $order->arrived_at->format('M d, Y · h:i A'),
+                'timestamp' => $order->arrived_at->timestamp,
+                'dot'   => 'green',
+                'time'  => $order->arrived_at->format('M d, Y · h:i A'),
                 'title' => 'Order Arrived',
-                'desc' => 'Your order has been confirmed received.',
+                'desc'  => 'Your order has been confirmed received.',
             ];
-        }
+
         if ($order->shipped_at)
-            $updates[] = ['dot' => 'green', 'time' => $order->shipped_at->format('M d, Y · h:i A'), 'title' => 'Out for Delivery', 'desc' => 'Courier has arrived at your location.'];
+            $updates[] = [
+                'timestamp' => $order->shipped_at->timestamp,
+                'dot'   => 'green',
+                'time'  => $order->shipped_at->format('M d, Y · h:i A'),
+                'title' => 'Out for Delivery',
+                'desc'  => 'Courier has arrived at your location.',
+            ];
+
         if ($order->delivered_at)
-            $updates[] = ['dot' => 'green', 'time' => $order->delivered_at->format('M d, Y · h:i A'), 'title' => 'Order Delivered', 'desc' => 'Your order has been handed off to the courier.'];
-        if ($order->packed_at) {
             $updates[] = [
-                'dot' => 'caramel',
-                'time' => $order->packed_at->format('M d, Y · h:i A'),
+                'timestamp' => $order->delivered_at->timestamp,
+                'dot'   => 'green',
+                'time'  => $order->delivered_at->format('M d, Y · h:i A'),
+                'title' => 'Order Delivered',
+                'desc'  => 'Your order has been handed off to the courier.',
+            ];
+
+        if ($order->packed_at)
+            $updates[] = [
+                'timestamp' => $order->packed_at->timestamp,
+                'dot'   => 'caramel',
+                'time'  => $order->packed_at->format('M d, Y · h:i A'),
                 'title' => 'Order Packed',
-                'desc' => 'Your order has been packed and is ready for shipping.',
+                'desc'  => 'Your order has been packed and is ready for shipping.',
             ];
-        }
-        if ($order->on_process_at) {
+
+        if ($order->on_process_at)
             $updates[] = [
-                'dot' => 'caramel',
-                'time' => $order->on_process_at->format('M d, Y · h:i A'),
+                'timestamp' => $order->on_process_at->timestamp,
+                'dot'   => 'caramel',
+                'time'  => $order->on_process_at->format('M d, Y · h:i A'),
                 'title' => 'Order Confirmed by Admin',
-                'desc' => 'Your payment has been confirmed.',
+                'desc'  => 'Your payment has been confirmed.',
             ];
+        if ($order->disputed_at)
+            $updates[] = [
+                'timestamp' => $order->disputed_at->timestamp,
+                'dot'       => 'caramel',
+                'time'      => $order->disputed_at->format('M d, Y · h:i A'),
+                'title'     => 'Complaint Filed',
+                'desc'      => 'Your complaint is being reviewed by our team.',
+            ];
+        if ($order->cancelled_at)
+            $updates[] = [
+                'timestamp' => $order->cancelled_at->timestamp,
+                'dot'       => 'caramel',
+                'time'      => $order->cancelled_at->format('M d, Y · h:i A'),
+                'title'     => 'Order Cancelled',
+                'desc'      => $order->cancellation_reason 
+                                ? 'Reason: ' . $order->cancellation_reason 
+                                : 'Order has been cancelled.',
+            ];
+
+        if ($dispute && $dispute->resolution_type === 'exchange') {
+            if ($dispute->replacement_arrived_at)
+                $updates[] = [
+                    'timestamp' => \Carbon\Carbon::parse($dispute->replacement_arrived_at)->timestamp,
+                    'dot'       => 'green',
+                    'time'      => \Carbon\Carbon::parse($dispute->replacement_arrived_at)->format('M d, Y · h:i A'),
+                    'title'     => 'Replacement Item Arrived',
+                    'desc'      => 'Your replacement item has been delivered successfully.',
+                ];
+            if ($dispute->replacement_shipped_at)
+                $updates[] = [
+                    'timestamp' => \Carbon\Carbon::parse($dispute->replacement_shipped_at)->timestamp,
+                    'dot'       => 'green',
+                    'time'      => \Carbon\Carbon::parse($dispute->replacement_shipped_at)->format('M d, Y · h:i A'),
+                    'title'     => 'Replacement Item Shipped',
+                    'desc'      => 'Your replacement item is on its way.',
+                ];
+            if ($dispute->resolved_at)
+                $updates[] = [
+                    'timestamp' => \Carbon\Carbon::parse($dispute->resolved_at)->timestamp,
+                    'dot'       => 'caramel',
+                    'time'      => \Carbon\Carbon::parse($dispute->resolved_at)->format('M d, Y · h:i A'),
+                    'title'     => 'Exchange Approved',
+                    'desc'      => 'Your complaint has been resolved. Replacement item will be sent shortly.',
+                ];
         }
 
         $updates[] = [
+            'timestamp' => $order->created_at->timestamp,
             'dot' => '',
             'time' => $order->created_at->format('M d, Y · h:i A'),
             'title' => 'Order Placed',
             'desc' => 'Your order has been received and is being processed.',
         ];
+        usort($updates, fn($a, $b) => $b['timestamp'] - $a['timestamp']);
     @endphp
 
     @if(session('success'))
@@ -404,15 +478,47 @@
             </p>
 
             {{-- Status Info Banner --}}
-        @if ($order->status === 'disputed')
-            <div style="background:#FFF8E1; border-radius:10px; padding:14px 18px; margin-bottom:24px; display:flex; align-items:center; gap:12px;">
-                <span style="font-size:22px;">⏳</span>
-                <div>
-                    <p style="font-size:13px; color:#F57F17; font-weight:600; margin:0 0 2px;">Complaint Under Review</p>
-                    <p style="font-size:12px; color:var(--jaced-muted); margin:0;">Your complaint is being reviewed by our team. We'll notify you once a resolution has been made.</p>
-                </div>
-            </div>
-        @endif
+            @if ($order->status === 'disputed')
+                @if($dispute?->resolution_type === 'refund' && $dispute?->status === 'resolved')
+                    <div style="background:#E0F7FA; border-radius:10px; padding:14px 18px; margin-bottom:24px; display:flex; align-items:center; gap:12px;">
+                        <span style="font-size:22px;">💰</span>
+                        <div>
+                            <p style="font-size:13px; color:#006064; font-weight:600; margin:0 0 2px;">Refund Approved</p>
+                            <p style="font-size:12px; color:var(--jaced-muted); margin:0;">
+                                Refund sedang diproses. Estimasi 3-5 hari kerja.
+                            </p>
+                        </div>
+                    </div>
+
+                @elseif($dispute?->resolution_type === 'exchange' && $dispute?->status === 'resolved')
+                    <div style="background:#F1F8E9; border-radius:10px; padding:14px 18px; margin-bottom:24px; display:flex; align-items:center; gap:12px;">
+                        <span style="font-size:22px;">📦</span>
+                        <div>
+                            <p style="font-size:13px; color:#33691E; font-weight:600; margin:0 0 2px;">Replacement Item Being Sent</p>
+                            <p style="font-size:12px; color:var(--jaced-muted); margin:0;">Barang pengganti sedang dalam proses pengiriman.</p>
+                        </div>
+                    </div>
+
+                @elseif($dispute?->status === 'rejected')
+                    <div style="background:#FFEBEE; border-radius:10px; padding:14px 18px; margin-bottom:24px; display:flex; align-items:center; gap:12px;">
+                        <span style="font-size:22px;">❌</span>
+                        <div>
+                            <p style="font-size:13px; color:#C62828; font-weight:600; margin:0 0 2px;">Complaint Rejected</p>
+                            <p style="font-size:12px; color:var(--jaced-muted); margin:0;">Komplain kamu tidak dapat diproses. Hubungi customer service untuk info lebih lanjut.</p>
+                        </div>
+                    </div>
+
+                @else
+                    {{-- Masih under review --}}
+                    <div style="background:#FFF8E1; border-radius:10px; padding:14px 18px; margin-bottom:24px; display:flex; align-items:center; gap:12px;">
+                        <span style="font-size:22px;">⏳</span>
+                        <div>
+                            <p style="font-size:13px; color:#F57F17; font-weight:600; margin:0 0 2px;">Complaint Under Review</p>
+                            <p style="font-size:12px; color:var(--jaced-muted); margin:0;">Your complaint is being reviewed by our team. We'll notify you once a resolution has been made.</p>
+                        </div>
+                    </div>
+                @endif
+            @endif
 
             {{-- GRID --}}
             <div class="row g-4 align-items-start">
@@ -449,7 +555,9 @@
                         <div class="jaced-card p-4">
                             <p class="section-label">Tracking</p>
                             <p class="field-label mb-1">Estimated arrival</p>
-                            @if($order->shipped_at)
+                            @if($order->status === 'cancelled')
+                                <p class="text-jaced-muted mb-0" style="font-size: 13px;">Order has been cancelled.</p>
+                            @elseif($order->shipped_at)
                                 <p class="fw-semibold text-jaced-dark mb-0" style="font-size: 15px;">
                                     {{ $order->shipped_at->addDays(3)->format('d M Y') }} - {{ $order->shipped_at->addDays(7)->format('d M Y') }}
                                 </p>
@@ -468,26 +576,20 @@
                                         <div class="step">
                                             <div class="step-circle {{ $step['state'] }}">
                                                 @if ($step['state'] === 'done')
-                                                    <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13"
-                                                        viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                                                        stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+                                                    <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
                                                         <polyline points="20 6 9 17 4 12" />
                                                     </svg>
                                                 @elseif ($step['state'] === 'active')
-                                                    <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13"
-                                                        viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                                                        stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                                        <rect x="1" y="3" width="15" height="13" />
-                                                        <polygon points="16 8 20 8 23 11 23 16 16 16 16 8" />
-                                                        <circle cx="5.5" cy="18.5" r="2.5" />
-                                                        <circle cx="18.5" cy="18.5" r="2.5" />
+                                                    <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                                        <rect x="1" y="3" width="15" height="13" /><polygon points="16 8 20 8 23 11 23 16 16 16 16 8" /><circle cx="5.5" cy="18.5" r="2.5" /><circle cx="18.5" cy="18.5" r="2.5" />
+                                                    </svg>
+                                                @elseif ($step['state'] === 'cancelled')
+                                                    <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+                                                        <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
                                                     </svg>
                                                 @else
-                                                    <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13"
-                                                        viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                                                        stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                                        <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />
-                                                        <polyline points="9 22 9 12 15 12 15 22" />
+                                                    <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                                        <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" /><polyline points="9 22 9 12 15 12 15 22" />
                                                     </svg>
                                                 @endif
                                             </div>
@@ -629,16 +731,20 @@
                                 @endif
 
                                 {{-- Cancel Order --}}
-                                @if ($order->status === 'unpaid')
-                                    <form action="{{ route('store.orderhistory.cancel', $order->id) }}" method="POST">
+                                @if (in_array($order->status, ['unpaid', 'on_process']))
+                                    <form id="form-cancel-{{ $order->id }}" 
+                                        action="{{ route('store.orderhistory.cancel', $order->id) }}" method="POST"
+                                        style="display:none;">
                                         @csrf
                                         @method('PATCH')
-                                        <button type="submit" class="btn-return"
-                                            style="margin-top: 0; width: 100%; color: #a33d3d; border-color: #a33d3d;"
-                                            onclick="return confirm('Yakin batalkan order ini?')">
-                                            Cancel Order
-                                        </button>
+                                        <input type="hidden" id="hidden-cancel-reason-{{ $order->id }}" name="cancellation_reason">
+                                        <input type="hidden" id="hidden-other-reason-{{ $order->id }}" name="other_reason">
                                     </form>
+                                    <button type="button" class="btn-return"
+                                        style="margin-top: 0; width: 100%; color: #a33d3d; border-color: #a33d3d;"
+                                        onclick="document.getElementById('modal-cancel-{{ $order->status }}').style.display='flex'">
+                                        Cancel Order
+                                    </button>
                                 @endif
                             </div>
                         </div>
@@ -808,6 +914,95 @@
     </div>
     @endif
 
+    {{-- Modal Cancel - Unpaid --}}
+    @if ($order->status === 'unpaid')
+    <div id="modal-cancel-unpaid"
+        style="display:none; position:fixed; inset:0; background:rgba(0,0,0,.5); z-index:9999; align-items:center; justify-content:center;">
+        <div style="background:white; border-radius:20px; padding:32px; max-width:420px; width:90%; box-shadow:0 20px 60px rgba(0,0,0,.2); animation:modalIn .2s ease;">
+            <div style="text-align:center; margin-bottom:16px;">
+                <div style="width:64px; height:64px; background:#FFEBEE; border-radius:50%; display:flex; align-items:center; justify-content:center; margin:0 auto;">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#C62828" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/>
+                    </svg>
+                </div>
+            </div>
+            <h5 style="font-size:18px; font-weight:700; color:var(--jaced-brown-dark); text-align:center; margin-bottom:8px;">Cancel Order?</h5>
+            <p style="font-size:13px; color:var(--jaced-muted); text-align:center; line-height:1.6; margin-bottom:16px;">
+                Order kamu akan dibatalkan dan tidak bisa dikembalikan.
+            </p>
+
+            {{-- Reason --}}
+            <div class="mb-3" style="text-align:left;">
+                <label style="font-size:13px; font-weight:600; display:block; margin-bottom:6px;">Alasan Pembatalan</label>
+                <select id="cancel-reason-unpaid" class="form-select" style="font-size:13px;" onchange="toggleOtherReason('unpaid', this.value)">
+                    <option value="wrong_address">Salah alamat pengiriman</option>
+                    <option value="change_of_mind">Berubah pikiran</option>
+                    <option value="found_cheaper">Menemukan harga lebih murah</option>
+                    <option value="ordered_by_mistake">Pesanan tidak sengaja</option>
+                    <option value="others">Lainnya...</option>
+                </select>
+                <textarea id="other-reason-unpaid" class="form-control mt-2" rows="2"
+                    style="font-size:13px; display:none;" placeholder="Tulis alasan kamu..."></textarea>
+            </div>
+
+            <button onclick="submitCancel('{{ $order->id }}', 'unpaid')"
+                style="width:100%; padding:13px; background:#C62828; color:white; border:none; border-radius:12px; font-size:14px; font-weight:700; cursor:pointer; margin-bottom:10px;">
+                Ya, Batalkan Order
+            </button>
+            <button onclick="document.getElementById('modal-cancel-unpaid').style.display='none'"
+                style="width:100%; padding:11px; background:none; color:var(--jaced-muted); border:1px solid var(--jaced-input); border-radius:12px; font-size:13px; font-weight:500; cursor:pointer;">
+                Kembali
+            </button>
+        </div>
+    </div>
+    @endif
+
+    {{-- Modal Cancel - On Process (sudah bayar) --}}
+    @if ($order->status === 'on_process')
+    <div id="modal-cancel-on_process"
+        style="display:none; position:fixed; inset:0; background:rgba(0,0,0,.5); z-index:9999; align-items:center; justify-content:center;">
+        <div style="background:white; border-radius:20px; padding:32px; max-width:420px; width:90%; box-shadow:0 20px 60px rgba(0,0,0,.2); animation:modalIn .2s ease;">
+            <div style="text-align:center; margin-bottom:16px;">
+                <div style="width:64px; height:64px; background:#FFEBEE; border-radius:50%; display:flex; align-items:center; justify-content:center; margin:0 auto;">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#C62828" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/>
+                    </svg>
+                </div>
+            </div>
+            <h5 style="font-size:18px; font-weight:700; color:var(--jaced-brown-dark); text-align:center; margin-bottom:8px;">Cancel Order?</h5>
+            <p style="font-size:13px; color:var(--jaced-muted); text-align:center; line-height:1.6; margin-bottom:8px;">
+                Kamu sudah melakukan pembayaran untuk order ini.
+            </p>
+            <p style="font-size:12px; color:var(--jaced-muted); text-align:center; line-height:1.6; margin-bottom:16px;">
+                Refund akan diproses secara manual oleh tim kami dalam <strong>3-5 hari kerja</strong>.
+            </p>
+
+            {{-- Reason --}}
+            <div class="mb-3" style="text-align:left;">
+                <label style="font-size:13px; font-weight:600; display:block; margin-bottom:6px;">Alasan Pembatalan</label>
+                <select id="cancel-reason-on_process" class="form-select" style="font-size:13px;" onchange="toggleOtherReason('on_process', this.value)">
+                    <option value="wrong_address">Salah alamat pengiriman</option>
+                    <option value="change_of_mind">Berubah pikiran</option>
+                    <option value="found_cheaper">Menemukan harga lebih murah</option>
+                    <option value="ordered_by_mistake">Pesanan tidak sengaja</option>
+                    <option value="others">Lainnya...</option>
+                </select>
+                <textarea id="other-reason-on_process" class="form-control mt-2" rows="2"
+                    style="font-size:13px; display:none;" placeholder="Tulis alasan kamu..."></textarea>
+            </div>
+
+            <button onclick="submitCancel('{{ $order->id }}', 'on_process')"
+                style="width:100%; padding:13px; background:#C62828; color:white; border:none; border-radius:12px; font-size:14px; font-weight:700; cursor:pointer; margin-bottom:10px;">
+                Ya, Batalkan & Ajukan Refund
+            </button>
+            <button onclick="document.getElementById('modal-cancel-on_process').style.display='none'"
+                style="width:100%; padding:11px; background:none; color:var(--jaced-muted); border:1px solid var(--jaced-input); border-radius:12px; font-size:13px; font-weight:500; cursor:pointer;">
+                Kembali
+            </button>
+        </div>
+    </div>
+    @endif
+
 @endsection
 
 @push('scripts')
@@ -824,6 +1019,27 @@
                 label.style.color = '#E65100';
                 input.setAttribute('required', 'required');
             }
+        }
+
+        function toggleOtherReason(type, value) {
+            const textarea = document.getElementById('other-reason-' + type);
+            if (value === 'others') {
+                textarea.style.display = 'block';
+                textarea.setAttribute('required', 'required');
+            } else {
+                textarea.style.display = 'none';
+                textarea.removeAttribute('required');
+            }
+        }
+
+        function submitCancel(orderId, type) {
+            const reason = document.getElementById('cancel-reason-' + type).value;
+            const other = document.getElementById('other-reason-' + type).value;
+            
+            document.getElementById('hidden-cancel-reason-' + orderId).value = reason;
+            document.getElementById('hidden-other-reason-' + orderId).value = other;
+            
+            document.getElementById('form-cancel-' + orderId).submit();
         }
     </script>
 @endpush

@@ -18,6 +18,7 @@ return new class extends Migration
             $table->text('description')->nullable(); // Customer's detailed explanation
             $table->string('status'); // 'open', 'negotiating', 'resolved', 'rejected'
             $table->string('resolution_type')->nullable(); // 'refund', 'exchange'
+            $table->string('photo_path')->nullable();
             
             // For handling the physical return of the bad item
             $table->string('return_tracking_number')->nullable();

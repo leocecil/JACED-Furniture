@@ -48,9 +48,13 @@ class OrderHistoryController extends Controller
         ->where('user_id', Auth::id())
         ->findOrFail($id);
 
-        return view('store.order-history-detail', compact('order'));
-    }
+        $dispute = DB::table('order_disputes')
+            ->where('order_id', $order->id)
+            ->latest()
+            ->first();
 
+        return view('store.order-history-detail', compact('order', 'dispute'));
+    }
     public function invoice($id)
     {
         $order = \App\Models\Order::with([
@@ -110,9 +114,8 @@ class OrderHistoryController extends Controller
 
         $order = Auth::user()->orders()->findOrFail($id);
 
-        $canComplain = $order->status === 'shipped';
-        if (!$canComplain) {
-            return redirect()->back()->with('error', 'Komplain hanya bisa diajukan sebelum mengkonfirmasi penerimaan.');
+        if ($order->status !== 'shipped') {
+            return redirect()->back()->with('error', 'Komplain hanya bisa diajukan sebelum pesanan dikonfirmasi.');
         }
 
         $photoPath = null;
@@ -120,18 +123,16 @@ class OrderHistoryController extends Controller
             $photoPath = $request->file('photo')->store('complaints', 'public');
         }
 
-        DB::table('order_complaints')->insert([
+        DB::table('order_disputes')->insert([
             'order_id'    => $order->id,
-            'user_id'     => Auth::id(),
-            'type'        => $request->type,
+            'reason'      => $request->type,
             'description' => $request->description,
             'photo_path'  => $photoPath,
-            'status'      => 'pending',
+            'status'      => 'open',
             'created_at'  => now(),
             'updated_at'  => now(),
         ]);
 
-        // Update status order jadi disputed
         $order->status = 'disputed';
         $order->disputed_at = now();
         $order->save();
@@ -139,18 +140,42 @@ class OrderHistoryController extends Controller
         return redirect()->back()->with('success', 'Komplain berhasil diajukan. Admin akan segera meninjau.');
     }
 
-    public function cancelOrder($id)
+    public function cancelOrder(Request $request, $id)
     {
         $order = Auth::user()->orders()->findOrFail($id);
 
-        if ($order->status !== 'unpaid') {
+        if (!in_array($order->status, ['unpaid', 'on_process'])) {
             return redirect()->back()->with('error', 'Order tidak bisa dibatalkan.');
+        }
+
+        $needsRefund = $order->status === 'on_process';
+
+        $reason = $request->input('cancellation_reason', 'change_of_mind');
+        if ($reason === 'others') {
+            $reason = $request->input('other_reason', 'Others');
+        }
+
+        $reasonLabel = match($reason) {
+            'wrong_address'      => 'Salah alamat pengiriman',
+            'change_of_mind'     => 'Berubah pikiran',
+            'found_cheaper'      => 'Menemukan harga lebih murah',
+            'ordered_by_mistake' => 'Pesanan tidak sengaja',
+            default              => $reason,
+        };
+
+        if ($needsRefund) {
+            $reasonLabel = '[Refund Requested] ' . $reasonLabel;
         }
 
         $order->status = 'cancelled';
         $order->cancelled_at = now();
+        $order->cancellation_reason = $reasonLabel;
         $order->save();
 
-        return redirect()->back()->with('success', 'Order berhasil dibatalkan.');
+        $message = $needsRefund
+            ? 'Order dibatalkan. Refund akan diproses dalam 3-5 hari kerja.'
+            : 'Order berhasil dibatalkan.';
+
+        return redirect()->back()->with('success', $message);
     }
 }

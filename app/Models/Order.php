@@ -42,6 +42,7 @@ class Order extends Model
         'total_price',
         'status',
         'midtrans_order_id',
+        'cancellation_reason',
         'on_process_at',
         'packed_at',
         'delivered_at',
