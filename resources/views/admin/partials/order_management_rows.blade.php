@@ -2,11 +2,13 @@
 use Carbon\Carbon;
 
 $statusStyles = [
-    'unpaid'    => ['bg' => '#FFF3E0', 'color' => '#E65100',  'label' => 'Unpaid'],
-    'packed'    => ['bg' => '#E3F2FD', 'color' => '#1565C0',  'label' => 'Packed'],
-    'delivered' => ['bg' => '#F3E5F5', 'color' => '#6A1B9A',  'label' => 'Delivered'],
-    'arrived'   => ['bg' => '#E8F5E9', 'color' => '#2E7D32',  'label' => 'Arrived'],
-    'cancelled' => ['bg' => '#FFEBEE', 'color' => '#C62828',  'label' => 'Cancelled'],
+    'unpaid'     => ['bg' => '#FFF3E0', 'color' => '#E65100',  'label' => 'Unpaid'],
+    'on_process' => ['bg' => '#E8EAF6', 'color' => '#283593',  'label' => 'On Process'],
+    'packed'     => ['bg' => '#E3F2FD', 'color' => '#1565C0',  'label' => 'Packed'],
+    'delivered'  => ['bg' => '#F3E5F5', 'color' => '#6A1B9A',  'label' => 'Delivered'],
+    'shipped'    => ['bg' => '#E0F7FA', 'color' => '#00695C',  'label' => 'Shipped'],
+    'arrived'    => ['bg' => '#E8F5E9', 'color' => '#2E7D32',  'label' => 'Arrived'],
+    'cancelled'  => ['bg' => '#FFEBEE', 'color' => '#C62828',  'label' => 'Cancelled'],
 ];
 
 $avatarColors = [
@@ -16,19 +18,34 @@ $avatarColors = [
 ];
 
 $transitions = [
-    'unpaid' => ['next' => 'packed',    'label' => 'Mark as Packed',    'color' => '#1565C0'],
-    'packed' => ['next' => 'delivered', 'label' => 'Mark as Delivered', 'color' => '#6A1B9A'],
+    'on_process' => ['next' => 'packed',    'label' => 'Mark as Packed'],
+    'packed'     => ['next' => 'delivered', 'label' => 'Mark as Delivered'],
+    'delivered'  => ['next' => 'shipped',   'label' => 'Mark as Shipped'],
 ];
+
+$timelineSteps = [
+    ['key' => 'unpaid',     'label' => 'Order Placed',          'col' => 'created_at'],
+    ['key' => 'on_process', 'label' => 'Payment Confirmed',     'col' => 'on_process_at'],
+    ['key' => 'packed',     'label' => 'Packed',                'col' => 'packed_at'],
+    ['key' => 'delivered',  'label' => 'Handed to Courier',     'col' => 'delivered_at'],
+    ['key' => 'shipped',    'label' => 'Arrived at Destination','col' => 'shipped_at'],
+    ['key' => 'arrived',    'label' => 'Arrived',               'col' => 'arrived_at'],
+];
+
+$statusOrder = ['unpaid', 'on_process', 'packed', 'delivered', 'shipped', 'arrived'];
 @endphp
 
 @forelse($orders as $order)
 @php
-    $st      = $statusStyles[$order->status] ?? ['bg' => '#F5F5F5', 'color' => '#616161', 'label' => ucfirst($order->status)];
+    $st       = $statusStyles[$order->status] ?? ['bg' => '#F5F5F5', 'color' => '#616161', 'label' => ucfirst($order->status)];
     $initials = collect(explode(' ', $order->customer_name))
         ->map(fn($w) => strtoupper(substr($w, 0, 1)))
         ->take(2)->implode('');
     $avatarBg = $avatarColors[$order->id % count($avatarColors)];
     $trans    = $transitions[$order->status] ?? null;
+
+    $currentIdx = array_search($order->status, $statusOrder);
+    if ($order->status === 'cancelled') $currentIdx = -1;
 
     // Build order details
     $details = DB::table('order_details')
@@ -168,7 +185,7 @@ $transitions = [
                             <span style="font-size:12px; color:var(--jaced-brown-dark);">Rp {{ number_format($order->delivery_fee, 0, ',', '.') }}</span>
                         </div>
                         <div style="display:flex; justify-content:space-between; margin-bottom:6px;">
-                            <span style="font-size:12px; color:var(--jaced-muted);">Service Tax (10%)</span>
+                            <span style="font-size:12px; color:var(--jaced-muted);">Admin Fee</span>
                             <span style="font-size:12px; color:var(--jaced-brown-dark);">Rp {{ number_format($order->service_tax, 0, ',', '.') }}</span>
                         </div>
                         @if($order->discount_amount > 0)
@@ -188,29 +205,18 @@ $transitions = [
                 <div class="col-12 col-md-4">
                     <p class="panel-section-title">Status Timeline</p>
 
-                    @php
-                        $timeline = [
-                            ['key' => 'unpaid',    'label' => 'Order Placed',    'time' => $order->created_at],
-                            ['key' => 'packed',    'label' => 'Packed',          'time' => $order->packed_at],
-                            ['key' => 'delivered', 'label' => 'Out for Delivery','time' => $order->delivered_at],
-                            ['key' => 'arrived',   'label' => 'Arrived',         'time' => $order->arrived_at],
-                        ];
-                        $statusOrder = ['unpaid', 'packed', 'delivered', 'arrived'];
-                        $currentIdx  = array_search($order->status, $statusOrder);
-                        if ($order->status === 'cancelled') $currentIdx = -1;
-                    @endphp
-
                     <div style="position:relative; padding-left:20px;">
-                        @foreach($timeline as $i => $step)
+                        @foreach($timelineSteps as $i => $step)
                         @php
                             $isDone    = $currentIdx >= $i;
                             $isCurrent = $currentIdx === $i;
                             $dotColor  = $isDone ? '#B87333' : '#DDD8CF';
-                            $lineColor = ($i < count($timeline) - 1) ? ($isDone ? '#B87333' : '#DDD8CF') : 'transparent';
+                            $lineColor = ($i < count($timelineSteps) - 1) ? ($isDone ? '#B87333' : '#DDD8CF') : 'transparent';
+                            $stepTime  = $order->{$step['col']} ?? null;
                         @endphp
-                        <div style="position:relative; padding-bottom:{{ $i < count($timeline)-1 ? '20px' : '0' }};">
+                        <div style="position:relative; padding-bottom:{{ $i < count($timelineSteps)-1 ? '20px' : '0' }};">
                             {{-- Vertical line --}}
-                            @if($i < count($timeline) - 1)
+                            @if($i < count($timelineSteps) - 1)
                             <div style="position:absolute; left:-12px; top:10px; width:2px; height:100%; background:{{ $lineColor }};"></div>
                             @endif
                             {{-- Dot --}}
@@ -221,7 +227,7 @@ $transitions = [
                                     {{ $step['label'] }}
                                 </p>
                                 <p style="font-size:11px; color:var(--jaced-muted); margin:0;">
-                                    {{ $step['time'] ? Carbon::parse($step['time'])->format('d M Y, H:i') : '—' }}
+                                    {{ $stepTime ? Carbon::parse($stepTime)->format('d M Y, H:i') : '—' }}
                                 </p>
                             </div>
                         </div>
@@ -252,9 +258,9 @@ $transitions = [
                             {{ $trans['label'] }}
                         </button>
                     </div>
-                    @elseif($order->status === 'delivered')
-                    <div style="margin-top:24px; background:#F3E5F5; border-radius:10px; padding:12px 14px;">
-                        <p style="font-size:12px; color:#6A1B9A; font-weight:600; margin:0 0 2px;">
+                    @elseif($order->status === 'shipped')
+                    <div style="margin-top:24px; background:#E0F7FA; border-radius:10px; padding:12px 14px;">
+                        <p style="font-size:12px; color:#00695C; font-weight:600; margin:0 0 2px;">
                             <i class="bi bi-clock-history"></i> Awaiting Confirmation
                         </p>
                         <p style="font-size:11px; color:var(--jaced-muted); margin:0;">

@@ -186,7 +186,7 @@
             <div class="row g-4">
                 @foreach([
                     ['img' => 'diah.jpeg',   'name' => 'Putu Diahloka Mahaputri',  'role' => 'CEO (Chief Executive Officer)'],
-                    ['img' => 'cecil.jpeg',  'name' => 'Cecilia Agusta Leo',        'role' => 'CFO (Chief Financial Officer)'],
+                    ['img' => 'cecill.jpeg',  'name' => 'Cecilia Agusta Leo',        'role' => 'CFO (Chief Financial Officer)'],
                     ['img' => 'jolie.jpeg', 'name' => 'Jocelyn Jolie',             'role' => 'CMO (Chief Marketing Officer)'],
                     ['img' => 'audric.jpeg', 'name' => 'Ignatius Audric Wijaya',    'role' => 'COO (Chief Operating Officer)'],
                     ['img' => 'ekkin.jpeg', 'name' => 'Ekkin Kenneth Hosari',      'role' => 'CTO (Chief Technology Officer)'],

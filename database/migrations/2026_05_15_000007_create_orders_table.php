@@ -23,6 +23,7 @@ return new class extends Migration
             $table->decimal('discount_amount', 10, 2);
             $table->decimal('total_price', 10, 2);
             $table->string('status');
+            $table->text('cancellation_reason')->nullable();
             $table->timestamps();
             $table->timestamp('on_process_at')->nullable();
             $table->timestamp('packed_at')->nullable();
