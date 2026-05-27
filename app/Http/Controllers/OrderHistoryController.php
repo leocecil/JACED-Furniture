@@ -6,6 +6,7 @@ use App\Models\Order;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 
 class OrderHistoryController extends Controller
 {
@@ -66,9 +67,11 @@ class OrderHistoryController extends Controller
 
     public function markReceived($id)
     {
+        Log::info('markReceived called', ['id' => $id, 'user' => Auth::id()]);
         $order = Auth::user()->orders()->findOrFail($id);
+        Log::info('order found', ['status' => $order->status]);
 
-        if ($order->status !== 'delivered') {
+        if ($order->status !== 'shipped') {
             return redirect()->back()->with('error', 'Order tidak bisa dikonfirmasi.');
         }
 
@@ -102,13 +105,14 @@ class OrderHistoryController extends Controller
         $request->validate([
             'type'        => 'required|in:missing,damaged,wrong_item',
             'description' => 'required|string|max:1000',
-            'photo'       => 'nullable|image|max:2048',
+            'photo'       => $request->input('type') === 'missing' ? 'nullable|image|max:2048' : 'required|image|max:2048',
         ]);
 
         $order = Auth::user()->orders()->findOrFail($id);
 
-        if (!in_array($order->status, ['delivered', 'arrived'])) {
-            return redirect()->back()->with('error', 'Komplain hanya bisa diajukan untuk order yang sudah dikirim.');
+        $canComplain = $order->status === 'shipped';
+        if (!$canComplain) {
+            return redirect()->back()->with('error', 'Komplain hanya bisa diajukan sebelum mengkonfirmasi penerimaan.');
         }
 
         $photoPath = null;

@@ -89,6 +89,7 @@ class OrderManagementController extends Controller
             DB::table('orders')->where('id', $order->id)->update([
                 'status'     => 'arrived',
                 'arrived_at' => now(),
+                'is_auto_arrived' => true,
                 'updated_at' => now(),
             ]);
 

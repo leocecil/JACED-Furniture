@@ -27,9 +27,9 @@ return new class extends Migration
             $table->timestamp('on_process_at')->nullable();
             $table->timestamp('packed_at')->nullable();
             $table->timestamp('delivered_at')->nullable();
+            $table->timestamp('shipped_at')->nullable();
             $table->timestamp('arrived_at')->nullable();
             $table->timestamp('cancelled_at')->nullable();
-            $table->timestamp('shipped_at')->nullable();
             $table->timestamp('disputed_at')->nullable();
             $table->string('refund_status')->nullable();
             $table->string('refund_type')->nullable();
