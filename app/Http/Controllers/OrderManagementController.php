@@ -9,29 +9,27 @@ use Carbon\Carbon;
 
 class OrderManagementController extends Controller
 {
-    //
     // ── Valid forward-only status transitions (admin only) ───────────
+    // unpaid is NOT here — admin cannot change unpaid status
     private array $transitions = [
-        'unpaid'    => 'on_process',
         'on_process' => 'packed',
-        'packed'    => 'delivered',
-        'delivered' => 'shipped',
-        // shipped → arrived: customer action or auto after 7 days
+        'packed'     => 'delivered',
+        'delivered'  => 'shipped',
+        // shipped → arrived: customer confirms OR auto after 7 days from shipped_at
     ];
- 
+
     // ── Index (full page load) ────────────────────────────────────────
     public function index(Request $request)
     {
-        // Run auto-arrive check on every page load
+        $this->autoCancelUnpaidOrders();
         $this->autoArriveOrders();
- 
+
         $orders = $this->getOrders($request);
         $stats  = $this->getStats();
- 
+
         return view('admin.order_management', compact('orders', 'stats'));
     }
- 
-    // ── AJAX search + filter ──────────────────────────────────────────
+
     // ── AJAX search + filter ──────────────────────────────────────────
     public function search(Request $request)
     {
@@ -45,38 +43,56 @@ class OrderManagementController extends Controller
             'to'         => $orders->lastItem()   ?? 0,
         ]);
     }
- 
-    // ── Update status (forward only) ──────────────────────────────────
+
+    // ── Update status (forward only, admin) ───────────────────────────
     public function updateStatus(Request $request, int $id)
     {
         $order = DB::table('orders')->where('id', $id)->first();
- 
+
         if (!$order) {
             return response()->json(['error' => 'Order not found.'], 404);
         }
- 
+
+        // Block admin from changing unpaid status
+        if ($order->status === 'unpaid') {
+            return response()->json(['error' => 'Cannot update unpaid orders. Waiting for customer payment.'], 422);
+        }
+
         $nextStatus = $this->transitions[$order->status] ?? null;
- 
+
         if (!$nextStatus) {
             return response()->json(['error' => 'No further status update available.'], 422);
         }
- 
+
         $update = ['status' => $nextStatus, 'updated_at' => now()];
-        if ($nextStatus === 'on_process') $update['on_process_at'] = now();
-        if ($nextStatus === 'packed')     $update['packed_at']     = now();
-        if ($nextStatus === 'delivered')  $update['delivered_at']  = now();
-        if ($nextStatus === 'shipped')    $update['shipped_at']    = now();
- 
+        if ($nextStatus === 'packed')    $update['packed_at']    = now();
+        if ($nextStatus === 'delivered') $update['delivered_at'] = now();
+        if ($nextStatus === 'shipped')   $update['shipped_at']   = now();
+
         DB::table('orders')->where('id', $id)->update($update);
- 
+
         return response()->json([
             'success'    => true,
             'new_status' => $nextStatus,
-            'message'    => 'Order #' . str_pad($id, 4, '0', STR_PAD_LEFT) . ' marked as ' . ucfirst($nextStatus) . '.',
+            'message'    => 'Order #' . str_pad($id, 4, '0', STR_PAD_LEFT) . ' marked as ' . ucfirst(str_replace('_', ' ', $nextStatus)) . '.',
         ]);
     }
- 
-    // ── Auto-arrive: delivered orders older than 1 week ───────────────
+
+    // ── Auto-cancel: unpaid orders older than 24 hours ────────────────
+    private function autoCancelUnpaidOrders(): void
+    {
+        DB::table('orders')
+            ->where('status', 'unpaid')
+            ->where('created_at', '<=', Carbon::now()->subHours(24))
+            ->update([
+                'status'               => 'cancelled',
+                'cancelled_at'         => now(),
+                'cancellation_reason'  => 'Payment timeout — order automatically cancelled after 24 hours.',
+                'updated_at'           => now(),
+            ]);
+    }
+
+    // ── Auto-arrive: shipped orders older than 7 days from shipped_at ─
     private function autoArriveOrders(): void
     {
         $autoArrived = DB::table('orders')
@@ -92,13 +108,14 @@ class OrderManagementController extends Controller
                 'updated_at' => now(),
             ]);
 
-            $poinBaru = floor($order->total_price / 10000);
-            if ($poinBaru > 0) {
-                DB::table('users')->where('id', $order->user_id)->increment('current_points', $poinBaru);
-                DB::table('users')->where('id', $order->user_id)->increment('accumulated_points', $poinBaru);
+            // Award points on arrival
+            $pointsEarned = (int) floor($order->total_price / 10000);
+            if ($pointsEarned > 0) {
+                DB::table('users')->where('id', $order->user_id)->increment('current_points', $pointsEarned);
+                DB::table('users')->where('id', $order->user_id)->increment('accumulated_points', $pointsEarned);
                 DB::table('point_histories')->insert([
                     'user_id'    => $order->user_id,
-                    'points'     => $poinBaru,
+                    'points'     => $pointsEarned,
                     'type'       => 'earned',
                     'source'     => 'purchase',
                     'order_id'   => $order->id,
@@ -109,6 +126,7 @@ class OrderManagementController extends Controller
         }
     }
 
+    // ── Complaints ───────────────────────────────────────────────────
     public function complaints(Request $request)
     {
         $complaints = DB::table('order_complaints')
@@ -130,9 +148,9 @@ class OrderManagementController extends Controller
     public function resolveComplaint(Request $request, $id)
     {
         $request->validate([
-            'resolution'     => 'required|in:refund_money,resend,reject',
-            'refund_amount'  => 'nullable|numeric|min:0',
-            'admin_note'     => 'nullable|string|max:500',
+            'resolution'    => 'required|in:refund_money,resend,reject',
+            'refund_amount' => 'nullable|numeric|min:0',
+            'admin_note'    => 'nullable|string|max:500',
         ]);
 
         $complaint = DB::table('order_complaints')->where('id', $id)->first();
@@ -140,14 +158,12 @@ class OrderManagementController extends Controller
 
         $order = DB::table('orders')->where('id', $complaint->order_id)->first();
 
-        // Update complaint
         DB::table('order_complaints')->where('id', $id)->update([
             'status'     => 'resolved',
             'admin_note' => $request->admin_note,
             'updated_at' => now(),
         ]);
 
-        // Update order berdasarkan resolusi
         if ($request->resolution === 'refund_money') {
             DB::table('orders')->where('id', $order->id)->update([
                 'refund_status' => 'approved',
@@ -173,7 +189,7 @@ class OrderManagementController extends Controller
 
         return response()->json(['success' => true, 'message' => 'Complaint resolved.']);
     }
- 
+
     // ── Stat cards ────────────────────────────────────────────────────
     private function getStats(): array
     {
@@ -186,7 +202,7 @@ class OrderManagementController extends Controller
                 ->sum('total_price'),
         ];
     }
- 
+
     // ── Shared query builder ──────────────────────────────────────────
     private function getOrders(Request $request)
     {
@@ -202,10 +218,13 @@ class OrderManagementController extends Controller
                 'orders.service_tax',
                 'orders.discount_amount',
                 'orders.created_at',
+                'orders.on_process_at',
                 'orders.packed_at',
                 'orders.delivered_at',
+                'orders.shipped_at',
                 'orders.arrived_at',
                 'orders.cancelled_at',
+                'orders.cancellation_reason',
                 'users.name as customer_name',
                 'users.email as customer_email',
                 'users.phone_number as customer_phone',
@@ -217,7 +236,7 @@ class OrderManagementController extends Controller
                 'shipping_address.receiver_name',
                 'shipping_address.receiver_phone'
             );
- 
+
         if ($request->filled('search')) {
             $s = $request->search;
             $query->where(function ($q) use ($s) {
@@ -225,22 +244,22 @@ class OrderManagementController extends Controller
                   ->orWhereRaw("LPAD(orders.id, 4, '0') like ?", ["%{$s}%"]);
             });
         }
- 
+
         if ($request->filled('status') && $request->status !== 'all') {
             $query->where('orders.status', $request->status);
         }
- 
+
         if ($request->filled('payment') && $request->payment !== 'all') {
             $query->where('payment_methods.name', $request->payment);
         }
- 
+
         if ($request->filled('date_from')) {
             $query->whereDate('orders.created_at', '>=', $request->date_from);
         }
         if ($request->filled('date_to')) {
             $query->whereDate('orders.created_at', '<=', $request->date_to);
         }
- 
+
         return $query->orderByDesc('orders.created_at')->paginate(10);
     }
 }

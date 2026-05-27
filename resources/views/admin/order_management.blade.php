@@ -5,7 +5,6 @@
 <link rel="stylesheet" href="{{ asset('css/jaced.css') }}">
 
 <style>
-    /* ── Panel helpers ─────────────────────────────────── */
     .panel-section-title {
         font-size: 11px; font-weight: 700; letter-spacing: 1px;
         text-transform: uppercase; color: var(--jaced-sage);
@@ -14,11 +13,9 @@
     .panel-label  { font-size: 11px; color: var(--jaced-muted); margin-bottom: 2px; }
     .panel-value  { font-size: 13px; font-weight: 500; color: var(--jaced-brown-dark); margin-bottom: 10px; }
 
-    /* ── Row hover ─────────────────────────────────────── */
     .order-row-trigger:hover { background-color: var(--jaced-caramel-bg) !important; }
     .order-row:last-child    { border-bottom: none !important; }
 
-    /* ── Filter bar ────────────────────────────────────── */
     .filter-bar {
         display: flex; flex-wrap: wrap; gap: 10px; align-items: flex-end;
         padding: 16px; border-bottom: 1px solid var(--jaced-input); background: #FDFBF8;
@@ -33,26 +30,9 @@
     .filter-input:focus, .filter-select:focus { border-color: var(--jaced-caramel); }
     .filter-input  { min-width: 200px; }
     .filter-select { min-width: 140px; }
-    .btn-apply { background: var(--jaced-brown-dark); color: white; border: none; border-radius: 8px; padding: 8px 18px; font-size: 13px; font-weight: 600; cursor: pointer; height: 38px; transition: background .15s; }
-    .btn-apply:hover { background: #3D2B1A; }
     .btn-clear { background: white; color: var(--jaced-muted); border: 1px solid var(--jaced-input); border-radius: 8px; padding: 8px 14px; font-size: 13px; font-weight: 500; cursor: pointer; height: 38px; transition: background .15s; }
     .btn-clear:hover { background: var(--jaced-caramel-bg); }
 
-    /* ── Laravel pagination override ──────────────────── */
-    .jaced-pagination { display: flex; align-items: center; gap: 4px; list-style: none; margin: 0; padding: 0; }
-    .jaced-pagination li span,
-    .jaced-pagination li a {
-        display: flex; align-items: center; justify-content: center;
-        min-width: 32px; height: 32px; padding: 0 8px;
-        border: 1px solid var(--jaced-input); border-radius: 6px;
-        font-size: 13px; font-weight: 500; text-decoration: none;
-        color: var(--jaced-brown-dark); transition: background .15s;
-    }
-    .jaced-pagination li a:hover { background: var(--jaced-caramel-bg); }
-    .jaced-pagination li.active span { background: var(--jaced-brown-dark); color: white; border-color: var(--jaced-brown-dark); }
-    .jaced-pagination li.disabled span { color: var(--jaced-muted); background: #f9f9f9; cursor: not-allowed; }
-
-    /* ── Status modal ──────────────────────────────────── */
     .status-modal-overlay {
         display: none; position: fixed; inset: 0;
         background: rgba(0,0,0,.45); z-index: 9999;
@@ -67,7 +47,7 @@
     }
     @keyframes modalIn {
         from { opacity: 0; transform: translateY(16px) scale(.97); }
-        to   { opacity: 1; transform: translateY(0)    scale(1);   }
+        to   { opacity: 1; transform: translateY(0) scale(1); }
     }
     .modal-status-arrow {
         display: flex; align-items: center; justify-content: center;
@@ -94,7 +74,6 @@
     }
     .btn-cancel-modal:hover { background: var(--jaced-caramel-bg); }
 
-    /* ── Toast ─────────────────────────────────────────── */
     .toast-msg {
         position: fixed; bottom: 24px; right: 24px;
         background: #1A1714; color: white;
@@ -105,17 +84,31 @@
         transition: opacity .25s, transform .25s; pointer-events: none;
     }
     .toast-msg.show { opacity: 1; transform: translateY(0); }
+
+    .pagination { display:flex; align-items:center; gap:4px; margin:0; padding:0; }
+    .pagination .page-item .page-link {
+        display:flex; align-items:center; justify-content:center;
+        min-width:32px; height:32px; padding:0 8px;
+        border:1px solid var(--jaced-input); border-radius:6px !important;
+        font-size:13px; font-weight:500;
+        color:var(--jaced-brown-dark); background:white; transition:background .15s;
+    }
+    .pagination .page-item.active .page-link { background:var(--jaced-brown-dark); border-color:var(--jaced-brown-dark); color:white; }
+    .pagination .page-item.disabled .page-link { color:var(--jaced-muted); background:#f9f9f9; }
+    .pagination .page-item:not(.active):not(.disabled) .page-link:hover { background:var(--jaced-caramel-bg); }
 </style>
 
 @php
 use Carbon\Carbon;
 
 $statusStyles = [
-    'unpaid'    => ['bg' => '#FFF3E0', 'color' => '#E65100', 'label' => 'Unpaid'],
-    'packed'    => ['bg' => '#E3F2FD', 'color' => '#1565C0', 'label' => 'Packed'],
-    'delivered' => ['bg' => '#F3E5F5', 'color' => '#6A1B9A', 'label' => 'Delivered'],
-    'arrived'   => ['bg' => '#E8F5E9', 'color' => '#2E7D32', 'label' => 'Arrived'],
-    'cancelled' => ['bg' => '#FFEBEE', 'color' => '#C62828', 'label' => 'Cancelled'],
+    'unpaid'     => ['bg' => '#FFF3E0', 'color' => '#E65100', 'label' => 'Unpaid'],
+    'on_process' => ['bg' => '#E8EAF6', 'color' => '#283593', 'label' => 'On Process'],
+    'packed'     => ['bg' => '#E3F2FD', 'color' => '#1565C0', 'label' => 'Packed'],
+    'delivered'  => ['bg' => '#F3E5F5', 'color' => '#6A1B9A', 'label' => 'Delivered'],
+    'shipped'    => ['bg' => '#E0F7FA', 'color' => '#00695C', 'label' => 'Shipped'],
+    'arrived'    => ['bg' => '#E8F5E9', 'color' => '#2E7D32', 'label' => 'Arrived'],
+    'cancelled'  => ['bg' => '#FFEBEE', 'color' => '#C62828', 'label' => 'Cancelled'],
 ];
 
 $avatarColors = [
@@ -123,10 +116,24 @@ $avatarColors = [
     '#7B68A0','#4A7B8A','#7A8A5B','#5A4D7A',
 ];
 
+// Admin transitions only — unpaid is intentionally excluded
 $transitions = [
-    'unpaid' => ['next' => 'packed',    'label' => 'Mark as Packed'],
-    'packed' => ['next' => 'delivered', 'label' => 'Mark as Delivered'],
+    'on_process' => ['next' => 'packed',    'label' => 'Mark as Packed'],
+    'packed'     => ['next' => 'delivered', 'label' => 'Mark as Delivered'],
+    'delivered'  => ['next' => 'shipped',   'label' => 'Mark as Shipped'],
 ];
+
+// Full timeline steps in order
+$timelineSteps = [
+    ['key' => 'unpaid',     'label' => 'Order Placed',          'col' => 'created_at'],
+    ['key' => 'on_process', 'label' => 'Payment Confirmed',     'col' => 'on_process_at'],
+    ['key' => 'packed',     'label' => 'Packed',                'col' => 'packed_at'],
+    ['key' => 'delivered',  'label' => 'Handed to Courier',     'col' => 'delivered_at'],
+    ['key' => 'shipped',    'label' => 'Arrived at Destination','col' => 'shipped_at'],
+    ['key' => 'arrived',    'label' => 'Arrived',               'col' => 'arrived_at'],
+];
+
+$statusOrder = ['unpaid', 'on_process', 'packed', 'delivered', 'shipped', 'arrived'];
 @endphp
 
 <div class="container-fluid">
@@ -192,7 +199,7 @@ $transitions = [
     {{-- ── Orders Table Card ── --}}
     <div class="jaced-card" style="overflow:hidden;">
 
-        {{-- Filter Bar --}}
+        {{-- Filter Bar — no Apply button, all filters auto-refresh --}}
         <div class="filter-bar">
             <div class="filter-group" style="flex:1; min-width:180px;">
                 <span class="filter-label">Search</span>
@@ -201,18 +208,20 @@ $transitions = [
             </div>
             <div class="filter-group">
                 <span class="filter-label">Status</span>
-                <select id="filterStatus" class="filter-select">
+                <select id="filterStatus" class="filter-select" onchange="fetchOrders(1)">
                     <option value="all">All Status</option>
                     <option value="unpaid">Unpaid</option>
+                    <option value="on_process">On Process</option>
                     <option value="packed">Packed</option>
                     <option value="delivered">Delivered</option>
+                    <option value="shipped">Shipped</option>
                     <option value="arrived">Arrived</option>
                     <option value="cancelled">Cancelled</option>
                 </select>
             </div>
             <div class="filter-group">
                 <span class="filter-label">Payment</span>
-                <select id="filterPayment" class="filter-select">
+                <select id="filterPayment" class="filter-select" onchange="fetchOrders(1)">
                     <option value="all">All Methods</option>
                     <option value="qris">QRIS</option>
                     <option value="virtual_account">Virtual Account</option>
@@ -223,15 +232,12 @@ $transitions = [
             </div>
             <div class="filter-group">
                 <span class="filter-label">From</span>
-                <input type="date" id="filterDateFrom" class="filter-input" style="min-width:unset; width:145px;">
+                <input type="date" id="filterDateFrom" class="filter-input" style="min-width:unset; width:145px;" onchange="fetchOrders(1)">
             </div>
             <div class="filter-group">
                 <span class="filter-label">To</span>
-                <input type="date" id="filterDateTo" class="filter-input" style="min-width:unset; width:145px;">
+                <input type="date" id="filterDateTo" class="filter-input" style="min-width:unset; width:145px;" onchange="fetchOrders(1)">
             </div>
-            <button class="btn-apply" onclick="applyFilters()">
-                <i class="bi bi-funnel"></i> Apply
-            </button>
             <button class="btn-clear" onclick="clearFilters()">Clear</button>
         </div>
 
@@ -264,16 +270,8 @@ $transitions = [
                 ->select('products.name','order_details.quantity','order_details.subtotal')
                 ->get();
 
-            $statusOrder = ['unpaid','packed','delivered','arrived'];
-            $currentIdx  = array_search($order->status, $statusOrder);
+            $currentIdx = array_search($order->status, $statusOrder);
             if ($order->status === 'cancelled') $currentIdx = -1;
-
-            $timeline = [
-                ['label'=>'Order Placed',     'time'=>$order->created_at],
-                ['label'=>'Packed',           'time'=>$order->packed_at],
-                ['label'=>'Out for Delivery', 'time'=>$order->delivered_at],
-                ['label'=>'Arrived',          'time'=>$order->arrived_at],
-            ];
         @endphp
 
         <div class="order-row" style="border-bottom:1px solid var(--jaced-input);">
@@ -282,6 +280,11 @@ $transitions = [
             <div class="d-none d-md-flex align-items-center px-4 py-3 order-row-trigger"
                 style="cursor:pointer; transition:background .15s; gap:0;"
                 onclick="togglePanel({{ $order->id }})">
+                <div style="width:40px; flex-shrink:0;">
+                    <input type="checkbox" class="order-checkbox"
+                        style="width:16px; height:16px; accent-color:var(--jaced-sage); cursor:pointer;"
+                        onclick="event.stopPropagation()">
+                </div>
                 <div style="flex:0 0 12%; font-size:13px; font-weight:600; color:var(--jaced-brown-dark);">
                     #ORD-{{ str_pad($order->id, 4, '0', STR_PAD_LEFT) }}
                 </div>
@@ -319,9 +322,6 @@ $transitions = [
             <div class="d-flex d-md-none align-items-center gap-3 px-3 py-3 order-row-trigger"
                 style="cursor:pointer; transition:background .15s;"
                 onclick="togglePanel({{ $order->id }})">
-                <input type="checkbox" class="order-checkbox"
-                    style="width:16px; height:16px; flex-shrink:0; accent-color:var(--jaced-sage); cursor:pointer;"
-                    onclick="event.stopPropagation()">
                 <div style="width:38px; height:38px; border-radius:50%; background:{{ $avatarBg }};
                     display:flex; align-items:center; justify-content:center;
                     font-size:12px; font-weight:700; color:white; flex-shrink:0;">
@@ -343,6 +343,22 @@ $transitions = [
             {{-- ── Expand Panel ── --}}
             <div id="panel-{{ $order->id }}" style="display:none; background:#FDFBF8; border-top:1px solid var(--jaced-input);">
                 <div class="px-3 px-md-4 py-4">
+
+                    {{-- Unpaid: show payment pending message only --}}
+                    @if($order->status === 'unpaid')
+                    <div style="text-align:center; padding:24px 0;">
+                        <div style="width:56px; height:56px; border-radius:50%; background:#FFF3E0; display:flex; align-items:center; justify-content:center; margin:0 auto 16px;">
+                            <i class="bi bi-clock" style="font-size:24px; color:#E65100;"></i>
+                        </div>
+                        <p style="font-size:15px; font-weight:700; color:var(--jaced-brown-dark); margin:0 0 6px;">Waiting for Payment</p>
+                        <p style="font-size:13px; color:var(--jaced-muted); margin:0 0 4px;">This order has not been paid yet by the customer.</p>
+                        <p style="font-size:12px; color:var(--jaced-muted); margin:0;">
+                            Order placed: {{ Carbon::parse($order->created_at)->format('d M Y, H:i') }}
+                            · Auto-cancels after 24 hours.
+                        </p>
+                    </div>
+
+                    @else
                     <div class="row g-4">
 
                         {{-- Col 1: Customer + Payment + Address --}}
@@ -382,7 +398,7 @@ $transitions = [
                                     <span style="font-size:12px;">Rp {{ number_format($order->delivery_fee, 0, ',', '.') }}</span>
                                 </div>
                                 <div style="display:flex; justify-content:space-between; margin-bottom:6px;">
-                                    <span style="font-size:12px; color:var(--jaced-muted);">Admin Fee (0.5%)</span>
+                                    <span style="font-size:12px; color:var(--jaced-muted);">Admin Fee</span>
                                     <span style="font-size:12px;">Rp {{ number_format($order->service_tax, 0, ',', '.') }}</span>
                                 </div>
                                 @if($order->discount_amount > 0)
@@ -398,19 +414,21 @@ $transitions = [
                             </div>
                         </div>
 
-                        {{-- Col 3: Timeline + Update --}}
+                        {{-- Col 3: Timeline + Action --}}
                         <div class="col-12 col-md-4">
                             <p class="panel-section-title">Status Timeline</p>
                             <div style="position:relative; padding-left:20px;">
-                                @foreach($timeline as $i => $step)
+                                @foreach($timelineSteps as $i => $step)
                                 @php
-                                    $isDone    = $currentIdx >= $i && $currentIdx !== -1;
-                                    $isCurrent = $currentIdx === $i;
+                                    $stepIdx   = array_search($step['key'], $statusOrder);
+                                    $isDone    = $currentIdx !== -1 && $currentIdx >= $stepIdx;
+                                    $isCurrent = $currentIdx === $stepIdx;
                                     $dotColor  = $isDone ? '#B87333' : '#DDD8CF';
                                     $lineColor = $isDone ? '#B87333' : '#DDD8CF';
+                                    $timeVal   = $order->{$step['col']} ?? null;
                                 @endphp
-                                <div style="position:relative; {{ $i < count($timeline)-1 ? 'padding-bottom:20px;' : '' }}">
-                                    @if($i < count($timeline) - 1)
+                                <div style="position:relative; {{ $i < count($timelineSteps)-1 ? 'padding-bottom:18px;' : '' }}">
+                                    @if($i < count($timelineSteps) - 1)
                                     <div style="position:absolute; left:-12px; top:10px; width:2px; height:100%; background:{{ $lineColor }};"></div>
                                     @endif
                                     <div style="position:absolute; left:-16px; top:4px; width:8px; height:8px; border-radius:50%; background:{{ $dotColor }};
@@ -418,15 +436,15 @@ $transitions = [
                                     <div>
                                         <p style="font-size:12px; font-weight:{{ $isDone ? '600' : '400' }}; color:{{ $isDone ? 'var(--jaced-brown-dark)' : 'var(--jaced-muted)' }}; margin:0;">{{ $step['label'] }}</p>
                                         <p style="font-size:11px; color:var(--jaced-muted); margin:0;">
-                                            {{ $step['time'] ? Carbon::parse($step['time'])->format('d M Y, H:i') : '—' }}
+                                            {{ $timeVal ? Carbon::parse($timeVal)->format('d M Y, H:i') : '—' }}
                                         </p>
                                     </div>
                                 </div>
                                 @endforeach
 
                                 @if($order->status === 'cancelled')
-                                <div style="position:relative; padding-top:8px;">
-                                    <div style="position:absolute; left:-16px; top:12px; width:8px; height:8px; border-radius:50%; background:#C62828;"></div>
+                                <div style="position:relative; padding-top:10px;">
+                                    <div style="position:absolute; left:-16px; top:14px; width:8px; height:8px; border-radius:50%; background:#C62828;"></div>
                                     <p style="font-size:12px; font-weight:600; color:#C62828; margin:0;">Cancelled</p>
                                     <p style="font-size:11px; color:var(--jaced-muted); margin:0;">
                                         {{ $order->cancelled_at ? Carbon::parse($order->cancelled_at)->format('d M Y, H:i') : '—' }}
@@ -436,8 +454,8 @@ $transitions = [
                             </div>
 
                             {{-- Action area --}}
-                            @if($trans)
                             <div style="margin-top:24px;">
+                                @if($trans)
                                 <button onclick="openStatusModal({{ $order->id }}, '{{ $order->status }}', '{{ $trans['next'] }}', '{{ $trans['label'] }}')"
                                     style="width:100%; background:var(--jaced-brown-dark); color:white; border:none;
                                         border-radius:10px; padding:11px 16px; font-size:13px; font-weight:600;
@@ -446,24 +464,43 @@ $transitions = [
                                     onmouseout="this.style.background='var(--jaced-brown-dark)'">
                                     <i class="bi bi-arrow-up-circle"></i> {{ $trans['label'] }}
                                 </button>
-                            </div>
-                            @elseif($order->status === 'delivered')
-                            <div style="margin-top:24px; background:#F3E5F5; border-radius:10px; padding:12px 14px;">
-                                <p style="font-size:12px; color:#6A1B9A; font-weight:600; margin:0 0 2px;"><i class="bi bi-clock-history"></i> Awaiting Confirmation</p>
-                                <p style="font-size:11px; color:var(--jaced-muted); margin:0;">Customer confirms arrival, or auto-arrives after 1 week.</p>
-                            </div>
-                            @elseif($order->status === 'arrived')
-                            <div style="margin-top:24px; background:#E8F5E9; border-radius:10px; padding:12px 14px;">
-                                <p style="font-size:12px; color:#2E7D32; font-weight:600; margin:0;"><i class="bi bi-check-circle"></i> Order Completed</p>
-                            </div>
-                            @elseif($order->status === 'cancelled')
-                            <div style="margin-top:24px; background:#FFEBEE; border-radius:10px; padding:12px 14px;">
-                                <p style="font-size:12px; color:#C62828; font-weight:600; margin:0;"><i class="bi bi-x-circle"></i> Cancelled by Customer</p>
-                            </div>
-                            @endif
-                        </div>
 
+                                @elseif($order->status === 'shipped')
+                                <div style="background:#E0F7FA; border-radius:10px; padding:12px 14px;">
+                                    <p style="font-size:12px; color:#00695C; font-weight:600; margin:0 0 2px;">
+                                        <i class="bi bi-clock-history"></i> Waiting for Customer Confirmation
+                                    </p>
+                                    <p style="font-size:11px; color:var(--jaced-muted); margin:0;">
+                                        Customer needs to confirm arrival.
+                                        Auto-arrives {{ $order->shipped_at ? Carbon::parse($order->shipped_at)->addDays(7)->format('d M Y') : 'after 7 days' }}.
+                                    </p>
+                                </div>
+
+                                @elseif($order->status === 'arrived')
+                                <div style="background:#E8F5E9; border-radius:10px; padding:12px 14px;">
+                                    <p style="font-size:12px; color:#2E7D32; font-weight:600; margin:0;">
+                                        <i class="bi bi-check-circle"></i> Order Completed
+                                    </p>
+                                </div>
+
+                                @elseif($order->status === 'cancelled')
+                                <div style="background:#FFEBEE; border-radius:10px; padding:12px 14px;">
+                                    <p style="font-size:12px; color:#C62828; font-weight:600; margin:0 0 4px;">
+                                        <i class="bi bi-x-circle"></i> Order Cancelled
+                                    </p>
+                                    @if($order->cancellation_reason)
+                                    <p style="font-size:11px; color:var(--jaced-muted); margin:0;">
+                                        {{ $order->cancellation_reason }}
+                                    </p>
+                                    @endif
+                                </div>
+                                @endif
+                            </div>
+
+                        </div>
                     </div>
+                    @endif
+
                 </div>
             </div>
 
@@ -472,7 +509,6 @@ $transitions = [
         <div style="padding:48px; text-align:center; color:var(--jaced-muted); font-size:14px;">No orders found.</div>
         @endforelse
         </div>
-        {{-- End orderTableBody --}}
 
         {{-- Pagination --}}
         <div class="d-flex flex-wrap align-items-center justify-content-between gap-2 px-3 px-md-4 py-3"
@@ -484,17 +520,13 @@ $transitions = [
                     No orders found
                 @endif
             </span>
-            
-            {{-- WRAP THIS IN AN ID CONTAINER SO AJAX CAN SWAP IT OVER --}}
             <div id="paginationLinksContainer">
                 {{ $orders->onEachSide(1)->links('pagination::bootstrap-5') }}
             </div>
         </div>
 
     </div>
-    {{-- End table card --}}
 
-</div>
 </div>
 
 {{-- ── Status Modal ── --}}
@@ -534,61 +566,52 @@ $transitions = [
 
 @push('scripts')
 <script>
-    // ── Override Bootstrap-5 pagination links to use jaced style ─────
-    document.querySelectorAll('.pagination').forEach(el => {
-        el.classList.add('jaced-pagination');
-    });
-
-    let pendingOrderId = null;
-    let searchTimer    = null;
+    let pendingOrderId    = null;
+    let pendingNextStatus = null;
+    let searchTimer       = null;
 
     const statusColors = {
-        unpaid:    { bg: '#FFF3E0', color: '#E65100' },
-        packed:    { bg: '#E3F2FD', color: '#1565C0' },
-        delivered: { bg: '#F3E5F5', color: '#6A1B9A' },
-        arrived:   { bg: '#E8F5E9', color: '#2E7D32' },
-        cancelled: { bg: '#FFEBEE', color: '#C62828' },
+        unpaid:     { bg: '#FFF3E0', color: '#E65100' },
+        on_process: { bg: '#E8EAF6', color: '#283593' },
+        packed:     { bg: '#E3F2FD', color: '#1565C0' },
+        delivered:  { bg: '#F3E5F5', color: '#6A1B9A' },
+        shipped:    { bg: '#E0F7FA', color: '#00695C' },
+        arrived:    { bg: '#E8F5E9', color: '#2E7D32' },
+        cancelled:  { bg: '#FFEBEE', color: '#C62828' },
     };
 
-    // ── Live search ───────────────────────────────────────────────────
+    // ── Live search (debounced) ───────────────────────────────────────
     document.getElementById('searchInput').addEventListener('input', function () {
         clearTimeout(searchTimer);
         searchTimer = setTimeout(() => fetchOrders(1), 400);
     });
 
-    // ── Intercept Pagination Clicks globally ──────────────────────────
+    // ── Intercept pagination clicks ───────────────────────────────────
     document.addEventListener('click', function (e) {
-        // Intercept clicks coming from page elements
         const pageLink = e.target.closest('.pagination .page-link');
-        
         if (pageLink) {
-            e.preventDefault(); // Stop standard browser routing page load
-            
+            e.preventDefault();
             const urlString = pageLink.getAttribute('href');
             if (urlString) {
                 try {
-                    const url = new URL(urlString, window.location.origin);
-                    const page = url.searchParams.get('page'); // Extract destination page integer
-                    if (page) {
-                        fetchOrders(page); // Execute search containing filters + requested page
-                    }
+                    const url  = new URL(urlString, window.location.origin);
+                    const page = url.searchParams.get('page');
+                    if (page) fetchOrders(page);
                 } catch (err) {
-                    console.error('Error tracking pagination routing:', err);
+                    console.error('Pagination error:', err);
                 }
             }
         }
     });
 
-    // ── Filters ───────────────────────────────────────────────────────
-    function applyFilters() { fetchOrders(1); }
-
+    // ── Clear filters ─────────────────────────────────────────────────
     function clearFilters() {
         ['searchInput','filterDateFrom','filterDateTo'].forEach(id => document.getElementById(id).value = '');
         ['filterStatus','filterPayment'].forEach(id => document.getElementById(id).value = 'all');
         fetchOrders(1);
     }
 
-    // ── AJAX fetch ────────────────────────────────────────────────────
+    // ── AJAX fetch orders ─────────────────────────────────────────────
     function fetchOrders(page = 1) {
         const params = new URLSearchParams({
             search:    document.getElementById('searchInput').value,
@@ -604,35 +627,37 @@ $transitions = [
         })
         .then(r => r.json())
         .then(data => {
-            // 1. Update the main order table body rows
             document.getElementById('orderTableBody').innerHTML = data.html;
-            
-            // 2. Update the pagination numeric blocks dynamically
             if (data.pagination) {
                 document.getElementById('paginationLinksContainer').innerHTML = data.pagination;
             }
-
-            // 3. Update the description info text tracking
             const info = document.getElementById('paginationInfo');
-            if (data.total > 0) {
-                info.textContent = `Showing ${data.from}–${data.to} of ${data.total} orders`;
-            } else {
-                info.textContent = 'No orders found';
-            }
-
-            // 4. Force override styles on dynamically freshly generated links
-            document.querySelectorAll('.pagination').forEach(el => {
-                el.classList.add('jaced-pagination');
-            });
+            info.textContent = data.total > 0
+                ? `Showing ${data.from}–${data.to} of ${data.total} orders`
+                : 'No orders found';
         });
     }
 
-    // ── Expand panel ──────────────────────────────────────────────────
+    // ── Toggle panel — only one open at a time ────────────────────────
     function togglePanel(id) {
         const panel   = document.getElementById('panel-' + id);
         const chev    = document.getElementById('chev-' + id);
         const chevMob = document.getElementById('chev-mob-' + id);
         const isOpen  = panel.style.display !== 'none';
+
+        // Close all other open panels first
+        document.querySelectorAll('[id^="panel-"]').forEach(p => {
+            if (p.id !== 'panel-' + id && p.style.display !== 'none') {
+                const otherId = p.id.replace('panel-', '');
+                p.style.display = 'none';
+                const oc  = document.getElementById('chev-' + otherId);
+                const ocm = document.getElementById('chev-mob-' + otherId);
+                if (oc)  oc.style.transform  = '';
+                if (ocm) ocm.style.transform = '';
+            }
+        });
+
+        // Toggle the clicked panel
         panel.style.display = isOpen ? 'none' : 'block';
         if (chev)    chev.style.transform    = isOpen ? '' : 'rotate(180deg)';
         if (chevMob) chevMob.style.transform = isOpen ? '' : 'rotate(180deg)';
@@ -649,12 +674,14 @@ $transitions = [
         document.getElementById('modalOrderId').textContent = '#ORD-' + String(orderId).padStart(4, '0');
 
         const cc = document.getElementById('modalCurrentChip');
-        cc.textContent = currentStatus.charAt(0).toUpperCase() + currentStatus.slice(1);
-        cc.style.background = curr.bg; cc.style.color = curr.color;
+        cc.textContent      = currentStatus.replace('_',' ').replace(/\b\w/g, c => c.toUpperCase());
+        cc.style.background = curr.bg;
+        cc.style.color      = curr.color;
 
         const nc = document.getElementById('modalNextChip');
-        nc.textContent = nextStatus.charAt(0).toUpperCase() + nextStatus.slice(1);
-        nc.style.background = next.bg; nc.style.color = next.color;
+        nc.textContent      = nextStatus.replace('_',' ').replace(/\b\w/g, c => c.toUpperCase());
+        nc.style.background = next.bg;
+        nc.style.color      = next.color;
 
         document.getElementById('modalConfirmLabel').textContent = label;
         document.getElementById('statusModalOverlay').classList.add('open');
@@ -662,10 +689,9 @@ $transitions = [
 
     function closeStatusModal() {
         document.getElementById('statusModalOverlay').classList.remove('open');
-        pendingOrderId = null;
+        pendingOrderId = null; pendingNextStatus = null;
     }
 
-    // Close on overlay click
     document.getElementById('statusModalOverlay').addEventListener('click', function(e) {
         if (e.target === this) closeStatusModal();
     });
@@ -689,7 +715,7 @@ $transitions = [
                 showToast('✓ ' + data.message);
                 fetchOrders(1);
             } else {
-                showToast('Error: ' + (data.error || 'Something went wrong.'));
+                showToast('⚠ ' + (data.error || 'Something went wrong.'));
             }
         })
         .catch(() => {
@@ -705,26 +731,6 @@ $transitions = [
         setTimeout(() => t.classList.remove('show'), 3000);
     }
 </script>
-
-<style>
-    /* Override Bootstrap-5 pagination to match jaced style */
-    .pagination { display:flex; align-items:center; gap:4px; margin:0; padding:0; }
-    .pagination .page-item .page-link {
-        display:flex; align-items:center; justify-content:center;
-        min-width:32px; height:32px; padding:0 8px;
-        border:1px solid var(--jaced-input); border-radius:6px !important;
-        font-size:13px; font-weight:500;
-        color:var(--jaced-brown-dark); background:white;
-        transition:background .15s;
-    }
-    .pagination .page-item.active .page-link {
-        background:var(--jaced-brown-dark);
-        border-color:var(--jaced-brown-dark);
-        color:white;
-    }
-    .pagination .page-item.disabled .page-link { color:var(--jaced-muted); background:#f9f9f9; }
-    .pagination .page-item:not(.active):not(.disabled) .page-link:hover { background:var(--jaced-caramel-bg); }
-</style>
 @endpush
 
 @endsection
