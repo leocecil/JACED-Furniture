@@ -562,7 +562,7 @@
             overflow: hidden; text-overflow: ellipsis; white-space: nowrap; min-height: 28px; line-height: 1.5; transition: color 0.35s ease;
         }
         .shop-product-bottom { display: flex; justify-content: space-between; align-items: flex-end; gap: 10px; margin-top: 2px; }
-        .shop-product-price { font-family: 'Outfit', serif !important; font-size: 22px; font-weight: 600; color: var(--jaced-sage); line-height: 1.2; transition: color 0.35s ease; }
+        .shop-product-price { font-size: 22px; font-weight: 600; color: var(--jaced-sage); line-height: 1.2; transition: color 0.35s ease; }
         .shop-product-oldprice { color: var(--jaced-muted); text-decoration: line-through; margin-left: 4px; font-size: 12px; }
         .shop-product-dim { font-size: 12px; color: var(--jaced-muted); font-weight: 500; letter-spacing: 0.02em; white-space: nowrap; }
         .shop-product-sold { font-size: 15px; color: var(--jaced-muted); font-weight: 500; white-space: nowrap; line-height: 1.4; }
