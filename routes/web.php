@@ -129,6 +129,9 @@ Route::middleware(['role:admin'])->group(function() {
     Route::get('/admin/order_management', [OrderManagementController::class, 'index'])->name('order_management');
     Route::get('/admin/order_management/search', [OrderManagementController::class, 'search'])->name('admin.order_management.search');
     Route::post('/admin/orders/{id}/status', [OrderManagementController::class, 'updateStatus'])->name('admin.orders.updateStatus');
+    Route::post('/admin/disputes/{id}/resolve',  [OrderManagementController::class, 'resolveDispute'])->name('admin.disputes.resolve');
+    Route::post('/admin/disputes/{id}/resolved', [OrderManagementController::class, 'markDisputeResolved'])->name('admin.disputes.resolved');
+    Route::post('/admin/disputes/{id}/tracking', [OrderManagementController::class, 'updateTracking'])->name('admin.disputes.tracking');
 
     // Complaint management - admin
     Route::get('/admin/complaints', [OrderManagementController::class, 'complaints'])->name('admin.complaints');
