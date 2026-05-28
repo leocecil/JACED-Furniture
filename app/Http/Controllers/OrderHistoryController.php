@@ -2,11 +2,13 @@
 
 namespace App\Http\Controllers;
 
+use App\Mail\InvoiceMail;
 use App\Models\Order;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Mail;
 
 class OrderHistoryController extends Controller
 {
@@ -178,5 +180,21 @@ class OrderHistoryController extends Controller
             : 'Order berhasil dibatalkan.';
 
         return redirect()->back()->with('success', $message);
+    }
+
+    public function sendInvoice($id)
+    {
+        $order = Order::with([
+            'orderDetails.product.images',
+            'shippingAddress',
+            'paymentMethod',
+            'user',
+        ])
+        ->where('user_id', Auth::id())
+        ->findOrFail($id);
+
+        Mail::to($order->user->email)->send(new InvoiceMail($order));
+
+        return redirect()->back()->with('success', 'Invoice has been sent to ' . $order->user->email);
     }
 }

@@ -22,6 +22,8 @@ return new class extends Migration
             $table->decimal('delivery_fee', 10, 2);
             $table->decimal('service_tax', 10, 2);
             $table->decimal('discount_amount', 10, 2);
+            $table->decimal('tier_discount_amount', 10, 2)->default(0)->after('discount_amount');
+            $table->unsignedBigInteger('stage_id')->nullable()->after('tier_discount_amount');
             $table->decimal('total_price', 10, 2);
             $table->string('status');
             $table->text('cancellation_reason')->nullable();
@@ -39,6 +41,7 @@ return new class extends Migration
             $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
             $table->foreign('payment_id')->references('id')->on('payment_methods')->onDelete('cascade');
             $table->foreign('voucher_id')->references('id')->on('vouchers')->onDelete('set null');
+            $table->foreign('stage_id')->references('id')->on('stages')->nullOnDelete();
             $table->foreign('shipping_address_id')->references('id')->on('shipping_address')->onDelete('cascade');
         });
     }

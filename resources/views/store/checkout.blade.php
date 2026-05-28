@@ -218,6 +218,19 @@
                             <span class="fw-bold" id="summary-discount-product">-Rp 0</span>
                         </div>
 
+                        {{-- BARIS TIER DISCOUNT --}}
+                        @if($tierDiscountAmount > 0)
+                        <div class="d-flex justify-content-between mb-2" style="font-size: 13px;">
+                            <span class="text-jaced-muted">
+                                Member Discount
+                                @if($userStage)
+                                    <span style="font-size: 11px; color: var(--jaced-sage);">({{ $userStage->discount_percentage }}% · {{ $userStage->name }})</span>
+                                @endif
+                            </span>
+                            <span class="fw-medium" style="color: var(--jaced-sage);">- Rp {{ number_format($tierDiscountAmount, 0, ',', '.') }}</span>
+                        </div>
+                        @endif
+
                         {{-- COMPONENT PILIH VOUCHER ALA SHOPEE --}}
                         {{-- Perbaikan typo !important --}}
                         <div class="my-3 p-2 border rounded d-flex justify-content-between align-items-center bg-white" 
@@ -913,6 +926,7 @@
         function calculateGrandTotal() {
             const subtotal = {{ $subtotal ?? 0 }};
             const tax = {{ $tax ?? 0 }};
+            const tierDiscount = {{ $tierDiscountAmount ?? 0 }};
             
             let discountValue = 0;
 
@@ -952,7 +966,7 @@
                 }
             }
 
-            const finalTotal = (subtotal + tax + currentDeliveryFee) - discountValue;
+            const finalTotal = (subtotal + tax + currentDeliveryFee) - discountValue - tierDiscount; // ✅ kurangkan di sini
             document.querySelectorAll('#totalDisplay').forEach(el => {
                 el.innerText = 'Rp ' + finalTotal.toLocaleString('id-ID');
             });

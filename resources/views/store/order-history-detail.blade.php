@@ -581,7 +581,7 @@
                             <p class="field-label mb-1">Estimated arrival</p>
                             @if($order->status === 'cancelled')
                                 <p class="text-jaced-muted mb-0" style="font-size: 13px;">Order has been cancelled.</p>
-                            @elseif($order->delivered_at)
+                            @elseif($order->delivered_at && $order->shipped_at)
                                 <p class="fw-semibold text-jaced-dark mb-0" style="font-size: 15px;">
                                     {{ $order->shipped_at->addDays(3)->format('d M Y') }} - {{ $order->shipped_at->addDays(7)->format('d M Y') }}
                                 </p>
@@ -668,7 +668,7 @@
                                 <span class="text-jaced-muted">Subtotal</span>
                                 <span class="fw-semibold text-jaced-dark">
                                     Rp
-                                    {{ number_format($order->total_price - $order->delivery_fee - $order->service_tax + $order->discount_amount, 0, ',', '.') }}
+                                    {{ number_format($order->total_price - $order->delivery_fee - $order->service_tax + $order->discount_amount + $order->tier_discount_amount, 0, ',', '.') }}
                                 </span>
                             </div>
                             <div class="summary-row">
@@ -683,6 +683,14 @@
                                     Rp {{ number_format($order->service_tax, 0, ',', '.') }}
                                 </span>
                             </div>
+                            @if ($order->tier_discount_amount > 0)
+                                <div class="summary-row">
+                                    <span class="text-jaced-muted">Member Discount</span>
+                                    <span class="fw-semibold" style="color: var(--jaced-sage);">
+                                        - Rp {{ number_format($order->tier_discount_amount, 0, ',', '.') }}
+                                    </span>
+                                </div>
+                            @endif
                             @if ($order->discount_amount > 0)
                                 <div class="summary-row">
                                     <span class="text-jaced-muted">Discount</span>

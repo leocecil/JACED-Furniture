@@ -110,6 +110,7 @@ Route::middleware(['role:customer'])->group(function() {
 
     // Order History - Invoice
     Route::get('/orderhistory/{id}/invoice', [OrderHistoryController::class, 'invoice'])->name('store.orderhistory.invoice');
+    Route::post('/orderhistory/{id}/invoice/send', [OrderHistoryController::class, 'sendInvoice'])->name('store.orderhistory.invoice.send');
     Route::patch('/orderhistory/{id}/received', [OrderHistoryController::class, 'markReceived'])->name('store.orderhistory.received');
 });
 
