@@ -19,20 +19,24 @@ class GoogleController extends Controller
         try {
             $googleUser = Socialite::driver('google')->user();
         } catch (\Exception $e) {
-            return redirect()->route('login')->with('error', 'Gagal login dengan Google.');
+            return redirect()->route('login')->with('error', 'Failed to sign in with Google.');
         }
 
-        // Cari user berdasarkan google_id atau email
         $user = User::where('google_id', $googleUser->getId())
                     ->orWhere('email', $googleUser->getEmail())
                     ->first();
 
-        // Kalau belum ada akun → arahkan ke register, jangan auto-create
         if (!$user) {
-            return redirect()->route('register')->with('info', 'Akun tidak ditemukan. Silakan daftar terlebih dahulu.');
+            session([
+                'google_data' => [
+                    'name'  => $googleUser->getName(),
+                    'email' => $googleUser->getEmail(),
+                ]
+            ]);
+
+            return redirect()->route('register')->with('info', 'No account found. Please complete your registration below.');
         }
 
-        // Update data Google terbaru
         $user->update([
             'google_id' => $googleUser->getId(),
             'avatar'    => $googleUser->getAvatar(),
@@ -40,14 +44,12 @@ class GoogleController extends Controller
 
         Auth::login($user);
 
-        // Cek role: kalau admin → arahkan ke admin dashboard
         $isAdmin = $user->roles->pluck('role')->contains('admin');
 
         if ($isAdmin) {
             return redirect()->route('admin.dashboard');
         }
 
-        // Kalau customer → arahkan ke home
         return redirect()->intended('/home');
     }
 }
