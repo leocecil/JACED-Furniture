@@ -297,13 +297,13 @@
         display:flex; align-items:center; justify-content:center; gap:6px;
         width:100%; padding:10px 16px; border-radius:999px;
         font-size:12px; font-weight:600; text-decoration:none;
-        background:var(--jaced-caramel); color:var(--jaced-cream);
+        background:var(--jaced-caramel); color:var(--jaced-white);
         position:relative; overflow:hidden;
         transition:color 0.4s ease;
     }
     .wl-see-details::before {   
         content:''; position:absolute; top:0; left:-100%; width:100%; height:100%;
-        background:var(--jaced-cream);
+        background:var(--jaced-white);
         transition:left 0.4s cubic-bezier(0.22,1,0.36,1); z-index:0;
     }
     .wl-see-details:hover::before { left:0; }

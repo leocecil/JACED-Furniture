@@ -228,6 +228,36 @@
         </div>
     </section>
 
+    <section class="feature-promo-section" data-reveal="fade-up">
+        <div class="feature-promo-full"
+            style="background-image:url('https://images.unsplash.com/photo-1618221195710-dd6b41faaea6?q=80&w=2200&auto=format&fit=crop');">
+            
+            {{-- Shadow/Gradasi Gelap di BAGIAN ATAS Feature Promo --}}
+            <div class="feature-promo-top-shadow"></div>
+
+            {{-- Overlay Gelap Keseluruhan agar teks lebih terbaca --}}
+            <div class="feature-promo-overlay"></div>
+
+            {{-- Konten Teks yang posisinya BENAR-BENAR DI TENGAH --}}
+            <div class="feature-promo-content text-center" data-reveal="slide-up" data-reveal-delay="200">
+                <p class="section-label" style="color: var(--jaced-caramel);">
+                    / Refined Living
+                </p>
+                <h2 class="feature-promo-title">
+                    Designed For Spaces That Feel Effortless
+                </h2>
+                <p class="feature-promo-desc mx-auto"> {{-- Tambah mx-auto agar deskripsi ikut tengah --}}
+                    Thoughtfully crafted furniture made to bring warmth,
+                    balance, and understated character into everyday living.
+                </p>
+                <a href="{{ route('shop') }}" class="feature-promo-link justify-content-center"> {{-- Tambah justify-center --}}
+                    Explore The Collection
+                    <i class="fas fa-arrow-right ms-2"></i>
+                </a>
+            </div>
+        </div>
+    </section>
+
     {{-- ============== STYLES ============== --}}
     <style>
        html, body {
@@ -712,6 +742,87 @@
                 padding-right:16px;
             }
 
+        }
+        /* ===== FEATURE PROMO UPDATES (SHADOW ATAS & TEKS TENGAH) ===== */
+        .feature-promo-section {
+            padding: 0;
+            margin-top: 100px; /* Jarak dari section atas */
+            margin-bottom: 0;   /* Mepet footer */
+            overflow: hidden;
+            position: relative; /* Penting untuk posisi shadow */
+        }
+
+        .feature-promo-full {
+            width: 100%;
+            height: 60vh; /* Resolusi bingkai diperkecil sesuai permintaan sebelumnya */
+            min-height: 450px;
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+            position: relative;
+            display: flex;
+            align-items: center;    /* Pusatkan vertikal */
+            justify-content: center; /* Pusatkan horizontal */
+        }
+
+        /* Shadow/Gradasi Gelap di Bagian ATAS Section Promo */
+        .feature-promo-top-shadow {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 30%; /* Ketinggian gradasi gelap dari atas */
+            /* Menggradasi dari warna gelap (menyesuaikan section atas) ke transparan */
+            background: linear-gradient(to bottom, rgba(39, 46, 29, 0.9) 0%, rgba(39, 46, 29, 0) 100%);
+            z-index: 1; /* Di bawah teks, di atas gambar */
+        }
+
+        .feature-promo-overlay {
+            position: absolute;
+            inset: 0;
+            /* Overlay keseluruhan gelap agar teks putih kontras */
+            background: rgba(0, 0, 0, 0.3); 
+            z-index: 1;
+        }
+
+        .feature-promo-content {
+            position: relative;
+            z-index: 2; /* Di atas shadow dan overlay */
+            color: var(--jaced-cream);
+            padding: 0 20px; /* Padding sisi */
+            max-width: 800px; /* Batas lebar teks agar tidak terlalu melebar */
+        }
+
+        .feature-promo-title {
+            font-size: clamp(2.2rem, 5vw, 3.8rem); /* Ukuran lebih besar agar dominan di tengah */
+            font-weight: 600;
+            line-height: 1.1;
+            margin-bottom: 20px;
+            letter-spacing: -0.02em;
+        }
+
+        .feature-promo-desc {
+            font-size: 18px; /* Sedikit lebih besar untuk keterbacaan */
+            opacity: 0.9;
+            margin-bottom: 30px;
+            max-width: 550px; /* Batasi lebar deskripsi agar rata tengah enak dilihat */
+        }
+
+        .feature-promo-link {
+            color: var(--jaced-caramel);
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 15px;
+            letter-spacing: 0.05em;
+            text-transform: uppercase;
+            display: inline-flex;
+            align-items: center;
+            transition: all 0.3s ease;
+        }
+
+        .feature-promo-link:hover {
+            color: var(--jaced-white);
+            transform: translateY(-3px); /* Hover effect ke atas */
         }
     </style>
 
