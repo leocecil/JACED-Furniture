@@ -284,7 +284,7 @@
     .wl-card-cat { font-size: 10px; text-transform: uppercase; letter-spacing: 0.2em; color: var(--jaced-caramel); font-weight: 600; margin-bottom: 4px; display: block; }
     .wl-card-name { font-size: 16px; font-weight: 600; color: var(--jaced-brown-dark); margin-bottom: 4px; letter-spacing: -0.01em; line-height: 1.3; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; 
         display: -webkit-box; -webkit-line-clamp: 1; -webkit-box-orient: vertical; }
-    .wl-card-price { font-family: 'Outfit', serif !important; font-size: 20px; font-weight: 700; color: var(--jaced-sage); margin-bottom: 6px; display: block; }
+    .wl-card-price { font-size: 20px; font-weight: 700; color: var(--jaced-sage); margin-bottom: 6px; display: block; }
     .wl-card-actions { display: flex; gap: 8px; }
 
     .wl-atc-btn {
