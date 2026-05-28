@@ -24,7 +24,7 @@
                     <a class="nav-link text-uppercase tracking-widest fw-bold {{ request()->routeIs('shop') ? 'active' : '' }}" style="font-size: 14px; letter-spacing: 2px;" href="{{ route('shop') }}">Shop</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link text-uppercase tracking-widest fw-bold" style="font-size: 14px; letter-spacing: 2px;" href="/about">About</a>
+                    <a class="nav-link text-uppercase tracking-widest fw-bold {{ request()->routeIs('about') ? 'active': '' }}" style="font-size: 14px; letter-spacing: 2px;" href="{{ route('about') }}">About</a>
                 </li>
                 @auth
                     <li class="nav-item">
@@ -34,7 +34,7 @@
             </ul>
 
             <div class="d-flex align-items-center gap-4 ms-lg-4">
-                <a href="#" class="nav-icon opacity-75 hover-opacity-100 transition"><i class="fas fa-search"></i></a>
+                
 
                 @auth
                     <a href="{{ route('wishlist') }}" class="header-wishlist">

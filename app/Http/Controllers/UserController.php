@@ -63,7 +63,15 @@ class UserController extends Controller
         if ($request->hasFile('avatar')) {
             if ($user->avatar !== 'image/avatars/default_avatar.png') {
                 if (file_exists(public_path($user->avatar))) {
-                    unlink(public_path($user->avatar));
+                    $oldPhoto = $user->photo;
+
+                    if ($oldPhoto && $oldPhoto !== 'default.jpg') {
+                        $oldPhotoPath = public_path($oldPhoto);
+                        
+                        if (file_exists($oldPhotoPath) && is_file($oldPhotoPath)) {
+                            unlink($oldPhotoPath);
+                        }
+                    }
                 }
             }
 

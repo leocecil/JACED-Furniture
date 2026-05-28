@@ -9,42 +9,46 @@ use Laravel\Socialite\Facades\Socialite;
 
 class GoogleController extends Controller
 {
-    // Redirect ke halaman login Google
     public function redirect()
     {
         return Socialite::driver('google')->redirect();
     }
 
-    // Callback setelah user login Google
     public function callback()
     {
         try {
             $googleUser = Socialite::driver('google')->user();
         } catch (\Exception $e) {
-            return redirect()->route('login')->with('error', 'Gagal login dengan Google.');
+            return redirect()->route('login')->with('error', 'Failed to sign in with Google.');
         }
 
-        // Cari user berdasarkan google_id atau email
         $user = User::where('google_id', $googleUser->getId())
                     ->orWhere('email', $googleUser->getEmail())
                     ->first();
 
-        if ($user) {
-            $user->update([
-                'google_id' => $googleUser->getId(),
-                'avatar'    => $googleUser->getAvatar(),
+        if (!$user) {
+            session([
+                'google_data' => [
+                    'name'  => $googleUser->getName(),
+                    'email' => $googleUser->getEmail(),
+                ]
             ]);
-        } else {
-            $user = User::create([
-                'name'      => $googleUser->getName(),
-                'email'     => $googleUser->getEmail(),
-                'google_id' => $googleUser->getId(),
-                'avatar'    => $googleUser->getAvatar(),
-                'password'  => null,
-            ]);
+
+            return redirect()->route('register')->with('info', 'No account found. Please complete your registration below.');
         }
 
+        $user->update([
+            'google_id' => $googleUser->getId(),
+            'avatar'    => $googleUser->getAvatar(),
+        ]);
+
         Auth::login($user);
+
+        $isAdmin = $user->roles->pluck('role')->contains('admin');
+
+        if ($isAdmin) {
+            return redirect()->route('admin.dashboard');
+        }
 
         return redirect()->intended('/home');
     }

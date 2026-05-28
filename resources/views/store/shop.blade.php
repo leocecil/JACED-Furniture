@@ -43,10 +43,10 @@
                     @php
                         $sortLabels = [
                             ''           => 'Recommended',
-                            'newest'     => 'Newest first',
+                            'newest'     => 'New Arrivals',
                             'price_asc'  => 'Price: Low to High',
                             'price_desc' => 'Price: High to Low',
-                            'bestseller' => 'Best sellers',
+                            'bestseller' => 'Best Sellers',
                         ];
                         $currentSort = request('sort', '');
                         $currentSortLabel = $sortLabels[$currentSort] ?? 'Recommended';
@@ -498,17 +498,21 @@
         .shop-product-card {
             display: block; text-decoration: none; color: var(--jaced-brown-dark);
             transition: transform 0.4s cubic-bezier(0.22,1,0.36,1);
-            position: relative; border-radius: 20px;
+            position: relative; border-radius: 20px; padding: 6px;
         }
         .shop-product-card::before {
-            content: ''; position: absolute; inset: -6px; border-radius: 24px;
+            content: ''; position: absolute; inset: -4px; border-radius: 20px;
             background: linear-gradient(135deg, var(--jaced-caramel), var(--jaced-brown-dark), var(--jaced-caramel));
             background-size: 200% 200%; opacity: 0; transition: opacity 0.4s ease;
             z-index: -1; animation: borderRotate 3s linear infinite paused;
         }
         .shop-product-card:hover::before { opacity: 1; animation-play-state: running; }
-        @keyframes borderRotate { 0% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } 100% { background-position: 0% 50%; } }
-        .shop-product-card:hover { color: var(--jaced-brown-dark); transform: translateY(-6px); }
+        @keyframes borderRotate {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+        .shop-product-card:hover { color: var(--jaced-brown-dark); transform: translateY(-8px); }
         .shop-product-img-wrap {
             position: relative; aspect-ratio: 1; background: var(--jaced-card);
             border-radius: 16px; overflow: hidden; margin-bottom: 14px;
@@ -551,13 +555,21 @@
         .js-wishlist-btn.active .fa-heart::before { content: "\f004"; }
         .js-wishlist-btn.active:hover .fa-heart::before { content: "\f7a9"; }
 
-        .shop-product-info { padding: 0 4px; }
-        .shop-product-cat { display: block; font-size: 10px; text-transform: uppercase; letter-spacing: 0.2em; color: var(--jaced-caramel); font-weight: 500; margin-bottom: 5px; }
-        .shop-product-name { font-size: 15px; font-weight: 600; letter-spacing: -0.01em; margin: 0 0 10px; color: var(--jaced-brown-dark); line-height: 1.3; }
-        .shop-product-bottom { display: flex; justify-content: space-between; align-items: center; gap: 8px; }
-        .shop-product-price { font-size: 14px; font-weight: 600; color: var(--jaced-brown-dark); }
-        .shop-product-oldprice { color: var(--jaced-muted); text-decoration: line-through; margin-left: 4px; font-size: 11px; }
-        .shop-product-dim { font-size: 11px; color: var(--jaced-muted); font-weight: 500; white-space: nowrap; }
+        .shop-product-info { padding: 10px 8px 4px; display: flex; flex-direction: column; gap: 8px;}
+        .shop-product-cat { display: block; font-size: 11px; text-transform: uppercase; letter-spacing: 0.18em; color: var(--jaced-caramel); font-weight: 500; margin-bottom: 0; }
+        .shop-product-name { font-size: 18px; font-weight: 600; letter-spacing: -0.02em; margin: 0; color: var(--jaced-brown-dark); 
+            /* display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; overflow: hidden; min-height: 54px;  */
+            overflow: hidden; text-overflow: ellipsis; white-space: nowrap; min-height: 28px; line-height: 1.5; transition: color 0.35s ease;
+        }
+        .shop-product-bottom { display: flex; justify-content: space-between; align-items: flex-end; gap: 10px; margin-top: 2px; }
+        .shop-product-price { font-family: 'Outfit', serif !important; font-size: 22px; font-weight: 600; color: var(--jaced-sage); line-height: 1.2; transition: color 0.35s ease; }
+        .shop-product-oldprice { color: var(--jaced-muted); text-decoration: line-through; margin-left: 4px; font-size: 12px; }
+        .shop-product-dim { font-size: 12px; color: var(--jaced-muted); font-weight: 500; letter-spacing: 0.02em; white-space: nowrap; }
+        .shop-product-sold { font-size: 15px; color: var(--jaced-muted); font-weight: 500; white-space: nowrap; line-height: 1.4; }
+
+        .shop-product-card:hover .shop-product-name,
+        .shop-product-card:hover .shop-product-price,
+        .shop-product-card:hover .shop-product-sold { color: var(--jaced-cream); }
 
         /* ===== EMPTY STATE ===== */
         .shop-empty { text-align: center; padding: 80px 24px; background: var(--jaced-card); border-radius: 18px; }

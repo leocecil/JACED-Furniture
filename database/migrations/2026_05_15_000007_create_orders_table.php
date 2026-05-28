@@ -13,8 +13,10 @@ return new class extends Migration
     {
         Schema::create('orders', function (Blueprint $table) {
             $table->id();
+            $table->string('midtrans_order_id')->nullable();
             $table->unsignedBigInteger('user_id');
             $table->unsignedBigInteger('payment_id');
+            $table->foreignId('va_bank_id')->nullable()->constrained('va_banks')->nullOnDelete()->after('payment_id');
             $table->unsignedBigInteger('voucher_id')->nullable();
             $table->unsignedBigInteger('shipping_address_id');
             $table->decimal('delivery_fee', 10, 2);
@@ -22,11 +24,18 @@ return new class extends Migration
             $table->decimal('discount_amount', 10, 2);
             $table->decimal('total_price', 10, 2);
             $table->string('status');
+            $table->text('cancellation_reason')->nullable();
             $table->timestamps();
+            $table->timestamp('on_process_at')->nullable();
             $table->timestamp('packed_at')->nullable();
             $table->timestamp('delivered_at')->nullable();
+            $table->timestamp('shipped_at')->nullable();
             $table->timestamp('arrived_at')->nullable();
             $table->timestamp('cancelled_at')->nullable();
+            $table->timestamp('disputed_at')->nullable();
+            $table->string('refund_status')->nullable();
+            $table->string('refund_type')->nullable();
+            $table->decimal('refund_amount', 10, 2)->nullable();
             $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
             $table->foreign('payment_id')->references('id')->on('payment_methods')->onDelete('cascade');
             $table->foreign('voucher_id')->references('id')->on('vouchers')->onDelete('set null');

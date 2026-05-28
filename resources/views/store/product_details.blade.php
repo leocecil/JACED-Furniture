@@ -315,6 +315,12 @@
     .wishlist-btn.active .fa-heart::before { content: "\f004"; }
     .wishlist-btn.active:hover .fa-heart::before { content: "\f7a9"; }
 
+    .wishlist-btn.active{
+        background: var(--jaced-brown-dark);
+        color: white;
+        border-color: var(--jaced-brown-dark);
+    }
+
     body{
         background: #f9f9f7;
     }
@@ -339,6 +345,97 @@
         z-index: 3000;
         box-shadow: 0 12px 32px rgba(0,0,0,0.2);
         animation: toastIn 0.4s ease;
+        opacity: 1;
+        transition: opacity 0.3s ease;
+    }
+
+    .related-card{
+        background: var(--jaced-card);
+        border-radius: 28px;
+        padding: 18px;
+        height: 100%;
+        border: 1px solid var(--jaced-input);
+        transition: 0.25s ease;
+        overflow: hidden;
+    }
+
+    .related-card:hover{
+        transform: translateY(-4px);
+        box-shadow: 0 12px 30px rgba(0,0,0,0.06);
+    }
+
+    .related-image-wrapper{
+        position: relative;
+        background: #f5f2ec;
+        border-radius: 22px;
+        height: 260px;
+
+        display: flex;
+        align-items: center;
+        justify-content: center;
+
+        overflow: hidden;
+    }
+
+    .related-image{
+        width: 85%;
+        height: 85%;
+        object-fit: contain;
+        transition: 0.3s ease;
+    }
+
+    .related-card:hover .related-image{
+        transform: scale(1.03);
+    }
+
+    .stock-badge{
+        position: absolute;
+        top: 16px;
+        left: 16px;
+
+        background: #d38a33;
+        color: white;
+
+        padding: 8px 14px;
+        border-radius: 999px;
+
+        font-size: 11px;
+        font-weight: 700;
+        letter-spacing: 1px;
+
+        z-index: 2;
+    }
+
+    .related-category{
+        font-size: 12px;
+        font-weight: 700;
+        letter-spacing: 2px;
+        color: #c89a61;
+        margin-bottom: 8px;
+    }
+
+    .related-title{
+        font-size: 26px;
+        font-weight: 600;
+        line-height: 1.3;
+        color: var(--jaced-brown-dark);
+        transition: 0.2s ease;
+    }
+
+    .related-title:hover{
+        color: var(--jaced-caramel);
+    }
+
+    .related-price{
+        font-size: 18px;
+        font-weight: 700;
+        color: var(--jaced-brown-dark);
+    }
+
+    .related-dimension{
+        font-size: 14px;
+        font-weight: 600;
+        color: var(--jaced-muted);
     }
     @keyframes toastIn{
         from{
@@ -444,10 +541,10 @@
                     {{ $totalSold }} people bought this
                 </div>
                 {{-- ★ --}}
-                <button class="wishlist-btn" id="pdWishBtn"
-                        data-id="{{ $product->id }}"
-                        data-name="{{ $product->name }}">
-                    <i class="fas fa-heart"></i>
+                <button
+                    class="wishlist-btn {{ $isWishlisted ? 'active' : '' }}"
+                    id="wishlistBtn" data-product="{{ $product->id }}">
+                    <i class="{{ $isWishlisted ? 'fa-solid' : 'fa-regular' }} fa-heart"></i>
                 </button>
             </div>
 
@@ -554,13 +651,73 @@
             </div>
         </div>
 
+        <div class="cart-toast" id="cartToast" style="display:none;">
+            <i class="fas fa-check-circle"></i>
+            <span id="cartToastText"></span>
+        </div>
+
         @if(session('success'))
-            <div class="cart-toast show" id="cartToast">
-                <i class="fas fa-check-circle"></i>
-                <span>{{ session('success') }}</span>
-            </div>
+        <script>
+            window.addEventListener('DOMContentLoaded', () => {
+                showCartToast("{{ session('success') }}");
+            });
+        </script>
         @endif
     </div>
+    @if($related->count())
+    <div class="mt-5">
+
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h3 class="fw-bold"
+            style="color: var(--jaced-brown-dark);">
+                You May Also Like
+            </h3>
+        </div>
+
+        <div class="row g-4">
+            @foreach($related as $relatedProduct)
+            <div class="col-lg-4 col-md-6">
+                <div class="related-card">
+                    <a href="{{ route('product.show', $relatedProduct->slug) }}"
+                    class="text-decoration-none">
+                        <div class="related-image-wrapper">
+
+                            @if($relatedProduct->stock <= 3)
+                                <div class="stock-badge">
+                                    ONLY {{ $relatedProduct->stock }} LEFT
+                                </div>
+                            @endif
+
+                            <img
+                                src="{{ asset($relatedProduct->mainImage->image_path) }}"
+                                class="related-image"
+                                alt="{{ $relatedProduct->name }}"
+                            >
+
+                        </div>
+
+                        <div class="mt-3">
+
+                            <div class="related-category">
+                                {{ strtoupper($relatedProduct->category->name) }}
+                            </div>
+
+                            <div class="related-title">
+                                {{ $relatedProduct->name }}
+                            </div>
+                            <div class="d-flex justify-content-between align-items-center mt-2">
+                                <div class="related-price">
+                                    Rp {{ number_format($relatedProduct->price, 0, ',', '.') }}
+                                </div>
+                            </div>
+                        </div>
+                    </a>
+                </div>
+            </div>
+            @endforeach
+        </div>
+    </div>
+    @endif
 </div>
 
 <div class="pd-confirm-backdrop" id="pdConfirmBackdrop">
@@ -678,100 +835,80 @@
     //         cartToast.classList.remove('show');
     //     }, 2500);
     // }
-    setTimeout(() => {
-        const toast = document.getElementById('cartToast');
-
-        if(toast){
-            toast.style.opacity = '0';
-
-            setTimeout(() => {
-                toast.remove();
-            }, 300);
-        }
-    }, 2500);
 
     function showCartToast(message, type = 'success') {
-        const icon = cartToast.querySelector('i');
+        const toast = document.getElementById('cartToast');
+        const text = document.getElementById('cartToastText');
+        const icon = toast.querySelector('i');
+
         if(type === 'delete'){
             icon.className = 'fas fa-trash';
         }
         else if(type === 'update'){
             icon.className = 'fas fa-pen';
         }
+        else if(type === 'wishlist'){
+            icon.className = 'fas fa-heart';
+        }
         else{
             icon.className = 'fas fa-check-circle';
         }
-        cartToastText.textContent = message;
-        cartToast.classList.add('show');
+
+        text.textContent = message;
+        toast.style.display = 'inline-flex';
+        toast.classList.add('show');
         clearTimeout(cartToastTimer);
+
         cartToastTimer = setTimeout(() => {
-            cartToast.classList.remove('show');
+            toast.style.opacity = '0';
+            setTimeout(() => {
+                toast.style.display = 'none';
+                toast.style.opacity = '1';
+                toast.classList.remove('show');
+            }, 300);
         }, 2500);
     }
-    // ===== WISHLIST =====
-    (function () {
-        const KEY = 'jaced_wishlist';
-        const btn = document.getElementById('pdWishBtn');
-        const id = btn?.getAttribute('data-id');
-        const name = btn?.getAttribute('data-name');
 
-        function getWishlist() {
-            try { return JSON.parse(localStorage.getItem(KEY)) || []; }
-            catch (e) { return []; }
-        }
-        function saveWishlist(list) { localStorage.setItem(KEY, JSON.stringify(list)); }
-        function isWished() { return getWishlist().some(x => String(x.id) === String(id)); }
+    const wishlistBtn = document.getElementById('wishlistBtn');
 
-        function setBtnState(active) {
-            btn.classList.toggle('active', active);
-            const icon = btn.querySelector('i');
-            if (icon) {
-                icon.classList.toggle('far', !active);
-                icon.classList.toggle('fas', active);
+    wishlistBtn.addEventListener('click', async () => {
+        const productId = wishlistBtn.dataset.product;
+
+        try{
+            const response = await fetch('/wishlist/toggle', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                    'Accept': 'application/json'
+                },
+
+                body: JSON.stringify({
+                    product_id: productId
+                })
+            });
+
+            const data = await response.json();
+            const icon = wishlistBtn.querySelector('i');
+
+            if(data.status === 'added'){
+                wishlistBtn.classList.add('active');
+                icon.classList.remove('fa-regular');
+                icon.classList.add('fa-solid');
+                showCartToast('Added to wishlist', 'wishlist');
+
+            }else{
+                wishlistBtn.classList.remove('active');
+                icon.classList.remove('fa-solid');
+                icon.classList.add('fa-regular');
+                showCartToast('Removed from wishlist', 'delete');
             }
+
+        }catch(e){
+            console.error(e);
+            showCartToast('Failed to update wishlist', 'delete');
         }
-
-        // Confirm popup
-        let confirmCb = null;
-        const backdrop = document.getElementById('pdConfirmBackdrop');
-
-        function showConfirm(onConfirm) {
-            document.getElementById('pdConfirmMsg').textContent = `Remove "${name}" from your wishlist?`;
-            backdrop.classList.add('show');
-            confirmCb = onConfirm;
-        }
-
-        document.getElementById('pdConfirmOk').addEventListener('click', () => {
-            backdrop.classList.remove('show');
-            if (confirmCb) { confirmCb(); confirmCb = null; }
-        });
-        document.getElementById('pdConfirmCancel').addEventListener('click', () => {
-            backdrop.classList.remove('show');
-            confirmCb = null;
-        });
-        backdrop.addEventListener('click', e => {
-            if (e.target === backdrop) { backdrop.classList.remove('show'); confirmCb = null; }
-        });
-
-        // Init state
-        if (btn) setBtnState(isWished());
-
-        // Click handler
-        btn?.addEventListener('click', () => {
-            if (isWished()) {
-                showConfirm(() => {
-                    let list = getWishlist().filter(x => String(x.id) !== String(id));
-                    saveWishlist(list);
-                    setBtnState(false);
-                });
-            } else {
-                let list = getWishlist();
-                list.push({ id, name });
-                saveWishlist(list);
-                setBtnState(true);
-            }
-        });
-    })();
+    });
 </script>
 
 @endsection

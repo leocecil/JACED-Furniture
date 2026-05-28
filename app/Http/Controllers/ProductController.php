@@ -113,7 +113,7 @@ class ProductController extends Controller
 
     public function shop(Request $request)
     {
-        $query = Product::with(['images', 'mainImage', 'category'])
+        $query = Product::with(['images', 'mainImage', 'category', 'orderDetails'])
             ->where('stock', '>=', 0);
 
         if ($request->filled('search')) {
@@ -156,6 +156,24 @@ class ProductController extends Controller
                 }
             });
         }
+        if ($request->filled('collection')) {
+
+            switch ($request->collection) {
+
+                case 'limited':
+                    $query->where('stock', '>', 0)
+                        ->where('stock', '<=', 3);
+                    break;
+
+                case 'new':
+                    $query->orderByDesc('created_at');
+                    break;
+
+                case 'bestseller':
+                    $query->where('label', 'like', '%best%');
+                    break;
+            }
+        }
 
         switch ($request->input('sort')) {
             case 'price_asc':  $query->orderBy('price', 'asc'); break;
@@ -166,7 +184,11 @@ class ProductController extends Controller
 
         $totalProducts = Product::count();
         $paginated = $query->paginate(12)->withQueryString();
-        $items = $paginated->getCollection()->map(fn($p) => $this->normalize($p));
+        $items = $paginated->getCollection()->map(function ($p) {
+            $normalized = $this->normalize($p);
+            $normalized->total_sold = $p->orderDetails->sum('quantity');
+            return $normalized;
+        });
         $paginated->setCollection($items);
         $products = $paginated;
 
@@ -198,7 +220,7 @@ class ProductController extends Controller
         return view('store.shop', compact('products', 'categories', 'materials', 'rooms', 'totalProducts'));
     }
 
-    // ─── SHOW by slug (sesuai route temen /product/{slug}) ───────────────────
+    // ─── SHOW by slug ─────────────────────────────────────────────────────────
 
     public function show($slug)
     {
@@ -223,7 +245,16 @@ class ProductController extends Controller
             ->take(4)
             ->get();
 
-        return view('store.product_details', compact('product', 'related', 'totalSold'));
+        $isWishlisted = false;
+        if (auth()->check()) {
+            $isWishlisted = \App\Models\Wishlist::where('user_id', auth()->id())
+                ->where('product_id', $product->id)
+                ->exists();
+        }
+
+        return view('store.product_details', compact(
+            'product', 'related', 'totalSold', 'isWishlisted'
+        ));
     }
 
     // ─── BATCH (wishlist) ─────────────────────────────────────────────────────

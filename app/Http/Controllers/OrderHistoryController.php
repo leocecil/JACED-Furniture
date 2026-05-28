@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 use App\Models\Order;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 
 class OrderHistoryController extends Controller
 {
@@ -12,7 +14,14 @@ class OrderHistoryController extends Controller
     {
         $user = Auth::user();
 
-        $filters = ['All', 'Unpaid', 'Packed', 'Delivered', 'Arrived', 'Cancelled'];
+        DB::table('orders')
+            ->where('user_id', $user->id)
+            ->where('status', 'shipped')
+            ->whereNotNull('shipped_at')
+            ->where('shipped_at', '<=', now()->subDays(7))
+            ->update(['status' => 'arrived', 'arrived_at' => now()]);
+
+        $filters = ['All', 'Unpaid', 'On Process', 'Packed', 'Delivered', 'Arrived', 'Cancelled', 'Disputed'];
         $activeFilter = $request->get('filter', 'All');
 
         $query = Order::with(['orderDetails.product'])
@@ -20,7 +29,7 @@ class OrderHistoryController extends Controller
             ->orderBy('created_at', 'desc');
 
         if ($activeFilter !== 'All') {
-            $query->where('status', strtolower($activeFilter));
+            $query->where('status', strtolower(str_replace(' ', '_', $activeFilter)));
         }
 
         $orders = $query->get();
@@ -35,13 +44,18 @@ class OrderHistoryController extends Controller
             'shippingAddress',
             'paymentMethod',
             'voucher',
+            'vaBank',
         ])
         ->where('user_id', Auth::id())
         ->findOrFail($id);
 
-        return view('store.order-history-detail', compact('order'));
-    }
+        $dispute = DB::table('order_disputes')
+            ->where('order_id', $order->id)
+            ->latest()
+            ->first();
 
+        return view('store.order-history-detail', compact('order', 'dispute'));
+    }
     public function invoice($id)
     {
         $order = \App\Models\Order::with([
@@ -54,5 +68,115 @@ class OrderHistoryController extends Controller
         ->findOrFail($id);
 
         return view('store.invoice', compact('order'));
+    }
+
+    public function markReceived($id)
+    {
+        Log::info('markReceived called', ['id' => $id, 'user' => Auth::id()]);
+        $order = Auth::user()->orders()->findOrFail($id);
+        Log::info('order found', ['status' => $order->status]);
+
+        if ($order->status !== 'shipped') {
+            return redirect()->back()->with('error', 'Order tidak bisa dikonfirmasi.');
+        }
+
+        $order->status = 'arrived';
+        $order->arrived_at = now();
+        $order->save();
+
+        // Tambah poin saat arrived
+        $poinBaru = floor($order->total_price / 10000);
+        if ($poinBaru > 0) {
+            $user = Auth::user();
+            $user->increment('current_points', $poinBaru);
+            $user->increment('accumulated_points', $poinBaru);
+
+            DB::table('point_histories')->insert([
+                'user_id'    => $user->id,
+                'points'     => $poinBaru,
+                'type'       => 'earned',
+                'source'     => 'purchase',
+                'order_id'   => $order->id,
+                'created_at' => now(),
+                'updated_at' => now(),
+            ]);
+        }
+
+        return redirect()->back()->with('success', 'Order confirmed! You earned ' . $poinBaru . ' points.');
+    }
+
+    public function submitComplaint(Request $request, $id)
+    {
+        $request->validate([
+            'type'        => 'required|in:missing,damaged,wrong_item',
+            'description' => 'required|string|max:1000',
+            'photo'       => $request->input('type') === 'missing' ? 'nullable|image|max:2048' : 'required|image|max:2048',
+        ]);
+
+        $order = Auth::user()->orders()->findOrFail($id);
+
+        if ($order->status !== 'shipped') {
+            return redirect()->back()->with('error', 'Komplain hanya bisa diajukan sebelum pesanan dikonfirmasi.');
+        }
+
+        $photoPath = null;
+        if ($request->hasFile('photo')) {
+            $photoPath = $request->file('photo')->store('complaints', 'public');
+        }
+
+        DB::table('order_disputes')->insert([
+            'order_id'    => $order->id,
+            'reason'      => $request->type,
+            'description' => $request->description,
+            'photo_path'  => $photoPath,
+            'status'      => 'open',
+            'created_at'  => now(),
+            'updated_at'  => now(),
+        ]);
+
+        $order->status = 'disputed';
+        $order->disputed_at = now();
+        $order->save();
+
+        return redirect()->back()->with('success', 'Komplain berhasil diajukan. Admin akan segera meninjau.');
+    }
+
+    public function cancelOrder(Request $request, $id)
+    {
+        $order = Auth::user()->orders()->findOrFail($id);
+
+        if (!in_array($order->status, ['unpaid', 'on_process'])) {
+            return redirect()->back()->with('error', 'Order tidak bisa dibatalkan.');
+        }
+
+        $needsRefund = $order->status === 'on_process';
+
+        $reason = $request->input('cancellation_reason', 'change_of_mind');
+        if ($reason === 'others') {
+            $reason = $request->input('other_reason', 'Others');
+        }
+
+        $reasonLabel = match($reason) {
+            'wrong_address'      => 'Salah alamat pengiriman',
+            'change_of_mind'     => 'Berubah pikiran',
+            'found_cheaper'      => 'Menemukan harga lebih murah',
+            'ordered_by_mistake' => 'Pesanan tidak sengaja',
+            default              => $reason,
+        };
+
+        if ($needsRefund) {
+            $reasonLabel = '[Refund Requested] ' . $reasonLabel;
+        }
+
+        $order->status = 'cancelled';
+        $order->cancelled_at = now();
+        $order->cancellation_reason = $reasonLabel;
+        $order->save();
+
+        $message = $needsRefund
+            ? 'Order dibatalkan. Refund akan diproses dalam 3-5 hari kerja.'
+            : 'Order berhasil dibatalkan.';
+
+        return redirect()->back()->with('success', $message);
     }
 }

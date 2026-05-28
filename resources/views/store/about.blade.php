@@ -12,7 +12,7 @@
     
     /* Menetralkan pembungkus box container bawaan base template khusus untuk Hero Section */
     .force-full-bleed {
-        margin-top: -8rem !important; 
+        margin-top: -2rem !important; 
         margin-left: -3rem !important;
         margin-right: -3rem !important;
         width: calc(100% + 6rem) !important;
@@ -186,10 +186,10 @@
             <div class="row g-4">
                 @foreach([
                     ['img' => 'diah.jpeg',   'name' => 'Putu Diahloka Mahaputri',  'role' => 'CEO (Chief Executive Officer)'],
-                    ['img' => 'cecil.jpeg',  'name' => 'Cecilia Agusta Leo',        'role' => 'CFO (Chief Financial Officer)'],
-                    ['img' => 'member2.jpg', 'name' => 'Jocelyn Jolie',             'role' => '0706022410006'],
-                    ['img' => 'audric.jpeg', 'name' => 'Ignatius Audric Wijaya',    'role' => '0706022410022'],
-                    ['img' => 'member4.jpg', 'name' => 'Ekkin Kenneth Hosari',      'role' => 'CTO (Chief Technology Officer)'],
+                    ['img' => 'cecill.jpeg',  'name' => 'Cecilia Agusta Leo',        'role' => 'CFO (Chief Financial Officer)'],
+                    ['img' => 'jolie.jpeg', 'name' => 'Jocelyn Jolie',             'role' => 'CMO (Chief Marketing Officer)'],
+                    ['img' => 'audric.jpeg', 'name' => 'Ignatius Audric Wijaya',    'role' => 'COO (Chief Operating Officer)'],
+                    ['img' => 'ekkin.jpeg', 'name' => 'Ekkin Kenneth Hosari',      'role' => 'CTO (Chief Technology Officer)'],
                 ] as $member)
                 <div class="col-6 col-md-4 col-lg">
                     <div class="card border-0 shadow-sm rounded-4 overflow-hidden bg-white h-100">

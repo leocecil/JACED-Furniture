@@ -2,21 +2,24 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Product;
-use App\Models\ProductImage;
-use App\Models\ProductCategory;
 use App\Http\Requests\StoreProductRequest;
+use App\Models\Order;
+use App\Models\Product;
+use App\Models\ProductCategory;
+use App\Models\ProductImage;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Storage;
 
 class InventoryController extends Controller
 {
-    // ── GET /inventory
+    // ── GET /admin/inventory
     public function index(Request $request)
     {
-        $query = Product::with(['category', 'images']);
+         $orderCount = Order::where('status', 'pending')->count();
+
+        // withTrashed() agar produk soft-deleted tetap ikut query filter & sort
+        $query = Product::withTrashed()->with(['category', 'images']);
 
         // Filter by category
         if ($request->filled('category_id')) {
@@ -32,34 +35,30 @@ class InventoryController extends Controller
             default      => $query->latest(),
         };
 
+        // withQueryString() agar parameter ?category_id=X&sort=Y tetap terbawa saat paginasi
         $products   = $query->paginate(6)->withQueryString();
         $categories = ProductCategory::orderBy('name')->get();
 
-        return view('pages.inventory.index', compact('products', 'categories'));
+        return view('pages.inventory.index', compact('orderCount', 'products', 'categories'));
     }
 
-    // ── POST /inventory
+    // ── POST /admin/inventory
     public function store(StoreProductRequest $request)
     {
         DB::transaction(function () use ($request) {
 
-            // Buat product sesuai fillable model terbaru
             $product = Product::create([
-                'name'           => $request->name,
-                'slug'           => $request->slug ?? Str::slug($request->name),
-                'description'    => $request->description,
-                'length'         => $request->length,
-                'width'          => $request->width,
-                'height'         => $request->height,
-                'unit'           => $request->unit,
-                'price'          => $request->price,
-                'old_price'      => $request->old_price,
-                'stock'          => $request->stock,
-                'label'          => $request->label,
-                'badge'          => $request->badge,
-                'is_active'      => $request->boolean('is_active', true),
-                'is_recommended' => $request->boolean('is_recommended', false),
-                'category_id'    => $request->category_id,
+                'name'        => $request->name,
+                'description' => $request->description,
+                'length'      => $request->length,
+                'width'       => $request->width,
+                'height'      => $request->height,
+                'unit'        => $request->unit,
+                'price'       => $request->price,
+                'stock'       => $request->stock,
+                'low_stock'   => $request->low_stock ?? 5,
+                'label'       => $request->label,
+                'category_id' => $request->category_id,
             ]);
 
             // Upload images[] → ProductImage
@@ -81,32 +80,23 @@ class InventoryController extends Controller
             ->with('success', 'Product "' . $request->name . '" added successfully.');
     }
 
-    // ── PUT /inventory/{inventory}
+    // ── PUT /admin/inventory/{inventory}
     public function update(StoreProductRequest $request, Product $inventory)
     {
-        // Override rule slug agar ignore ID produk ini sendiri
-        $request->validate([
-            'slug' => 'nullable|string|max:255|unique:products,slug,' . $inventory->id,
-        ]);
-
         DB::transaction(function () use ($request, $inventory) {
 
             $inventory->update([
-                'name'           => $request->name,
-                'slug'           => $request->slug ?? Str::slug($request->name),
-                'description'    => $request->description,
-                'length'         => $request->length,
-                'width'          => $request->width,
-                'height'         => $request->height,
-                'unit'           => $request->unit,
-                'price'          => $request->price,
-                'old_price'      => $request->old_price,
-                'stock'          => $request->stock,
-                'label'          => $request->label,
-                'badge'          => $request->badge,
-                'is_active'      => $request->boolean('is_active', true),
-                'is_recommended' => $request->boolean('is_recommended', false),
-                'category_id'    => $request->category_id,
+                'name'        => $request->name,
+                'description' => $request->description,
+                'length'      => $request->length,
+                'width'       => $request->width,
+                'height'      => $request->height,
+                'unit'        => $request->unit,
+                'price'       => $request->price,
+                'stock'       => $request->stock,
+                'low_stock'   => $request->low_stock ?? $inventory->low_stock,
+                'label'       => $request->label,
+                'category_id' => $request->category_id,
             ]);
 
             // Tambah gambar baru jika ada
@@ -129,23 +119,40 @@ class InventoryController extends Controller
             ->with('success', 'Product "' . $request->name . '" updated.');
     }
 
-    // ── DELETE /inventory/{inventory} — soft delete
+    // ── DELETE /admin/inventory/{inventory} — soft delete
     public function destroy(Product $inventory)
     {
-        // Hapus semua images dari storage
-        foreach ($inventory->images as $img) {
-            Storage::disk('public')->delete($img->image_path);
+        // Paksa tipe data stock menjadi integer agar akurat
+        $stokAktif = (int) $inventory->stock;
+
+        // Aturan bisnis: tidak bisa hapus jika stok masih ada
+        if ($stokAktif > 0) {
+            return redirect()
+                ->back()
+                ->with('error', 'Gagal menghapus! Produk "' . $inventory->name . '" tidak bisa dihapus karena masih memiliki sisa stok (' . $stokAktif . ' unit). Kosongkan stok terlebih dahulu.');
         }
 
         $name = $inventory->name;
-        $inventory->delete(); // SoftDeletes — deleted_at terisi
+        $inventory->delete(); // soft delete → deleted_at terisi otomatis
 
         return redirect()
             ->route('inventory.index')
-            ->with('success', 'Product "' . $name . '" removed.');
+            ->with('success', 'Product "' . $name . '" berhasil dinonaktifkan.');
     }
 
-    // ── DELETE /inventory/image/{image} — hapus 1 gambar (AJAX)
+    // ── POST /admin/inventory/{id}/restore — kembalikan soft-deleted product
+    public function restore($id)
+    {
+        // withTrashed() wajib karena data soft-deleted disembunyikan oleh default query
+        $product = Product::withTrashed()->findOrFail($id);
+        $product->restore(); // deleted_at → NULL
+
+        return redirect()
+            ->route('inventory.index')
+            ->with('success', 'Product "' . $product->name . '" berhasil dikembalikan ke katalog.');
+    }
+
+    // ── DELETE /admin/inventory/image/{image} — hapus 1 gambar (AJAX)
     public function destroyImage(ProductImage $image)
     {
         Storage::disk('public')->delete($image->image_path);

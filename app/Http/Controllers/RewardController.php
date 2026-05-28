@@ -6,6 +6,7 @@ use App\Models\Stage;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 
 class RewardController extends Controller
 {
@@ -149,7 +150,6 @@ class RewardController extends Controller
     {
         $voucherId = $request->input('voucher_id');
         
-        // Validasi voucher milik user dan masih aktif
         $voucher = DB::table('vouchers')
             ->where('id', $voucherId)
             ->where('user_id', Auth::id())
@@ -161,8 +161,17 @@ class RewardController extends Controller
             return redirect()->back()->with('error', 'Voucher tidak valid.');
         }
 
-        // Simpan ke session
         session(['pending_voucher_id' => $voucherId]);
+
+        // Cek cart kosong atau tidak
+        $cartCount = DB::table('carts')
+            ->where('user_id', Auth::id())
+            ->count();
+
+        if ($cartCount === 0) {
+            return redirect()->route('shop')
+                ->with('info', 'Voucher berhasil dipilih! Silakan pilih produk terlebih dahulu.');
+        }
 
         return redirect()->route('checkout.index');
     }

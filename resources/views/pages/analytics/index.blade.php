@@ -124,7 +124,7 @@
             <div class="jaced-card shadow-sm">
                 <div class="d-flex justify-content-between align-items-center mb-3">
                     <h5 class="fw-bold m-0">Top 5 VIP Spenders</h5>
-                    <a href="{{ route('analytics.customers.all') }}" class="text-decoration-none small fw-bold" style="color: var(--jaced-caramel);">View All Customers</a>
+                {{-- <a href="{{ route('analytics.customers.all') }}" class="text-decoration-none small fw-bold" style="color: var(--jaced-caramel);">View All Customers</a> --}}
                 </div>
                 <div class="table-responsive">
                     <table class="table table-custom align-middle m-0" style="--bs-table-bg: transparent;">

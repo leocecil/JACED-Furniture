@@ -97,10 +97,18 @@ Route::middleware(['role:customer'])->group(function() {
     Route::get('/payment/status/{order_id}', [OrderController::class, 'payment_status'])->name('payment_status');
     Route::get('/payment/return/{order_id}', [OrderController::class, 'payment_return'])->name('payment_return');
 
+    // Midtrans Webhook for Payment Notifications
+    Route::post('/midtrans/notification', [OrderController::class, 'handleNotification'])->name('midtrans.notification');
+
     // Customer Purchase History
     Route::get('/orderhistory', [OrderHistoryController::class, 'index'])->name('store.orderhistory');
     Route::get('/orderhistory/{id}', [OrderHistoryController::class, 'show'])->name('store.orderhistory_detail.show');
     Route::get('/orderhistory/{id}/invoice', [OrderHistoryController::class, 'invoice'])->name('store.orderhistory.invoice');
+
+    // Order actions - customer
+    Route::patch('/orderhistory/{id}/received', [OrderHistoryController::class, 'markReceived'])->name('store.orderhistory.received');
+    Route::post('/orderhistory/{id}/complaint', [OrderHistoryController::class, 'submitComplaint'])->name('store.orderhistory.complaint');
+    Route::patch('/orderhistory/{id}/cancel', [OrderHistoryController::class, 'cancelOrder'])->name('store.orderhistory.cancel');
 
     // Transaction History alias
     Route::get('/transaction-history', [OrderHistoryController::class, 'index'])->name('store.transactionhistory');
@@ -123,7 +131,11 @@ Route::middleware(['role:admin'])->group(function() {
     Route::get('/admin/order_management/search', [OrderManagementController::class, 'search'])->name('admin.order_management.search');
     Route::post('/admin/orders/{id}/status', [OrderManagementController::class, 'updateStatus'])->name('admin.orders.updateStatus');
 
-    // CORE CUSTOMER ANALYTICS SYSTEMS
+    // Complaint management - admin
+    Route::get('/admin/complaints', [OrderManagementController::class, 'complaints'])->name('admin.complaints');
+    Route::post('/admin/complaints/{id}/resolve', [OrderManagementController::class, 'resolveComplaint'])->name('admin.complaints.resolve');
+
+    // Core Customer Analytics Systems
     Route::get('/admin/analytics', [AnalyticsController::class, 'index'])->name('analytics.customers');
     Route::get('/admin/analytics/customers/all', [AnalyticsController::class, 'allCustomers'])->name('analytics.customers.all');
 
@@ -131,10 +143,11 @@ Route::middleware(['role:admin'])->group(function() {
     Route::get('/admin/inventory', [InventoryController::class, 'index'])->name('inventory.index');
     Route::post('/admin/inventory', [InventoryController::class, 'store'])->name('inventory.store');
     Route::put('/admin/inventory/{inventory}', [InventoryController::class, 'update'])->name('inventory.update');
-    Route::delete('/admin/inventory/{inventory}', [InventoryController::class, 'destroy'])->name('inventory.destroy');
     Route::delete('/admin/inventory/image/{image}', [InventoryController::class, 'destroyImage'])->name('inventory.image.destroy');
+    Route::delete('/admin/inventory/{inventory}', [InventoryController::class, 'destroy'])->name('inventory.destroy');
+    Route::post('/admin/inventory/{id}/restore', [InventoryController::class, 'restore'])->name('inventory.restore');
 
-    // Voucher Management
+    // Voucher Operational Management Systems
     Route::get('/admin/vouchers', [VoucherManagementController::class, 'index'])->name('admin.vouchers');
     Route::post('/admin/vouchers', [VoucherManagementController::class, 'store'])->name('admin.vouchers.store');
     Route::post('/admin/vouchers/{id}/toggle', [VoucherManagementController::class, 'toggle'])->name('admin.vouchers.toggle');

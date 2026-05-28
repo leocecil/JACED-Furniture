@@ -3,7 +3,7 @@
 @push('styles')
 <style>
     .help-page {
-        background-color: var(--jaced-cream);
+        background-color: var(--jaced-caramel-bg) !important;
         min-height: 100vh;
         padding: 60px 16px;
     }

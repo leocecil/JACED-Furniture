@@ -34,7 +34,7 @@ input, button, select, textarea, label, td, th, li {
 }
 
 .jaced-page {
-    background-color: var(--jaced-cream);
+    background-color: var(--jaced-caramel-bg) !important;
     padding: 48px 24px;
 }
 
