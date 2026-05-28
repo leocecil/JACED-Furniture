@@ -9,13 +9,11 @@ use Laravel\Socialite\Facades\Socialite;
 
 class GoogleController extends Controller
 {
-    // Redirect ke halaman login Google
     public function redirect()
     {
         return Socialite::driver('google')->redirect();
     }
 
-    // Callback setelah user login Google
     public function callback()
     {
         try {
@@ -29,23 +27,27 @@ class GoogleController extends Controller
                     ->orWhere('email', $googleUser->getEmail())
                     ->first();
 
-        if ($user) {
-            $user->update([
-                'google_id' => $googleUser->getId(),
-                'avatar'    => $googleUser->getAvatar(),
-            ]);
-        } else {
-            $user = User::create([
-                'name'      => $googleUser->getName(),
-                'email'     => $googleUser->getEmail(),
-                'google_id' => $googleUser->getId(),
-                'avatar'    => $googleUser->getAvatar(),
-                'password'  => null,
-            ]);
+        // Kalau belum ada akun → arahkan ke register, jangan auto-create
+        if (!$user) {
+            return redirect()->route('register')->with('info', 'Akun tidak ditemukan. Silakan daftar terlebih dahulu.');
         }
+
+        // Update data Google terbaru
+        $user->update([
+            'google_id' => $googleUser->getId(),
+            'avatar'    => $googleUser->getAvatar(),
+        ]);
 
         Auth::login($user);
 
+        // Cek role: kalau admin → arahkan ke admin dashboard
+        $isAdmin = $user->roles->pluck('role')->contains('admin');
+
+        if ($isAdmin) {
+            return redirect()->route('admin.dashboard');
+        }
+
+        // Kalau customer → arahkan ke home
         return redirect()->intended('/home');
     }
 }
