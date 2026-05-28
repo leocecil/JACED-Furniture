@@ -178,7 +178,7 @@
                             <div class="bestseller-price-wrap">
                                 <span class="bestseller-price">Rp {{ number_format($product->price, 0, ',', '.') }}</span>
                                 <span class="btn-see-details rounded-pill px-3 py-2">
-                                    See Details <i class="fas fa-arrow-right ms-1" style="font-size: 10px;"></i>
+                                    See details <i class="fas fa-arrow-right ms-1" style="font-size: 10px;"></i>
                                 </span>
                             </div>
                         </a>
@@ -228,64 +228,13 @@
         </div>
     </section>
 
-    {{-- ============== TESTIMONIALS ============== --}}
-    <section class="testimonials-section">
-        <div class="container">
-            <div class="section-header d-flex justify-content-between align-items-end mb-5 flex-wrap gap-3">
-                <div data-reveal="slide-right">
-                    <p class="section-label">/ Testimonials</p>
-                    <h2 class="section-title">What our clients say</h2>
-                </div>
-                <p class="text-jaced-muted mb-0 small" style="max-width: 280px;" data-reveal="slide-left" data-reveal-delay="200">
-                    Our customers feedback reflects the quality and trust we have built together.
-                </p>
-            </div>
-            <div class="row g-4">
-                <div class="col-md-4" data-reveal="slide-up" data-reveal-delay="0">
-                    <div class="testimonial-card">
-                        <div class="mb-3 text-warning">★★★★★</div>
-                        <p class="text-jaced-muted mb-4">"Beautiful craftsmanship and surprisingly solid finish."</p>
-                        <div class="d-flex align-items-center">
-                            <img src="https://i.pravatar.cc/60?img=1" class="rounded-circle me-3" width="48" height="48">
-                            <div>
-                                <h6 class="mb-0 fw-semibold">Jonathan Lee</h6>
-                                <small class="text-jaced-muted">Interior Designer</small>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-md-4" data-reveal="slide-up" data-reveal-delay="150">
-                    <div class="testimonial-card">
-                        <div class="mb-3 text-warning">★★★★★</div>
-                        <p class="text-jaced-muted mb-4">"The walnut dining table completely transformed our space."</p>
-                        <div class="d-flex align-items-center">
-                            <img src="https://i.pravatar.cc/60?img=5" class="rounded-circle me-3" width="48" height="48">
-                            <div>
-                                <h6 class="mb-0 fw-semibold">Amelia Hart</h6>
-                                <small class="text-jaced-muted">Architect</small>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-md-4" data-reveal="slide-up" data-reveal-delay="300">
-                    <div class="testimonial-card">
-                        <div class="mb-3 text-warning">★★★★★</div>
-                        <p class="text-jaced-muted mb-4">"Minimal, elegant, and genuinely premium quality."</p>
-                        <div class="d-flex align-items-center">
-                            <img src="https://i.pravatar.cc/60?img=12" class="rounded-circle me-3" width="48" height="48">
-                            <div>
-                                <h6 class="mb-0 fw-semibold">Michael Tan</h6>
-                                <small class="text-jaced-muted">Creative Director</small>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
-
     {{-- ============== STYLES ============== --}}
     <style>
+       html, body {
+            scroll-behavior: auto !important;
+            overflow-anchor: none;
+        }
+
         body { background-color: var(--jaced-caramel-bg) !important; }
         .container { max-width: 1280px; }
 
@@ -330,20 +279,6 @@
         .room-card:hover {
             transform: translateY(-6px);
             box-shadow: 0 16px 48px rgba(39, 46, 29, 0.14);
-        }
-
-        /* Testimonial cards deeper shadow */
-        .testimonial-card {
-            background: var(--jaced-card);
-            border-radius: 18px;
-            padding: 28px;
-            height: 100%;
-            box-shadow: 0 4px 24px rgba(39, 46, 29, 0.06);
-            transition: transform 0.4s ease, box-shadow 0.4s ease;
-        }
-        .testimonial-card:hover {
-            transform: translateY(-4px);
-            box-shadow: 0 16px 40px rgba(39, 46, 29, 0.12);
         }
 
         /* Section divider subtle shadow buat intro text */
@@ -653,13 +588,15 @@
         .room-card:hover img { transform:scale(1.05); }
         .room-card::after { content:''; position:absolute; inset:0; background:linear-gradient(180deg, rgba(0,0,0,0) 50%, rgba(39,46,29,0.5) 100%); }
         .room-label { position:absolute; bottom:24px; left:28px; color:var(--jaced-cream); font-size:22px; font-weight:600; letter-spacing:-0.01em; z-index:2; }
-
-        .testimonials-section { padding: 48px 24px 80px; }
-        .testimonial-card { background:var(--jaced-card); border-radius:18px; padding:28px; height:100%; transition:transform 0.4s ease, box-shadow 0.4s ease; }
-        .testimonial-card:hover { transform:translateY(-4px); box-shadow:0 12px 32px rgba(39,46,29,0.08); }
     </style>
 
     <script>
+        if (history.scrollRestoration) {
+            history.scrollRestoration = 'manual';
+        }
+        window.scrollTo(0, 0);
+        document.documentElement.scrollTop = 0;
+        document.body.scrollTop = 0;
         // Hero entry animation
         window.addEventListener('load', () => {
             const firstSlide = document.querySelector('.carousel-item.active');

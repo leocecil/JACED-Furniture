@@ -675,14 +675,12 @@
 
                     <div class="wl-card-actions px-3 pb-3">
 
-                        <button class="wl-atc-btn"
-                                data-id="${item.product.id}"
-                                data-name="${item.product.name}">
-
-                            <i class="fas fa-shopping-bag"></i>
-                            Add to Cart
-
-                        </button>
+                        <a href="/product/${item.product.slug}"
+                        class="wl-atc-btn"
+                        style="text-decoration:none;">
+                            <i class="fas fa-arrow-right"></i>
+                            See details
+                        </a>
 
                     </div>
 
@@ -739,61 +737,7 @@
                     }
                 );
             });
-        });
-
-        // ADD TO CART
-        grid.querySelectorAll('.wl-atc-btn').forEach(btn => {
-            btn.addEventListener('click', async (e) => {
-                e.preventDefault();
-                e.stopPropagation();
-                const id = btn.dataset.id;
-                const name = btn.dataset.name;
-
-                btn.disabled = true;
-
-                btn.innerHTML =
-                    '<i class="fas fa-spinner fa-spin"></i> Adding...';
-
-                try {
-
-                    const response = await fetch('{{ route("cart.add") }}', {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                            'Accept': 'application/json',
-                            'X-CSRF-TOKEN': '{{ csrf_token() }}'
-                        },
-
-                        body: JSON.stringify({
-                            product_id: id,
-                            quantity: 1
-                        })
-                    });
-
-                    if (!response.ok) {
-                        throw new Error();
-                    }
-
-                    btn.innerHTML =
-                        '<i class="fas fa-check"></i> Added';
-                    btn.classList.add('added');
-                    showToast(name + ' added to cart');
-                    setTimeout(() => {
-                        btn.disabled = false;
-                        btn.innerHTML =
-                            '<i class="fas fa-shopping-bag"></i> Add to Cart';
-                        btn.classList.remove('added');
-                    }, 2000);
-
-                } catch (e) {
-                    btn.disabled = false;
-                    btn.innerHTML =
-                        '<i class="fas fa-shopping-bag"></i> Add to Cart';
-
-                    showToast('Failed to add product');
-                }
-            });
-        });
+        });        
 
         updateCategoryOptions(allItems);
         renderActiveFilters();

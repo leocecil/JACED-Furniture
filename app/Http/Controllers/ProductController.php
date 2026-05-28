@@ -17,15 +17,13 @@ class ProductController extends Controller
         $mainImageUrl = $product->main_image_url;
 
         $allImages = $product->images->map(function ($img) {
-            $path = str_replace('image/products/', 'image/', $img->image_path);
             return (object) [
-                'url'        => asset($path),
+                'url'        => asset($img->image_path),
                 'is_main'    => $img->is_main,
                 'sort_order' => $img->sort_order,
             ];
         })->values();
 
-        // Badge dari label
         $labelRaw = strtolower($product->label ?? '');
         $badge = null;
         if (str_contains($labelRaw, 'best seller') || str_contains($labelRaw, 'bestseller')) {
@@ -90,7 +88,7 @@ class ProductController extends Controller
 
     public function home()
     {
-        $products = Product::with(['images', 'category'])
+        $products = Product::with(['images', 'mainImage', 'category'])
             ->where('stock', '>', 0)
             ->orderByDesc('stock')
             ->take(4)
@@ -102,13 +100,11 @@ class ProductController extends Controller
             ->having('products_count', '>', 0)
             ->orderBy('name')
             ->get()
-            ->map(function ($cat) {
-                return (object) [
-                    'slug'  => Str::slug($cat->name),
-                    'name'  => ucfirst($cat->name),
-                    'count' => $cat->products_count,
-                ];
-            });
+            ->map(fn($cat) => (object) [
+                'slug'  => Str::slug($cat->name),
+                'name'  => ucfirst($cat->name),
+                'count' => $cat->products_count,
+            ]);
 
         return view('store.home', compact('recommended', 'categories'));
     }
@@ -117,7 +113,7 @@ class ProductController extends Controller
 
     public function shop(Request $request)
     {
-        $query = Product::with(['images', 'category'])
+        $query = Product::with(['images', 'mainImage', 'category'])
             ->where('stock', '>=', 0);
 
         if ($request->filled('search')) {
@@ -169,7 +165,7 @@ class ProductController extends Controller
         }
 
         $totalProducts = Product::count();
-        $paginated = $query->paginate(9)->withQueryString();
+        $paginated = $query->paginate(12)->withQueryString();
         $items = $paginated->getCollection()->map(fn($p) => $this->normalize($p));
         $paginated->setCollection($items);
         $products = $paginated;
@@ -202,13 +198,14 @@ class ProductController extends Controller
         return view('store.shop', compact('products', 'categories', 'materials', 'rooms', 'totalProducts'));
     }
 
+    // ─── SHOW by slug (sesuai route temen /product/{slug}) ───────────────────
 
     public function show($slug)
     {
         $product = Product::with([
             'images',
-            'category',
             'mainImage',
+            'category',
             'orderDetails',
             'wishlists',
         ])->get()->firstWhere('slug', $slug);
@@ -217,34 +214,26 @@ class ProductController extends Controller
             abort(404);
         }
 
-        // TOTAL SOLD
         $totalSold = $product->orderDetails->sum('quantity');
 
-        // RELATED PRODUCTS
-        $related = Product::with([
-            'images',
-            'category',
-            'mainImage'
-        ])
-        ->where('category_id', $product->category_id)
-        ->where('id', '!=', $product->id)
-        ->where('stock', '>', 0)
-        ->take(4)
-        ->get();
+        $related = Product::with(['images', 'mainImage', 'category'])
+            ->where('category_id', $product->category_id)
+            ->where('id', '!=', $product->id)
+            ->where('stock', '>', 0)
+            ->take(4)
+            ->get();
 
-        return view('store.product_details', compact(
-            'product', 'related', 'totalSold'   
-        ));
+        return view('store.product_details', compact('product', 'related', 'totalSold'));
     }
 
-    // ─── BATCH (wishlist) 
+    // ─── BATCH (wishlist) ─────────────────────────────────────────────────────
 
     public function batchProducts(Request $request)
     {
         $ids = array_filter(array_map('intval', explode(',', $request->input('ids', ''))));
         if (empty($ids)) return response()->json([]);
 
-        $products = Product::with(['images', 'category'])
+        $products = Product::with(['images', 'mainImage', 'category'])
             ->whereIn('id', $ids)
             ->get()
             ->map(fn($p) => [

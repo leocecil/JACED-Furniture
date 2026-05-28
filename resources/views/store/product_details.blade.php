@@ -283,21 +283,37 @@
     }
 
     /* WISHLIST */
-    .wishlist-btn{
+    .wishlist-btn {
         width: 42px;
         height: 42px;
         border-radius: 50%;
         border: 1px solid var(--jaced-input);
         background: var(--jaced-card);
         color: var(--jaced-brown-dark);
-        font-size: 22px;
-        transition: 0.2s ease;
+        font-size: 18px;
+        transition: all 0.25s ease;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
     }
-
-    .wishlist-btn:hover{
+    .wishlist-btn i { transition: all 0.25s ease; }
+    .wishlist-btn:hover {
         background: var(--jaced-brown-dark);
         color: white;
     }
+    .wishlist-btn.active {
+        background: var(--jaced-caramel);
+        color: white;
+        border-color: var(--jaced-caramel);
+    }
+    .wishlist-btn.active:hover {
+        background: rgba(156, 53, 53, 0.12);
+        color: #9c3535;
+        border-color: rgba(156, 53, 53, 0.3);
+    }
+    .wishlist-btn.active .fa-heart::before { content: "\f004"; }
+    .wishlist-btn.active:hover .fa-heart::before { content: "\f7a9"; }
 
     body{
         background: #f9f9f7;
@@ -350,6 +366,18 @@
         }
         .thumbnail-image{ height: 70px; }
     }
+
+    .pd-confirm-backdrop {
+        position: fixed; inset: 0;
+        background: rgba(28,28,26,0.5);
+        backdrop-filter: blur(4px);
+        z-index: 1300;
+        display: flex; align-items: center; justify-content: center;
+        opacity: 0; visibility: hidden;
+        transition: opacity 0.3s ease, visibility 0.3s;
+    }
+    .pd-confirm-backdrop.show { opacity: 1; visibility: visible; }
+    .pd-confirm-backdrop.show #pdConfirmModal { transform: scale(1) translateY(0) !important; }
 </style>
 
 <div class="container-fluid px-5 product-section">
@@ -416,8 +444,10 @@
                     {{ $totalSold }} people bought this
                 </div>
                 {{-- ★ --}}
-                <button class="wishlist-btn">
-                    <i class="fa-regular fa-heart"></i>
+                <button class="wishlist-btn" id="pdWishBtn"
+                        data-id="{{ $product->id }}"
+                        data-name="{{ $product->name }}">
+                    <i class="fas fa-heart"></i>
                 </button>
             </div>
 
@@ -530,6 +560,18 @@
                 <span>{{ session('success') }}</span>
             </div>
         @endif
+    </div>
+</div>
+
+<div class="pd-confirm-backdrop" id="pdConfirmBackdrop">
+    <div style="background:#f9f9f7; border-radius:24px; padding:36px 32px; max-width:360px; width:90%; text-align:center; transform:scale(0.92) translateY(12px); transition:transform 0.35s cubic-bezier(0.22,1,0.36,1); box-shadow:0 24px 60px rgba(0,0,0,0.15);" id="pdConfirmModal">
+        <div style="font-size:28px; color:#9c3535; margin-bottom:14px;"><i class="fas fa-heart-crack"></i></div>
+        <h4 style="font-size:17px; font-weight:700; color:#1a1a18; margin-bottom:6px;">Remove from Wishlist?</h4>
+        <p id="pdConfirmMsg" style="font-size:13px; color:#666; margin-bottom:24px; line-height:1.5;"></p>
+        <div style="display:flex; gap:10px;">
+            <button id="pdConfirmCancel" style="flex:1; background:transparent; border:1px solid #ddd; color:#1a1a18; padding:11px; border-radius:999px; font-size:13px; font-weight:600; cursor:pointer;">Keep it</button>
+            <button id="pdConfirmOk" style="flex:1; background:#9c3535; border:none; color:white; padding:11px; border-radius:999px; font-size:13px; font-weight:600; cursor:pointer;">Remove</button>
+        </div>
     </div>
 </div>
 
@@ -666,6 +708,70 @@
             cartToast.classList.remove('show');
         }, 2500);
     }
+    // ===== WISHLIST =====
+    (function () {
+        const KEY = 'jaced_wishlist';
+        const btn = document.getElementById('pdWishBtn');
+        const id = btn?.getAttribute('data-id');
+        const name = btn?.getAttribute('data-name');
+
+        function getWishlist() {
+            try { return JSON.parse(localStorage.getItem(KEY)) || []; }
+            catch (e) { return []; }
+        }
+        function saveWishlist(list) { localStorage.setItem(KEY, JSON.stringify(list)); }
+        function isWished() { return getWishlist().some(x => String(x.id) === String(id)); }
+
+        function setBtnState(active) {
+            btn.classList.toggle('active', active);
+            const icon = btn.querySelector('i');
+            if (icon) {
+                icon.classList.toggle('far', !active);
+                icon.classList.toggle('fas', active);
+            }
+        }
+
+        // Confirm popup
+        let confirmCb = null;
+        const backdrop = document.getElementById('pdConfirmBackdrop');
+
+        function showConfirm(onConfirm) {
+            document.getElementById('pdConfirmMsg').textContent = `Remove "${name}" from your wishlist?`;
+            backdrop.classList.add('show');
+            confirmCb = onConfirm;
+        }
+
+        document.getElementById('pdConfirmOk').addEventListener('click', () => {
+            backdrop.classList.remove('show');
+            if (confirmCb) { confirmCb(); confirmCb = null; }
+        });
+        document.getElementById('pdConfirmCancel').addEventListener('click', () => {
+            backdrop.classList.remove('show');
+            confirmCb = null;
+        });
+        backdrop.addEventListener('click', e => {
+            if (e.target === backdrop) { backdrop.classList.remove('show'); confirmCb = null; }
+        });
+
+        // Init state
+        if (btn) setBtnState(isWished());
+
+        // Click handler
+        btn?.addEventListener('click', () => {
+            if (isWished()) {
+                showConfirm(() => {
+                    let list = getWishlist().filter(x => String(x.id) !== String(id));
+                    saveWishlist(list);
+                    setBtnState(false);
+                });
+            } else {
+                let list = getWishlist();
+                list.push({ id, name });
+                saveWishlist(list);
+                setBtnState(true);
+            }
+        });
+    })();
 </script>
 
 @endsection
