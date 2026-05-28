@@ -39,6 +39,8 @@ Route::get('/home', [ProductController::class, 'home'])->name('home');
 Route::get('/shop', [ProductController::class, 'shop'])->name('shop');
 Route::get('/about', [AboutController::class, 'index'])->name('about');
 Route::get('/product/{slug}', [ProductController::class, 'show'])->name('product.show');
+Route::get('/api/products/batch', [ProductController::class, 'batchProducts']);
+Route::get('/wishlist', function () { return view('store.wishlist'); })->name('wishlist');
 
 // ── MIDDLEWARE CUSTOMER ROLE ──
 Route::middleware(['role:customer'])->group(function() {
@@ -76,13 +78,12 @@ Route::middleware(['role:customer'])->group(function() {
     Route::patch('/cart/{id}/decrease', [CartController::class, 'decrease'])->name('cart.decrease');
     Route::delete('/cart/{id}', [CartController::class, 'delete'])->name('cart.delete');
 
-    // WISHLIST
+    // WISHLIST (DB-based via WishlistController)
     Route::get('/wishlist/items', [WishlistController::class, 'items']);
-    Route::get('/wishlist', [WishlistController::class, 'index'])->name('wishlist');
     Route::post('/wishlist/toggle', [WishlistController::class, 'toggle'])->name('wishlist.toggle');
     Route::delete('/wishlist/{id}', [WishlistController::class, 'remove'])->name('wishlist.remove');
     Route::delete('/wishlist-clear', [WishlistController::class, 'clear'])->name('wishlist.clear');
-    
+
     // Checkout & Courier Shipping API
     Route::get('/checkout', [OrderController::class, 'showCheckout'])->name('checkout.index');
     Route::post('/checkout', [OrderController::class, 'processCheckout'])->name('checkout.store');
@@ -102,22 +103,22 @@ Route::middleware(['role:customer'])->group(function() {
     // Customer Purchase History
     Route::get('/orderhistory', [OrderHistoryController::class, 'index'])->name('store.orderhistory');
     Route::get('/orderhistory/{id}', [OrderHistoryController::class, 'show'])->name('store.orderhistory_detail.show');
+    Route::get('/orderhistory/{id}/invoice', [OrderHistoryController::class, 'invoice'])->name('store.orderhistory.invoice');
 
     // Order actions - customer
     Route::patch('/orderhistory/{id}/received', [OrderHistoryController::class, 'markReceived'])->name('store.orderhistory.received');
     Route::post('/orderhistory/{id}/complaint', [OrderHistoryController::class, 'submitComplaint'])->name('store.orderhistory.complaint');
     Route::patch('/orderhistory/{id}/cancel', [OrderHistoryController::class, 'cancelOrder'])->name('store.orderhistory.cancel');
 
-    // Order History - Invoice
-    Route::get('/orderhistory/{id}/invoice', [OrderHistoryController::class, 'invoice'])->name('store.orderhistory.invoice');
-    Route::patch('/orderhistory/{id}/received', [OrderHistoryController::class, 'markReceived'])->name('store.orderhistory.received');
+    // Transaction History alias
+    Route::get('/transaction-history', [OrderHistoryController::class, 'index'])->name('store.transactionhistory');
 });
 
-// ADMIN AUTHENTICATION
+// ADMIN LOGIN
 Route::get('/admin/login', [AuthController::class, 'show_login_admin_form'])->name('admin.login.show');
 Route::post('/admin/login_auth', [AuthController::class, 'login_admin_auth'])->name('admin.login.auth');
 Route::post('/admin/logout', [AuthController::class, 'logout_admin'])->name('admin.logout');
-    
+
 // ── MIDDLEWARE ADMIN ROLE ──
 Route::middleware(['role:admin'])->group(function() {
     // Admin Dashboard Summary
@@ -141,7 +142,7 @@ Route::middleware(['role:admin'])->group(function() {
     Route::get('/admin/analytics', [AnalyticsController::class, 'index'])->name('analytics.customers');
     Route::get('/admin/analytics/customers/all', [AnalyticsController::class, 'allCustomers'])->name('analytics.customers.all');
 
-    // Inventory Stock Control (Mendukung SoftDeletes & Restore)
+    // Inventory Stock Control
     Route::get('/admin/inventory', [InventoryController::class, 'index'])->name('inventory.index');
     Route::post('/admin/inventory', [InventoryController::class, 'store'])->name('inventory.store');
     Route::put('/admin/inventory/{inventory}', [InventoryController::class, 'update'])->name('inventory.update');

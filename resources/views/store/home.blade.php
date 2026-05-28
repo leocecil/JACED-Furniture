@@ -178,7 +178,7 @@
                             <div class="bestseller-price-wrap">
                                 <span class="bestseller-price">Rp {{ number_format($product->price, 0, ',', '.') }}</span>
                                 <span class="btn-see-details rounded-pill px-3 py-2">
-                                    See Details <i class="fas fa-arrow-right ms-1" style="font-size: 10px;"></i>
+                                    See details <i class="fas fa-arrow-right ms-1" style="font-size: 10px;"></i>
                                 </span>
                             </div>
                         </a>
@@ -228,64 +228,43 @@
         </div>
     </section>
 
-    {{-- ============== TESTIMONIALS ============== --}}
-    <section class="testimonials-section">
-        <div class="container">
-            <div class="section-header d-flex justify-content-between align-items-end mb-5 flex-wrap gap-3">
-                <div data-reveal="slide-right">
-                    <p class="section-label">/ Testimonials</p>
-                    <h2 class="section-title">What our clients say</h2>
-                </div>
-                <p class="text-jaced-muted mb-0 small" style="max-width: 280px;" data-reveal="slide-left" data-reveal-delay="200">
-                    Our customers feedback reflects the quality and trust we have built together.
+    <section class="feature-promo-section" data-reveal="fade-up">
+        <div class="feature-promo-full"
+            style="background-image:url('https://images.unsplash.com/photo-1618221195710-dd6b41faaea6?q=80&w=2200&auto=format&fit=crop');">
+            
+            {{-- Shadow/Gradasi Gelap di BAGIAN ATAS Feature Promo --}}
+            <div class="feature-promo-top-shadow"></div>
+
+            {{-- Overlay Gelap Keseluruhan agar teks lebih terbaca --}}
+            <div class="feature-promo-overlay"></div>
+
+            {{-- Konten Teks yang posisinya BENAR-BENAR DI TENGAH --}}
+            <div class="feature-promo-content text-center" data-reveal="slide-up" data-reveal-delay="200">
+                <p class="section-label" style="color: var(--jaced-caramel);">
+                    / Refined Living
                 </p>
-            </div>
-            <div class="row g-4">
-                <div class="col-md-4" data-reveal="slide-up" data-reveal-delay="0">
-                    <div class="testimonial-card">
-                        <div class="mb-3 text-warning">★★★★★</div>
-                        <p class="text-jaced-muted mb-4">"Beautiful craftsmanship and surprisingly solid finish."</p>
-                        <div class="d-flex align-items-center">
-                            <img src="https://i.pravatar.cc/60?img=1" class="rounded-circle me-3" width="48" height="48">
-                            <div>
-                                <h6 class="mb-0 fw-semibold">Jonathan Lee</h6>
-                                <small class="text-jaced-muted">Interior Designer</small>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-md-4" data-reveal="slide-up" data-reveal-delay="150">
-                    <div class="testimonial-card">
-                        <div class="mb-3 text-warning">★★★★★</div>
-                        <p class="text-jaced-muted mb-4">"The walnut dining table completely transformed our space."</p>
-                        <div class="d-flex align-items-center">
-                            <img src="https://i.pravatar.cc/60?img=5" class="rounded-circle me-3" width="48" height="48">
-                            <div>
-                                <h6 class="mb-0 fw-semibold">Amelia Hart</h6>
-                                <small class="text-jaced-muted">Architect</small>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-md-4" data-reveal="slide-up" data-reveal-delay="300">
-                    <div class="testimonial-card">
-                        <div class="mb-3 text-warning">★★★★★</div>
-                        <p class="text-jaced-muted mb-4">"Minimal, elegant, and genuinely premium quality."</p>
-                        <div class="d-flex align-items-center">
-                            <img src="https://i.pravatar.cc/60?img=12" class="rounded-circle me-3" width="48" height="48">
-                            <div>
-                                <h6 class="mb-0 fw-semibold">Michael Tan</h6>
-                                <small class="text-jaced-muted">Creative Director</small>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+                <h2 class="feature-promo-title">
+                    Designed For Spaces That Feel Effortless
+                </h2>
+                <p class="feature-promo-desc mx-auto"> {{-- Tambah mx-auto agar deskripsi ikut tengah --}}
+                    Thoughtfully crafted furniture made to bring warmth,
+                    balance, and understated character into everyday living.
+                </p>
+                <a href="{{ route('shop') }}" class="feature-promo-link justify-content-center"> {{-- Tambah justify-center --}}
+                    Explore The Collection
+                    <i class="fas fa-arrow-right ms-2"></i>
+                </a>
             </div>
         </div>
     </section>
 
     {{-- ============== STYLES ============== --}}
     <style>
+       html, body {
+            scroll-behavior: auto !important;
+            overflow-anchor: none;
+        }
+
         body { background-color: var(--jaced-caramel-bg) !important; }
         .container { max-width: 1280px; }
 
@@ -330,20 +309,6 @@
         .room-card:hover {
             transform: translateY(-6px);
             box-shadow: 0 16px 48px rgba(39, 46, 29, 0.14);
-        }
-
-        /* Testimonial cards deeper shadow */
-        .testimonial-card {
-            background: var(--jaced-card);
-            border-radius: 18px;
-            padding: 28px;
-            height: 100%;
-            box-shadow: 0 4px 24px rgba(39, 46, 29, 0.06);
-            transition: transform 0.4s ease, box-shadow 0.4s ease;
-        }
-        .testimonial-card:hover {
-            transform: translateY(-4px);
-            box-shadow: 0 16px 40px rgba(39, 46, 29, 0.12);
         }
 
         /* Section divider subtle shadow buat intro text */
@@ -654,12 +619,220 @@
         .room-card::after { content:''; position:absolute; inset:0; background:linear-gradient(180deg, rgba(0,0,0,0) 50%, rgba(39,46,29,0.5) 100%); }
         .room-label { position:absolute; bottom:24px; left:28px; color:var(--jaced-cream); font-size:22px; font-weight:600; letter-spacing:-0.01em; z-index:2; }
 
-        .testimonials-section { padding: 48px 24px 80px; }
-        .testimonial-card { background:var(--jaced-card); border-radius:18px; padding:28px; height:100%; transition:transform 0.4s ease, box-shadow 0.4s ease; }
-        .testimonial-card:hover { transform:translateY(-4px); box-shadow:0 12px 32px rgba(39,46,29,0.08); }
+        /* ===== HOME RESPONSIVE PATCH ===== */
+
+        @media (max-width:992px){
+
+            .hero-content{
+                padding-left:40px;
+                padding-right:24px;
+                max-width:100%;
+            }
+
+            .hero-title{
+                font-size:clamp(2.5rem,8vw,4.8rem);
+            }
+
+            .hero-desc{
+                font-size:16px;
+                max-width:100%;
+            }
+
+            .bestseller-card{
+                padding:32px 24px;
+            }
+
+            .room-card{
+                height:340px;
+            }
+
+        }
+
+        @media (max-width:768px){
+
+            .hero-carousel-block,
+            .hero-slide{
+                min-height:580px;
+                height:90vh;
+            }
+
+            .hero-content{
+                padding:0 24px;
+            }
+
+            .hero-title{
+                font-size:clamp(2rem,10vw,3.5rem);
+                line-height:1;
+            }
+
+            .hero-subtitle{
+                font-size:10px;
+                letter-spacing:.2em;
+            }
+
+            .hero-desc{
+                font-size:15px;
+            }
+
+            .stats-section{
+                margin:0 12px;
+                border-radius:18px;
+                padding:36px 20px;
+            }
+
+            .intro-text{
+                font-size:15px;
+                line-height:1.8;
+            }
+
+            .category-slide-item{
+                flex:0 0 240px;
+            }
+
+            .section-header{
+                align-items:flex-start !important;
+            }
+
+            .section-title{
+                font-size:1.8rem;
+            }
+
+            .room-card{
+                height:260px;
+            }
+
+            .room-label{
+                left:18px;
+                bottom:18px;
+                font-size:18px;
+            }
+
+        }
+
+        @media (max-width:576px){
+
+            .hero-content .d-flex{
+                flex-direction:column;
+                align-items:stretch;
+                width:100%;
+            }
+
+            .hero-content .btn{
+                width:100%;
+                justify-content:center;
+            }
+
+            .carousel-control-prev,
+            .carousel-control-next{
+                display:none;
+            }
+
+            .category-slide-item{
+                flex:0 0 200px;
+            }
+
+            .bestseller-card{
+                padding:24px 18px;
+            }
+
+            .rooms-section,
+            .bestseller-section,
+            .categories-section{
+                padding-left:16px;
+                padding-right:16px;
+            }
+
+        }
+        /* ===== FEATURE PROMO UPDATES (SHADOW ATAS & TEKS TENGAH) ===== */
+        .feature-promo-section {
+            padding: 0;
+            margin-top: 100px; /* Jarak dari section atas */
+            margin-bottom: 0;   /* Mepet footer */
+            overflow: hidden;
+            position: relative; /* Penting untuk posisi shadow */
+        }
+
+        .feature-promo-full {
+            width: 100%;
+            height: 60vh; /* Resolusi bingkai diperkecil sesuai permintaan sebelumnya */
+            min-height: 450px;
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+            position: relative;
+            display: flex;
+            align-items: center;    /* Pusatkan vertikal */
+            justify-content: center; /* Pusatkan horizontal */
+        }
+
+        /* Shadow/Gradasi Gelap di Bagian ATAS Section Promo */
+        .feature-promo-top-shadow {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 30%; /* Ketinggian gradasi gelap dari atas */
+            /* Menggradasi dari warna gelap (menyesuaikan section atas) ke transparan */
+            background: linear-gradient(to bottom, rgba(39, 46, 29, 0.9) 0%, rgba(39, 46, 29, 0) 100%);
+            z-index: 1; /* Di bawah teks, di atas gambar */
+        }
+
+        .feature-promo-overlay {
+            position: absolute;
+            inset: 0;
+            /* Overlay keseluruhan gelap agar teks putih kontras */
+            background: rgba(0, 0, 0, 0.3); 
+            z-index: 1;
+        }
+
+        .feature-promo-content {
+            position: relative;
+            z-index: 2; /* Di atas shadow dan overlay */
+            color: var(--jaced-cream);
+            padding: 0 20px; /* Padding sisi */
+            max-width: 800px; /* Batas lebar teks agar tidak terlalu melebar */
+        }
+
+        .feature-promo-title {
+            font-size: clamp(2.2rem, 5vw, 3.8rem); /* Ukuran lebih besar agar dominan di tengah */
+            font-weight: 600;
+            line-height: 1.1;
+            margin-bottom: 20px;
+            letter-spacing: -0.02em;
+        }
+
+        .feature-promo-desc {
+            font-size: 18px; /* Sedikit lebih besar untuk keterbacaan */
+            opacity: 0.9;
+            margin-bottom: 30px;
+            max-width: 550px; /* Batasi lebar deskripsi agar rata tengah enak dilihat */
+        }
+
+        .feature-promo-link {
+            color: var(--jaced-caramel);
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 15px;
+            letter-spacing: 0.05em;
+            text-transform: uppercase;
+            display: inline-flex;
+            align-items: center;
+            transition: all 0.3s ease;
+        }
+
+        .feature-promo-link:hover {
+            color: var(--jaced-white);
+            transform: translateY(-3px); /* Hover effect ke atas */
+        }
     </style>
 
     <script>
+        if (history.scrollRestoration) {
+            history.scrollRestoration = 'manual';
+        }
+        window.scrollTo(0, 0);
+        document.documentElement.scrollTop = 0;
+        document.body.scrollTop = 0;
         // Hero entry animation
         window.addEventListener('load', () => {
             const firstSlide = document.querySelector('.carousel-item.active');

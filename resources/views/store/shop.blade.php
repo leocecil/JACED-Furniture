@@ -19,63 +19,192 @@
     {{-- ============== MAIN SHOP AREA ============== --}}
     <section class="shop-main">
         <div class="container">
-
             <form action="{{ route('shop') }}" method="GET" id="filter-form">
 
-                <div class="shop-toolbar">
-                    <button type="button" class="shop-filter-toggle" id="filterToggle">
-                        <i class="fas fa-sliders-h"></i> Filters
-                    </button>
-                    <div class="shop-search-wrap">
-                        <i class="fas fa-search shop-search-icon"></i>
-                        <input type="text" id="shopSearchInput" name="search" class="shop-search-input"
-                               placeholder="Search nora chair, oka table, walnut..."
-                               value="{{ request('search') }}">
-                        @if(request('search'))
-                            <button type="button" class="shop-search-clear" onclick="this.previousElementSibling.value=''; document.getElementById('filter-form').submit();">
-                                <i class="fas fa-times"></i>
-                            </button>
-                        @endif
-                    </div>
-
-                    <div class="shop-sort-wrap">
-                        @php
-                            $sortLabels = [
-                                '' => 'Recommended',
-                                'newest' => 'Newest first',
-                                'price_asc' => 'Price: Low to High',
-                                'price_desc' => 'Price: High to Low',
-                                'bestseller' => 'Best sellers',
-                            ];
-                            $currentSort = request('sort', '');
-                            $currentSortLabel = $sortLabels[$currentSort] ?? 'Recommended';
-                        @endphp
-                        <input type="hidden" name="sort" id="sort-input" value="{{ $currentSort }}">
-                        <button type="button" class="shop-sort-trigger" id="sortTrigger">
-                            <span class="shop-sort-trigger-label">Sort</span>
-                            <span class="shop-sort-trigger-value">{{ $currentSortLabel }}</span>
-                            <i class="fas fa-chevron-down shop-sort-chevron"></i>
+                {{-- ===== ROW 1: SEARCH (full width) ===== --}}
+                <div class="shop-search-wrap">
+                    <i class="fas fa-search shop-search-icon"></i>
+                    <input type="text" id="shopSearchInput" name="search"
+                           class="shop-search-input"
+                           placeholder="Search nora chair, oka table, walnut..."
+                           value="{{ request('search') }}">
+                    @if(request('search'))
+                        <button type="button" class="shop-search-clear"
+                                onclick="this.previousElementSibling.value=''; document.getElementById('filter-form').submit();">
+                            <i class="fas fa-times"></i>
                         </button>
-                        <div class="shop-sort-menu" id="sortMenu">
+                    @endif
+                </div>
+
+                {{-- ===== ROW 2: FILTER DROPDOWNS ===== --}}
+                <div class="shop-filters-row">
+
+                    {{-- SORT --}}
+                    @php
+                        $sortLabels = [
+                            ''           => 'Recommended',
+                            'newest'     => 'New Arrivals',
+                            'price_asc'  => 'Price: Low to High',
+                            'price_desc' => 'Price: High to Low',
+                            'bestseller' => 'Best Sellers',
+                        ];
+                        $currentSort = request('sort', '');
+                        $currentSortLabel = $sortLabels[$currentSort] ?? 'Recommended';
+                    @endphp
+                    <input type="hidden" name="sort" id="sort-input" value="{{ $currentSort }}">
+                    <div class="shop-filter-pill-wrap" id="sortWrap">
+                        <button type="button" class="shop-filter-pill {{ $currentSort ? 'active-pill' : '' }}" id="sortTrigger">
+                            <span class="pill-label">Sort</span>
+                            <span class="pill-value">{{ $currentSortLabel }}</span>
+                            <i class="fas fa-chevron-down pill-chevron"></i>
+                        </button>
+                        <div class="shop-filter-dropdown" id="sortMenu">
                             @foreach($sortLabels as $val => $label)
-                                <button type="button"
-                                        class="shop-sort-option {{ $currentSort === $val ? 'active' : '' }}"
-                                        data-value="{{ $val }}">
+                                <button type="button" class="shop-dd-option {{ $currentSort === $val ? 'active' : '' }}" data-value="{{ $val }}">
                                     {{ $label }}
                                     @if($currentSort === $val)<i class="fas fa-check"></i>@endif
                                 </button>
                             @endforeach
                         </div>
                     </div>
+
+                    {{-- CATEGORY --}}
+                    @php $activeCats = (array) request('category', []); @endphp
+                    <div class="shop-filter-pill-wrap" id="catWrap">
+                        <button type="button" class="shop-filter-pill {{ count($activeCats) ? 'active-pill' : '' }}" id="catTrigger">
+                            <span class="pill-label">Category</span>
+                            <span class="pill-value">{{ count($activeCats) ? implode(', ', array_map('ucfirst', $activeCats)) : 'All' }}</span>
+                            <i class="fas fa-chevron-down pill-chevron"></i>
+                        </button>
+                        <div class="shop-filter-dropdown" id="catMenu">
+                            <button type="button" class="shop-dd-option {{ !count($activeCats) ? 'active' : '' }}"
+                                    onclick="setFilter('category', [])">
+                                All @if(!count($activeCats))<i class="fas fa-check"></i>@endif
+                            </button>
+                            @foreach($categories as $cat)
+                                <button type="button"
+                                        class="shop-dd-option {{ in_array($cat->slug, $activeCats) ? 'active' : '' }}"
+                                        onclick="setFilter('category', ['{{ $cat->slug }}'])">
+                                    {{ $cat->name }}
+                                    @if(in_array($cat->slug, $activeCats))<i class="fas fa-check"></i>@endif
+                                </button>
+                            @endforeach
+                        </div>
+                    </div>
+
+                    {{-- MATERIAL --}}
+                    @php $activeMats = (array) request('material', []); @endphp
+                    <div class="shop-filter-pill-wrap" id="matWrap">
+                        <button type="button" class="shop-filter-pill {{ count($activeMats) ? 'active-pill' : '' }}" id="matTrigger">
+                            <span class="pill-label">Material</span>
+                            <span class="pill-value">{{ count($activeMats) ? implode(', ', array_map('ucfirst', $activeMats)) : 'All' }}</span>
+                            <i class="fas fa-chevron-down pill-chevron"></i>
+                        </button>
+                        <div class="shop-filter-dropdown" id="matMenu">
+                            <button type="button" class="shop-dd-option {{ !count($activeMats) ? 'active' : '' }}"
+                                    onclick="setFilter('material', [])">
+                                All @if(!count($activeMats))<i class="fas fa-check"></i>@endif
+                            </button>
+                            @foreach($materials as $mat)
+                                <button type="button"
+                                        class="shop-dd-option {{ in_array($mat->slug, $activeMats) ? 'active' : '' }}"
+                                        onclick="setFilter('material', ['{{ $mat->slug }}'])">
+                                    {{ $mat->name }}
+                                    @if(in_array($mat->slug, $activeMats))<i class="fas fa-check"></i>@endif
+                                </button>
+                            @endforeach
+                        </div>
+                    </div>
+
+                    {{-- SIZE --}}
+                    @php
+                        $sizeOptions = [
+                            ['slug' => 'small',  'name' => 'Small',  'note' => 'Compact pieces'],
+                            ['slug' => 'medium', 'name' => 'Medium', 'note' => 'Standard size'],
+                            ['slug' => 'large',  'name' => 'Large',  'note' => 'Statement pieces'],
+                        ];
+                        $activeSizes = (array) request('size', []);
+                    @endphp
+                    <div class="shop-filter-pill-wrap" id="sizeWrap">
+                        <button type="button" class="shop-filter-pill {{ count($activeSizes) ? 'active-pill' : '' }}" id="sizeTrigger">
+                            <span class="pill-label">Size</span>
+                            <span class="pill-value">{{ count($activeSizes) ? implode(', ', array_map('ucfirst', $activeSizes)) : 'All' }}</span>
+                            <i class="fas fa-chevron-down pill-chevron"></i>
+                        </button>
+                        <div class="shop-filter-dropdown" id="sizeMenu">
+                            <button type="button" class="shop-dd-option {{ !count($activeSizes) ? 'active' : '' }}"
+                                    onclick="setFilter('size', [])">
+                                All @if(!count($activeSizes))<i class="fas fa-check"></i>@endif
+                            </button>
+                            @foreach($sizeOptions as $sz)
+                                <button type="button"
+                                        class="shop-dd-option {{ in_array($sz['slug'], $activeSizes) ? 'active' : '' }}"
+                                        onclick="setFilter('size', ['{{ $sz['slug'] }}'])">
+                                    {{ $sz['name'] }}
+                                    @if(in_array($sz['slug'], $activeSizes))<i class="fas fa-check"></i>@endif
+                                </button>
+                            @endforeach
+                        </div>
+                    </div>
+
+                    {{-- PRICE --}}
+                    @php $hasPriceFilter = request('min_price') || request('max_price'); @endphp
+                    <div class="shop-filter-pill-wrap" id="priceWrap">
+                        <button type="button" class="shop-filter-pill {{ $hasPriceFilter ? 'active-pill' : '' }}" id="priceTrigger">
+                            <span class="pill-label">Price</span>
+                            <span class="pill-value">
+                                {{ $hasPriceFilter
+                                    ? 'Rp ' . (request('min_price') ? number_format(request('min_price'),0,',','.') : '0')
+                                      . ' – '
+                                      . (request('max_price') ? number_format(request('max_price'),0,',','.') : '∞')
+                                    : 'Any' }}
+                            </span>
+                            <i class="fas fa-chevron-down pill-chevron"></i>
+                        </button>
+                        <div class="shop-filter-dropdown price-dropdown" id="priceMenu">
+                            <button type="button" class="shop-dd-option {{ !request('min_price') && !request('max_price') ? 'active' : '' }}"
+                                    onclick="setPriceFilter('', '')">
+                                Any @if(!request('min_price') && !request('max_price'))<i class="fas fa-check"></i>@endif
+                            </button>
+                            <button type="button" class="shop-dd-option {{ request('max_price') == 1000000 && !request('min_price') ? 'active' : '' }}"
+                                    onclick="setPriceFilter(0, 1000000)">
+                                Under Rp 1.000.000 @if(request('max_price') == 1000000 && !request('min_price'))<i class="fas fa-check"></i>@endif
+                            </button>
+                            <button type="button" class="shop-dd-option {{ request('min_price') == 1000000 && request('max_price') == 5000000 ? 'active' : '' }}"
+                                    onclick="setPriceFilter(1000000, 5000000)">
+                                Rp 1.000.000 – 5.000.000 @if(request('min_price') == 1000000 && request('max_price') == 5000000)<i class="fas fa-check"></i>@endif
+                            </button>
+                            <button type="button" class="shop-dd-option {{ request('min_price') == 5000000 && request('max_price') == 15000000 ? 'active' : '' }}"
+                                    onclick="setPriceFilter(5000000, 15000000)">
+                                Rp 5.000.000 – 15.000.000 @if(request('min_price') == 5000000 && request('max_price') == 15000000)<i class="fas fa-check"></i>@endif
+                            </button>
+                            <button type="button" class="shop-dd-option {{ request('min_price') == 15000000 && request('max_price') == 30000000 ? 'active' : '' }}"
+                                    onclick="setPriceFilter(15000000, 30000000)">
+                                Rp 15.000.000 – 30.000.000 @if(request('min_price') == 15000000 && request('max_price') == 30000000)<i class="fas fa-check"></i>@endif
+                            </button>
+                            <button type="button" class="shop-dd-option {{ request('min_price') == 30000000 && !request('max_price') ? 'active' : '' }}"
+                                    onclick="setPriceFilter(30000000, '')">
+                                Above Rp 30.000.000 @if(request('min_price') == 30000000 && !request('max_price'))<i class="fas fa-check"></i>@endif
+                            </button>
+                        </div>
+                    </div>
+
+                    {{-- CLEAR ALL --}}
+                    @if(request('search') || request('category') || request('material') || request('size') || request('min_price') || request('max_price') || request('sort'))
+                        <a href="{{ route('shop') }}" class="shop-clear-btn">
+                            <i class="fas fa-times me-1"></i> Clear all
+                        </a>
+                    @endif
+
                 </div>
 
+                {{-- ===== ACTIVE FILTER CHIPS ===== --}}
                 @php
                     $hasActiveFilters = request('search') || request('category') || request('material') || request('room') || request('size') || request('min_price') || request('max_price') || request('sort');
                 @endphp
-
                 @if($hasActiveFilters)
                     <div class="shop-active-filters">
-                        <span class="shop-active-label">Active filters:</span>
+                        <span class="shop-active-label">Active:</span>
                         @if(request('search'))
                             <span class="shop-chip">Search: "{{ request('search') }}"
                                 <a href="{{ route('shop', array_merge(request()->except(['search', 'page']))) }}"><i class="fas fa-times"></i></a>
@@ -89,16 +218,6 @@
                                 </span>
                             @endif
                         @endforeach
-                        @if(isset($rooms))
-                            @foreach((array) request('room', []) as $roomSlug)
-                                @php $roomItem = $rooms->firstWhere('slug', $roomSlug); @endphp
-                                @if($roomItem)
-                                    <span class="shop-chip">{{ $roomItem->name }}
-                                        <a href="{{ route('shop', array_merge(request()->except('page'), ['room' => array_values(array_diff((array) request('room', []), [$roomSlug]))])) }}"><i class="fas fa-times"></i></a>
-                                    </span>
-                                @endif
-                            @endforeach
-                        @endif
                         @foreach((array) request('material', []) as $matSlug)
                             @php $matItem = $materials->firstWhere('slug', $matSlug); @endphp
                             @if($matItem)
@@ -114,188 +233,105 @@
                         @endforeach
                         @if(request('min_price') || request('max_price'))
                             <span class="shop-chip">
-                                Rp {{ request('min_price') ? number_format(request('min_price'), 0, ',', '.') : '0' }} – {{ request('max_price') ? number_format(request('max_price'), 0, ',', '.') : '∞' }}
-                                <a href="{{ route('shop', array_merge(request()->except(['min_price', 'max_price', 'page']))) }}"><i class="fas fa-times"></i></a>
+                                Rp {{ request('min_price') ? number_format(request('min_price'),0,',','.') : '0' }} – {{ request('max_price') ? number_format(request('max_price'),0,',','.') : '∞' }}
+                                <a href="{{ route('shop', array_merge(request()->except(['min_price','max_price','page']))) }}"><i class="fas fa-times"></i></a>
                             </span>
                         @endif
-                        <a href="{{ route('shop') }}" class="shop-clear-all">Clear all</a>
                     </div>
                 @endif
 
-                <div class="row g-4 mt-1">
+                {{-- ===== RESULT BAR ===== --}}
+                <div class="shop-result-bar">
+                    <small class="shop-result-count">
+                        Showing {{ $products->firstItem() ?? 0 }}–{{ $products->lastItem() ?? 0 }}
+                        of {{ $products->total() }} products
+                    </small>
+                </div>
 
-                    {{-- SIDEBAR --}}
-                    <div class="col-lg-3">
-                        <div class="shop-sidebar-overlay" id="sidebarOverlay"></div>
-                        <aside class="shop-sidebar" id="shopSidebar">
-                            <div class="shop-sidebar-head">
-                                <span class="shop-sidebar-title">Filters</span>
-                                <button type="button" class="shop-sidebar-close" id="sidebarClose"><i class="fas fa-times"></i></button>
-                            </div>
-                            <div class="shop-filter-group">
-                                <h6 class="shop-filter-title">Category</h6>
-                                @foreach($categories as $cat)
-                                    <label class="shop-filter-row" for="cat-{{ $cat->slug }}">
-                                        <input type="checkbox" id="cat-{{ $cat->slug }}" name="category[]" value="{{ $cat->slug }}"
-                                               {{ in_array($cat->slug, (array) request('category', [])) ? 'checked' : '' }}>
-                                        <span class="shop-filter-name">{{ $cat->name }}</span>
-                                        <span class="shop-filter-count">{{ $cat->products_count }}</span>
-                                    </label>
-                                @endforeach
-                            </div>
-                            @if(isset($rooms) && $rooms->count() > 0)
-                            <div class="shop-filter-group">
-                                <h6 class="shop-filter-title">Room</h6>
-                                @foreach($rooms as $room)
-                                    <label class="shop-filter-row" for="room-{{ $room->slug }}">
-                                        <input type="checkbox" id="room-{{ $room->slug }}" name="room[]" value="{{ $room->slug }}"
-                                               {{ in_array($room->slug, (array) request('room', [])) ? 'checked' : '' }}>
-                                        <span class="shop-filter-name">{{ $room->name }}</span>
-                                        <span class="shop-filter-count">{{ $room->products_count }}</span>
-                                    </label>
-                                @endforeach
-                            </div>
-                            @endif
-                            <div class="shop-filter-group">
-                                <h6 class="shop-filter-title">Material</h6>
-                                @foreach($materials as $mat)
-                                    <label class="shop-filter-row" for="mat-{{ $mat->slug }}">
-                                        <input type="checkbox" id="mat-{{ $mat->slug }}" name="material[]" value="{{ $mat->slug }}"
-                                               {{ in_array($mat->slug, (array) request('material', [])) ? 'checked' : '' }}>
-                                        <span class="shop-filter-name">{{ $mat->name }}</span>
-                                        <span class="shop-filter-count">{{ $mat->products_count }}</span>
-                                    </label>
-                                @endforeach
-                            </div>
-                            <div class="shop-filter-group">
-                                <h6 class="shop-filter-title">Size</h6>
-                                @php
-                                    $sizeOptions = [
-                                        ['slug' => 'small', 'name' => 'Small', 'note' => 'Compact pieces'],
-                                        ['slug' => 'medium', 'name' => 'Medium', 'note' => 'Standard size'],
-                                        ['slug' => 'large', 'name' => 'Large', 'note' => 'Statement pieces'],
-                                    ];
-                                    $activeSizes = (array) request('size', []);
-                                @endphp
-                                @foreach($sizeOptions as $sz)
-                                    <label class="shop-filter-row" for="size-{{ $sz['slug'] }}">
-                                        <input type="checkbox" id="size-{{ $sz['slug'] }}" name="size[]" value="{{ $sz['slug'] }}"
-                                               {{ in_array($sz['slug'], $activeSizes) ? 'checked' : '' }}>
-                                        <span class="shop-filter-name">{{ $sz['name'] }}</span>
-                                        <span class="shop-filter-count">{{ $sz['note'] }}</span>
-                                    </label>
-                                @endforeach
-                            </div>
-                            <div class="shop-filter-group">
-                                <h6 class="shop-filter-title">Price (IDR)</h6>
-                                <div class="shop-price-row">
-                                    <input type="number" name="min_price" class="shop-price-input" placeholder="Min" value="{{ request('min_price') }}">
-                                    <span class="shop-price-sep">–</span>
-                                    <input type="number" name="max_price" class="shop-price-input" placeholder="Max" value="{{ request('max_price') }}">
+                {{-- ===== PRODUCT GRID (4 col) ===== --}}
+                <div class="row g-4">
+                    @forelse($products as $product)
+                        @php
+                            $soldOut  = ($product->stock ?? 1) <= 0;
+                            $lowStock = !$soldOut && ($product->stock ?? 99) <= 3;
+                        @endphp
+                        <div class="col-6 col-md-4 col-lg-3">
+                            <a href="{{ route('product.show', $product->slug) }}"
+                               class="shop-product-card {{ $soldOut ? 'is-sold-out' : '' }}"
+                               data-product-id="{{ $product->id }}"
+                               data-product-name="{{ $product->name }}"
+                               data-product-cat="{{ $product->category->name }}"
+                               data-product-price="{{ number_format($product->price, 0, ',', '.') }}"
+                               data-product-oldprice="{{ $product->old_price ? number_format($product->old_price, 0, ',', '.') : '' }}"
+                               data-product-img="{{ $product->main_image }}"
+                               data-product-dim="{{ $product->length }}×{{ $product->width }}×{{ $product->height }} {{ $product->unit }}"
+                               data-product-material="{{ $product->material->name ?? '' }}"
+                               data-product-room="{{ $product->room->name ?? '' }}"
+                               data-product-url="{{ route('product.show', $product->slug) }}"
+                               data-product-soldout="{{ $soldOut ? '1' : '0' }}">
+                                <div class="shop-product-img-wrap">
+                                    @if($soldOut)
+                                        <span class="shop-product-badge badge-soldout">Sold Out</span>
+                                    @elseif($lowStock)
+                                        <span class="shop-product-badge badge-lowstock">Only {{ $product->stock }} left</span>
+                                    @elseif($product->badge)
+                                        <span class="shop-product-badge {{ $product->badge === 'preorder' ? 'badge-dark' : 'badge-caramel' }}">
+                                            {{ ucfirst($product->badge) }}
+                                        </span>
+                                    @endif
+
+                                    <div class="shop-product-actions">
+                                        <button type="button" class="shop-action-btn js-wishlist-btn"
+                                                data-wish-id="{{ $product->id }}"
+                                                data-wish-name="{{ $product->name }}"
+                                                title="Add to wishlist">
+                                            <i class="far fa-heart"></i>
+                                        </button>
+                                        <button type="button" class="shop-action-btn js-quickview-btn" title="Quick view">
+                                            <i class="fas fa-eye"></i>
+                                        </button>
+                                    </div>
+
+                                    <img src="{{ $product->main_image }}" alt="{{ $product->name }}" class="shop-product-img">
+
+                                    @if($soldOut)
+                                        <div class="shop-soldout-overlay">
+                                            <span class="shop-soldout-text">Currently Unavailable</span>
+                                        </div>
+                                    @endif
                                 </div>
-                            </div>
-                            <button type="submit" class="shop-apply-btn shop-main-apply">Apply Filters</button>
-                            <a href="{{ route('shop') }}" class="shop-reset-btn">Reset all filters</a>
-                        </aside>
-                    </div>
-
-                    {{-- PRODUCT GRID --}}
-                    <div class="col-lg-9">
-                        <div class="shop-result-bar">
-                            <small class="shop-result-count">
-                                Showing {{ $products->firstItem() ?? 0 }}–{{ $products->lastItem() ?? 0 }}
-                                of {{ $products->total() }} products
-                            </small>
-                        </div>
-
-                        <div class="row g-4">
-                            @forelse($products as $product)
-                                @php
-                                    $soldOut = ($product->stock ?? 1) <= 0;
-                                    $lowStock = !$soldOut && ($product->stock ?? 99) <= 3;
-                                @endphp
-                                <div class="col-md-6 col-xl-4">
-                                    <a href="{{ route('product.show', $product->slug) }}"
-                                       class="shop-product-card {{ $soldOut ? 'is-sold-out' : '' }}"
-                                       data-product-id="{{ $product->id }}"
-                                       data-product-name="{{ $product->name }}"
-                                       data-product-cat="{{ $product->category->name }}"
-                                       data-product-price="{{ number_format($product->price, 0, ',', '.') }}"
-                                       data-product-oldprice="{{ $product->old_price ? number_format($product->old_price, 0, ',', '.') : '' }}"
-                                       data-product-img="{{ $product->main_image }}"
-                                       data-product-dim="{{ $product->length }}×{{ $product->width }}×{{ $product->height }} {{ $product->unit }}"
-                                       data-product-material="{{ $product->material->name ?? '' }}"
-                                       data-product-room="{{ $product->room->name ?? '' }}"
-                                       data-product-url="{{ route('product.show', $product->slug) }}"
-                                       data-product-soldout="{{ $soldOut ? '1' : '0' }}">
-                                        <div class="shop-product-img-wrap">
-                                            @if($soldOut)
-                                                <span class="shop-product-badge badge-soldout">Sold Out</span>
-                                            @elseif($lowStock)
-                                                <span class="shop-product-badge badge-lowstock">Only {{ $product->stock }} left</span>
-                                            @elseif($product->badge)
-                                                <span class="shop-product-badge {{ $product->badge === 'preorder' ? 'badge-dark' : 'badge-caramel' }}">
-                                                    {{ ucfirst($product->badge) }}
-                                                </span>
-                                            @endif
-
-                                            <div class="shop-product-actions">
-                                                <button type="button" class="shop-action-btn js-wishlist-btn"
-                                                        data-wish-id="{{ $product->id }}"
-                                                        data-wish-name="{{ $product->name }}"
-                                                        title="Add to wishlist">
-                                                    <i class="far fa-heart"></i>
-                                                </button>
-                                                <button type="button" class="shop-action-btn js-quickview-btn" title="Quick view">
-                                                    <i class="fas fa-eye"></i>
-                                                </button>
-                                            </div>
-
-                                            <img src="{{ $product->main_image }}" alt="{{ $product->name }}" class="shop-product-img">
-
-                                            @if($soldOut)
-                                                <div class="shop-soldout-overlay">
-                                                    <span class="shop-soldout-text">Currently Unavailable</span>
-                                                </div>
+                                <div class="shop-product-info">
+                                    <small class="shop-product-cat">{{ $product->category->name }}</small>
+                                    <h5 class="shop-product-name">{{ $product->name }}</h5>
+                                    <div class="shop-product-bottom">
+                                        <div class="shop-product-price-wrap">
+                                            <span class="shop-product-price">Rp {{ number_format($product->price, 0, ',', '.') }}</span>
+                                            @if($product->old_price)
+                                                <small class="shop-product-oldprice">Rp {{ number_format($product->old_price, 0, ',', '.') }}</small>
                                             @endif
                                         </div>
-
-                                        <div class="shop-product-info">
-                                            <small class="shop-product-cat">{{ $product->category->name }}</small>
-                                            <h5 class="shop-product-name">{{ $product->name }}</h5>
-                                            <div class="shop-product-bottom">
-                                                <div class="shop-product-price-wrap">
-                                                    <span class="shop-product-price">Rp {{ number_format($product->price, 0, ',', '.') }}</span>
-                                                    @if($product->old_price)
-                                                        <small class="shop-product-oldprice">Rp {{ number_format($product->old_price, 0, ',', '.') }}</small>
-                                                    @endif
-                                                </div>
-                                                <span class="shop-product-sold">
-                                                    {{ $product->total_sold ?? 0 }} items sold
-                                                </span>                                            
-                                            </div>
-                                        </div>
-                                    </a>
-                                </div>
-                            @empty
-                                <div class="col-12">
-                                    <div class="shop-empty">
-                                        <i class="fas fa-search shop-empty-icon"></i>
-                                        <h4 class="shop-empty-title">No products match your filters</h4>
-                                        <p class="shop-empty-desc">Try adjusting your search or clearing some filters.</p>
-                                        <a href="{{ route('shop') }}" class="shop-empty-btn">Reset filters</a>
+                                        <span class="shop-product-dim">{{ $product->length }}×{{ $product->width }} {{ $product->unit }}</span>
                                     </div>
                                 </div>
-                            @endforelse
+                            </a>
                         </div>
-
-                        @if($products->total() > 0)
-                            <div class="shop-pagination">
-                                {{ $products->onEachSide(1)->links('vendor.pagination.bootstrap-5') }}
+                    @empty
+                        <div class="col-12">
+                            <div class="shop-empty">
+                                <i class="fas fa-search shop-empty-icon"></i>
+                                <h4 class="shop-empty-title">No products match your filters</h4>
+                                <p class="shop-empty-desc">Try adjusting your search or clearing some filters.</p>
+                                <a href="{{ route('shop') }}" class="shop-empty-btn">Reset filters</a>
                             </div>
-                        @endif
-                    </div>
+                        </div>
+                    @endforelse
                 </div>
+
+                @if($products->total() > 0)
+                    <div class="shop-pagination">
+                        {{ $products->onEachSide(1)->links('vendor.pagination.bootstrap-5') }}
+                    </div>
+                @endif
 
             </form>
         </div>
@@ -333,7 +369,7 @@
                     </div>
                     <p class="qv-desc">Crafted by hand in our Surabaya workshop. Solid wood, built for daily life and made to last decades.</p>
                     <div class="qv-actions">
-                        <a href="#" class="qv-view-btn" id="qvViewBtn">View full details <i class="fas fa-arrow-right ms-2"></i></a>
+                        <a href="#" class="qv-view-btn" id="qvViewBtn">See details <i class="fas fa-arrow-right ms-2"></i></a>
                         <button type="button" class="qv-wish-btn" id="qvWishBtn"><i class="far fa-heart"></i></button>
                     </div>
                 </div>
@@ -341,10 +377,8 @@
         </div>
     </div>
 
-    {{-- WISHLIST TOAST --}}
     <div class="wish-toast" id="wishToast"><i class="fas fa-check-circle"></i> <span id="wishToastText"></span></div>
 
-    {{-- WISHLIST CONFIRM POPUP --}}
     <div class="shop-confirm-backdrop" id="shopConfirmBackdrop">
         <div class="shop-confirm-modal">
             <div class="shop-confirm-icon"><i class="fas fa-heart-crack"></i></div>
@@ -357,147 +391,108 @@
         </div>
     </div>
 
-    {{-- STYLES --}}
     <style>
         body { background-color: var(--jaced-caramel-bg) !important; }
 
+        /* ===== HERO ===== */
         .shop-hero {
             position: relative; padding: 180px 24px 80px;
             background-image: url('https://images.unsplash.com/photo-1556228720-195a672e8a03?q=80&w=1600&auto=format&fit=crop');
             background-size: cover; background-position: center; overflow: hidden;
         }
-        .shop-hero-overlay {
-            position: absolute; inset: 0;
-            background: linear-gradient(180deg, rgba(39,46,29,0.7) 0%, rgba(39,46,29,0.55) 100%);
-            z-index: 1;
-        }
+        .shop-hero-overlay { position: absolute; inset: 0; background: linear-gradient(180deg, rgba(39,46,29,0.7) 0%, rgba(39,46,29,0.55) 100%); z-index: 1; }
         .shop-hero-content { position: relative; z-index: 2; color: var(--jaced-cream); }
-        .shop-hero-label {
-            font-size: 12px; letter-spacing: 0.3em; color: var(--jaced-caramel);
-            text-transform: uppercase; margin-bottom: 16px;
-            opacity: 0; transform: translateY(20px);
-            animation: shopFadeUp 0.8s ease forwards 0.2s;
-        }
-        .shop-hero-title {
-            font-size: clamp(2.5rem, 5vw, 4.5rem); font-weight: 600;
-            letter-spacing: -0.04em; line-height: 1; margin: 0 0 16px;
-            opacity: 0; transform: translateY(20px);
-            animation: shopFadeUp 0.8s ease forwards 0.35s;
-        }
-        .shop-hero-subtitle {
-            font-size: 16px; opacity: 0; transform: translateY(20px);
-            animation: shopFadeUp 0.8s ease forwards 0.5s; margin: 0;
-        }
+        .shop-hero-label { font-size: 12px; letter-spacing: 0.3em; color: var(--jaced-caramel); text-transform: uppercase; margin-bottom: 16px; opacity: 0; transform: translateY(20px); animation: shopFadeUp 0.8s ease forwards 0.2s; }
+        .shop-hero-title { font-size: clamp(2.5rem, 5vw, 4.5rem); font-weight: 600; letter-spacing: -0.04em; line-height: 1; margin: 0 0 16px; opacity: 0; transform: translateY(20px); animation: shopFadeUp 0.8s ease forwards 0.35s; }
+        .shop-hero-subtitle { font-size: 16px; opacity: 0; transform: translateY(20px); animation: shopFadeUp 0.8s ease forwards 0.5s; margin: 0; }
         .shop-hero-count { color: var(--jaced-caramel); font-weight: 600; }
         @keyframes shopFadeUp { to { opacity: 1; transform: translateY(0); } }
 
-        .shop-main { padding: 48px 24px 80px; }
+        /* ===== MAIN ===== */
+        .shop-main { padding: 40px 24px 80px; }
         .shop-main .container { max-width: 1320px; }
 
-        .shop-toolbar { display: flex; gap: 16px; margin-bottom: 16px; flex-wrap: wrap; }
+        /* ===== SEARCH (full width) ===== */
         .shop-search-wrap {
-            flex: 1; min-width: 240px; position: relative;
-            background: var(--jaced-card); border-radius: 999px;
-            border: 1px solid var(--jaced-input); transition: border 0.3s ease;
+            position: relative; background: var(--jaced-card);
+            border-radius: 999px; border: 1px solid var(--jaced-input);
+            transition: border 0.3s ease; margin-bottom: 14px;
         }
         .shop-search-wrap:focus-within { border-color: var(--jaced-brown-dark); }
         .shop-search-icon { position: absolute; left: 22px; top: 50%; transform: translateY(-50%); color: var(--jaced-muted); font-size: 13px; }
-        .shop-search-input {
-            background: transparent; border: none; width: 100%;
-            padding: 14px 44px 14px 48px; font-size: 14px;
-            color: var(--jaced-brown-dark); outline: none;
-        }
+        .shop-search-input { background: transparent; border: none; width: 100%; padding: 14px 44px 14px 48px; font-size: 14px; color: var(--jaced-brown-dark); outline: none; }
         .shop-search-input::placeholder { color: var(--jaced-muted); }
         .shop-search-clear { position: absolute; right: 16px; top: 50%; transform: translateY(-50%); background: transparent; border: none; color: var(--jaced-muted); font-size: 12px; cursor: pointer; }
         .shop-search-clear:hover { color: var(--jaced-brown-dark); }
-        .shop-main-apply { width: 100%; margin-top: 8px; margin-bottom: 12px; }
 
-        .shop-sort-wrap { position: relative; }
-        .shop-sort-trigger {
-            display: flex; align-items: center; gap: 10px;
+        /* ===== FILTER ROW ===== */
+        .shop-filters-row {
+            display: flex; gap: 10px; flex-wrap: wrap;
+            align-items: center; justify-content: center;
+            margin-bottom: 16px;
+        }
+
+        /* ===== FILTER PILLS ===== */
+        .shop-filter-pill-wrap { position: relative; }
+        .shop-filter-pill {
+            display: inline-flex; align-items: center; gap: 8px;
             background: var(--jaced-card); border: 1px solid var(--jaced-input);
-            border-radius: 999px; padding: 12px 20px; cursor: pointer;
+            border-radius: 999px; padding: 9px 16px; cursor: pointer;
             transition: border 0.25s ease, box-shadow 0.25s ease; white-space: nowrap;
+            font-size: 13px;
         }
-        .shop-sort-trigger:hover { border-color: var(--jaced-brown-dark); }
-        .shop-sort-wrap.open .shop-sort-trigger { border-color: var(--jaced-brown-dark); box-shadow: 0 4px 18px rgba(39,46,29,0.08); }
-        .shop-sort-trigger-label { font-size: 11px; color: var(--jaced-muted); text-transform: uppercase; letter-spacing: 0.18em; }
-        .shop-sort-trigger-value { font-size: 14px; color: var(--jaced-brown-dark); font-weight: 600; }
-        .shop-sort-chevron { font-size: 11px; color: var(--jaced-muted); transition: transform 0.3s ease; margin-left: 4px; }
-        .shop-sort-wrap.open .shop-sort-chevron { transform: rotate(180deg); }
-        .shop-sort-menu {
-            position: absolute; top: calc(100% + 8px); right: 0; min-width: 220px;
-            background: var(--jaced-card); border: 1px solid var(--jaced-input);
-            border-radius: 16px; padding: 8px;
-            box-shadow: 0 16px 40px rgba(39,46,29,0.12);
+        .shop-filter-pill:hover { border-color: var(--jaced-brown-dark); }
+        .shop-filter-pill.active-pill { background: var(--jaced-brown-dark); border-color: var(--jaced-brown-dark); }
+        .shop-filter-pill.active-pill .pill-label,
+        .shop-filter-pill.active-pill .pill-value { color: var(--jaced-cream); }
+        .shop-filter-pill.active-pill .pill-chevron { color: rgba(242,237,230,0.7); }
+        .shop-filter-pill-wrap.open .shop-filter-pill { border-color: var(--jaced-brown-dark); box-shadow: 0 4px 18px rgba(39,46,29,0.08); }
+        .pill-label { font-size: 10px; color: var(--jaced-muted); text-transform: uppercase; letter-spacing: 0.15em; }
+        .pill-value { font-size: 13px; color: var(--jaced-brown-dark); font-weight: 600; max-width: 140px; overflow: hidden; text-overflow: ellipsis; }
+        .pill-chevron { font-size: 10px; color: var(--jaced-muted); transition: transform 0.3s ease; }
+        .shop-filter-pill-wrap.open .pill-chevron { transform: rotate(180deg); }
+
+        /* ===== FILTER DROPDOWN ===== */
+        .shop-filter-dropdown {
+            position: absolute; top: calc(100% + 8px); left: 0;
+            min-width: 220px; background: var(--jaced-card);
+            border: 1px solid var(--jaced-input); border-radius: 16px;
+            padding: 8px; box-shadow: 0 16px 40px rgba(39,46,29,0.12);
             opacity: 0; visibility: hidden; transform: translateY(-8px);
-            transition: opacity 0.25s ease, transform 0.25s ease, visibility 0.25s; z-index: 50;
+            transition: opacity 0.25s ease, transform 0.25s ease, visibility 0.25s;
+            z-index: 200;
         }
-        .shop-sort-wrap.open .shop-sort-menu { opacity: 1; visibility: visible; transform: translateY(0); }
-        .shop-sort-option {
+        .shop-filter-pill-wrap.open .shop-filter-dropdown { opacity: 1; visibility: visible; transform: translateY(0); }
+        .shop-dd-option {
             display: flex; align-items: center; justify-content: space-between;
             width: 100%; background: transparent; border: none; text-align: left;
-            padding: 11px 14px; font-size: 14px; color: var(--jaced-brown-dark);
-            cursor: pointer; border-radius: 10px; transition: background 0.2s ease, color 0.2s ease;
+            padding: 10px 14px; font-size: 13px; color: var(--jaced-brown-dark);
+            cursor: pointer; border-radius: 10px; transition: background 0.2s ease;
         }
-        .shop-sort-option:hover { background: rgba(201,154,107,0.1); }
-        .shop-sort-option.active { color: var(--jaced-caramel); font-weight: 600; }
-        .shop-sort-option i { font-size: 11px; color: var(--jaced-caramel); }
+        .shop-dd-option:hover { background: rgba(201,154,107,0.1); }
+        .shop-dd-option.active { color: var(--jaced-caramel); font-weight: 600; }
+        .shop-dd-option i { font-size: 10px; color: var(--jaced-caramel); }
 
-        .shop-active-filters {
-            display: flex; align-items: center; flex-wrap: wrap; gap: 8px;
-            padding: 12px 16px; background: var(--jaced-card);
-            border-radius: 12px; margin-bottom: 8px;
-        }
-        .shop-active-label { font-size: 12px; color: var(--jaced-muted); text-transform: uppercase; letter-spacing: 0.15em; margin-right: 4px; }
-        .shop-chip { display: inline-flex; align-items: center; gap: 8px; padding: 6px 12px; background: var(--jaced-brown-dark); color: var(--jaced-cream); border-radius: 999px; font-size: 12px; font-weight: 500; }
-        .shop-chip a { color: var(--jaced-cream); opacity: 0.7; font-size: 10px; transition: opacity 0.2s ease; }
-        .shop-chip a:hover { opacity: 1; color: var(--jaced-caramel); }
-        .shop-clear-all { font-size: 12px; color: var(--jaced-brown-dark); text-decoration: underline; margin-left: 8px; font-weight: 500; }
-        .shop-clear-all:hover { color: var(--jaced-caramel); }
-
-        .shop-sidebar { background: var(--jaced-card); border-radius: 18px; padding: 28px 24px; position: sticky; top: 110px; }
-        .row.g-4.mt-1 { align-items: flex-start; }
-        .shop-filter-group { padding-bottom: 24px; margin-bottom: 24px; border-bottom: 1px solid var(--jaced-input); }
-        .shop-filter-group:last-of-type { border-bottom: none; padding-bottom: 8px; margin-bottom: 8px; }
-        .shop-filter-title { font-size: 11px; text-transform: uppercase; letter-spacing: 0.25em; color: var(--jaced-brown-dark); font-weight: 700; margin-bottom: 16px; }
-        .shop-filter-row { display: flex; align-items: center; gap: 10px; padding: 6px 0; cursor: pointer; font-size: 14px; color: var(--jaced-brown-dark); transition: color 0.2s ease; }
-        .shop-filter-row:hover { color: var(--jaced-caramel); }
-        /* ===== CUSTOM CHECKBOX ===== */
-        .shop-filter-row input[type="checkbox"] {
-            appearance: none;
-            -webkit-appearance: none;
-            width: 18px;
-            height: 18px;
-            border: 1.5px solid var(--jaced-input);
-            border-radius: 5px;
-            background: white;
-            cursor: pointer;
-            flex-shrink: 0;
+        /* Clear all button */
+        .shop-clear-btn {
+            display: inline-flex; align-items: center;
+            padding: 9px 16px; border-radius: 999px;
+            font-size: 13px; font-weight: 500; color: var(--jaced-muted);
+            text-decoration: none; border: 1px solid var(--jaced-input);
             transition: all 0.2s ease;
-            position: relative;
         }
-        .shop-filter-row input[type="checkbox"]:hover {
-            border-color: var(--jaced-caramel);
-        }
-        .shop-filter-row input[type="checkbox"]:checked {
-            background: var(--jaced-brown-dark);
-            border-color: var(--jaced-brown-dark);
-        }
-        .shop-filter-row input[type="checkbox"]:checked::after {
-            content: '';
-            position: absolute;
-            left: 4px;
-            top: 1px;
-            width: 6px;
-            height: 10px;
-            border: 2px solid white;
-            border-top: none;
-            border-left: none;
-            transform: rotate(45deg);
-        }
-        .shop-filter-name { flex: 1; }
-        .shop-filter-count { font-size: 12px; color: var(--jaced-muted); }
+        .shop-clear-btn:hover { background: #9c3535; border-color: #9c3535; color: white; }
+
+        /* ===== ACTIVE FILTER CHIPS ===== */
+        .shop-active-filters { display: flex; align-items: center; flex-wrap: wrap; gap: 8px; padding: 12px 16px; background: var(--jaced-card); border-radius: 12px; margin-bottom: 16px; }
+        .shop-active-label { font-size: 11px; color: var(--jaced-muted); text-transform: uppercase; letter-spacing: 0.15em; }
+        .shop-chip { display: inline-flex; align-items: center; gap: 8px; padding: 5px 12px; background: var(--jaced-brown-dark); color: var(--jaced-cream); border-radius: 999px; font-size: 12px; font-weight: 500; }
+        .shop-chip a { color: var(--jaced-cream); opacity: 0.7; font-size: 10px; }
+        .shop-chip a:hover { opacity: 1; }
+
+        /* ===== RESULT BAR ===== */
+        .shop-result-bar { display: flex; justify-content: flex-end; margin-bottom: 16px; }
+        .shop-result-count { color: var(--jaced-muted); font-size: 13px; }
 
         /* ===== PRODUCT CARD ===== */
         .shop-product-card {
@@ -526,7 +521,7 @@
         }
         .shop-product-card:hover .shop-product-img-wrap {
             border-color: var(--jaced-caramel);
-            box-shadow: 0 0 0 3px rgba(201,154,107,0.2), 0 16px 40px rgba(39,46,29,0.12);
+            box-shadow: 0 0 0 6px rgba(201,154,107,0.18), 0 16px 40px rgba(39,46,29,0.12);
         }
         .shop-product-name, .shop-product-price, .shop-product-dim, .shop-product-cat { transition: color 0.4s ease; }
         .shop-product-card:hover .shop-product-name { color: var(--jaced-cream); }
@@ -536,62 +531,27 @@
 
         .shop-product-card.is-sold-out .shop-product-img { filter: grayscale(0.85) brightness(0.92); }
         .shop-product-card.is-sold-out:hover { transform: none; }
-        .shop-product-card.is-sold-out:hover .shop-product-img { transform: none; }
         .shop-product-card.is-sold-out .shop-product-price { color: var(--jaced-muted); text-decoration: line-through; }
         .shop-product-card.is-sold-out .shop-product-name { color: var(--jaced-muted); }
         .badge-soldout { background: #9c3535 !important; }
         .shop-soldout-overlay { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; background: rgba(28,28,26,0.35); z-index: 4; }
         .shop-soldout-text { background: rgba(242,237,230,0.95); color: #1c1c1a; font-size: 12px; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; padding: 8px 18px; border-radius: 999px; }
 
-        .shop-price-row { display: flex; align-items: center; gap: 8px; margin-bottom: 12px; width: 100%; }
-        .shop-price-input { flex: 1 1 0; min-width: 0; width: 100%; background: white; border: 1px solid var(--jaced-input); border-radius: 8px; padding: 8px 10px; font-size: 13px; color: var(--jaced-brown-dark); outline: none; transition: border 0.2s ease; box-sizing: border-box; }
-        .shop-price-input:focus { border-color: var(--jaced-brown-dark); }
-        .shop-price-input::-webkit-outer-spin-button, .shop-price-input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
-        .shop-price-input[type=number] { -moz-appearance: textfield; }
-        .shop-price-sep { color: var(--jaced-muted); flex-shrink: 0; }
-        .shop-apply-btn { width: 100%; background: var(--jaced-brown-dark); color: var(--jaced-cream); border: none; padding: 10px; border-radius: 999px; font-size: 12px; font-weight: 500; cursor: pointer; letter-spacing: 0.05em; transition: background 0.3s ease; }
-        .shop-apply-btn:hover { background: var(--jaced-caramel); }
-        .shop-reset-btn { display: block; text-align: center; background: transparent; border: 1px solid var(--jaced-input); color: var(--jaced-brown-dark); padding: 10px; border-radius: 999px; font-size: 12px; font-weight: 500; text-decoration: none; transition: all 0.3s ease; margin-top: 16px; }
-        .shop-reset-btn:hover { background: var(--jaced-brown-dark); color: var(--jaced-cream); border-color: var(--jaced-brown-dark); }
-
-        .shop-result-bar { display: flex; justify-content: flex-end; margin-bottom: 16px; }
-        .shop-result-count { color: var(--jaced-muted); font-size: 13px; }
-
         .shop-product-img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.6s cubic-bezier(0.22,1,0.36,1); }
         .shop-product-card:hover .shop-product-img { transform: scale(1.06); }
-        .shop-product-badge { position: absolute; top: 14px; left: 14px; padding: 5px 12px; border-radius: 999px; font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.1em; color: var(--jaced-cream); z-index: 3; }
+        .shop-product-badge { position: absolute; top: 12px; left: 12px; padding: 4px 10px; border-radius: 999px; font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.1em; color: var(--jaced-cream); z-index: 3; }
         .badge-caramel { background: var(--jaced-caramel); }
         .badge-dark { background: var(--jaced-brown-dark); }
         .badge-lowstock { background: #c9762b !important; }
 
-        .shop-product-actions {
-            position: absolute; top: 14px; right: 14px;
-            display: flex; flex-direction: column; gap: 8px; z-index: 3;
-            opacity: 0; transform: translateX(8px);
-            transition: opacity 0.35s ease, transform 0.35s ease;
-        }
+        .shop-product-actions { position: absolute; top: 12px; right: 12px; display: flex; flex-direction: column; gap: 8px; z-index: 3; opacity: 0; transform: translateX(8px); transition: opacity 0.35s ease, transform 0.35s ease; }
         .shop-product-card:hover .shop-product-actions { opacity: 1; transform: translateX(0); }
-        .shop-action-btn {
-            width: 36px; height: 36px; border-radius: 50%;
-            background: rgba(242,237,230,0.95); backdrop-filter: blur(8px);
-            border: none; display: flex; align-items: center; justify-content: center;
-            color: var(--jaced-brown-dark); font-size: 14px; cursor: pointer;
-            transition: background 0.2s ease, color 0.2s ease, transform 0.2s ease;
-        }
+        .shop-action-btn { width: 34px; height: 34px; border-radius: 50%; background: rgba(242,237,230,0.95); backdrop-filter: blur(8px); border: none; display: flex; align-items: center; justify-content: center; color: var(--jaced-brown-dark); font-size: 13px; cursor: pointer; transition: background 0.2s ease, color 0.2s ease, transform 0.2s ease; }
         .shop-action-btn:hover { background: var(--jaced-brown-dark); color: var(--jaced-cream); transform: scale(1.08); }
 
-        /* ===== WISHLIST BUTTON STATES ===== */
         .js-wishlist-btn i { transition: all 0.25s ease; }
-        /* Active = udah di wishlist: background caramel, icon solid heart */
-        .js-wishlist-btn.active {
-            background: var(--jaced-caramel);
-            color: var(--jaced-cream);
-        }
-        /* Hover saat active: background merah muda, icon ganti ke heart-slash */
-        .js-wishlist-btn.active:hover {
-            background: rgba(156, 53, 53, 0.15);
-            color: #9c3535;
-        }
+        .js-wishlist-btn.active { background: var(--jaced-caramel); color: var(--jaced-cream); }
+        .js-wishlist-btn.active:hover { background: rgba(156,53,53,0.15); color: #9c3535; }
         .js-wishlist-btn.active .fa-heart::before { content: "\f004"; }
         .js-wishlist-btn.active:hover .fa-heart::before { content: "\f7a9"; }
 
@@ -602,7 +562,7 @@
             overflow: hidden; text-overflow: ellipsis; white-space: nowrap; min-height: 28px; line-height: 1.5; transition: color 0.35s ease;
         }
         .shop-product-bottom { display: flex; justify-content: space-between; align-items: flex-end; gap: 10px; margin-top: 2px; }
-        .shop-product-price { font-family: 'Outfit', serif !important; font-size: 22px; font-weight: 600; color: var(--jaced-sage); line-height: 1.2; transition: color 0.35s ease; }
+        .shop-product-price { font-size: 22px; font-weight: 600; color: var(--jaced-sage); line-height: 1.2; transition: color 0.35s ease; }
         .shop-product-oldprice { color: var(--jaced-muted); text-decoration: line-through; margin-left: 4px; font-size: 12px; }
         .shop-product-dim { font-size: 12px; color: var(--jaced-muted); font-weight: 500; letter-spacing: 0.02em; white-space: nowrap; }
         .shop-product-sold { font-size: 15px; color: var(--jaced-muted); font-weight: 500; white-space: nowrap; line-height: 1.4; }
@@ -611,6 +571,7 @@
         .shop-product-card:hover .shop-product-price,
         .shop-product-card:hover .shop-product-sold { color: var(--jaced-cream); }
 
+        /* ===== EMPTY STATE ===== */
         .shop-empty { text-align: center; padding: 80px 24px; background: var(--jaced-card); border-radius: 18px; }
         .shop-empty-icon { font-size: 40px; color: var(--jaced-input); margin-bottom: 20px; }
         .shop-empty-title { font-size: 20px; font-weight: 600; color: var(--jaced-brown-dark); margin-bottom: 8px; }
@@ -618,20 +579,13 @@
         .shop-empty-btn { display: inline-block; background: var(--jaced-brown-dark); color: var(--jaced-cream); padding: 12px 28px; border-radius: 999px; text-decoration: none; font-size: 13px; font-weight: 500; transition: background 0.3s ease; }
         .shop-empty-btn:hover { background: var(--jaced-caramel); color: var(--jaced-cream); }
 
+        /* ===== PAGINATION ===== */
         .shop-pagination { display: flex; justify-content: center; margin-top: 48px; }
         .shop-pagination .pagination { gap: 4px; align-items: center; flex-wrap: wrap; justify-content: center; }
         .shop-pagination .page-link { border: 1px solid var(--jaced-input); color: var(--jaced-brown-dark); background: transparent; border-radius: 999px !important; padding: 8px 16px; font-size: 13px; font-weight: 500; margin: 0 2px; min-width: 40px; text-align: center; line-height: 1.5; display: flex; align-items: center; justify-content: center; }
         .shop-pagination .page-item.active .page-link { background: var(--jaced-brown-dark); border-color: var(--jaced-brown-dark); color: var(--jaced-cream); }
         .shop-pagination .page-link:hover { background: var(--jaced-caramel); border-color: var(--jaced-caramel); color: var(--jaced-cream); }
-        .shop-pagination .page-item.disabled .page-link { color: var(--jaced-muted); background: transparent; border-color: var(--jaced-input); opacity: 0.5; }
-        .shop-pagination .page-link span[aria-hidden] { font-size: 13px; line-height: 1; }
-
-        .shop-filter-toggle { display: none; align-items: center; gap: 8px; background: var(--jaced-brown-dark); color: var(--jaced-cream); border: none; padding: 13px 22px; border-radius: 999px; font-size: 13px; font-weight: 600; cursor: pointer; }
-        .shop-sidebar-head { display: none; justify-content: space-between; align-items: center; margin-bottom: 20px; padding-bottom: 16px; border-bottom: 1px solid var(--jaced-input); }
-        .shop-sidebar-title { font-size: 18px; font-weight: 700; color: var(--jaced-brown-dark); }
-        .shop-sidebar-close { background: transparent; border: none; font-size: 20px; color: var(--jaced-brown-dark); cursor: pointer; }
-        .shop-sidebar-overlay { display: none; position: fixed; inset: 0; background: rgba(28,28,26,0.5); z-index: 1090; opacity: 0; transition: opacity 0.3s ease; }
-        .shop-sidebar-overlay.active { display: block; opacity: 1; }
+        .shop-pagination .page-item.disabled .page-link { color: var(--jaced-muted); opacity: 0.5; }
 
         /* ===== QUICK VIEW ===== */
         .qv-backdrop { position: fixed; inset: 0; background: rgba(28,28,26,0.55); backdrop-filter: blur(4px); z-index: 1100; display: flex; align-items: center; justify-content: center; padding: 24px; opacity: 0; visibility: hidden; transition: opacity 0.3s ease, visibility 0.3s; }
@@ -672,21 +626,9 @@
         .wish-toast i { color: #6fae6f; }
 
         /* ===== CONFIRM POPUP ===== */
-        .shop-confirm-backdrop {
-            position: fixed; inset: 0; background: rgba(28,28,26,0.5);
-            backdrop-filter: blur(4px); z-index: 1300;
-            display: flex; align-items: center; justify-content: center;
-            opacity: 0; visibility: hidden;
-            transition: opacity 0.3s ease, visibility 0.3s;
-        }
+        .shop-confirm-backdrop { position: fixed; inset: 0; background: rgba(28,28,26,0.5); backdrop-filter: blur(4px); z-index: 1300; display: flex; align-items: center; justify-content: center; opacity: 0; visibility: hidden; transition: opacity 0.3s ease, visibility 0.3s; }
         .shop-confirm-backdrop.show { opacity: 1; visibility: visible; }
-        .shop-confirm-modal {
-            background: var(--jaced-caramel-bg); border-radius: 24px;
-            padding: 40px 36px; max-width: 380px; width: 90%; text-align: center;
-            transform: scale(0.92) translateY(12px);
-            transition: transform 0.35s cubic-bezier(0.22,1,0.36,1);
-            box-shadow: 0 24px 60px rgba(0,0,0,0.15);
-        }
+        .shop-confirm-modal { background: var(--jaced-caramel-bg); border-radius: 24px; padding: 40px 36px; max-width: 380px; width: 90%; text-align: center; transform: scale(0.92) translateY(12px); transition: transform 0.35s cubic-bezier(0.22,1,0.36,1); box-shadow: 0 24px 60px rgba(0,0,0,0.15); }
         .shop-confirm-backdrop.show .shop-confirm-modal { transform: scale(1) translateY(0); }
         .shop-confirm-icon { font-size: 32px; color: #9c3535; margin-bottom: 16px; }
         .shop-confirm-title { font-size: 18px; font-weight: 700; color: var(--jaced-brown-dark); margin-bottom: 8px; letter-spacing: -0.02em; }
@@ -697,45 +639,73 @@
         .shop-confirm-ok { flex: 1; background: #9c3535; border: none; color: white; padding: 12px; border-radius: 999px; font-size: 13px; font-weight: 600; cursor: pointer; transition: all 0.3s ease; }
         .shop-confirm-ok:hover { background: #7a2828; }
 
-        @media (max-width: 992px) {
-            .shop-filter-toggle { display: inline-flex; }
-            .shop-sidebar-head { display: flex; }
-            .shop-sidebar { position: fixed; top: 0; left: 0; height: 100vh; width: 320px; max-width: 85vw; z-index: 1095; border-radius: 0; overflow-y: auto; transform: translateX(-100%); transition: transform 0.4s cubic-bezier(0.22,1,0.36,1); margin-bottom: 0; }
-            .shop-sidebar.open { transform: translateX(0); }
-        }
         @media (max-width: 576px) {
             .shop-hero { padding: 140px 20px 60px; }
-            .shop-toolbar { flex-direction: column; }
-            .shop-sort-wrap { width: 100%; }
-            .shop-filter-toggle { width: 100%; justify-content: center; }
+            .shop-filters-row { gap: 8px; }
         }
     </style>
 
     <script>
-        // ===== SORT DROPDOWN =====
+        // ===== FILTER PILL DROPDOWNS =====
         (function () {
-            const wrap = document.querySelector('.shop-sort-wrap');
-            const trigger = document.getElementById('sortTrigger');
-            const menu = document.getElementById('sortMenu');
-            const input = document.getElementById('sort-input');
-            const form = document.getElementById('filter-form');
-            if (!wrap || !trigger || !menu || !input || !form) return;
-            trigger.addEventListener('click', function (e) { e.stopPropagation(); wrap.classList.toggle('open'); });
-            menu.querySelectorAll('.shop-sort-option').forEach(function (opt) {
-                opt.addEventListener('click', function () {
-                    input.value = this.getAttribute('data-value');
-                    let pageField = form.querySelector('input[name="page"]');
-                    if (pageField) pageField.value = 1;
-                    form.submit();
+            const pills = [
+                { wrap: 'sortWrap', trigger: 'sortTrigger', menu: 'sortMenu' },
+                { wrap: 'catWrap',  trigger: 'catTrigger',  menu: 'catMenu'  },
+                { wrap: 'matWrap',  trigger: 'matTrigger',  menu: 'matMenu'  },
+                { wrap: 'sizeWrap', trigger: 'sizeTrigger', menu: 'sizeMenu' },
+                { wrap: 'priceWrap',trigger: 'priceTrigger',menu: 'priceMenu'},
+            ];
+
+            pills.forEach(function(p) {
+                const wrap    = document.getElementById(p.wrap);
+                const trigger = document.getElementById(p.trigger);
+                if (!wrap || !trigger) return;
+
+                trigger.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    const isOpen = wrap.classList.contains('open');
+                    // close all
+                    pills.forEach(function(x) {
+                        const w = document.getElementById(x.wrap);
+                        if (w) w.classList.remove('open');
+                    });
+                    if (!isOpen) wrap.classList.add('open');
                 });
             });
-            document.addEventListener('click', function (e) { if (!wrap.contains(e.target)) wrap.classList.remove('open'); });
-            document.addEventListener('keydown', function (e) { if (e.key === 'Escape') wrap.classList.remove('open'); });
+
+            // Sort: click option → submit
+            const sortMenu = document.getElementById('sortMenu');
+            const sortInput = document.getElementById('sort-input');
+            const form = document.getElementById('filter-form');
+            if (sortMenu && sortInput && form) {
+                sortMenu.querySelectorAll('.shop-dd-option').forEach(function(opt) {
+                    opt.addEventListener('click', function() {
+                        sortInput.value = this.getAttribute('data-value');
+                        form.submit();
+                    });
+                });
+            }
+
+            // Close on outside click
+            document.addEventListener('click', function() {
+                pills.forEach(function(p) {
+                    const w = document.getElementById(p.wrap);
+                    if (w) w.classList.remove('open');
+                });
+            });
+
+            document.addEventListener('keydown', function(e) {
+                if (e.key === 'Escape') {
+                    pills.forEach(function(p) {
+                        const w = document.getElementById(p.wrap);
+                        if (w) w.classList.remove('open');
+                    });
+                }
+            });
         })();
 
         // ===== WISHLIST + CONFIRM POPUP =====
         (function () {
-            // --- State: track wished IDs in memory (loaded from DB on page load) ---
             let wishedIds = new Set(
                 @json(
                     auth()->check()
@@ -758,7 +728,6 @@
                 toastTimer = setTimeout(function () { toast.classList.remove('show'); }, 2500);
             }
 
-            // ===== CONFIRM POPUP =====
             let shopConfirmCb = null;
             const confirmBackdrop = document.getElementById('shopConfirmBackdrop');
 
@@ -782,55 +751,40 @@
             function setBtnState(btn, active) {
                 btn.classList.toggle('active', active);
                 const icon = btn.querySelector('i');
-                if (icon) {
-                    icon.classList.toggle('far', !active);
-                    icon.classList.toggle('fas', active);
-                }
+                if (icon) { icon.classList.toggle('far', !active); icon.classList.toggle('fas', active); }
             }
 
-            // ===== TOGGLE WISHLIST (single API call for add & remove) =====
             function toggleWishlist(productId, onSuccess) {
                 fetch('{{ route("wishlist.toggle") }}', {
                     method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'X-CSRF-TOKEN': '{{ csrf_token() }}',
-                        'Accept': 'application/json'
-                    },
+                    headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': '{{ csrf_token() }}', 'Accept': 'application/json' },
                     body: JSON.stringify({ product_id: productId })
                 })
                 .then(function(r) { return r.json(); })
                 .then(function(data) {
-                    if (data.status === 'added') {
-                        wishedIds.add(parseInt(productId));
-                    } else {
-                        wishedIds.delete(parseInt(productId));
-                    }
+                    if (data.status === 'added') { wishedIds.add(parseInt(productId)); }
+                    else { wishedIds.delete(parseInt(productId)); }
                     if (onSuccess) onSuccess(data.status);
                 })
                 .catch(function(err) { console.error(err); });
             }
 
-            // ===== WISHLIST BUTTON CLICK =====
             document.querySelectorAll('.js-wishlist-btn').forEach(function (btn) {
                 const id = btn.getAttribute('data-wish-id');
                 setBtnState(btn, isWished(id));
-
                 btn.addEventListener('click', function (e) {
-                    e.preventDefault();
-                    e.stopPropagation();
+                    e.preventDefault(); e.stopPropagation();
                     const name = btn.getAttribute('data-wish-name');
-
                     if (isWished(id)) {
                         showConfirmPopup(name, function () {
-                            toggleWishlist(id, function(status) {
+                            toggleWishlist(id, function() {
                                 setBtnState(btn, false);
                                 syncQvWishBtn(id, false);
                                 showToast(name + ' removed from wishlist');
                             });
                         });
                     } else {
-                        toggleWishlist(id, function(status) {
+                        toggleWishlist(id, function() {
                             setBtnState(btn, true);
                             syncQvWishBtn(id, true);
                             showToast(name + ' added to wishlist');
@@ -839,9 +793,8 @@
                 });
             });
 
-            // ===== QUICK VIEW MODAL =====
             const backdrop = document.getElementById('qvBackdrop');
-            const qvClose = document.getElementById('qvClose');
+            const qvClose  = document.getElementById('qvClose');
             let currentQvId = null;
 
             function syncQvWishBtn(id, state) {
@@ -852,23 +805,21 @@
 
             function openQuickView(card) {
                 currentQvId = card.getAttribute('data-product-id');
-                document.getElementById('qvImg').src = card.getAttribute('data-product-img');
-                document.getElementById('qvImg').alt = card.getAttribute('data-product-name');
-                document.getElementById('qvCat').textContent = card.getAttribute('data-product-cat');
+                document.getElementById('qvImg').src          = card.getAttribute('data-product-img');
+                document.getElementById('qvImg').alt          = card.getAttribute('data-product-name');
+                document.getElementById('qvCat').textContent  = card.getAttribute('data-product-cat');
                 document.getElementById('qvName').textContent = card.getAttribute('data-product-name');
                 document.getElementById('qvPrice').textContent = 'Rp ' + card.getAttribute('data-product-price');
-                const oldP = card.getAttribute('data-product-oldprice');
+                const oldP  = card.getAttribute('data-product-oldprice');
                 const oldEl = document.getElementById('qvOldprice');
                 if (oldP) { oldEl.textContent = 'Rp ' + oldP; oldEl.style.display = 'inline'; }
                 else { oldEl.style.display = 'none'; }
-                document.getElementById('qvDim').textContent = card.getAttribute('data-product-dim');
+                document.getElementById('qvDim').textContent      = card.getAttribute('data-product-dim');
                 document.getElementById('qvMaterial').textContent = card.getAttribute('data-product-material') || '-';
-                document.getElementById('qvRoom').textContent = card.getAttribute('data-product-room') || '-';
-                document.getElementById('qvViewBtn').href = card.getAttribute('data-product-url');
-                const soldTag = document.getElementById('qvSoldoutTag');
-                soldTag.classList.toggle('show', card.getAttribute('data-product-soldout') === '1');
-                const qvWish = document.getElementById('qvWishBtn');
-                setBtnState(qvWish, isWished(currentQvId));
+                document.getElementById('qvRoom').textContent     = card.getAttribute('data-product-room') || '-';
+                document.getElementById('qvViewBtn').href         = card.getAttribute('data-product-url');
+                document.getElementById('qvSoldoutTag').classList.toggle('show', card.getAttribute('data-product-soldout') === '1');
+                setBtnState(document.getElementById('qvWishBtn'), isWished(currentQvId));
                 backdrop.classList.add('active');
                 document.body.style.overflow = 'hidden';
             }
@@ -883,17 +834,15 @@
                 });
             });
 
-            if (qvClose) qvClose.addEventListener('click', closeQuickView);
-            if (backdrop) { backdrop.addEventListener('click', function (e) { if (e.target === backdrop) closeQuickView(); }); }
+            if (qvClose)  qvClose.addEventListener('click', closeQuickView);
+            if (backdrop) backdrop.addEventListener('click', function (e) { if (e.target === backdrop) closeQuickView(); });
             document.addEventListener('keydown', function (e) { if (e.key === 'Escape') closeQuickView(); });
 
-            // QV wishlist button — now also uses the API
             const qvWishBtn = document.getElementById('qvWishBtn');
             if (qvWishBtn) {
                 qvWishBtn.addEventListener('click', function () {
                     if (!currentQvId) return;
                     const name = document.getElementById('qvName').textContent;
-
                     if (isWished(currentQvId)) {
                         showConfirmPopup(name, function () {
                             toggleWishlist(currentQvId, function() {
@@ -915,21 +864,6 @@
             }
         })();
 
-        // ===== MOBILE FILTER DRAWER =====
-        (function () {
-            const toggle = document.getElementById('filterToggle');
-            const sidebar = document.getElementById('shopSidebar');
-            const overlay = document.getElementById('sidebarOverlay');
-            const closeBtn = document.getElementById('sidebarClose');
-            if (!toggle || !sidebar || !overlay) return;
-            function openDrawer() { sidebar.classList.add('open'); overlay.classList.add('active'); document.body.style.overflow = 'hidden'; }
-            function closeDrawer() { sidebar.classList.remove('open'); overlay.classList.remove('active'); document.body.style.overflow = ''; }
-            toggle.addEventListener('click', openDrawer);
-            overlay.addEventListener('click', closeDrawer);
-            if (closeBtn) closeBtn.addEventListener('click', closeDrawer);
-            document.addEventListener('keydown', function (e) { if (e.key === 'Escape') closeDrawer(); });
-        })();
-
         // ===== LIVE SEARCH =====
         (function () {
             const searchInput = document.getElementById('shopSearchInput');
@@ -941,6 +875,37 @@
                 debounceTimer = setTimeout(function () { form.submit(); }, 500);
             });
         })();
+
+        function setFilter(name, values) {
+            const form = document.getElementById('filter-form');
+            // Hapus semua input dengan nama itu dulu
+            form.querySelectorAll('input[name="' + name + '[]"], input[name="' + name + '"]').forEach(el => el.remove());
+            // Tambahin nilai baru
+            values.forEach(function(v) {
+                const input = document.createElement('input');
+                input.type = 'hidden';
+                input.name = name + '[]';
+                input.value = v;
+                form.appendChild(input);
+            });
+            form.submit();
+        }
+
+        function setPriceFilter(min, max) {
+            const form = document.getElementById('filter-form');
+            form.querySelectorAll('input[name="min_price"], input[name="max_price"]').forEach(el => el.remove());
+            if (min !== '') {
+                const i = document.createElement('input');
+                i.type = 'hidden'; i.name = 'min_price'; i.value = min;
+                form.appendChild(i);
+            }
+            if (max !== '') {
+                const i = document.createElement('input');
+                i.type = 'hidden'; i.name = 'max_price'; i.value = max;
+                form.appendChild(i);
+            }
+            form.submit();
+        }
     </script>
 
 @endsection
