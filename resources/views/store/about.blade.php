@@ -77,6 +77,126 @@
     .team-card:hover .team-img {
         filter: grayscale(0%);
     }
+
+    /* FLIP CARD */
+    .team-flip-card {
+        perspective: 1000px;
+        height: 380px;
+    }
+
+    .team-flip-inner {
+        position: relative;
+        width: 100%;
+        height: 100%;
+        transition: transform 0.6s cubic-bezier(0.25, 0.8, 0.25, 1);
+        transform-style: preserve-3d;
+    }
+
+    .team-flip-card:hover .team-flip-inner {
+        transform: rotateY(180deg);
+    }
+
+    .team-flip-front,
+    .team-flip-back {
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        backface-visibility: hidden;
+        -webkit-backface-visibility: hidden;
+        border-radius: 16px;
+        overflow: hidden;
+    }
+
+    .team-flip-front {
+        background: white;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.06);
+    }
+
+    .team-flip-back {
+        transform: rotateY(180deg);
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        padding: 28px 24px;
+        color: white;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+    }
+
+    /* Material backgrounds */
+    .mat-walnut   { background: linear-gradient(145deg, #4A2C0A, #26170c); }
+    .mat-marble   { background: linear-gradient(145deg, #6B7280, #374151); }
+    .mat-rattan   { background: linear-gradient(145deg, #C4A882, #8B6343); }
+    .mat-oak      { background: linear-gradient(145deg, #8B6343, #5C3D1E); }
+    .mat-pine     { background: linear-gradient(145deg, #4A6741, #2D4A2A); }
+
+    .team-flip-back .nickname {
+        font-size: 11px;
+        font-weight: 700;
+        letter-spacing: 0.15em;
+        text-transform: uppercase;
+        opacity: 0.6;
+        margin-bottom: 4px;
+    }
+
+    .team-flip-back .member-name {
+        font-size: 18px;
+        font-weight: 700;
+        font-family: Georgia, serif;
+        margin-bottom: 4px;
+    }
+
+    .team-flip-back .member-role {
+        font-size: 10px;
+        font-weight: 600;
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+        opacity: 0.5;
+        margin-bottom: 20px;
+    }
+
+    .team-flip-back .divider {
+        width: 32px;
+        height: 2px;
+        background: rgba(255,255,255,0.3);
+        margin-bottom: 16px;
+    }
+
+    .team-flip-back .furniture-tag {
+        font-size: 11px;
+        opacity: 0.7;
+        margin-bottom: 4px;
+    }
+
+    .team-flip-back .furniture-val {
+        font-size: 13px;
+        font-weight: 600;
+        font-style: italic;
+        margin-bottom: 16px;
+        line-height: 1.4;
+    }
+
+    .team-flip-back .quote {
+        font-size: 12px;
+        line-height: 1.6;
+        opacity: 0.85;
+        border-left: 2px solid rgba(255,255,255,0.3);
+        padding-left: 12px;
+    }
+
+    .team-flip-back .material-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+        margin-top: 16px;
+        background: rgba(255,255,255,0.12);
+        border: 1px solid rgba(255,255,255,0.2);
+        padding: 4px 10px;
+        border-radius: 999px;
+        font-size: 10px;
+        font-weight: 600;
+        letter-spacing: 0.05em;
+        text-transform: uppercase;
+    }
 </style>
 
 <main style="background-color: #fafaf9; color: var(--stone-900); font-family: 'Lexend', sans-serif; overflow-x: hidden;">
@@ -182,32 +302,98 @@
                     The Visionaries Behind the Craft
                 </h2>
             </div>
-            
+
             <div class="row g-4">
                 @foreach([
-                    ['img' => 'diah.jpeg',   'name' => 'Putu Diahloka Mahaputri',  'role' => 'CEO (Chief Executive Officer)'],
-                    ['img' => 'cecill.jpeg',  'name' => 'Cecilia Agusta Leo',        'role' => 'CFO (Chief Financial Officer)'],
-                    ['img' => 'jolie.jpeg', 'name' => 'Jocelyn Jolie',             'role' => 'CMO (Chief Marketing Officer)'],
-                    ['img' => 'audric.jpeg', 'name' => 'Ignatius Audric Wijaya',    'role' => 'COO (Chief Operating Officer)'],
-                    ['img' => 'ekkin.jpeg', 'name' => 'Ekkin Kenneth Hosari',      'role' => 'CTO (Chief Technology Officer)'],
+                    [
+                        'img'       => 'diah.jpeg',
+                        'name'      => 'Putu Diahloka Mahaputri',
+                        'nickname'  => 'Diah',
+                        'role'      => 'CEO · Chief Executive Officer',
+                        'material'  => 'Walnut',
+                        'mat_class' => 'mat-walnut',
+                        'furniture' => 'A classic Chesterfield sofa — timeless and commanding',
+                        'quote'     => 'Lead with intention, design with heart.',
+                    ],
+                    [
+                        'img'       => 'cecill.jpeg',
+                        'name'      => 'Cecilia Agusta Leo',
+                        'nickname'  => 'Cecil',
+                        'role'      => 'CFO · Chief Financial Officer',
+                        'material'  => 'Marble',
+                        'mat_class' => 'mat-marble',
+                        'furniture' => 'A minimalist glass desk — precise and transparent',
+                        'quote'     => 'Numbers tell stories. I make sure they\'re good ones.',
+                    ],
+                    [
+                        'img'       => 'jolie.jpeg',
+                        'name'      => 'Jocelyn Jolie',
+                        'nickname'  => 'Jolie',
+                        'role'      => 'CMO · Chief Marketing Officer',
+                        'material'  => 'Rattan',
+                        'mat_class' => 'mat-rattan',
+                        'furniture' => 'A statement accent chair — bold and unforgettable',
+                        'quote'     => 'Every brand has a soul. Mine just happens to be beautiful.',
+                    ],
+                    [
+                        'img'       => 'audric.jpeg',
+                        'name'      => 'Ignatius Audric Wijaya',
+                        'nickname'  => 'Audric',
+                        'role'      => 'COO · Chief Operating Officer',
+                        'material'  => 'Oak Wood',
+                        'mat_class' => 'mat-oak',
+                        'furniture' => 'A solid oak dining table — reliable and brings people together',
+                        'quote'     => 'Behind every great product is a greater process.',
+                    ],
+                    [
+                        'img'       => 'ekkin.jpeg',
+                        'name'      => 'Ekkin Kenneth Hosari',
+                        'nickname'  => 'Ekkin',
+                        'role'      => 'CTO · Chief Technology Officer',
+                        'material'  => 'Japandi Pine',
+                        'mat_class' => 'mat-pine',
+                        'furniture' => 'A modular shelving unit — functional, flexible, always evolving',
+                        'quote'     => 'Good code, like good furniture, should last a lifetime.',
+                    ],
                 ] as $member)
                 <div class="col-6 col-md-4 col-lg">
-                    <div class="card border-0 shadow-sm rounded-4 overflow-hidden bg-white h-100">
-                        <div style="height: 280px;">
-                            <img src="{{ asset('image/team/' . $member['img']) }}"
-                                alt="{{ $member['name'] }}"
-                                class="w-100 h-100"
-                                style="object-fit: cover;">
-                        </div>
-                        <div class="p-3 bg-white">
-                            <h5 class="fw-bold mb-1 text-truncate" style="font-size: 14px;">{{ $member['name'] }}</h5>
-                            <p class="text-uppercase text-muted mb-0" style="font-size: 10px; letter-spacing: 0.5px;">{{ $member['role'] }}</p>
+                    <div class="team-flip-card">
+                        <div class="team-flip-inner">
+
+                            {{-- DEPAN --}}
+                            <div class="team-flip-front">
+                                <div style="height: 300px;">
+                                    <img src="{{ asset('image/team/' . $member['img']) }}"
+                                        alt="{{ $member['name'] }}"
+                                        class="w-100 h-100"
+                                        style="object-fit: cover; filter: grayscale(20%); transition: filter 0.4s ease;">
+                                </div>
+                                <div class="p-3 bg-white">
+                                    <h5 class="fw-bold mb-1 text-truncate" style="font-size: 13px; color: #1c1917;">{{ $member['name'] }}</h5>
+                                    <p class="text-uppercase text-muted mb-0" style="font-size: 10px; letter-spacing: 0.5px;">{{ $member['role'] }}</p>
+                                </div>
+                            </div>
+
+                            {{-- BELAKANG --}}
+                            <div class="team-flip-back {{ $member['mat_class'] }}">
+                                {{-- <div class="nickname">{{ $member['nickname'] }}</div> --}}
+                                <div class="member-name">{{ explode(' ', $member['nickname'])[0] }}</div>
+                                <div class="member-role">{{ $member['role'] }}</div>
+                                <div class="divider"></div>
+                                <div class="furniture-tag">✦ If I were a furniture</div>
+                                <div class="furniture-val">"{{ $member['furniture'] }}"</div>
+                                <div class="quote">"{{ $member['quote'] }}"</div>
+                                <div class="material-badge">
+                                    <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
+                                    {{ $member['material'] }}
+                                </div>
+                            </div>
+
                         </div>
                     </div>
                 </div>
                 @endforeach
             </div>
-
         </div>
     </section>
 </main>

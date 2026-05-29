@@ -7,6 +7,7 @@ use App\Models\Stage; // Tambahkan import model Stage di atas
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Storage;
 use Laravolt\Indonesia\Models\Province;
@@ -38,13 +39,18 @@ class UserController extends Controller
                             ->orderBy('min_points_accumulative', 'desc')
                             ->first();
         
-        $stage = $stageModel ? $stageModel->name : 'Bronze';
+        $stage = DB::table('stages')
+            ->where('min_points_accumulative', '<=', $user->accumulated_points ?? 0)
+            ->orderBy('min_points_accumulative', 'desc')
+            ->first()?->name ?? 'Bronze';
 
         $addresses = $user->shippingAddresses()
                     ->orderByDesc('is_default')
                     ->orderByDesc('created_at')
                     ->get();
 
+        $currentPoints     = $user->current_points ?? 0;
+        $accumulatedPoints = $user->accumulated_points ?? 0;
         $provinces = Province::orderBy('name')->get();
 
         $noAddress = $user->shippingAddresses()->count() === 0;
@@ -58,7 +64,7 @@ class UserController extends Controller
             session()->flash('info', '📸 Upload your profile photo and earn 30 bonus points!');
         }
 
-        return view('profile.edit-profile', compact('user', 'stage', 'addresses', 'provinces'));
+        return view('profile.edit-profile', compact('user', 'stage', 'addresses', 'provinces', 'currentPoints', 'accumulatedPoints'));
     }
 
     // UPDATE: Menyelaraskan penamaan 'avatar' menjadi 'profile_picture' sesuai form HTML blade

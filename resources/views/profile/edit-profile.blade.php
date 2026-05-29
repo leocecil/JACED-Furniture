@@ -162,7 +162,10 @@
         color: var(--jaced-muted);
         margin: 0 0 16px;
         padding-bottom: 6px;
-        border-bottom: 1px solid var(--jaced-input);
+        border-bottom: none;
+        border-left: 3px solid var(--jaced-caramel);
+        padding-left: 10px;
+        padding-bottom: 0;
     }
 
     .form-label {
@@ -178,7 +181,7 @@
         border-radius: 10px;
         border: 1px solid var(--jaced-input);
         font-size: 0.9rem;
-        margin-bottom: 16px;
+        margin-bottom: 20px;
         transition: 0.2s;
         background: #fcfbfa;
     }
@@ -211,15 +214,23 @@
         font-size: 12px;
         font-weight: 600;
         text-decoration: none;
-        transition: background .2s;
+        transition: all 0.2s ease;
         white-space: nowrap;
+        border: none;
+        cursor: pointer;
+        box-shadow: none;
     }
 
-    .btn-manage-address:hover { background: #4a5d4b; }
+    .btn-manage-address:hover {
+        background: #95b897;
+        transform: translateY(-1px);
+        box-shadow: 0 4px 12px rgba(74, 93, 75, 0.25);
+    }
 
     .change-pw-box {
         background-color: #faf6f0;
-        border: 1px dashed var(--jaced-input);
+        border: 1px solid #e8e0d8;
+        background-color: #fdfcfa;
         transition: all 0.3s ease;
     }
 
@@ -398,11 +409,113 @@
     .btn-add-new { display:flex; align-items:center; justify-content:center; gap:8px; width:100%; padding:14px; background:white; border:1.5px dashed var(--jaced-sage); color:var(--jaced-sage); font-size:13px; font-weight:600; border-radius:12px; cursor:pointer; transition:all .2s; margin-top:4px; }
     .btn-add-new:hover { background:#f0f4f0; }
 
+    #btn-edit-profile {
+        transition: all 0.2s ease;
+    }
+    #btn-edit-profile:hover {
+        background: var(--jaced-caramel) !important;
+        color: white !important;
+        transform: translateY(-1px);
+    }
+
+    #btn-save-profile {
+        transition: all 0.2s ease;
+    }
+    #btn-save-profile:hover {
+        background: #3d6647 !important;
+        transform: translateY(-1px);
+        box-shadow: 0 4px 12px rgba(74, 93, 75, 0.25);
+    }
+
+    #btn-cancel-profile {
+        transition: all 0.2s ease;
+    }
+    #btn-cancel-profile:hover {
+        background: #f0f0f0 !important;
+        border-color: #888 !important;
+        transform: translateY(-1px);
+    }
+
+    .swal-jaced {
+        border-radius: 20px !important;
+        padding: 36px 32px !important;
+        box-shadow: 0 20px 60px rgba(0,0,0,0.12) !important;
+        font-family: inherit !important;
+    }
+
+    .swal-jaced-title {
+        font-size: 18px !important;
+        font-weight: 700 !important;
+        color: var(--jaced-brown-dark) !important;
+        margin-bottom: 6px !important;
+    }
+
+    .swal-jaced-text {
+        font-size: 13px !important;
+        color: var(--jaced-muted) !important;
+    }
+
+    .swal-jaced-icon {
+        border-color: var(--jaced-caramel) !important;
+        color: var(--jaced-caramel) !important;
+        width: 56px !important;
+        height: 56px !important;
+        margin-bottom: 16px !important;
+    }
+
+    .swal-btn-confirm {
+        background: #C0392B !important;
+        color: white !important;
+        border: none !important;
+        padding: 10px 22px !important;
+        border-radius: 10px !important;
+        font-size: 13px !important;
+        font-weight: 600 !important;
+        cursor: pointer !important;
+        transition: all 0.2s !important;
+    }
+
+    .swal-btn-confirm:hover {
+        background: #a93226 !important;
+        transform: translateY(-1px) !important;
+    }
+
+    .swal-btn-cancel {
+        background: var(--jaced-cream) !important;
+        color: var(--jaced-brown-dark) !important;
+        border: 1px solid var(--jaced-input) !important;
+        padding: 10px 22px !important;
+        border-radius: 10px !important;
+        font-size: 13px !important;
+        font-weight: 600 !important;
+        cursor: pointer !important;
+        transition: all 0.2s !important;
+        margin-left: 8px !important;
+    }
+
+    .swal-btn-cancel:hover {
+        background: #ede8e0 !important;
+        transform: translateY(-1px) !important;
+    }
+
+    .tier-badge-bronze  { background: linear-gradient(135deg, var(--jaced-caramel), #6E4524); }
+    .tier-badge-silver  { background: linear-gradient(135deg, #8A95A5, #4A5361); }
+    .tier-badge-gold    { background: linear-gradient(135deg, #DFBA73, #A17B30); }
+    .tier-badge-platinum{ background: linear-gradient(135deg, #2D3748, #1A202C); }
+
     .jaced-input[readonly] {
         background: #f5f3f0;
         color: var(--jaced-muted);
         cursor: default;
         border-color: transparent;
+    }
+
+    @keyframes panelIn {
+        from { opacity: 0; transform: translateY(8px); }
+        to   { opacity: 1; transform: translateY(0); }
+    }
+    .content-panel.active, #panel-main {
+        animation: panelIn 0.3s cubic-bezier(0.25, 1, 0.5, 1) both;
     }
 </style>
 @endpush
@@ -441,7 +554,7 @@
 
             <div style="font-size: 14px; font-weight: 600; color: var(--jaced-caramel); margin-bottom: 2px;">{{ $user->name }}</div>
             <div style="font-size: 11px; color: var(--jaced-muted); margin-bottom: 10px;">Member since {{ $user->created_at ? $user->created_at->format('M Y') : 'Oct 2022' }}</div>
-            <div class="mini-tier-badge">{{ $stage ?? 'Bronze' }} Member</div>
+            <div class="mini-tier-badge tier-badge-{{ strtolower($stage ?? 'bronze') }}">{{ $stage ?? 'Bronze' }} Member</div>
 
         </div>
     </div>
@@ -492,7 +605,7 @@
 
                 <h5 class="fw-bold mb-1 text-jaced-dark" style="font-size:14px;">{{ $user->name }}</h5>
                 <p class="text-muted small mb-3" style="font-size:11px;">Member since {{ $user->created_at ? $user->created_at->format('M Y') : 'Oct 2022' }}</p>
-                <div class="mini-tier-badge shadow-sm mb-3">{{ $stage ?? 'Bronze' }} Member</div>
+                <div class="mini-tier-badge tier-badge-{{ strtolower($stage ?? 'bronze') }}">{{ $stage ?? 'Bronze' }} Member</div>
                 <hr style="border-color:var(--jaced-input);margin:12px 0;">
 
                 <nav class="sidebar-menu-list">
@@ -512,7 +625,7 @@
                         <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
                         <span>Help Center</span>
                     </button>
-                    <a href="#" class="sidebar-menu-item danger" onclick="return confirm('Are you sure you want to delete your account?')">
+                    <a href="#" class="sidebar-menu-item danger" onclick="confirmDeleteAccount()">
                         <svg viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/></svg>
                         <span>Delete Account</span>
                     </a>
@@ -551,7 +664,7 @@
                         <div class="section-title mb-0">Personal Information</div>
                         <div class="d-flex gap-2">
                             <button type="button" id="btn-edit-profile" onclick="enableEditProfile()" 
-                                style="background:none; border:1px solid var(--jaced-caramel); color:var(--jaced-caramel); padding:5px 14px; border-radius:8px; font-size:12px; font-weight:600; cursor:pointer; display:inline-flex; align-items:center; gap:6px;">
+                                style="background:none; border:1px solid var(--jaced-caramel); color:var(--jaced-caramel); padding:7px 18px; border-radius:8px; font-size:12px; font-weight:600; cursor:pointer; display:inline-flex; align-items:center; gap:6px;">
                                 <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
                                     <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
                                     <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
@@ -559,14 +672,14 @@
                                 Edit
                             </button>
                             <button type="submit" id="btn-save-profile" 
-                                style="display:none; background:var(--jaced-sage); border:none; color:white; padding:5px 14px; border-radius:8px; font-size:12px; font-weight:600; cursor:pointer; align-items:center; gap:6px;">
+                                style="display:none; background:var(--jaced-sage); border:none; color:white; padding:7px 18px; border-radius:8px; font-size:12px; font-weight:600; cursor:pointer; align-items:center; gap:6px;">
                                 <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
                                     <polyline points="20 6 9 17 4 12"/>
                                 </svg>
                                 Save
                             </button>
                             <button type="button" id="btn-cancel-profile" onclick="cancelEditProfile()" 
-                                style="display:none; background:none; border:1px solid #aaa; color:#888; padding:5px 14px; border-radius:8px; font-size:12px; font-weight:600; cursor:pointer;">
+                                style="display:none; background:none; border:1px solid #aaa; color:#888; padding:7px 18px; border-radius:8px; font-size:12px; font-weight:600; cursor:pointer;">
                                 Cancel
                             </button>
                         </div>
@@ -597,7 +710,7 @@
                         <p class="mb-0 fw-semibold" style="font-size:13px;color:var(--jaced-brown-dark);">Manage Saved Addresses</p>
                         <p class="mb-0 text-muted" style="font-size:11px;">Add or change destination delivery point details.</p>
                     </div>
-                    <button type="button" class="btn-manage-address shadow-sm" onclick="showPanel('addresses', null)">Manage Addresses</button>
+                    <button type="button" class="btn-manage-address" onclick="showPanel('addresses', null)">Manage Addresses</button>
                 </div>
 
                 {{-- FORM 2: Password --}}
@@ -960,14 +1073,22 @@
 
     function confirmDeleteAvatar() {
         Swal.fire({
+            width: 360,
             title: 'Remove Profile Photo?',
             text: 'Your photo will be reset to default.',
             icon: 'warning',
             showCancelButton: true,
-            confirmButtonColor: '#c0392b',
-            cancelButtonColor: '#d4b896',
             confirmButtonText: 'Yes, remove it',
             cancelButtonText: 'Cancel',
+            buttonsStyling: false,
+            customClass: {
+                popup:          'swal-jaced',
+                title:          'swal-jaced-title',
+                htmlContainer:  'swal-jaced-text',
+                confirmButton:  'swal-btn-confirm',
+                cancelButton:   'swal-btn-cancel',
+                icon:           'swal-jaced-icon',
+            },
         }).then(result => {
             if (result.isConfirmed) document.getElementById('form-delete-avatar').submit();
         });
@@ -1137,6 +1258,27 @@
         document.getElementById('btn-edit-profile').style.display = 'inline-flex';
         document.getElementById('btn-save-profile').style.display = 'none';
         document.getElementById('btn-cancel-profile').style.display = 'none';
+    }
+
+    function confirmDeleteAccount() {
+        Swal.fire({
+            width: 360,
+            title: 'Delete Account?',
+            text: 'This action cannot be undone.',
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonText: 'Yes, delete it',
+            cancelButtonText: 'Cancel',
+            buttonsStyling: false,
+            customClass: {
+                popup:          'swal-jaced',
+                title:          'swal-jaced-title',
+                htmlContainer:  'swal-jaced-text',
+                confirmButton:  'swal-btn-confirm',
+                cancelButton:   'swal-btn-cancel',
+                icon:           'swal-jaced-icon',
+            },
+        });
     }
 
     // Auto expand password section kalau ada error
