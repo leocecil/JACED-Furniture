@@ -4,20 +4,49 @@
 
 @push('styles')
 <style>
+    :root {
+        --jaced-white: #F9F9F7;
+        --jaced-cream: #F2EDE6;
+        --jaced-card: #FAF7F2;
+        --jaced-brown-dark: #272E1D;
+        --jaced-dark: #1C1C1A;
+        --jaced-brown: #5A4D47;
+        --jaced-caramel: #C99A6B;
+        --jaced-sage: #5A6B5B;
+        --jaced-input: #DDD6CE;
+        --jaced-muted: #8A857D;
+        --jaced-caramel-bg: #F5EBE0;
+    }
+
+    body {
+        font-family: 'Lexend', sans-serif !important;
+        background-color: var(--jaced-caramel-bg) !important;
+        color: var(--jaced-brown-dark) !important;
+    }
+
+    body, h1, h2, h3, h4, h5, h6, p, a, span, div, 
+    input, button, select, textarea, label, td, th, li {
+        font-family: 'Lexend', sans-serif !important;
+    }
+
     /* Styling khusus kartu metrik tingkatan member */
     .tier-card {
+        background-color: white !important;
+        border-radius: 12px !important;
+        border: none !important;
         transition: transform 0.2s ease, box-shadow 0.2s ease;
     }
     .tier-card:hover {
         transform: translateY(-4px);
-        box-shadow: 0 8px 24px rgba(0,0,0,0.04) !important;
+        box-shadow: 0 8px 24px rgba(0,0,0,0.06) !important;
     }
     .tier-badge {
         font-size: 10px;
         letter-spacing: 0.05em;
         padding: 6px 12px;
+        font-weight: 700;
     }
-    /* Warna aksen khusus tiap tier */
+    /* Warna aksen atas mengikuti tier masing-masing */
     .tier-bronze { border-top: 4px solid #CD7F32 !important; }
     .tier-silver { border-top: 4px solid #A6A6A6 !important; }
     .tier-gold { border-top: 4px solid #D4AF37 !important; }
@@ -26,7 +55,21 @@
     .table-custom th {
         font-size: 11px;
         letter-spacing: 0.05em;
-        color: var(--jaced-muted);
+        color: var(--jaced-muted) !important;
+    }
+
+    .btn-jaced-export {
+        background-color: var(--jaced-dark) !important;
+        color: white !important;
+        padding: 10px 24px;
+        border-radius: 8px;
+        font-weight: 500;
+        border: none;
+        cursor: pointer;
+        transition: all 0.2s;
+    }
+    .btn-jaced-export:hover {
+        background-color: var(--jaced-sage) !important;
     }
 </style>
 @endpush

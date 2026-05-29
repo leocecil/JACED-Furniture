@@ -30,18 +30,27 @@ class CategoryController extends Controller
     }
 
     // ── DELETE /categories/{category}  (AJAX)
+    // PERBAIKAN: Menggunakan Route Model Binding (ProductCategory $category) secara konsisten
     public function destroy(ProductCategory $category)
     {
-        // Cegah hapus jika masih ada produk
+        // 1. Ambil jumlah produk aktif atau terikat (termasuk relasi database)
         $count = $category->products()->count();
+        
+        // 2. Cegah hapus jika masih ada produk di dalamnya
         if ($count > 0) {
             return response()->json([
                 'success' => false,
-                'message' => "Cannot delete — category still has {$count} product(s).",
-            ], 422);
+                'message' => "Cannot delete — Category \"{$category->name}\" still has {$count} product(s) inside. Empty the products first."
+            ], 422); // Mengembalikan status 422 Unprocessable Entity agar dibaca blok .catch/.then JS
         }
 
+        // 3. Eksekusi hapus jika dipastikan tidak ada produk sama sekali
         $category->delete();
-        return response()->json(['success' => true]);
+        
+        // 4. Mengembalikan success true agar chip kategori di boks modal langsung hilang otomatis
+        return response()->json([
+            'success' => true,
+            'message' => 'Category successfully removed.'
+        ]);
     }
 }

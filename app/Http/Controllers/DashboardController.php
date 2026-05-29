@@ -13,8 +13,7 @@ class DashboardController extends Controller
     {
         $months = (int) $request->get('months', 6);
         $months = max(1, min(12, $months));
-        $orderCount = Order::where('status', 'pending')->count();
-        // ── Stat Cards ───────────────────────────────────────────────
+        $orderCount = Order::where('status', ['pending','packed'])->count();        // ── Stat Cards ───────────────────────────────────────────────
         $totalRevenue = DB::table('orders')
             ->whereNotIn('status', ['cancelled', 'unpaid'])
             ->sum('total_price');

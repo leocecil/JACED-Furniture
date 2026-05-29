@@ -132,7 +132,8 @@ Route::middleware(['role:admin'])->group(function() {
     Route::delete('/admin/inventory/image/{image}', [InventoryController::class, 'destroyImage'])->name('inventory.image.destroy');
     Route::delete('/admin/inventory/{inventory}', [InventoryController::class, 'destroy'])->name('inventory.destroy');
     Route::post('/admin/inventory/{id}/restore', [InventoryController::class, 'restore'])->name('inventory.restore');
-
+    Route::post('/admin/categories', [CategoryController::class, 'store'])->name('categories.store');
+    Route::delete('/admin/categories/{category}', [CategoryController::class, 'destroy'])->name('categories.destroy');
     // Voucher Operational Management Systems
     Route::get('/admin/vouchers', [VoucherManagementController::class, 'index'])->name('admin.vouchers');
     Route::post('/admin/vouchers', [VoucherManagementController::class, 'store'])->name('admin.vouchers.store');

@@ -25,7 +25,9 @@ class StoreProductRequest extends FormRequest
             'low_stock'   => 'nullable|integer|min:0',
             'label'       => 'nullable|string|max:255',
             'category_id' => 'required|exists:product_categories,id',
-            'images'      => 'nullable|array',
+            
+            // PERBAIKAN: Diubah menjadi required dan minimal harus ada 1 file gambar yang diunggah
+            'images'      => 'required|array|min:1',
             'images.*'    => 'image|mimes:jpg,jpeg,png,webp|max:2048',
         ];
     }
@@ -42,6 +44,10 @@ class StoreProductRequest extends FormRequest
             'stock.required'       => 'Stock is required.',
             'category_id.required' => 'Please select a category.',
             'category_id.exists'   => 'Selected category does not exist.',
+            
+            // PERBAIKAN: Pesan error kustom saat array images kosong atau tidak dikirim
+            'images.required'      => 'Please upload at least one product image.',
+            'images.min'           => 'You must upload at least one product image.',
             'images.*.image'       => 'Each file must be a valid image.',
             'images.*.max'         => 'Each image must be under 2MB.',
         ];
