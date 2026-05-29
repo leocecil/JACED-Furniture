@@ -268,8 +268,7 @@
             <div class="stat-label">
                 <i class="bi bi-currency-dollar"></i> Total Discount Given
             </div>
-            <div class="stat-value" id="statTotalDiscount">Rp {{ number_format($totalDiscount / 1000000, 1) }}M</div>
-            <div class="stat-sub" id="statTotalDiscountFull">Rp {{ number_format($totalDiscount, 0, ',', '.') }}</div>
+            <div class="stat-value" id="statTotalDiscount">Rp {{ number_format($totalDiscount, 0, ',', '.') }}</div>
         </div>
 
     </div>
@@ -366,7 +365,11 @@
                         </span>
                     </td>
                     <td>
-                        <div class="action-btns">
+                        <button class="action-btn"
+                            title="View Used Orders"
+                            onclick="viewUsedOrders('{{ $vt->id }}', '{{ addslashes($vt->name) }}')">
+                            <i class="bi bi-eye"></i>
+                        </button>
                             {{-- Toggle active/inactive --}}
                             <button class="action-btn toggle-btn {{ !$vt->is_active ? 'is-inactive' : '' }}"
                                 title="{{ $vt->is_active ? 'Deactivate' : 'Activate' }}"
@@ -496,6 +499,22 @@
 
 {{-- ── Toast ── --}}
 <div class="toast-msg" id="toastMsg"></div>
+
+{{-- Used Orders Modal --}}
+<div class="drawer-overlay" id="usedOrdersOverlay" onclick="closeUsedOrdersModal()"></div>
+
+<div class="drawer" id="usedOrdersDrawer">
+    <div class="drawer-head">
+        <h3 id="usedOrdersTitle">Used Orders</h3>
+        <button class="drawer-close" onclick="closeUsedOrdersModal()">×</button>
+    </div>
+
+    <div class="drawer-body">
+        <div id="usedOrdersContent">
+            <p style="color:var(--jaced-muted);">Loading...</p>
+        </div>
+    </div>
+</div>
 
 @push('scripts')
 <script>
@@ -665,6 +684,79 @@
                 document.getElementById('statTotalDiscount').textContent = data.totalDiscount;
                 document.getElementById('statTotalDiscountFull').textContent = data.totalDiscountFull;
             });
+    }
+
+    function viewUsedOrders(id, voucherName) {
+
+        document.getElementById('usedOrdersTitle').textContent =
+            `Orders Using "${voucherName}"`;
+
+        document.getElementById('usedOrdersContent').innerHTML =
+            `<p style="color:var(--jaced-muted);">Loading...</p>`;
+
+        document.getElementById('usedOrdersDrawer').classList.add('open');
+        document.getElementById('usedOrdersOverlay').classList.add('open');
+
+        fetch(`/admin/vouchers/${id}/used-orders`)
+            .then(r => r.json())
+            .then(data => {
+
+                if (!data.success) {
+                    document.getElementById('usedOrdersContent').innerHTML =
+                        `<p style="color:#c0392b;">${data.error}</p>`;
+                    return;
+                }
+
+                if (data.orders.length === 0) {
+                    document.getElementById('usedOrdersContent').innerHTML = `
+                        <p style="color:var(--jaced-muted);">
+                            No orders have used this voucher yet.
+                        </p>
+                    `;
+                    return;
+                }
+
+                let html = `
+                    <table class="jaced-table">
+                        <thead>
+                            <tr>
+                                <th>Order ID</th>
+                                <th>Customer</th>
+                                <th>Total</th>
+                                <th>Status</th>
+                                <th>Date</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                `;
+
+                data.orders.forEach(order => {
+
+                    const customer =
+                        `${order.first_name ?? ''} ${order.last_name ?? ''}`;
+
+                    html += `
+                        <tr>
+                            <td>#${order.id}</td>
+                            <td>${customer}</td>
+                            <td>Rp ${Number(order.total_price).toLocaleString('id-ID')}</td>
+                            <td>${order.status}</td>
+                            <td>
+                                ${new Date(order.created_at).toLocaleDateString('id-ID')}
+                            </td>
+                        </tr>
+                    `;
+                });
+
+                html += `</tbody></table>`;
+
+                document.getElementById('usedOrdersContent').innerHTML = html;
+            });
+    }
+
+    function closeUsedOrdersModal() {
+        document.getElementById('usedOrdersDrawer').classList.remove('open');
+        document.getElementById('usedOrdersOverlay').classList.remove('open');
     }
 </script>
 @endpush

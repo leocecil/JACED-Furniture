@@ -85,17 +85,59 @@
     }
     .toast-msg.show { opacity: 1; transform: translateY(0); }
 
-    .pagination { display:flex; align-items:center; gap:4px; margin:0; padding:0; }
-    .pagination .page-item .page-link {
-        display:flex; align-items:center; justify-content:center;
-        min-width:32px; height:32px; padding:0 8px;
-        border:1px solid var(--jaced-input); border-radius:6px !important;
-        font-size:13px; font-weight:500;
-        color:var(--jaced-brown-dark); background:white; transition:background .15s;
+    .pagination {
+        display:flex;
+        align-items:center;
+        gap:6px;
+        margin:0;
+        padding:0;
     }
-    .pagination .page-item.active .page-link { background:var(--jaced-brown-dark); border-color:var(--jaced-brown-dark); color:white; }
-    .pagination .page-item.disabled .page-link { color:var(--jaced-muted); background:#f9f9f9; }
-    .pagination .page-item:not(.active):not(.disabled) .page-link:hover { background:var(--jaced-caramel-bg); }
+
+    .pagination .page-item .page-link {
+        display:flex;
+        align-items:center;
+        justify-content:center;
+
+        min-width:38px;
+        height:38px;
+        padding:0 12px;
+
+        border:1px solid var(--jaced-input);
+        border-radius:8px !important;
+
+        font-size:13px;
+        font-weight:500;
+
+        color:var(--jaced-brown-dark);
+        background:white;
+
+        transition:all .15s ease;
+    }
+
+    .pagination .page-item.active .page-link {
+        background:var(--jaced-brown-dark);
+        border-color:var(--jaced-brown-dark);
+        color:white;
+    }
+
+    .pagination .page-item.disabled .page-link {
+        color:var(--jaced-muted);
+        background:#f9f9f9;
+        opacity:.6;
+    }
+
+    .pagination .page-item:not(.active):not(.disabled) .page-link:hover {
+        background:var(--jaced-caramel-bg);
+    }
+
+    .pagination .page-item:first-child,
+    .pagination .page-item:last-child {
+        display: none;
+    }
+
+    .small.text-muted {
+        margin-right: 16px;
+    }
 </style>
 
 @php
@@ -117,7 +159,6 @@ $avatarColors = [
     '#7B68A0','#4A7B8A','#7A8A5B','#5A4D7A',
 ];
 
-// Admin transitions only — unpaid is intentionally excluded
 $transitions = [
     'on_process' => ['next' => 'packed',    'label' => 'Mark as Packed'],
     'packed'     => ['next' => 'delivered', 'label' => 'Mark as Delivered'],
@@ -196,7 +237,6 @@ $statusOrder = ['unpaid', 'on_process', 'packed', 'delivered', 'shipped', 'arriv
             </div>
         </div>
 
-        {{-- Open Disputes badge in header --}}
         @if($stats['open_disputes'] > 0)
         <div class="col-12">
             <div style="background:#FFF3E0; border:1px solid #FFCC80; border-radius:10px; padding:10px 16px; display:flex; align-items:center; gap:10px;">
@@ -214,9 +254,8 @@ $statusOrder = ['unpaid', 'on_process', 'packed', 'delivered', 'shipped', 'arriv
     </div>
 
     {{-- ── Orders Table Card ── --}}
-    <div class="jaced-card" style="overflow:hidden;">
+    <div class="jaced-card">
 
-        {{-- Filter Bar — no Apply button, all filters auto-refresh --}}
         <div class="filter-bar">
             <div class="filter-group" style="flex:1; min-width:180px;">
                 <span class="filter-label">Search</span>
@@ -259,7 +298,7 @@ $statusOrder = ['unpaid', 'on_process', 'packed', 'delivered', 'shipped', 'arriv
             <button class="btn-clear" onclick="clearFilters()">Clear</button>
         </div>
 
-        {{-- Table Header (desktop) --}}
+        {{-- Table Header --}}
         <div class="d-none d-md-block px-4 py-2" style="border-bottom:1px solid var(--jaced-input);">
             <div style="display:flex; align-items:center; font-size:11px; font-weight:600; letter-spacing:.7px; text-transform:uppercase; color:var(--jaced-muted);">
                 <div style="width:40px; flex-shrink:0;"></div>
@@ -279,15 +318,11 @@ $statusOrder = ['unpaid', 'on_process', 'packed', 'delivered', 'shipped', 'arriv
         </div>
 
         {{-- Pagination --}}
-        <div class="d-flex flex-wrap align-items-center justify-content-between gap-2 px-3 px-md-4 py-3"
+        <div class="d-flex flex-wrap align-items-center justify-content-end gap-2 px-3 px-md-4 py-3"
             style="border-top:1px solid var(--jaced-input);">
-            <span id="paginationInfo" style="font-size:12px; color:var(--jaced-muted);">
-                @if($orders->total() > 0)
-                    Showing {{ $orders->firstItem() }}–{{ $orders->lastItem() }} of {{ $orders->total() }} orders
-                @else
-                    No orders found
-                @endif
-            </span>
+
+            <span id="paginationInfo" class="small text-muted" style="display:none;"></span>
+            
             <div id="paginationLinksContainer">
                 {{ $orders->onEachSide(1)->links('pagination::bootstrap-5') }}
             </div>
@@ -334,267 +369,13 @@ $statusOrder = ['unpaid', 'on_process', 'packed', 'delivered', 'shipped', 'arriv
 
 @push('scripts')
 <script>
-    let pendingOrderId    = null;
-    let pendingNextStatus = null;
-    let searchTimer       = null;
+    window.orderSearchUrl      = "{{ route('admin.order_management.search') }}";
+    window.orderBaseUrl        = "{{ url('admin/orders') }}";
+    window.disputeBaseUrl      = "{{ url('admin/disputes') }}";
+    window.csrfToken           = "{{ csrf_token() }}";
+</script>
 
-    const statusColors = {
-        unpaid:     { bg: '#FFF3E0', color: '#E65100' },
-        on_process: { bg: '#E8EAF6', color: '#283593' },
-        packed:     { bg: '#E3F2FD', color: '#1565C0' },
-        delivered:  { bg: '#F3E5F5', color: '#6A1B9A' },
-        shipped:    { bg: '#E0F7FA', color: '#00695C' },
-        arrived:    { bg: '#E8F5E9', color: '#2E7D32' },
-        cancelled:  { bg: '#FFEBEE', color: '#C62828' },
-    };
-
-    // ── Live search (debounced) ───────────────────────────────────────
-    document.getElementById('searchInput').addEventListener('input', function () {
-        clearTimeout(searchTimer);
-        searchTimer = setTimeout(() => fetchOrders(1), 400);
-    });
-
-    // ── Intercept pagination clicks ───────────────────────────────────
-    document.addEventListener('click', function (e) {
-        const pageLink = e.target.closest('.pagination .page-link');
-        if (pageLink) {
-            e.preventDefault();
-            const urlString = pageLink.getAttribute('href');
-            if (urlString) {
-                try {
-                    const url  = new URL(urlString, window.location.origin);
-                    const page = url.searchParams.get('page');
-                    if (page) fetchOrders(page);
-                } catch (err) {
-                    console.error('Pagination error:', err);
-                }
-            }
-        }
-    });
-
-    // ── Clear filters ─────────────────────────────────────────────────
-    function clearFilters() {
-        ['searchInput','filterDateFrom','filterDateTo'].forEach(id => document.getElementById(id).value = '');
-        ['filterStatus','filterPayment'].forEach(id => document.getElementById(id).value = 'all');
-        fetchOrders(1);
-    }
-
-    // ── AJAX fetch orders ─────────────────────────────────────────────
-    function fetchOrders(page = 1) {
-        const params = new URLSearchParams({
-            search:    document.getElementById('searchInput').value,
-            status:    document.getElementById('filterStatus').value,
-            payment:   document.getElementById('filterPayment').value,
-            date_from: document.getElementById('filterDateFrom').value,
-            date_to:   document.getElementById('filterDateTo').value,
-            page,
-        });
-
-        fetch(`{{ route('admin.order_management.search') }}?${params}`, {
-            headers: { 'X-Requested-With': 'XMLHttpRequest' }
-        })
-        .then(r => r.json())
-        .then(data => {
-            document.getElementById('orderTableBody').innerHTML = data.html;
-            if (data.pagination) {
-                document.getElementById('paginationLinksContainer').innerHTML = data.pagination;
-            }
-            const info = document.getElementById('paginationInfo');
-            info.textContent = data.total > 0
-                ? `Showing ${data.from}–${data.to} of ${data.total} orders`
-                : 'No orders found';
-        });
-    }
-
-    // ── Toggle panel — only one open at a time ────────────────────────
-    function togglePanel(id) {
-        const panel   = document.getElementById('panel-' + id);
-        const chev    = document.getElementById('chev-' + id);
-        const chevMob = document.getElementById('chev-mob-' + id);
-        const isOpen  = panel.style.display !== 'none';
-
-        // Close all other open panels first
-        document.querySelectorAll('[id^="panel-"]').forEach(p => {
-            if (p.id !== 'panel-' + id && p.style.display !== 'none') {
-                const otherId = p.id.replace('panel-', '');
-                p.style.display = 'none';
-                const oc  = document.getElementById('chev-' + otherId);
-                const ocm = document.getElementById('chev-mob-' + otherId);
-                if (oc)  oc.style.transform  = '';
-                if (ocm) ocm.style.transform = '';
-            }
-        });
-
-        // Toggle the clicked panel
-        panel.style.display = isOpen ? 'none' : 'block';
-        if (chev)    chev.style.transform    = isOpen ? '' : 'rotate(180deg)';
-        if (chevMob) chevMob.style.transform = isOpen ? '' : 'rotate(180deg)';
-    }
-
-    // ── Status modal ──────────────────────────────────────────────────
-    function openStatusModal(orderId, currentStatus, nextStatus, label) {
-        pendingOrderId    = orderId;
-        pendingNextStatus = nextStatus;
-
-        const curr = statusColors[currentStatus] || { bg:'#F5F5F5', color:'#616161' };
-        const next = statusColors[nextStatus]    || { bg:'#F5F5F5', color:'#616161' };
-
-        document.getElementById('modalOrderId').textContent = '#ORD-' + String(orderId).padStart(4, '0');
-
-        const cc = document.getElementById('modalCurrentChip');
-        cc.textContent      = currentStatus.replace('_',' ').replace(/\b\w/g, c => c.toUpperCase());
-        cc.style.background = curr.bg;
-        cc.style.color      = curr.color;
-
-        const nc = document.getElementById('modalNextChip');
-        nc.textContent      = nextStatus.replace('_',' ').replace(/\b\w/g, c => c.toUpperCase());
-        nc.style.background = next.bg;
-        nc.style.color      = next.color;
-
-        document.getElementById('modalConfirmLabel').textContent = label;
-        document.getElementById('statusModalOverlay').classList.add('open');
-    }
-
-    function closeStatusModal() {
-        document.getElementById('statusModalOverlay').classList.remove('open');
-        pendingOrderId = null; pendingNextStatus = null;
-    }
-
-    document.getElementById('statusModalOverlay').addEventListener('click', function(e) {
-        if (e.target === this) closeStatusModal();
-    });
-
-    function confirmStatusUpdate() {
-        if (!pendingOrderId) return;
-        const btn = document.getElementById('modalConfirmBtn');
-        btn.disabled = true;
-        btn.innerHTML = '<i class="bi bi-hourglass-split"></i> Updating...';
-
-        fetch(`{{ url('admin/orders') }}/${pendingOrderId}/status`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': '{{ csrf_token() }}' },
-        })
-        .then(r => r.json())
-        .then(data => {
-            closeStatusModal();
-            btn.disabled = false;
-            btn.innerHTML = '<span id="modalConfirmLabel"></span>';
-            if (data.success) {
-                showToast('✓ ' + data.message);
-                fetchOrders(1);
-            } else {
-                showToast('⚠ ' + (data.error || 'Something went wrong.'));
-            }
-        })
-        .catch(() => {
-            btn.disabled = false;
-            showToast('Network error. Please try again.');
-        });
-    }
-
-    function showToast(msg) {
-        const t = document.getElementById('toastMsg');
-        t.textContent = msg;
-        t.classList.add('show');
-        setTimeout(() => t.classList.remove('show'), 3000);
-    }
-
-    function showExchangeTracking(disputeId) {
-        const field = document.getElementById('exchange-tracking-field-' + disputeId);
-        if (field) field.style.display = 'block';
-    }
-
-    function resolveDispute(disputeId, action) {
-        const noteEl = document.getElementById('dispute-note-' + disputeId);
-        const note   = noteEl?.value?.trim();
-
-        // Inline warning jika note kosong
-        if (!note) {
-            noteEl.style.borderColor = '#C62828';
-            noteEl.style.boxShadow   = '0 0 0 3px rgba(198,40,40,0.15)';
-            noteEl.focus();
-
-            let errEl = document.getElementById('note-err-' + disputeId);
-            if (!errEl) {
-                errEl    = document.createElement('p');
-                errEl.id = 'note-err-' + disputeId;
-                errEl.style.cssText = 'font-size:11px; color:#C62828; margin:4px 0 0; font-weight:600;';
-                errEl.textContent   = '⚠ Admin note is required before taking action.';
-                noteEl.parentNode.insertBefore(errEl, noteEl.nextSibling);
-            }
-            return;
-        }
-
-        // Reset style jika sudah diisi
-        if (noteEl) {
-            noteEl.style.borderColor = '';
-            noteEl.style.boxShadow   = '';
-            const errEl = document.getElementById('note-err-' + disputeId);
-            if (errEl) errEl.remove();
-        }
-
-        // Khusus exchange: cek apakah tracking field muncul & ada isinya
-        const tracking = document.getElementById('tracking-input-' + disputeId)?.value?.trim();
-
-        const payload = { action, admin_note: note };
-        if (action === 'exchange' && tracking) payload.replacement_tracking_number = tracking;
-
-        fetch(`/admin/disputes/${disputeId}/resolve`, {
-            method:  'POST',
-            headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content },
-            body:    JSON.stringify(payload),
-        })
-        .then(r => r.json())
-        .then(data => {
-            if (data.success) { showToast('✓ ' + data.message); fetchOrders(1); }
-            else              { showToast('⚠ ' + (data.error || 'Something went wrong.')); }
-        })
-        .catch(() => showToast('Network error. Please try again.'));
-    }
-
-    function markDisputeResolved(disputeId) {
-        const btn = document.getElementById('resolveModalConfirm');
-        btn.disabled = true;
-        btn.textContent = 'Processing...';
-
-        fetch(`{{ url('admin/disputes') }}/${disputeId}/resolved`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': '{{ csrf_token() }}' },
-        })
-        .then(r => r.json())
-        .then(data => {
-            closeResolveModal();
-            btn.disabled = false;
-            if (data.success) {
-                showToast('✓ ' + data.message);
-                fetchOrders(1);
-            } else {
-                showToast('⚠ ' + (data.error || 'Something went wrong.'));
-            }
-        })
-        .catch(() => {
-            closeResolveModal();
-            btn.disabled = false;
-            showToast('Network error. Please try again.');
-        });
-    }
-
-    function updateTracking(disputeId) {
-        const tracking = document.getElementById('tracking-update-' + disputeId)?.value?.trim();
-        if (!tracking) { showToast('⚠ Please enter a tracking number.'); return; }
-
-        fetch(`/admin/disputes/${disputeId}/tracking`, {
-            method:  'POST',
-            headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content },
-            body:    JSON.stringify({ replacement_tracking_number: tracking }),
-        })
-        .then(r => r.json())
-        .then(data => {
-            if (data.success) { showToast('✓ ' + data.message); fetchOrders(1); }
-            else              { showToast('⚠ ' + (data.error || 'Something went wrong.')); }
-        });
-    }
-    </script>
+<script src="{{ asset('js/admin/orders.js') }}"></script>
 @endpush
 
 @endsection

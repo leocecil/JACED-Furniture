@@ -240,4 +240,36 @@ class VoucherManagementController extends Controller
             'totalDiscountFull' => 'Rp ' . number_format($totalDiscount, 0, ',', '.'),
         ]);
     }
+
+    public function usedOrders(string $id)
+    {
+        $voucherType = DB::table('voucher_types')->where('id', $id)->first();
+
+        if (!$voucherType) {
+            return response()->json([
+                'success' => false,
+                'error' => 'Voucher not found.'
+            ], 404);
+        }
+
+        $orders = DB::table('orders')
+            ->join('vouchers', 'orders.voucher_id', '=', 'vouchers.id')
+            ->join('users', 'orders.user_id', '=', 'users.id')
+            ->where('vouchers.voucher_type_id', $voucherType->id)
+            ->select(
+                'orders.id',
+                'orders.created_at',
+                'orders.status',
+                'orders.total_price',
+                'users.first_name',
+                'users.last_name'
+            )
+            ->latest('orders.created_at')
+            ->get();
+
+        return response()->json([
+            'success' => true,
+            'orders' => $orders,
+        ]);
+    }
 }

@@ -159,6 +159,7 @@ Route::middleware(['role:admin'])->group(function() {
     Route::post('/admin/vouchers/{id}/toggle', [VoucherManagementController::class, 'toggle'])->name('admin.vouchers.toggle');
     Route::delete('/admin/vouchers/{id}', [VoucherManagementController::class, 'destroy'])->name('admin.vouchers.destroy');
     Route::get('/admin/vouchers/stats', [VoucherManagementController::class, 'stats'])->name('admin.vouchers.stats');
+    Route::get('/admin/vouchers/{id}/used-orders',[VoucherManagementController::class, 'usedOrders'])->name('admin.vouchers.usedOrders');
 
     // Product Category Manager
     Route::post('/admin/categories', [CategoryController::class, 'store'])->name('categories.store');
