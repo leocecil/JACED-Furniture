@@ -22,8 +22,8 @@ return new class extends Migration
             $table->decimal('delivery_fee', 10, 2);
             $table->decimal('service_tax', 10, 2);
             $table->decimal('discount_amount', 10, 2);
-            $table->decimal('tier_discount_amount', 10, 2)->default(0)->after('discount_amount');
-            $table->unsignedBigInteger('stage_id')->nullable()->after('tier_discount_amount');
+            $table->decimal('tier_discount_amount', 10, 2)->default(0);
+            $table->unsignedBigInteger('stage_id')->nullable();
             $table->decimal('total_price', 10, 2);
             $table->string('status');
             $table->text('cancellation_reason')->nullable();
