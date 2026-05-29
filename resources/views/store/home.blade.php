@@ -14,8 +14,8 @@
                 <button type="button" data-bs-target="#heroCarousel" data-bs-slide-to="2"></button>
             </div>
 
-            <div class="carousel-inner h-100">
-                <div class="carousel-item active h-100">
+            <div class="carousel-inner">
+                <div class="carousel-item active">
                     <div class="hero-slide" style="background-image: url('https://images.unsplash.com/photo-1505693416388-ac5ce068fe85?q=80&w=1600&auto=format&fit=crop');">
                         <div class="hero-overlay"></div>
                         <div class="hero-content">
@@ -29,7 +29,7 @@
                         </div>
                     </div>
                 </div>
-                <div class="carousel-item h-100">
+                <div class="carousel-item">
                     <div class="hero-slide" style="background-image: url('https://images.unsplash.com/photo-1493663284031-b7e3aefcae8e?q=80&w=1600&auto=format&fit=crop');">
                         <div class="hero-overlay"></div>
                         <div class="hero-content">
@@ -43,7 +43,7 @@
                         </div>
                     </div>
                 </div>
-                <div class="carousel-item h-100">
+                <div class="carousel-item">
                     <div class="hero-slide" style="background-image: url('https://images.unsplash.com/photo-1484101403633-562f891dc89a?q=80&w=1600&auto=format&fit=crop');">
                         <div class="hero-overlay"></div>
                         <div class="hero-content">
@@ -328,16 +328,37 @@
             opacity: 0.4;
             border-radius: 999px;
         }
-        .hero-section { padding: 0; margin: 0; position: relative; }
+        .hero-section { 
+            padding: 0; margin: 0; position: relative;
+            overflow: hidden;
+            height: 100vh;
+            min-height: 700px;
+        }
         .hero-carousel-block {
-            position: relative; border-radius: 0; overflow: hidden;
-            height: 100vh; min-height: 700px; box-shadow: none;
+            position: relative; border-radius: 0; box-shadow: none;
+            height: 100%;
+        }
+        .hero-carousel-block .carousel-inner {
+            height: 100%;
+            overflow: hidden;
+            position: relative;
+        }
+        .hero-carousel-block .carousel-item {
+            height: 100%;
         }
         .hero-slide {
-            width: 100%; height: 100vh; min-height: 700px;
+            width: 100%;
+            height: 100%;
+            min-height: 700px;
             background-size: cover; background-position: center;
             position: relative; display: flex; align-items: center;
-            overflow: hidden;
+        }
+
+        @media (max-width: 768px) {
+            .hero-slide {
+                min-height: unset;
+                height: 100svh;
+            }
         }
         /* ===== KEN BURNS HERO ===== */
         .carousel-item.active .hero-slide {
@@ -478,6 +499,7 @@
             scroll-behavior: smooth;
             cursor: grab;
             padding: 8px 24px 16px;
+            padding-right: 80px;
             scrollbar-width: none;
             -ms-overflow-style: none;
             user-select: none;
@@ -488,7 +510,7 @@
             scroll-behavior: auto;
         }
         .category-slide-item {
-            flex: 0 0 300px;
+            flex: 0 0 340px;
             position: relative;
             border-radius: 18px;
             overflow: hidden;
@@ -650,11 +672,7 @@
 
         @media (max-width:768px){
 
-            .hero-carousel-block,
-            .hero-slide{
-                min-height:580px;
-                height:90vh;
-            }
+            .hero-carousel-block{overflow:hidden;}
 
             .hero-content{
                 padding:0 24px;
@@ -707,6 +725,12 @@
                 font-size:18px;
             }
 
+            .hero-section {
+                height: 100svh;
+                min-height: 560px;
+                overflow: hidden;
+            }
+
         }
 
         @media (max-width:576px){
@@ -743,6 +767,72 @@
             }
 
         }
+
+        @media (max-width: 992px) {
+            .bestseller-row {
+                grid-template-columns: 1fr 80px;
+                gap: 12px;
+            }
+            .bestseller-desc { display: none; }
+            .bestseller-price-wrap { display: none; }
+
+            .feature-promo-full {
+                background-attachment: scroll;
+                height: auto;
+                min-height: 360px;
+                padding: 60px 24px;
+            }
+            .feature-promo-title { font-size: clamp(1.8rem, 5vw, 2.8rem); }
+            .feature-promo-desc { font-size: 16px; }
+        }
+
+        @media (max-width: 768px) {
+            .stats-section { margin: 0 12px; padding: 32px 16px; }
+            .stats-section h5 { font-size: 14px; }
+            .stats-section .small { font-size: 12px; }
+            .stats-divider { border: none; border-top: 1px solid var(--jaced-input); border-bottom: 1px solid var(--jaced-input); padding: 24px 0; margin: 8px 0; }
+
+            .categories-section { padding: 24px 0 36px; }
+            .category-slide-item { flex: 0 0 220px; }
+            .category-scroll-track { padding: 8px 16px 12px; padding-right: 60px; }
+
+            .bestseller-section { padding: 24px 16px 36px; }
+            .bestseller-card { padding: 24px 16px; }
+            .bestseller-row { grid-template-columns: 1fr 70px; gap: 8px; padding: 14px 4px; }
+            .bestseller-name h5 { font-size: 14px; }
+            .bestseller-cat { font-size: 9px; }
+            .bestseller-img-wrap { width: 70px; height: 56px; }
+
+            .rooms-section { padding: 24px 16px 36px; }
+            .room-card { height: 220px; }
+            .room-label { font-size: 16px; left: 16px; bottom: 16px; }
+
+            .feature-promo-full {
+                background-attachment: scroll;
+                height: auto;
+                min-height: 320px;
+                padding: 48px 20px;
+            }
+            .feature-promo-title { font-size: clamp(1.6rem, 6vw, 2.4rem); margin-bottom: 14px; }
+            .feature-promo-desc { font-size: 15px; margin-bottom: 20px; }
+
+            .intro-section { padding: 36px 16px 20px; }
+            .intro-text { font-size: 15px; }
+
+            .section-header { flex-direction: column; align-items: flex-start !important; gap: 12px; }
+            .btn-browse { align-self: flex-start; }
+        }
+
+        @media (max-width: 480px) {
+            .category-slide-item { flex: 0 0 180px; }
+            .category-slide-name { font-size: 14px; }
+            .room-card { height: 180px; }
+            .feature-promo-full { padding: 40px 16px; min-height: 280px; }
+            .feature-promo-title { font-size: clamp(1.4rem, 7vw, 2rem); }
+            .feature-promo-desc { font-size: 14px; }
+        }
+
+
         /* ===== FEATURE PROMO UPDATES (SHADOW ATAS & TEKS TENGAH) ===== */
         .feature-promo-section {
             padding: 0;
@@ -771,10 +861,9 @@
             top: 0;
             left: 0;
             width: 100%;
-            height: 30%; /* Ketinggian gradasi gelap dari atas */
-            /* Menggradasi dari warna gelap (menyesuaikan section atas) ke transparan */
-            background: linear-gradient(to bottom, rgba(39, 46, 29, 0.9) 0%, rgba(39, 46, 29, 0) 100%);
-            z-index: 1; /* Di bawah teks, di atas gambar */
+            height: 180px;
+            background: linear-gradient(to bottom, var(--jaced-caramel-bg) 0%, rgba(39,46,29,0) 100%);
+            z-index: 2;
         }
 
         .feature-promo-overlay {
@@ -823,6 +912,17 @@
         .feature-promo-link:hover {
             color: var(--jaced-white);
             transform: translateY(-3px); /* Hover effect ke atas */
+        }
+
+        @media (max-width: 768px) {
+            #heroCarousel .carousel-item {
+                display: none !important;
+            }
+            #heroCarousel .carousel-item.active,
+            #heroCarousel .carousel-item.carousel-item-next,
+            #heroCarousel .carousel-item.carousel-item-prev {
+                display: block !important;
+            }
         }
     </style>
 

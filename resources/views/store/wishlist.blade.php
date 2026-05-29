@@ -338,6 +338,58 @@
         .wishlist-header { flex-direction:column; align-items:flex-start; }
         .wl-filters-row { gap:8px; }
     }
+
+
+    @media (max-width: 992px) {
+        .wishlist-page { padding: 100px 0 60px; }
+        .wl-filters-row { justify-content: flex-start; }
+    }
+
+    @media (max-width: 768px) {
+        .wishlist-page { padding: 90px 0 48px; }
+        .wishlist-header { flex-direction: column; align-items: flex-start; gap: 12px; }
+        .wishlist-title { font-size: 1.8rem; }
+        .wishlist-header-right { width: 100%; justify-content: flex-start; }
+        .wishlist-browse-btn, .wishlist-clear-all-btn { font-size: 12px; padding: 9px 16px; }
+
+        .wl-search-input { font-size: 13px; padding: 12px 40px 12px 44px; }
+
+        .wl-filters-row {
+            gap: 8px;
+            justify-content: flex-start;
+            overflow-x: auto;
+            flex-wrap: nowrap;
+            padding-bottom: 4px;
+            scrollbar-width: none;
+            -ms-overflow-style: none;
+        }
+        .wl-filters-row::-webkit-scrollbar { display: none; }
+
+        .wl-pill { padding: 8px 12px; font-size: 12px; }
+        .pill-value { max-width: 80px; }
+
+        /* 2 kolom di mobile */
+        #wishlistGrid .col-6.col-md-4.col-lg-3 { width: 50%; }
+
+        .wl-card-name { font-size: 13px; }
+        .wl-card-price { font-size: 13px; }
+        .wl-card-dim { display: none; }
+        .wl-card-body { padding: 12px; }
+        .wl-card-bottom { margin-bottom: 8px; }
+        .wl-see-details { font-size: 11px; padding: 8px 12px; }
+
+        .wl-active-filters { padding: 10px 12px; gap: 6px; }
+        .wl-chip { font-size: 11px; padding: 4px 10px; }
+    }
+
+    @media (max-width: 480px) {
+        .wishlist-page .container { padding-left: 12px; padding-right: 12px; }
+        #wishlistGrid { --bs-gutter-x: 12px; --bs-gutter-y: 12px; }
+        .wl-card-name { font-size: 12px; }
+        .wl-card-info { padding: 0 2px; }
+        .wl-card-bottom { gap: 4px; }
+        .wl-remove-btn { width: 30px; height: 30px; font-size: 11px; top: 8px; right: 8px; }
+    }
 </style>
 
 <script>

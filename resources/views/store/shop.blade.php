@@ -643,6 +643,64 @@
             .shop-hero { padding: 140px 20px 60px; }
             .shop-filters-row { gap: 8px; }
         }
+
+        @media (max-width: 992px) {
+            .shop-hero { padding: 140px 20px 60px; }
+            .shop-main { padding: 32px 16px 60px; }
+            .shop-filters-row { justify-content: flex-start; }
+        }
+        
+        /* MOBILE (max 768px) */
+        @media (max-width: 768px) {
+            .shop-hero { padding: 120px 16px 48px; }
+            .shop-hero-title { font-size: clamp(2rem, 8vw, 3rem); }
+        
+            .shop-search-input { font-size: 13px; padding: 12px 40px 12px 44px; }
+        
+            .shop-filters-row {
+                gap: 8px;
+                justify-content: flex-start;
+                overflow-x: auto;
+                flex-wrap: nowrap;
+                padding-bottom: 4px;
+                scrollbar-width: none;
+                -ms-overflow-style: none;
+            }
+            .shop-filters-row::-webkit-scrollbar { display: none; }
+        
+            .shop-filter-pill { padding: 8px 12px; font-size: 12px; }
+            .pill-value { max-width: 80px; }
+        
+            .shop-filter-dropdown { min-width: 180px; }
+        
+            /* 2 kolom di mobile */
+            .col-6.col-md-4.col-lg-3 { width: 50%; }
+        
+            .shop-product-name { font-size: 14px; }
+            .shop-product-price { font-size: 17px; }
+            .shop-product-dim { display: none; }
+        
+            .shop-active-filters { padding: 10px 12px; gap: 6px; }
+            .shop-chip { font-size: 11px; padding: 4px 10px; }
+        
+            .qv-grid { grid-template-columns: 1fr; }
+            .qv-img-wrap { aspect-ratio: 16/10; }
+            .qv-body { padding: 24px 20px; }
+            .qv-name { font-size: 20px; }
+            .qv-price { font-size: 18px; }
+        }
+        
+        /* SMALL MOBILE (max 480px) */
+        @media (max-width: 480px) {
+            .shop-main { padding: 24px 12px 48px; }
+            .row.g-4 { --bs-gutter-x: 12px; --bs-gutter-y: 12px; }
+            .shop-product-name { font-size: 13px; min-height: auto; }
+            .shop-product-price { font-size: 15px; }
+            .shop-product-info { padding: 8px 2px 2px; gap: 4px; }
+            .shop-product-img-wrap { margin-bottom: 10px; }
+            .shop-result-bar { margin-bottom: 10px; }
+            .shop-result-count { font-size: 11px; }
+        }
     </style>
 
     <script>
