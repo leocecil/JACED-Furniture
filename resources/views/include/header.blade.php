@@ -43,7 +43,7 @@
                     <a href="#" class="nav-icon opacity-75 hover-opacity-100 transition position-relative"
                     data-bs-toggle="offcanvas" data-bs-target="#cartSidebar">
                         <i class="fas fa-shopping-bag"></i>
-                        <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-dark" style="font-size: 8px;">{{ $globalCartItems->sum('quantity') }}</span>
+                        <span id="cartBadge" class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-dark" style="font-size: 8px;">{{ $globalCartItems->sum('quantity') }}</span>
                     </a>
                 @endauth
 
@@ -56,7 +56,9 @@
                             <span style="font-size: 12px; letter-spacing: 1px;">{{ strtoupper(auth()->user()->name) }}</span>
                         </button>
                         <div class="dropdown-menu shadow-lg border-0 mt-2 position-absolute rounded-3" id="customUserMenu" style="right: 0; left: auto; min-width: 180px; display: none; z-index: 1050; background: #fff;">
-                            <a href="{{ route('profile') }}" class="dropdown-item text-dark d-flex align-items-center py-2 px-3 fw-bold border-0 bg-transparent w-100" style="font-size: 12px;">
+                            <a href="{{ route('profile.edit', Auth::user()->id) }}" 
+                            class="dropdown-item text-dark d-flex align-items-center py-2 px-3 fw-bold border-0 bg-transparent w-100" 
+                            style="font-size: 12px;">
                                 <i class="fas fa-user me-2"></i> PROFILE
                             </a>
 

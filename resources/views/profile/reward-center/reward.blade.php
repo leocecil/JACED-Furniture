@@ -313,12 +313,12 @@
         <div id="mainTierCard" class="premium-tier-card tier-gradient-{{ strtolower($stage) }} mb-4">
             
             {{-- BLURRED LOCK OVERLAY --}}
-            <div class="tier-locked-overlay">
+            {{-- <div class="tier-locked-overlay">
                 <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.25" stroke-linecap="round" stroke-linejoin="round" class="mb-2 text-white-75"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
                 <h5 class="fw-bold mb-1 text-white" id="lockOverlayTitle">Silver Stage Locked</h5>
                 <p class="small text-white-50 mb-3" id="lockOverlayDesc">This tier will unlock automatically once points criteria met.</p>
                 <button class="btn btn-sm btn-light fw-bold px-3 py-1.5" style="border-radius: 8px; font-size: 11px;" onclick="resetToCurrentTier()">Return to My Current Stage</button>
-            </div>
+            </div> --}}
 
             <div class="row align-items-center g-4">
                 
@@ -335,30 +335,13 @@
                     {{-- Dinamis Progress Bar --}}
                     <div class="tier-progress-wrap">
                         <div class="custom-progress">
-                            <div id="tierProgressBar" class="custom-progress-bar" style="width: {{ $stage == 'Bronze' ? '35%' : ($stage == 'Silver' ? '65%' : '100%') }};"></div>
+                            <div id="tierProgressBar" class="custom-progress-bar" style="width: 0%;"></div>
                         </div>
                         <div class="d-flex justify-content-between text-white-75 small mt-2">
                             <span>Benefits Status: Active</span>
-                            <span id="tierPointsInfo" class="fw-semibold">
-                                @if($stage == 'Bronze')
-                                    180 Pts to Silver
-                                @elseif($stage == 'Silver')
-                                    500 Pts to Gold
-                                @else
-                                    Maximum Tier Reached
-                                @endif
-                            </span>
+                            <span id="tierPointsInfo" class="fw-semibold"></span>
                         </div>
                     </div>
-                    {{-- Perks aktif user --}}
-                    @php $activeStage = $stages->firstWhere('name', $stage); @endphp
-                    @if($activeStage && $activeStage->additional_perks)
-                        <div class="d-flex flex-wrap gap-2 mt-3">
-                            @foreach($activeStage->additional_perks as $perk)
-                                <span class="tier-badge" style="font-size: 10px;">✓ {{ $perk }}</span>
-                            @endforeach
-                        </div>
-                    @endif
                 </div>
 
                 {{-- Sisi Kanan: Poin Angka Besar --}}
@@ -391,10 +374,10 @@
 
         {{-- STAGE TABS SELECTOR LOOK --}}
         <div class="stage-tabs-container">
-            <button id="tab-Bronze" class="stage-tab-new {{ $stage == 'Bronze' ? 'active-tab' : '' }}" onclick="switchTierPreview('Bronze', false)">Bronze</button>
-            <button id="tab-Silver" class="stage-tab-new {{ $stage == 'Silver' ? 'active-tab' : '' }}" onclick="switchTierPreview('Silver', {{ $stage == 'Bronze' ? 'true' : 'false' }})">Silver</button>
-            <button id="tab-Gold" class="stage-tab-new {{ $stage == 'Gold' ? 'active-tab' : '' }}" onclick="switchTierPreview('Gold', {{ ($stage == 'Bronze' || $stage == 'Silver') ? 'true' : 'false' }})">Gold</button>
-            <button id="tab-Platinum" class="stage-tab-new {{ $stage == 'Platinum' ? 'active-tab' : '' }}" onclick="switchTierPreview('Platinum', {{ $stage != 'Platinum' ? 'true' : 'false' }})">Platinum</button>
+            <button id="tab-Bronze"   class="stage-tab-new {{ $stage == 'Bronze'   ? 'active-tab' : '' }}" onclick="switchTierPreview('Bronze')">Bronze</button>
+            <button id="tab-Silver"   class="stage-tab-new {{ $stage == 'Silver'   ? 'active-tab' : '' }}" onclick="switchTierPreview('Silver')">Silver</button>
+            <button id="tab-Gold"     class="stage-tab-new {{ $stage == 'Gold'     ? 'active-tab' : '' }}" onclick="switchTierPreview('Gold')">Gold</button>
+            <button id="tab-Platinum" class="stage-tab-new {{ $stage == 'Platinum' ? 'active-tab' : '' }}" onclick="switchTierPreview('Platinum')">Platinum</button>
         </div>
 
         {{-- BOTTOM CONTROLLER LAYOUT --}}
@@ -481,6 +464,7 @@
                                                 {{ $goal->point_cost }},
                                                 '{{ $goal->id }}',
                                                 '{{ asset('image/vouchers/' . $voucherImage) }}',
+                                                '{{ addslashes($goal->description) }}',
                                                 {{ $isEnough ? 'true' : 'false' }}
                                             )">
                                             View Details
@@ -505,7 +489,11 @@
         <div style="padding: 24px;">
             <div class="mb-2" id="goalDetailBadge"></div>
             <h3 style="font-size: 16px; font-weight: 700; color: var(--jaced-dark); margin: 0 0 12px;" id="goalDetailName"></h3>
-            
+      
+            <div class="d-flex flex-column mb-2">
+                <span style="font-size: 12px; color: var(--jaced-muted);">Deskripsi</span>
+                <span id="goalDetailDesc" style="font-size: 13px; color: var(--jaced-dark);"></span>
+            </div>
             <div style="font-size: 13px; color: var(--jaced-muted); margin-bottom: 20px;">
                 <div class="d-flex justify-content-between mb-2">
                     <span>Persentase Diskon</span>
@@ -532,80 +520,103 @@
 
 @push('scripts')
 <script>
-    // Inisialisasi data asli dari backend Laravel
-    const userRealStage = "{{ $stage }}";
-    const initialProgress = "{{ $stage == 'Bronze' ? '35%' : ($stage == 'Silver' ? '65%' : '100%') }}";
-    
-    const tierDetails = {
-        'Bronze': { pct: '35%', info: '180 Pts to Silver' },
-        'Silver': { pct: '65%', info: '500 Pts to Gold' },
-        'Gold': { pct: '100%', info: 'Maximum Tier Reached' },
-        'Platinum': { pct: '100%', info: 'Maximum Tier Reached' }
+    const stagesData = @json($stages->map(fn($s) => [
+        'name' => $s->name,
+        'min' => $s->min_points_accumulative
+    ]));
+    const userAccumulatedPoints = {{ $accumulatedPoints }};
+    const userCurrentStage = "{{ $stage }}";
+</script>
+<script>
+    const tierGradients = {
+        'Bronze': 'bronze', 'Silver': 'silver', 'Gold': 'gold', 'Platinum': 'platinum'
     };
 
-    const cardEl = document.getElementById('mainTierCard');
-    const barEl = document.getElementById('tierProgressBar');
-    const titleEl = document.getElementById('tierCardTitle');
-    const infoEl = document.getElementById('tierPointsInfo');
+    const cardEl    = document.getElementById('mainTierCard');
+    const barEl     = document.getElementById('tierProgressBar');
+    const titleEl   = document.getElementById('tierCardTitle');
+    const infoEl    = document.getElementById('tierPointsInfo');
     const contextEl = document.getElementById('tierLabelContext');
-    const overlayTitle = document.getElementById('lockOverlayTitle');
 
-    function switchTierPreview(targetTier, isLocked) {
-        // Atur status active class pada tab menu bawah
+    function getProgressForTier(tierName) {
+        const sorted = [...stagesData].sort((a, b) => a.min - b.min);
+        const idx    = sorted.findIndex(s => s.name === tierName);
+        const tier   = sorted[idx];
+        const next   = sorted[idx + 1];
+
+        // Sudah unlock tier ini → full
+        if (userAccumulatedPoints >= tier.min) {
+            if (!next) return { pct: 100, info: 'Maximum Tier Reached' };
+            return { pct: 100, info: `${tierName} Unlocked ✓` };
+        }
+
+        // Belum unlock → hitung dari 0 menuju threshold tier ini
+        const pct       = Math.min(Math.round((userAccumulatedPoints / tier.min) * 100), 99);
+        const remaining = tier.min - userAccumulatedPoints;
+
+        return {
+            pct,
+            info: `${remaining.toLocaleString('id-ID')} Pts to unlock ${tierName}`
+        };
+    }
+
+    function switchTierPreview(targetTier) {
+        // Update active tab
         document.querySelectorAll('.stage-tab-new').forEach(btn => btn.classList.remove('active-tab'));
         document.getElementById(`tab-${targetTier}`).classList.add('active-tab');
 
-        // Ganti class gradasi warna background card utama
+        // Ganti gradasi card
         cardEl.className = `premium-tier-card tier-gradient-${targetTier.toLowerCase()} mb-4`;
-        
-        // Update teks & visual bar pendukung di dalam card
+
+        // Update title
         titleEl.innerText = `${targetTier.toUpperCase()} MEMBER`;
-        barEl.style.width = tierDetails[targetTier].pct;
-        infoEl.innerText = tierDetails[targetTier].info;
+
+        // Hitung progress dinamis
+        const { pct, info } = getProgressForTier(targetTier);
+        barEl.style.width = pct + '%';
+        infoEl.innerText  = info;
+
+        // Cek apakah tier ini sudah unlocked oleh user
+        const tierData = stagesData.find(s => s.name === targetTier);
+        const isLocked = userAccumulatedPoints < tierData.min;
 
         if (isLocked) {
-            contextEl.innerText = "PREVIEW MEMBERSHIP STAGE";
-            overlayTitle.innerText = `${targetTier} Stage Locked`;
-            cardEl.classList.add('is-preview-locked');
+            contextEl.innerText = '🔒 LOCKED MEMBERSHIP STAGE';
+        } else if (targetTier === userCurrentStage) {
+            contextEl.innerText = 'CURRENT MEMBERSHIP STAGE';
         } else {
-            contextEl.innerText = targetTier === userRealStage ? "CURRENT MEMBERSHIP STAGE" : "UNLOCKED MEMBERSHIP STAGE";
-            cardEl.classList.remove('is-preview-locked');
+            contextEl.innerText = 'UNLOCKED MEMBERSHIP STAGE';
         }
     }
 
     function resetToCurrentTier() {
-        switchTierPreview(userRealStage, false);
+        switchTierPreview(userCurrentStage);
     }
 
-    // Script Modal Detail Voucher
+    // Modal logic (tidak berubah)
     const goalModal = document.getElementById('goalDetailModal');
 
-    function openGoalDetail(name, usedFor, pct, maxDiscount, pointCost, voucherTypeId, imgSrc, isEnough) {
+    function openGoalDetail(name, usedFor, pct, maxDiscount, pointCost, voucherTypeId, imgSrc, description, isEnough) {
         document.getElementById('goalDetailImg').src = imgSrc;
         document.getElementById('goalDetailName').innerText = name;
         document.getElementById('goalDetailPct').innerText = pct + '%';
         document.getElementById('goalDetailMax').innerText = 'Rp ' + maxDiscount.toLocaleString('id-ID');
         document.getElementById('goalDetailPts').innerText = pointCost.toLocaleString('id-ID') + ' Points';
-        
+        document.getElementById('goalDetailDesc').innerText = description;
+
         const badgeEl = document.getElementById('goalDetailBadge');
-        if(usedFor === 'delivery') {
-            badgeEl.innerHTML = '<span class="badge" style="background-color: var(--jaced-caramel-bg); color: var(--jaced-sage); font-size: 11px;">🚚 Gratis Ongkir</span>';
-        } else {
-            badgeEl.innerHTML = '<span class="badge" style="background-color: #fcf5f3; color: #bd654e; font-size: 11px;">🏷️ Diskon Produk</span>';
-        }
+        badgeEl.innerHTML = usedFor === 'delivery'
+            ? '<span class="badge" style="background-color: var(--jaced-caramel-bg); color: var(--jaced-sage); font-size: 11px;">🚚 Gratis Ongkir</span>'
+            : '<span class="badge" style="background-color: #fcf5f3; color: #bd654e; font-size: 11px;">🏷️ Diskon Produk</span>';
 
         const actionEl = document.getElementById('goalDetailAction');
-        if(isEnough) {
-            actionEl.innerHTML = `
-                <form action="{{ route('reward.redeem') }}" method="POST">
-                    @csrf
-                    <input type="hidden" name="voucher_type_id" value="${voucherTypeId}">
-                    <button type="submit" class="btn-redeem-now">Redeem Now</button>
-                </form>
-            `;
-        } else {
-            actionEl.innerHTML = '<button class="btn-redeem-locked" disabled>Points Insufficient</button>';
-        }
+        actionEl.innerHTML = isEnough
+            ? `<form action="{{ route('reward.redeem') }}" method="POST">
+                @csrf
+                <input type="hidden" name="voucher_type_id" value="${voucherTypeId}">
+                <button type="submit" class="btn-redeem-now">Redeem Now</button>
+            </form>`
+            : '<button class="btn-redeem-locked" disabled>Points Insufficient</button>';
 
         goalModal.style.display = 'flex';
         setTimeout(() => { goalModal.style.opacity = '1'; }, 10);
@@ -615,5 +626,8 @@
         goalModal.style.opacity = '0';
         setTimeout(() => { goalModal.style.display = 'none'; }, 300);
     }
+
+    // Inisialisasi tampilan sesuai tier user saat ini
+    switchTierPreview(userCurrentStage);
 </script>
 @endpush

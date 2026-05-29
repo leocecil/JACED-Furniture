@@ -94,7 +94,18 @@ class OrderController extends Controller
                 $discountAmount = min($calculatedDiscount, $maxDiscount);
             }
         }
-        $total = $subtotal + $shipping + $tax - $discountAmount;
+        // Ambil tier user
+        $userStage = DB::table('stages')
+            ->where('min_points_accumulative', '<=', Auth::user()->accumulated_points ?? 0)
+            ->orderBy('min_points_accumulative', 'desc')
+            ->first();
+
+        $tierDiscountAmount = 0;
+        if ($userStage && $userStage->discount_percentage > 0) {
+            $tierDiscountAmount = round($subtotal * ($userStage->discount_percentage / 100));
+        }
+
+        $total = $subtotal + $shipping + $tax - $discountAmount - $tierDiscountAmount;
 
         $paymentMethods = PaymentMethod::all()
             ->map(fn($p) => [
@@ -122,7 +133,7 @@ class OrderController extends Controller
 
         return view('store.checkout', compact(
             'items', 'paymentMethods', 'banks', 'pendingVoucher', 'defaultAddress', 
-            'provinces', 'savedAddresses', 'totalWeight', 'subtotal', 'shipping', 'myVouchers', 'tax', 'total', 'discountAmount'
+            'provinces', 'savedAddresses', 'totalWeight', 'subtotal', 'shipping', 'myVouchers', 'tax', 'total', 'discountAmount', 'userStage', 'tierDiscountAmount'
         ));
     }
 
@@ -239,7 +250,21 @@ class OrderController extends Controller
                 }
             }
 
-            $totalPrice = $subtotalPrice + $deliveryFee + $serviceTax - $discountAmount;
+            // Setelah bagian voucher discount, tambah ini:
+            $tierDiscountAmount = 0;
+            $stageId = null;
+
+            $userStage = DB::table('stages')
+                ->where('min_points_accumulative', '<=', Auth::user()->accumulated_points ?? 0)
+                ->orderBy('min_points_accumulative', 'desc')
+                ->first();
+
+            if ($userStage && $userStage->discount_percentage > 0) {
+                $tierDiscountAmount = round($subtotalPrice * ($userStage->discount_percentage / 100));
+                $stageId = $userStage->id;
+            }
+
+            $totalPrice = $subtotalPrice + $deliveryFee + $serviceTax - $discountAmount - $tierDiscountAmount;
 
             $order = Order::create([
                 'user_id'             => Auth::id(),
@@ -252,6 +277,8 @@ class OrderController extends Controller
                 'discount_amount'     => $discountAmount,
                 'total_price'         => $totalPrice,
                 'status'              => 'unpaid',
+                'tier_discount_amount'=> $tierDiscountAmount,
+                'stage_id'            => $stageId,
             ]);
 
             foreach ($cartItems as $cartItem) {
@@ -303,6 +330,15 @@ class OrderController extends Controller
                     'price'    => -round($discountAmount),
                     'quantity' => 1,
                     'name'     => 'Diskon Voucher',
+                ];
+            }
+
+            if ($tierDiscountAmount > 0) {
+                $item_details[] = [
+                    'id'       => 'TIER_DISCOUNT',
+                    'price'    => -round($tierDiscountAmount),
+                    'quantity' => 1,
+                    'name'     => 'Member Tier Discount (' . $userStage->discount_percentage . '%)',
                 ];
             }
 

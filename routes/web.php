@@ -54,6 +54,7 @@ Route::middleware(['role:customer'])->group(function() {
     Route::put('/profile/addresses/{id}', [UserController::class, 'updateAddress'])->name('profile.addresses.update');
     Route::delete('/profile/addresses/{id}', [UserController::class, 'destroyAddress'])->name('profile.addresses.destroy');
     Route::patch('/profile/addresses/{id}/default', [UserController::class, 'setDefaultAddress'])->name('profile.addresses.default');
+    Route::post('/profile/{id}/password', [UserController::class, 'update_password'])->name('profile.password.update');
 
     // Informational Static Pages
     Route::get('/terms-of-service', function () { return view('profile.tos'); })->name('tos');
@@ -77,6 +78,7 @@ Route::middleware(['role:customer'])->group(function() {
     Route::patch('/cart/{id}/increase', [CartController::class, 'increase'])->name('cart.increase');
     Route::patch('/cart/{id}/decrease', [CartController::class, 'decrease'])->name('cart.decrease');
     Route::delete('/cart/{id}', [CartController::class, 'delete'])->name('cart.delete');
+    Route::get('/cart/sidebar', [CartController::class, 'sidebar'])->name('cart.sidebar');
 
     // WISHLIST (DB-based via WishlistController)
     Route::get('/wishlist/items', [WishlistController::class, 'items']);
@@ -109,6 +111,7 @@ Route::middleware(['role:customer'])->group(function() {
     Route::patch('/orderhistory/{id}/received', [OrderHistoryController::class, 'markReceived'])->name('store.orderhistory.received');
     Route::post('/orderhistory/{id}/complaint', [OrderHistoryController::class, 'submitComplaint'])->name('store.orderhistory.complaint');
     Route::patch('/orderhistory/{id}/cancel', [OrderHistoryController::class, 'cancelOrder'])->name('store.orderhistory.cancel');
+    Route::get('/orderhistory/{id}/pay', [OrderHistoryController::class, 'repay'])->name('store.orderhistory.repay');
 
     // Transaction History alias
     Route::get('/transaction-history', [OrderHistoryController::class, 'index'])->name('store.transactionhistory');
@@ -130,6 +133,9 @@ Route::middleware(['role:admin'])->group(function() {
     Route::get('/admin/order_management', [OrderManagementController::class, 'index'])->name('order_management');
     Route::get('/admin/order_management/search', [OrderManagementController::class, 'search'])->name('admin.order_management.search');
     Route::post('/admin/orders/{id}/status', [OrderManagementController::class, 'updateStatus'])->name('admin.orders.updateStatus');
+    Route::post('/admin/disputes/{id}/resolve',  [OrderManagementController::class, 'resolveDispute'])->name('admin.disputes.resolve');
+    Route::post('/admin/disputes/{id}/resolved', [OrderManagementController::class, 'markDisputeResolved'])->name('admin.disputes.resolved');
+    Route::post('/admin/disputes/{id}/tracking', [OrderManagementController::class, 'updateTracking'])->name('admin.disputes.tracking');
 
     // Complaint management - admin
     Route::get('/admin/complaints', [OrderManagementController::class, 'complaints'])->name('admin.complaints');
@@ -153,6 +159,7 @@ Route::middleware(['role:admin'])->group(function() {
     Route::post('/admin/vouchers/{id}/toggle', [VoucherManagementController::class, 'toggle'])->name('admin.vouchers.toggle');
     Route::delete('/admin/vouchers/{id}', [VoucherManagementController::class, 'destroy'])->name('admin.vouchers.destroy');
     Route::get('/admin/vouchers/stats', [VoucherManagementController::class, 'stats'])->name('admin.vouchers.stats');
+    Route::get('/admin/vouchers/{id}/used-orders',[VoucherManagementController::class, 'usedOrders'])->name('admin.vouchers.usedOrders');
 
     // Product Category Manager
     Route::post('/admin/categories', [CategoryController::class, 'store'])->name('categories.store');

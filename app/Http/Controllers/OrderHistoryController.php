@@ -2,11 +2,13 @@
 
 namespace App\Http\Controllers;
 
+use App\Mail\InvoiceMail;
 use App\Models\Order;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Mail;
 
 class OrderHistoryController extends Controller
 {
@@ -178,5 +180,77 @@ class OrderHistoryController extends Controller
             : 'Order berhasil dibatalkan.';
 
         return redirect()->back()->with('success', $message);
+    }
+
+    public function sendInvoice($id)
+    {
+        $order = Order::with([
+            'orderDetails.product.images',
+            'shippingAddress',
+            'paymentMethod',
+            'user',
+        ])
+        ->where('user_id', Auth::id())
+        ->findOrFail($id);
+
+        Mail::to($order->user->email)->send(new InvoiceMail($order));
+
+        return redirect()->back()->with('success', 'Invoice has been sent to ' . $order->user->email);
+    }
+
+    public function repay($id)
+    {
+        $order = Order::with(['orderDetails.product', 'paymentMethod', 'vaBank'])->findOrFail($id);
+
+        if ($order->user_id !== Auth::id() || $order->status !== 'unpaid') {
+            return redirect()->route('store.orderhistory')->with('error', 'Order tidak valid.');
+        }
+
+        \Midtrans\Config::$serverKey    = config('midtrans.server_key');
+        \Midtrans\Config::$isProduction = config('midtrans.is_production');
+        \Midtrans\Config::$isSanitized  = true;
+        \Midtrans\Config::$is3ds        = true;
+
+        $newMidtransOrderId = 'JACED-ORD-' . $order->id . '-' . time();
+        $order->update(['midtrans_order_id' => $newMidtransOrderId]);
+
+        // Rebuild enabled_payments dari data order
+        $paymentMethod = $order->paymentMethod?->name;
+        $chosenBank    = $order->vaBank?->name;
+
+        $enabledPayments = [];
+        if ($paymentMethod === 'virtual_account' && !empty($chosenBank)) {
+            if ($chosenBank === 'mandiri') {
+                $enabledPayments[] = 'echannel';
+            } else {
+                $enabledPayments[] = $chosenBank . '_va';
+            }
+        } elseif (!empty($paymentMethod)) {
+            $enabledPayments[] = match($paymentMethod) {
+                'qris'        => 'other_qris',
+                'credit_card' => 'credit_card',
+                'ovo'         => 'ovo',
+                'dana'        => 'dana',
+                default       => $paymentMethod,
+            };
+        }
+
+        $params = [
+            'transaction_details' => [
+                'order_id'     => $newMidtransOrderId,
+                'gross_amount' => (int) $order->total_price,
+            ],
+            'callbacks' => [
+                'finish' => route('payment_return', $order->id),
+            ],
+        ];
+
+        if (!empty($enabledPayments)) {
+            $params['enabled_payments'] = $enabledPayments;
+        }
+
+        $snapToken = \Midtrans\Snap::getSnapToken($params);
+
+        return view('store.payment', compact('snapToken', 'order'));
     }
 }

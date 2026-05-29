@@ -17,8 +17,12 @@ return new class extends Migration
             $table->string('reason'); // 'damaged', 'wrong_item', etc.
             $table->text('description')->nullable(); // Customer's detailed explanation
             $table->string('status'); // 'open', 'negotiating', 'resolved', 'rejected'
+            $table->text('admin_note')->nullable(); // Admin's note on the dispute      
             $table->string('resolution_type')->nullable(); // 'refund', 'exchange'
             $table->string('photo_path')->nullable();
+
+            // For handling the refund
+            $table->decimal('refund_amount', 8, 2)->nullable();
             
             // For handling the physical return of the bad item
             $table->string('return_tracking_number')->nullable();

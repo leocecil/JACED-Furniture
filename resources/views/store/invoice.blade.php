@@ -122,6 +122,15 @@
 
 <div class="print-bar">
     <a href="{{ route('store.orderhistory_detail.show', $order->id) }}" class="btn-back-inv">← Back to Order</a>
+    
+    {{-- Tambah ini --}}
+    <form action="{{ route('store.orderhistory.invoice.send', $order->id) }}" method="POST" style="display:inline;">
+        @csrf
+        <button type="submit" class="btn-back-inv" style="background:#f5f0e8; border-color:#c8b99a; color:#2a2318;">
+            ✉ Send to Email
+        </button>
+    </form>
+
     <button class="btn-print" onclick="window.print()">Print / Save as PDF</button>
 </div>
 
@@ -173,7 +182,7 @@
     {{-- PAYMENT METHOD --}}
     <div style="margin-bottom: 36px;">
         <div class="inv-section-label">Payment Method</div>
-        <p style="font-size:13px; color:#2a2318; font-weight: 600; margin-top:4px;">{{ $order->paymentMethod?->name ?? '—' }}</p>
+        <p style="font-size:13px; color:#2a2318; font-weight: 600; margin-top:4px;">{{ ucwords(str_replace('_', ' ', $order->paymentMethod->name ?? '-')) }}</p>
     </div>
 
     {{-- ITEMS --}}
@@ -231,7 +240,7 @@
         </div>
         <div class="inv-footer-note" style="text-align:right;">
             <strong>Jaced Artisan Furniture</strong><br>
-            <span style="color: #888;">jaced.id</span>
+            <span style="color: #888;">Surabaya, Indonesia</span>
         </div>
     </div>
 
