@@ -220,6 +220,30 @@
     .cart-toast.show{
         opacity: 1;
     }
+    .cart-confirm-backdrop{
+        position: fixed;
+        inset: 0;
+        background: rgba(0,0,0,0.45);
+        display: none;
+        align-items: center;
+        justify-content: center;
+        z-index: 9999;
+    }
+
+    .cart-empty-toast{
+        position: fixed;
+        bottom: 30px;
+        left: 50%;
+        transform: translateX(-50%);
+        background: #1f3117;
+        color: #f4efe7;
+        padding: 16px 24px;
+        border-radius: 999px;
+        display: none;
+        align-items: center;
+        gap: 10px;
+        z-index: 9999;
+    }
     /* RESPONSIVE */
     @media(max-width: 768px){
         #cartSidebar{
@@ -337,7 +361,8 @@
                             <button type="button" class="remove-item-btn delete-btn" data-id="{{ $cart->id }}">
                                 <i class="fa-solid fa-trash"></i>
                             </button>
-                        </div>
+                        </form>
+                    </div>
                     </div>
                 </div>
             @empty
@@ -360,9 +385,9 @@
         </div>
 
         <!-- CHECKOUT BUTTON -->
-        <button class="checkout-btn" id="checkoutBtn"
-                data-url="{{ route('checkout.index') }}"
-                data-empty="{{ $globalCartItems->isEmpty() ? '1' : '0' }}">
+        <button type="button" class="checkout-btn" id="checkoutBtn"
+            data-url="{{ route('checkout.index') }}"
+            data-empty="{{ $globalCartItems->isEmpty() ? '1' : '0' }}">
             Proceed to Checkout
         </button>
     </div>
@@ -511,4 +536,18 @@
             attachCartListeners();
         });
     }
+
+    document.getElementById('checkoutBtn').addEventListener('click', function () {
+        const isEmpty = this.dataset.empty === '1';
+        if(isEmpty){
+            const toast = document.getElementById('cartEmptyToast');
+            toast.style.display = 'flex';
+            setTimeout(() => {
+                toast.style.display = 'none';
+            }, 2500);
+            return;
+        }
+
+        window.location.href = this.dataset.url;
+    });
 </script>
