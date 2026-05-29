@@ -765,6 +765,14 @@
                                     </button>
                                 @endif
 
+                                @if ($order->status === 'unpaid')
+                                    <a href="{{ route('store.orderhistory.repay', $order->id) }}"
+                                    class="btn-invoice"
+                                    style="background: var(--jaced-sage); margin-top: 0;">
+                                        💳 Pay Now
+                                    </a>
+                                @endif
+
                                 {{-- Cancel Order --}}
                                 @if (in_array($order->status, ['unpaid', 'on_process']))
                                     <form id="form-cancel-{{ $order->id }}" 

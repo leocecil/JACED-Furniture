@@ -67,15 +67,36 @@
     @stack('scripts')
 
     {{-- Toast Notification --}}
-    @if(session('success') || session('error'))
-    <div id="toast-notif" style="position:fixed; top:24px; right:24px; z-index:99999; animation:slideInToast .3s ease;">
-        <div style="background:{{ session('success') ? '#1A1714' : '#C62828' }}; color:white; padding:14px 20px; border-radius:12px; box-shadow:0 8px 24px rgba(0,0,0,.2); display:flex; align-items:center; gap:12px; min-width:280px; max-width:380px;">
-            <span style="font-size:18px;">{{ session('success') ? '✓' : '✕' }}</span>
-            <p style="margin:0; font-size:13px; font-weight:500; flex:1;">
-                {{ session('success') ?? session('error') }}
-            </p>
+    @if(session('success') || session('error') || session('warning') || session('info'))
+    <div id="toast-notif" style="position:fixed; top:24px; right:24px; z-index:99999; animation:slideInToast .3s ease; min-width:300px; max-width:400px;">
+        <div style="background:white; border-radius:16px; box-shadow:0 8px 32px rgba(0,0,0,.12); display:flex; align-items:center; gap:14px; padding:16px 20px;">
+            {{-- Icon Bulat --}}
+            <div style="
+                width:38px; height:38px; border-radius:50%; flex-shrink:0;
+                display:flex; align-items:center; justify-content:center;
+                background:{{ session('success') ? '#e8f5e9' : (session('error') ? '#fdecea' : (session('warning') ? '#fff8e1' : '#e3f2fd')) }};
+            ">
+                @if(session('success'))
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#2e7d32" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+                @elseif(session('error'))
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#c62828" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                @elseif(session('warning'))
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#f57f17" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+                @else
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#1565c0" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+                @endif
+            </div>
+
+            {{-- Text --}}
+            <div style="flex:1;">
+                <p style="margin:0; font-size:13px; font-weight:600; color:#1a1714;">
+                    {{ session('success') ?? session('error') ?? session('warning') ?? session('info') }}
+                </p>
+            </div>
+
+            {{-- Close Button --}}
             <button onclick="document.getElementById('toast-notif').remove()" 
-                style="background:none; border:none; color:rgba(255,255,255,.7); font-size:18px; cursor:pointer; padding:0; line-height:1;">×</button>
+                style="background:none; border:none; color:#aaa; font-size:20px; cursor:pointer; padding:0; line-height:1; flex-shrink:0;">×</button>
         </div>
     </div>
 

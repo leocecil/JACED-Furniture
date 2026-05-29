@@ -53,4 +53,9 @@ class User extends Authenticatable
     {
         return $this->hasMany(Cart::class);
     }
+
+    public function pointHistories()
+    {
+        return $this->hasMany(PointHistory::class);
+    }
 }

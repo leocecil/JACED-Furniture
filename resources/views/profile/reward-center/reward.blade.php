@@ -464,6 +464,7 @@
                                                 {{ $goal->point_cost }},
                                                 '{{ $goal->id }}',
                                                 '{{ asset('image/vouchers/' . $voucherImage) }}',
+                                                '{{ addslashes($goal->description) }}',
                                                 {{ $isEnough ? 'true' : 'false' }}
                                             )">
                                             View Details
@@ -488,7 +489,11 @@
         <div style="padding: 24px;">
             <div class="mb-2" id="goalDetailBadge"></div>
             <h3 style="font-size: 16px; font-weight: 700; color: var(--jaced-dark); margin: 0 0 12px;" id="goalDetailName"></h3>
-            
+      
+            <div class="d-flex flex-column mb-2">
+                <span style="font-size: 12px; color: var(--jaced-muted);">Deskripsi</span>
+                <span id="goalDetailDesc" style="font-size: 13px; color: var(--jaced-dark);"></span>
+            </div>
             <div style="font-size: 13px; color: var(--jaced-muted); margin-bottom: 20px;">
                 <div class="d-flex justify-content-between mb-2">
                     <span>Persentase Diskon</span>
@@ -591,12 +596,13 @@
     // Modal logic (tidak berubah)
     const goalModal = document.getElementById('goalDetailModal');
 
-    function openGoalDetail(name, usedFor, pct, maxDiscount, pointCost, voucherTypeId, imgSrc, isEnough) {
+    function openGoalDetail(name, usedFor, pct, maxDiscount, pointCost, voucherTypeId, imgSrc, description, isEnough) {
         document.getElementById('goalDetailImg').src = imgSrc;
         document.getElementById('goalDetailName').innerText = name;
         document.getElementById('goalDetailPct').innerText = pct + '%';
         document.getElementById('goalDetailMax').innerText = 'Rp ' + maxDiscount.toLocaleString('id-ID');
         document.getElementById('goalDetailPts').innerText = pointCost.toLocaleString('id-ID') + ' Points';
+        document.getElementById('goalDetailDesc').innerText = description;
 
         const badgeEl = document.getElementById('goalDetailBadge');
         badgeEl.innerHTML = usedFor === 'delivery'

@@ -54,6 +54,7 @@ Route::middleware(['role:customer'])->group(function() {
     Route::put('/profile/addresses/{id}', [UserController::class, 'updateAddress'])->name('profile.addresses.update');
     Route::delete('/profile/addresses/{id}', [UserController::class, 'destroyAddress'])->name('profile.addresses.destroy');
     Route::patch('/profile/addresses/{id}/default', [UserController::class, 'setDefaultAddress'])->name('profile.addresses.default');
+    Route::post('/profile/{id}/password', [UserController::class, 'update_password'])->name('profile.password.update');
 
     // Informational Static Pages
     Route::get('/terms-of-service', function () { return view('profile.tos'); })->name('tos');
@@ -109,6 +110,7 @@ Route::middleware(['role:customer'])->group(function() {
     Route::patch('/orderhistory/{id}/received', [OrderHistoryController::class, 'markReceived'])->name('store.orderhistory.received');
     Route::post('/orderhistory/{id}/complaint', [OrderHistoryController::class, 'submitComplaint'])->name('store.orderhistory.complaint');
     Route::patch('/orderhistory/{id}/cancel', [OrderHistoryController::class, 'cancelOrder'])->name('store.orderhistory.cancel');
+    Route::get('/orderhistory/{id}/pay', [OrderHistoryController::class, 'repay'])->name('store.orderhistory.repay');
 
     // Transaction History alias
     Route::get('/transaction-history', [OrderHistoryController::class, 'index'])->name('store.transactionhistory');

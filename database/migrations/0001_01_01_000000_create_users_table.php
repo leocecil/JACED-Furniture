@@ -20,6 +20,8 @@ return new class extends Migration
             $table->string('password');
             $table->integer('current_points')->default(0);
             $table->integer('accumulated_points')->default(0);
+            $table->boolean('address_rewarded')->default(false);
+            $table->boolean('avatar_rewarded')->default(false);
             $table->boolean('is_admin')->default(false);
             $table->rememberToken();
             $table->timestamps();
