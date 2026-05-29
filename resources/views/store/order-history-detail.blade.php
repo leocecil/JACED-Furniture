@@ -805,7 +805,7 @@
                                             <select name="type" class="form-select mt-1" style="font-size: 13px;">
                                                 <option value="missing">Item Not Received / Lost</option>
                                                 <option value="damaged">Item Damaged</option>
-                                                <option value="wrong_item">Wrong Item Sent</option>
+                                            
                                             </select>
                                         </div>
                                         <div class="mb-3">
@@ -927,7 +927,6 @@
                     <select name="type" class="form-select" style="font-size:13px;" onchange="togglePhotoRequired(this.value)">
                         <option value="missing">Item Not Received / Lost</option>
                         <option value="damaged">Item Damaged</option>
-                        <option value="wrong_item">Wrong Item Sent</option>
                     </select>
                 </div>
                 <div class="mb-3">

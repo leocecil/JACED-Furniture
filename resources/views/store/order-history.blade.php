@@ -16,6 +16,16 @@
     .nav-pills a.nav-link:hover {
         text-decoration: none !important;
     }
+
+    .nav-pills {
+        -ms-overflow-style: none;  /* IE and Edge */
+        scrollbar-width: none;  /* Firefox */
+    }
+
+    .nav-pills::-webkit-scrollbar {
+        display: none; /* Chrome, Safari and Opera */
+    }
+
     .page-title {
         font-size: 2.8rem;
         font-weight: 400;
@@ -71,6 +81,7 @@
     .status-badge.shipped    { color: #5b66ad;              background: #E8EDE8; }
     .status-badge.packed     { color: #8a6a2a;              background: #f5ecd5; }
     .status-badge.delivered  { color: #4a7c59;              background: #e4f0e8; }
+    .status-badge.shipped    { color: #5b66ad;              background: #eceef8; }
     .status-badge.arrived    { color: #3da347;              background: #f5e4e4; }
     .status-badge.unpaid     { color: #b52f2f;              background: #f5f0e0; }
     /* .status-badge.returns    { color: #5a5a8a;              background: #eeeef5; } */
@@ -165,6 +176,120 @@
             transform: translateY(0);
         }
     }
+
+    /* Membuat efek gradasi memudar di ujung kanan kontainer */
+    .menu-scroll-container::after {
+        content: '';
+        position: absolute;
+        top: 0;
+        right: 0;
+        width: 50px; /* Lebar area memudar */
+        height: 100%;
+        background: linear-gradient(to right, rgba(245, 235, 224, 0), #f5ebe0); /* Sesuaikan #f5ebe0 dengan warna background web kamu */
+        pointer-events: none; /* Biar tombol di bawahnya tetap bisa diklik */
+    }
+
+    /* Sembunyikan scrollbar bawaan tapi fungsi slide bawaan HP tetap aktif */
+    .hide-scrollbar {
+        -ms-overflow-style: none;
+        scrollbar-width: none;
+    }
+    .hide-scrollbar::-webkit-scrollbar {
+        display: none;
+    }
+
+    .menu-scroll-container {
+        width: 100%;
+    }
+
+    /* Styling Tombol Panah Bulat */
+    .btn-nav-scroll {
+        position: absolute;
+        top: 50%;
+        transform: translateY(-50%);
+        width: 32px;
+        height: 32px;
+        border-radius: 50%;
+        background-color: #ffffff; /* Warna background tombol putih bulat */
+        border: 1px solid #e0e0e0;
+        box-shadow: 0px 2px 5px rgba(0,0,0,0.1);
+        z-index: 10;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 20px;
+        font-weight: bold;
+        color: #a69076; /* Warna panah */
+        cursor: pointer;
+        transition: all 0.2s ease;
+    }
+
+    .btn-nav-scroll:hover {
+        background-color: #f5ebe0; /* Efek hover tipis */
+    }
+
+    /* Posisi tombol agar tidak menutupi teks menu pertama/terakhir */
+    .left-arrow {
+        left: -12px;
+    }
+
+    .right-arrow {
+        right: -12px;
+    }
+
+    /* Sembunyikan scrollbar bawaan */
+    .hide-scrollbar {
+        -ms-overflow-style: none;
+        scrollbar-width: none;
+    }
+    .hide-scrollbar::-webkit-scrollbar {
+        display: none;
+    }
+
+    /* Container Utama */
+    .scroll-container {
+        position: relative;
+        width: 100%;
+    }
+
+    /* Efek Masking Fade Kiri */
+    .scroll-container::before {
+        content: '';
+        position: absolute;
+        left: 0;
+        top: 0;
+        width: 40px;
+        height: 100%;
+        background: linear-gradient(to right, #f5ebe0, rgba(245, 235, 224, 0)); /* Ganti #f5ebe0 dengan warna bg webmu */
+        z-index: 2;
+        pointer-events: none;
+        transition: opacity 0.3s ease;
+        opacity: 1; /* Default muncul */
+    }
+
+    /* Efek Masking Fade Kanan */
+    .scroll-container::after {
+        content: '';
+        position: absolute;
+        right: 0;
+        top: 0;
+        width: 40px;
+        height: 100%;
+        background: linear-gradient(to left, #f5ebe0, rgba(245, 235, 224, 0)); /* Ganti #f5ebe0 dengan warna bg webmu */
+        z-index: 2;
+        pointer-events: none;
+        transition: opacity 0.3s ease;
+        opacity: 1; /* Default muncul */
+    }
+
+    /* LOGIKANYA: Sembunyikan fade sesuai posisi */
+    .scroll-container.is-at-start::before {
+        opacity: 0; /* Pas di paling kiri, fade kiri ilang */
+    }
+
+    .scroll-container.is-at-end::after {
+        opacity: 0; /* Pas mentok di kanan, fade kanan ilang */
+    }
 </style>
 @endpush
 
@@ -175,6 +300,7 @@
         'on_process' => 'On Process',
         'packed'     => 'Packed',
         'delivered'  => 'Delivered',
+        'shipped'    => 'Shipped',
         'arrived'    => 'Arrived',
         'cancelled'  => 'Cancelled',
         'disputed'   => 'Disputed',
@@ -184,6 +310,7 @@
         'on_process' => 'on_process',
         'packed'     => 'packed',
         'delivered'  => 'delivered',
+        'shipped'    => 'shipped',
         'arrived'    => 'arrived',
         'cancelled'  => 'cancelled',
         'disputed'   => 'disputed',
@@ -201,16 +328,18 @@
         </div>
 
         {{-- FILTER TABS --}}
-        <ul class="nav nav-pills flex-wrap gap-2 mb-4">
-            @foreach ($filters as $filter)
-                <li class="nav-item">
-                    <a href="{{ route('store.orderhistory', ['filter' => $filter]) }}"
-                       class="nav-link text-decoration-none {{ $filter === $activeFilter ? 'active' : '' }}">
-                        {{ $filter }}
-                    </a>
-                </li>
-            @endforeach
-        </ul>
+        <div class="scroll-container is-at-start" id="scrollContainer">
+            <ul class="nav nav-pills gap-2 mb-4 flex-nowrap overflow-x-auto text-nowrap py-2 hide-scrollbar" id="scrollMenu">
+                @foreach ($filters as $filter)
+                    <li class="nav-item">
+                        <a href="{{ route('store.orderhistory', ['filter' => $filter]) }}"
+                        class="nav-link text-decoration-none {{ $filter === $activeFilter ? 'active' : '' }}">
+                            {{ $filter }}
+                        </a>
+                    </li>
+                @endforeach
+            </ul>
+        </div>
 
         {{-- ORDER LIST --}}
         <div class="jaced-card" style="background: transparent; box-shadow: none;">
@@ -305,3 +434,41 @@
 </div>
 
 @endsection
+
+@push('scripts')
+    <script>
+        const scrollMenu = document.getElementById('scrollMenu');
+        const scrollContainer = document.getElementById('scrollContainer');
+
+        function updateFadeIndicators() {
+            if (!scrollMenu || !scrollContainer) return; // Jaga-jaga agar tidak error jika elemen belum render
+
+            const scrollLeft = scrollMenu.scrollLeft;
+            // Mencari batas maksimal scroll kanan
+            const maxScrollLeft = scrollMenu.scrollWidth - scrollMenu.clientWidth;
+
+            // Cek posisi kiri (toleransi 2 pixel)
+            if (scrollLeft <= 2) {
+                scrollContainer.classList.add('is-at-start');
+            } else {
+                scrollContainer.classList.remove('is-at-start');
+            }
+
+            // Cek posisi kanan (toleransi 2 pixel)
+            if (scrollLeft >= maxScrollLeft - 2) {
+                scrollContainer.classList.add('is-at-end');
+            } else {
+                scrollContainer.classList.remove('is-at-end');
+            }
+        }
+
+        // Jalankan fungsi saat user menggeser menu
+        scrollMenu.addEventListener('scroll', updateFadeIndicators);
+
+        // Jalankan sekali saat halaman pertama kali dimuat
+        window.addEventListener('load', updateFadeIndicators);
+        
+        // Jalankan jika layar di-resize (misal dari desktop ke mobile)
+        window.addEventListener('resize', updateFadeIndicators);
+    </script>
+@endpush

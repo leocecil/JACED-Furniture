@@ -23,7 +23,7 @@ class OrderHistoryController extends Controller
             ->where('shipped_at', '<=', now()->subDays(7))
             ->update(['status' => 'arrived', 'arrived_at' => now()]);
 
-        $filters = ['All', 'Unpaid', 'On Process', 'Packed', 'Delivered', 'Arrived', 'Cancelled', 'Disputed'];
+        $filters = ['All', 'Unpaid', 'On Process', 'Packed', 'Delivered', 'Shipped','Arrived', 'Cancelled', 'Disputed'];
         $activeFilter = $request->get('filter', 'All');
 
         $query = Order::with(['orderDetails.product'])
