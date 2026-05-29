@@ -775,6 +775,23 @@
                         throw new Error();
                     }
 
+                    const data = await response.json();
+                    refreshCartSidebar();
+                    // UPDATE CART BADGE
+                    const cartBadge = document.getElementById('cartCount');
+                    if(cartBadge){
+                        cartBadge.innerText = data.count;
+                    }
+                    // UPDATE CART TOTAL
+                    const cartTotal = document.getElementById('cartTotalPrice');
+                    if(cartTotal){
+                        cartTotal.innerText =
+                            'Rp ' + Number(data.total).toLocaleString('id-ID');
+                    }
+                    // OPTIONAL: REFRESH CART SIDEBAR CONTENT
+                    if(typeof loadCartSidebar === 'function'){
+                        loadCartSidebar();
+                    }
                     btn.innerHTML =
                         '<i class="fas fa-check"></i> Added';
                     btn.classList.add('added');

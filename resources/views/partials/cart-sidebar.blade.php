@@ -248,6 +248,32 @@
         color: #d35b5b;
     }
 
+    .cart-toast{
+        position: fixed;
+        bottom: 28px;
+        left: 50%;
+        transform: translateX(-50%);
+        background: #1f3117;
+        color: #f4efe7;
+
+        padding: 14px 24px;
+        border-radius: 999px;
+
+        display: flex;
+        align-items: center;
+        gap: 10px;
+
+        z-index: 99999;
+
+        opacity: 0;
+        pointer-events: none;
+
+        transition: 0.3s ease;
+    }
+
+    .cart-toast.show{
+        opacity: 1;
+    }
     /* RESPONSIVE */
     @media(max-width: 768px){
         #cartSidebar{
@@ -297,7 +323,7 @@
         <div class="cart-items-wrapper">
             <!-- ITEM -->
             @forelse($globalCartItems as $cart)
-            <div class="cart-item">
+            <div class="cart-item" data-cart-id="{{ $cart->id }}">
                 <img
                     src="{{ asset($cart->product->mainImage->image_path) }}"
                     class="cart-item-image"
@@ -324,7 +350,7 @@
                                     @csrf
                                     @method('PATCH')
 
-                                    <button class="cart-qty-btn decrease-btn" data-id="{{ $cart->id }}">
+                                    <button type="button" class="cart-qty-btn decrease-btn" data-id="{{ $cart->id }}">
                                         -
                                     </button>
                                 </form>
@@ -334,6 +360,7 @@
                                     value="{{ $cart->quantity }}"
                                     class="cart-qty-input"
                                     readonly
+                                    id="cartQty{{ $cart->id }}"
                                 >
 
                                 <!-- PLUS -->
@@ -341,7 +368,7 @@
                                     @csrf
                                     @method('PATCH')
 
-                                    <button class="cart-qty-btn increase-btn" data-id="{{ $cart->id }}">
+                                    <button type="button" class="cart-qty-btn increase-btn" data-id="{{ $cart->id }}">
                                         +
                                     </button>
                                 </form>
@@ -353,7 +380,7 @@
                             @csrf
                             @method('DELETE')
 
-                            <button class="remove-item-btn delete-btn" data-id="{{ $cart->id }}">
+                            <button type="button" class="remove-item-btn delete-btn" data-id="{{ $cart->id }}">
                                 <i class="fa-solid fa-trash"></i>
                             </button>
                         </form>
@@ -374,7 +401,7 @@
                 <div class="cart-total-label">
                     TOTAL VALUE
                 </div>
-                <div class="cart-total-price">
+                <div class="cart-total-price" id="cartTotalPrice">
                     Rp {{ number_format($globalCartItems->sum(fn($item) => $item->product->price * $item->quantity), 0, ',', '.') }}
                 </div>
             </div>
@@ -387,55 +414,117 @@
     </div>
 </div>
 
+<div class="cart-toast" id="cartToast">
+    <i class="fas fa-check-circle"></i>
+    <span id="cartToastText"></span>
+</div>
 <script>
-    // INCREASE
-    document.querySelectorAll('.increase-btn').forEach(button => {
-        button.addEventListener('click', function(){
-            event.preventDefault();
-            const id = this.dataset.id;
+    const cartToast = document.getElementById('cartToast');
+    const cartToastText = document.getElementById('cartToastText');
+    let cartToastTimer = null;
+    function showCartToast(message, type = 'success') {
+        const icon = cartToast.querySelector('i');
+        if(type === 'delete'){ icon.className = 'fas fa-trash'; }
+        else if(type === 'update'){ icon.className = 'fas fa-pen';}
+        else if(type === 'warning') icon.className = 'fas fa-circle-exclamation';
+        else if(type === 'wishlist') icon.className = 'fas fa-heart';
+        else{ icon.className = 'fas fa-check-circle';}
+    
+        cartToastText.textContent = message;
+        cartToast.classList.add('show');
+        clearTimeout(cartToastTimer);
+        cartToastTimer = setTimeout(() => {
+            cartToast.classList.remove('show');
+        }, 2500);
+    }
 
-            fetch(`/cart/${id}/increase`, {
-                method: 'PATCH',
-                headers: {
-                    'X-CSRF-TOKEN': '{{ csrf_token() }}',
-                    'Accept': 'application/json'
-                }
-            })
-            .then(res => res.json())
-            .then(data => {
-                localStorage.setItem('cartOpen', 'true');
-                location.reload();
+    function updateCartUI(data){
+        // update quantity input
+        const item = document.querySelector(`[data-cart-id="${data.cart_id}"]`);
+        if(item){
+            const qtyInput = item.querySelector('.cart-qty-input');
+            if(qtyInput){
+                qtyInput.value = data.quantity;
+            }
+        }
+        // update total
+        const totalEl = document.querySelector('.cart-total-price');
+        if(totalEl){
+            totalEl.innerText = 'Rp ' + Number(data.total).toLocaleString('id-ID');
+        }
+
+        // remove item if deleted
+        if(data.deleted){
+            const card = document.querySelector(`[data-cart-id="${data.cart_id}"]`);
+            if(card){ card.remove(); }
+        }
+    }
+
+    window.updateCartBadge = function(count) {
+        const badge = document.getElementById('cartBadge');
+        if (!badge) return;
+        badge.textContent = count;
+        badge.style.display = count > 0 ? 'inline-flex' : 'none';
+    }
+    window.attachCartListeners = function() {
+        // INCREASE
+        document.querySelectorAll('.increase-btn').forEach(button => {
+            button.addEventListener('click', function(e){
+                e.preventDefault();
+                const id = this.dataset.id;
+
+                fetch(`/cart/${id}/increase`, {
+                    method: 'PATCH',
+                    headers: {
+                        'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                        'Accept': 'application/json'
+                    }
+                })
+                .then(res => res.json())
+                .then(data => {
+                    if(!data.success){ showCartToast(data.message, 'warning'); return; }
+                    document.getElementById(`cartQty${id}`).value = data.quantity;
+                    document.getElementById('cartTotalPrice').innerText =
+                        'Rp ' + Number(data.total).toLocaleString('id-ID');
+                    updateCartBadge(data.count);
+                    showCartToast('Product quantity increased', 'update');
+                    // updateCartUI(data);
+                });
             });
         });
-    });
 
-    // DECREASE
-    document.querySelectorAll('.decrease-btn').forEach(button => {
-        button.addEventListener('click', function(){
-            event.preventDefault();
-            const id = this.dataset.id;
+        // DECREASE
+        document.querySelectorAll('.decrease-btn').forEach(button => {
+            button.addEventListener('click', function(e){
+                e.preventDefault();
+                const id = this.dataset.id;
 
-            fetch(`/cart/${id}/decrease`, {
-                method: 'PATCH',
-                headers: {
-                    'X-CSRF-TOKEN': '{{ csrf_token() }}',
-                    'Accept': 'application/json'
-                }
-            })
-            .then(res => res.json())
-            .then(data => {
-                localStorage.setItem('cartOpen', 'true');
-                location.reload();
+                fetch(`/cart/${id}/decrease`, {
+                    method: 'PATCH',
+                    headers: {
+                        'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                        'Accept': 'application/json'
+                    }
+                })
+                .then(res => res.json())
+                .then(data => {
+                    document.getElementById(`cartQty${id}`).value = data.quantity;
+                    document.getElementById('cartTotalPrice').innerText =
+                        'Rp ' + Number(data.total).toLocaleString('id-ID');
+                    updateCartBadge(data.count);
+                    showCartToast('Product quantity decreased', 'update');
+                    // updateCartUI(data);
+                });
             });
         });
-    });
+    };
 
     // DELETE
     document.querySelectorAll('.delete-btn').forEach(button => {
-        button.addEventListener('click', function(){
-            event.preventDefault();
+        button.addEventListener('click', function(e){
+            e.preventDefault();
             const id = this.dataset.id;
-
+            const cartItem = this.closest('.cart-item');
             fetch(`/cart/${id}`, {
                 method: 'DELETE',
                 headers: {
@@ -445,11 +534,28 @@
             })
             .then(res => res.json())
             .then(data => {
-                localStorage.setItem('cartOpen', 'true');
-                alert('Product deleted from cart');
-
-                location.reload();
+                cartItem.remove();
+                // localStorage.setItem('cartOpen', 'true');
+                // document.querySelector(`.delete-btn[data-id="${id}"]`).closest('.cart-item').remove();
+                document.getElementById('cartTotalPrice').innerText =
+                    'Rp ' + Number(data.total).toLocaleString('id-ID');
+                updateCartBadge(data.count);
+                showCartToast('Product deleted from cart', 'delete');
+                // updateCartUI(data);
             });
         });
     });
+
+    window.refreshCartSidebar = function() {
+        fetch('/cart/sidebar', {
+            headers: { 'Accept': 'application/json', 'X-CSRF-TOKEN': '{{ csrf_token() }}' }
+        })
+        .then(res => res.json())
+        .then(data => {
+            document.querySelector('.cart-items-wrapper').innerHTML = data.html;
+            document.getElementById('cartTotalPrice').innerText = 'Rp ' + Number(data.total).toLocaleString('id-ID');
+            updateCartBadge(data.count);
+            attachCartListeners();
+        });
+    }
 </script>

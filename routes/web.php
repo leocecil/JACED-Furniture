@@ -75,6 +75,7 @@ Route::middleware(['role:customer'])->group(function() {
     Route::patch('/cart/{id}/increase', [CartController::class, 'increase'])->name('cart.increase');
     Route::patch('/cart/{id}/decrease', [CartController::class, 'decrease'])->name('cart.decrease');
     Route::delete('/cart/{id}', [CartController::class, 'delete'])->name('cart.delete');
+    Route::get('/cart/sidebar', [CartController::class, 'sidebar'])->name('cart.sidebar');
 
     // WISHLIST
     Route::get('/wishlist/items', [WishlistController::class, 'items']);

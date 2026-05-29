@@ -43,7 +43,7 @@
                     <a href="#" class="nav-icon opacity-75 hover-opacity-100 transition position-relative"
                     data-bs-toggle="offcanvas" data-bs-target="#cartSidebar">
                         <i class="fas fa-shopping-bag"></i>
-                        <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-dark" style="font-size: 8px;">{{ $globalCartItems->sum('quantity') }}</span>
+                        <span id="cartBadge" class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-dark" style="font-size: 8px;">{{ $globalCartItems->sum('quantity') }}</span>
                     </a>
                 @endauth
 
