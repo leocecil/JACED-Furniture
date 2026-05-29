@@ -471,35 +471,34 @@
                 });
             });
         });
-    };
 
-    // DELETE
-    document.querySelectorAll('.delete-btn').forEach(button => {
-        button.addEventListener('click', function(e){
-            e.preventDefault();
-            const id = this.dataset.id;
-            const cartItem = this.closest('.cart-item');
-            fetch(`/cart/${id}`, {
-                method: 'DELETE',
-                headers: {
-                    'X-CSRF-TOKEN': '{{ csrf_token() }}',
-                    'Accept': 'application/json'
-                }
-            })
-            .then(res => res.json())
-            .then(data => {
-                cartItem.remove();
-                // localStorage.setItem('cartOpen', 'true');
-                // document.querySelector(`.delete-btn[data-id="${id}"]`).closest('.cart-item').remove();
-                document.getElementById('cartTotalPrice').innerText =
-                    'Rp ' + Number(data.total).toLocaleString('id-ID');
-                updateCartBadge(data.count);
-                showCartToast('Product deleted from cart', 'delete');
-                // updateCartUI(data);
+        // DELETE
+        document.querySelectorAll('.delete-btn').forEach(button => {
+            button.addEventListener('click', function(e){
+                e.preventDefault();
+                const id = this.dataset.id;
+                const cartItem = this.closest('.cart-item');
+                fetch(`/cart/${id}`, {
+                    method: 'DELETE',
+                    headers: {
+                        'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                        'Accept': 'application/json'
+                    }
+                })
+                .then(res => res.json())
+                .then(data => {
+                    cartItem.remove();
+                    // localStorage.setItem('cartOpen', 'true');
+                    // document.querySelector(`.delete-btn[data-id="${id}"]`).closest('.cart-item').remove();
+                    document.getElementById('cartTotalPrice').innerText =
+                        'Rp ' + Number(data.total).toLocaleString('id-ID');
+                    updateCartBadge(data.count);
+                    showCartToast('Product deleted from cart', 'delete');
+                    // updateCartUI(data);
+                });
             });
         });
-    });
-
+    };
     window.refreshCartSidebar = function() {
         fetch('/cart/sidebar', {
             headers: { 'Accept': 'application/json', 'X-CSRF-TOKEN': '{{ csrf_token() }}' }

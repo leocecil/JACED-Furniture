@@ -1030,6 +1030,7 @@
                     '<i class="fas fa-check"></i> Added';
 
                 updateCartBadge(data.count);
+                refreshCartSidebar();
                 showCartToast('{{ $product->name }} added to cart', 'success');
 
                 setTimeout(() => {
@@ -1067,6 +1068,7 @@
                     this.innerHTML = '<i class="fas fa-check"></i> Added';
                     this.classList.add('added');
                     updateCartBadge(data.count);
+                    refreshCartSidebar();
                     showCartToast(name + ' added to cart', 'success');
                     setTimeout(() => {
                         this.disabled = false;
