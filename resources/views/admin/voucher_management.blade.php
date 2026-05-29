@@ -263,7 +263,7 @@
         {{-- Max Discount --}}
         <div class="form-group">
             <label class="form-label" for="dMaxDiscount">Max Discount (Rp)</label>
-            <input type="number" id="dMaxDiscount" class="form-input" placeholder="e.g. 150000" min="1000" step="1000" oninput="updatePointPreview()">
+            <input type="text" id="dMaxDiscount" class="form-input" placeholder="e.g. 150000" min="1000" step="1000" oninput="formatRupiah(this); updatePointPreview()">
             <p class="form-hint">The maximum rupiah amount that will be discounted.</p>
         </div>
 
