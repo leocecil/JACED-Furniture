@@ -2,10 +2,12 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\PointHistory;
 use App\Models\Stage; // Tambahkan import model Stage di atas
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Storage;
 use Laravolt\Indonesia\Models\Province;
@@ -37,9 +39,32 @@ class UserController extends Controller
                             ->orderBy('min_points_accumulative', 'desc')
                             ->first();
         
-        $stage = $stageModel ? $stageModel->name : 'Bronze';
+        $stage = DB::table('stages')
+            ->where('min_points_accumulative', '<=', $user->accumulated_points ?? 0)
+            ->orderBy('min_points_accumulative', 'desc')
+            ->first()?->name ?? 'Bronze';
 
-        return view('profile.edit-profile', compact('user', 'stage'));
+        $addresses = $user->shippingAddresses()
+                    ->orderByDesc('is_default')
+                    ->orderByDesc('created_at')
+                    ->get();
+
+        $currentPoints     = $user->current_points ?? 0;
+        $accumulatedPoints = $user->accumulated_points ?? 0;
+        $provinces = Province::orderBy('name')->get();
+
+        $noAddress = $user->shippingAddresses()->count() === 0;
+        $noAvatar  = !$user->avatar || str_contains($user->avatar, 'default_avatar');
+
+        if ($noAddress && $noAvatar) {
+            session()->flash('info', '📍 Add your shipping address and profile photo to earn 80 bonus points!');
+        } elseif ($noAddress) {
+            session()->flash('info', '📍 Add your shipping address and earn 50 bonus points!');
+        } elseif ($noAvatar) {
+            session()->flash('info', '📸 Upload your profile photo and earn 30 bonus points!');
+        }
+
+        return view('profile.edit-profile', compact('user', 'stage', 'addresses', 'provinces', 'currentPoints', 'accumulatedPoints'));
     }
 
     // UPDATE: Menyelaraskan penamaan 'avatar' menjadi 'profile_picture' sesuai form HTML blade
@@ -48,55 +73,52 @@ class UserController extends Controller
         $user = Auth::user();
 
         $request->validate([
-            'name'            => 'required|string|max:255',
-            'email'           => 'required|email|unique:users,email,' . $user->id,
-            'phone'           => 'nullable|string|max:20',
-            'password'        => 'nullable|min:8|confirmed',
-            'avatar'          => 'nullable|image|mimes:jpg,jpeg,png,webp|max:2048', // Diubah dari 'avatar'
+            'name'   => 'nullable|string|max:255',
+            'email'  => 'nullable|email|unique:users,email,' . $user->id,
+            'phone'  => 'nullable|string|max:20',
+            'avatar' => 'nullable|image|mimes:jpg,jpeg,png,webp|max:2048',
         ]);
 
-        $user->name        = $request->name;
-        $user->email       = $request->email;
-        $user->phone_number = $request->phone;
+        $user->name         = $request->name ?? $user->name;
+        $user->email        = $request->email ?? $user->email;
+        $user->phone_number = $request->phone ?? $user->phone_number;
 
-        // Proses penyimpanan file gambar ke database menggunakan kolom 'avatar'
+        $giveAvatarReward = false;
+
         if ($request->hasFile('avatar')) {
             if ($user->avatar !== 'image/avatars/default_avatar.png') {
                 if (file_exists(public_path($user->avatar))) {
-                    $oldPhoto = $user->photo;
-
-                    if ($oldPhoto && $oldPhoto !== 'default.jpg') {
-                        $oldPhotoPath = public_path($oldPhoto);
-                        
-                        if (file_exists($oldPhotoPath) && is_file($oldPhotoPath)) {
-                            unlink($oldPhotoPath);
-                        }
-                    }
+                    unlink(public_path($user->avatar));
                 }
             }
-
             $filename = time() . '.' . $request->file('avatar')->extension();
             $request->file('avatar')->move(public_path('image/avatars'), $filename);
             $user->avatar = 'image/avatars/' . $filename;
-        }
 
-        $passwordChanged = false;
-        if ($request->filled('password')) {
-            $user->password = Hash::make($request->password);
-            $passwordChanged = true;
+            $giveAvatarReward = !$user->avatar_rewarded;
         }
 
         $user->save();
 
-        // Fitur Tambahan: Jika ganti password, otomatis logout & suruh login ulang demi keamanan
-        if ($passwordChanged) {
-            Auth::logout();
-            $request->session()->invalidate();
-            $request->session()->regenerateToken();
-            return redirect()->route('login')->with('success', 'Password changed successfully. Please log in with your new credentials.');
+        if ($giveAvatarReward) {
+            $user->current_points     += 30;
+            $user->accumulated_points += 30;
+            $user->avatar_rewarded     = true;
+            $user->save();
+
+            \App\Models\PointHistory::create([
+                'user_id' => $user->id,
+                'points'  => 30,
+                'type'    => 'earned',
+                'source'  => 'Profile Completion - Avatar',
+            ]);
+
+            return redirect()->route('profile.edit', $user->id)
+                ->with('success', '📸 Foto profil diperbarui! Kamu mendapat 30 poin bonus!');
         }
 
-        return redirect()->route('profile.edit', $user->id)->with('success', 'Profile updated successfully.');
+        return redirect()->route('profile.edit', $user->id)
+            ->with('success', 'Profile updated successfully.');
     }
 
     public function delete_avatar($id)
@@ -149,6 +171,24 @@ class UserController extends Controller
             'is_default'     => $isFirst,
         ]);
 
+        if ($isFirst && !$user->address_rewarded) {
+            $pointAmount = 50;
+            $user->current_points     += $pointAmount;
+            $user->accumulated_points += $pointAmount;
+            $user->address_rewarded    = true;
+            $user->save();
+
+            PointHistory::create([
+                'user_id' => $user->id,
+                'points'  => $pointAmount,
+                'type'    => 'earned',
+                'source'  => 'Profile Completion - Address',
+            ]);
+
+            return redirect()->route('profile.addresses')
+                ->with('success', "🎉 Alamat berhasil ditambahkan! Kamu mendapat 50 poin bonus!");
+        }
+
         return redirect()->route('profile.addresses')->with('success', 'Alamat berhasil ditambahkan.');
     }
 
@@ -195,5 +235,32 @@ class UserController extends Controller
         $user->shippingAddresses()->findOrFail($id)->update(['is_default' => true]);
 
         return redirect()->route('profile.addresses')->with('success', 'Alamat utama berhasil diubah.');
+    }
+
+    public function update_password(Request $request, $id)
+    {
+        $user = Auth::user();
+
+        $request->validate([
+            'current_password' => 'required',
+            'password'         => 'required|min:8|confirmed|different:current_password',
+        ]);
+
+        // Cek apakah current password benar
+        if (!Hash::check($request->current_password, $user->password)) {
+            return back()
+                ->withErrors(['current_password' => 'Password saat ini tidak sesuai.'])
+                ->with('error', 'Password saat ini tidak sesuai.');
+        }
+
+        $user->password = Hash::make($request->password);
+        $user->save();
+
+        Auth::logout();
+        $request->session()->invalidate();
+        $request->session()->regenerateToken();
+
+        return redirect()->route('login')
+            ->with('success', 'Password changed successfully. Please log in with your new credentials.');
     }
 }

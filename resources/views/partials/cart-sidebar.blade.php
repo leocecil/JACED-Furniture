@@ -1,89 +1,62 @@
 <style>
-    /* CART SIDEBAR */
-    #cartSidebar{
+    #cartSidebar {
         width: 430px !important;
         background: #f9f9f7;
         border-left: 1px solid #ebe5de;
         padding: 22px 24px;
-
         display: flex;
         flex-direction: column;
         height: 100vh;
     }
-
-    /* HEADER */
-    .cart-header{
+    .cart-header {
         display: flex;
         justify-content: space-between;
         align-items: center;
         margin-bottom: 20px;
         flex-shrink: 0;
     }
-
-    .cart-title{
+    .cart-title {
         font-size: 28px;
         font-weight: 700;
         color: #111827;
         margin: 0;
         letter-spacing: -1px;
     }
-
-    .cart-close-btn{
+    .cart-close-btn {
         border: none;
         background: transparent;
         font-size: 24px;
         color: #111827;
         transition: 0.2s ease;
     }
-
-    .cart-close-btn:hover{
-        opacity: 0.7;
-    }
-
-    /* BODY */
-    .offcanvas-body{
+    .cart-close-btn:hover { opacity: 0.7; }
+    .offcanvas-body {
         padding: 0 !important;
         display: flex;
         flex-direction: column;
         overflow: hidden;
         height: 100%;
     }
-
-    .offcanvas-backdrop.show{
+    .offcanvas-backdrop.show {
         opacity: 0.08;
         backdrop-filter: blur(2px);
     }
-
-    /* ITEMS */
-    .cart-items-wrapper{
+    .cart-items-wrapper {
         flex: 1;
         overflow-y: auto;
         padding-right: 4px;
         margin-bottom: 16px;
     }
-
-    .cart-item{
+    .cart-item {
         display: flex;
         gap: 16px;
         padding: 14px 0;
-        margin-bottom: 1px solid #eee7df;
+        border-bottom: 1px solid #eee7df;
+        transition: opacity 0.3s ease;
     }
-
-    .cart-item:first-child{
-        padding-top: 0;
-    }
-    .cart-item-image{
-        width: 92px;
-        height: 92px;
-        border-radius: 18px;
-        object-fit: cover;
-        background: #e8eeee;
-        flex-shrink: 0;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-    }
-    .cart-item-image-wrapper{
+    .cart-item:first-child { padding-top: 0; }
+    .cart-item:last-child { border-bottom: none; }
+    .cart-item-image-wrapper {
         width: 92px;
         height: 92px;
         border-radius: 18px;
@@ -94,79 +67,62 @@
         overflow: hidden;
         flex-shrink: 0;
     }
-    .cart-item-content{
+    .cart-item-image {
+        width: 92px;
+        height: 92px;
+        border-radius: 18px;
+        object-fit: cover;
+    }
+    .cart-item-content {
         flex: 1;
         padding-top: 2px;
     }
-
-    .cart-item-title{
+    .cart-item-title {
         font-size: 16px;
         font-weight: 700;
         color: #111827;
         margin-bottom: 6px;
         line-height: 1.3;
     }
-
-    .cart-item-category{
+    .cart-item-category {
         font-size: 11px;
         letter-spacing: 2px;
         font-weight: 700;
         color: #666;
         margin-bottom: 10px;
     }
-
-    .cart-item-price{
+    .cart-item-price {
         font-size: 15px;
         font-weight: 700;
         color: #111827;
         padding-bottom: 4px;
     }
-
-    .remove-item-btn{
-        border: none;
-        background: transparent;
-        font-size: 18px;
-        color: #444;
-        padding: 0;
-        transition: 0.2s ease;
-    }
-
-    .remove-item-btn:hover{
-        color: #c45555;
-    }
-
-    /* FOOTER */
-    .cart-footer{
+    .cart-footer {
         border-top: 1px solid #ebe5de;
         padding-top: 18px;
         padding-bottom: 6px;
         flex-shrink: 0;
         background: #f9f9f7;
     }
-
-    /* TOTAL */
-    .cart-total-wrapper{
+    .cart-total-wrapper {
         display: flex;
         justify-content: space-between;
         align-items: center;
         margin-bottom: 18px;
     }
-
-    .cart-total-label{
+    .cart-total-label {
         font-size: 16px;
         letter-spacing: 3px;
         font-weight: 700;
         color: #666;
     }
-
-    .cart-total-price{
+    .cart-total-price {
         font-size: 20px;
         font-weight: 700;
         color: #111827;
+        transition: all 0.3s ease;
     }
-
-    /* CHECKOUT */
-    .checkout-btn{
+    .checkout-btn {
         width: 100%;
         height: 58px;
         border-radius: 18px;
@@ -176,77 +132,67 @@
         font-size: 17px;
         font-weight: 600;
         transition: 0.2s ease;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        text-decoration: none;
     }
-
-    .checkout-btn:hover{
-        opacity: 0.92;
+    .checkout-btn:hover { opacity: 0.92; color: white; }
+    .checkout-btn.empty-shake {
+        background: #c45555 !important;
+        animation: shakeBtn 0.4s ease;
     }
-
-    /* SCROLLBAR */
-    .cart-items-wrapper::-webkit-scrollbar{
-        width: 5px;
+    @keyframes shakeBtn {
+        0%, 100% { transform: translateX(0); }
+        20% { transform: translateX(-6px); }
+        40% { transform: translateX(6px); }
+        60% { transform: translateX(-4px); }
+        80% { transform: translateX(4px); }
     }
-
-    .cart-items-wrapper::-webkit-scrollbar-thumb{
-        background: #999;
-        border-radius: 20px;
-    }
-
-    /* QUANTITY */
-    .cart-qty-wrapper{
+    .cart-items-wrapper::-webkit-scrollbar { width: 5px; }
+    .cart-items-wrapper::-webkit-scrollbar-thumb { background: #999; border-radius: 20px; }
+    .cart-qty-wrapper {
         display: flex;
         align-items: center;
         gap: 10px;
     }
-
-    .cart-qty-btn{
+    .cart-qty-btn {
         width: 26px;
         height: 26px;
-
         border-radius: 50%;
         border: none;
-
         background: #111827;
         color: white;
-
         font-size: 14px;
         font-weight: 600;
-
         display: flex;
         align-items: center;
         justify-content: center;
+        cursor: pointer;
+        transition: opacity 0.2s ease;
     }
-
-    .cart-qty-input{
+    .cart-qty-btn:hover { opacity: 0.75; }
+    .cart-qty-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+    .cart-qty-input {
         width: 42px;
         height: 28px;
-
         border-radius: 8px;
         border: 1px solid #ddd;
-
         background: white;
-
         text-align: center;
-
         font-size: 13px;
         font-weight: 600;
     }
-
-    /* DELETE BUTTON */
-
-    .remove-item-btn{
+    .remove-item-btn {
         border: none;
         background: transparent;
-
         font-size: 16px;
         color: #8b8b8b;
-
         transition: 0.2s ease;
+        cursor: pointer;
     }
-
-    .remove-item-btn:hover{
-        color: #d35b5b;
-    }
+    .remove-item-btn:hover { color: #d35b5b; }
 
     .cart-toast{
         position: fixed;
@@ -297,31 +243,39 @@
     }
 </style>
 
+<!-- CONFIRM POPUP -->
+<div class="cart-confirm-backdrop" id="cartConfirmBackdrop">
+    <div class="cart-confirm-modal">
+        <div class="cart-confirm-icon"><i class="fas fa-trash-alt"></i></div>
+        <h4 class="cart-confirm-title">Remove this item?</h4>
+        <p class="cart-confirm-msg" id="cartConfirmMsg">This item will be removed from your collection.</p>
+        <div class="cart-confirm-actions">
+            <button class="cart-confirm-cancel" id="cartConfirmCancel">Keep it</button>
+            <button class="cart-confirm-delete" id="cartConfirmDelete">Remove</button>
+        </div>
+    </div>
+</div>
+
+<!-- EMPTY CART TOAST -->
+<div class="cart-empty-toast" id="cartEmptyToast">
+    <i class="fas fa-shopping-bag"></i>
+    <span>Add items to your collection first</span>
+</div>
+
 <!-- CART SIDEBAR -->
-<div 
-    class="offcanvas offcanvas-end" 
-    tabindex="-1" id="cartSidebar">
+<div class="offcanvas offcanvas-end" tabindex="-1" id="cartSidebar">
 
     <!-- HEADER -->
     <div class="cart-header">
-        <h2 class="cart-title">
-            Your Collection
-        </h2>
-
-        <button 
-            type="button" 
-            class="cart-close-btn"
-            data-bs-dismiss="offcanvas"
-        >
+        <h2 class="cart-title">Your Collection</h2>
+        <button type="button" class="cart-close-btn" data-bs-dismiss="offcanvas">
             <i class="fa-solid fa-xmark"></i>
         </button>
     </div>
 
     <!-- BODY -->
     <div class="offcanvas-body pt-0">
-        <!-- CART ITEMS -->
-        <div class="cart-items-wrapper">
-            <!-- ITEM -->
+        <div class="cart-items-wrapper" id="cartItemsWrapper">
             @forelse($globalCartItems as $cart)
             <div class="cart-item" data-cart-id="{{ $cart->id }}">
                 <img
@@ -383,20 +337,18 @@
                             <button type="button" class="remove-item-btn delete-btn" data-id="{{ $cart->id }}">
                                 <i class="fa-solid fa-trash"></i>
                             </button>
-                        </form>
+                        </div>
                     </div>
                 </div>
-            </div>
-        @empty
-            <div class="text-center py-5 text-secondary">
-                Your collection is empty
-            </div>
-        @endforelse
+            @empty
+                <div class="text-center py-5 text-secondary" id="cartEmptyState">
+                    Your collection is empty
+                </div>
+            @endforelse
         </div>
 
-        <!-- STICKY FOOTER -->
+        <!-- FOOTER -->
         <div class="cart-footer">
-            <!-- TOTAL -->
             <div class="cart-total-wrapper">
                 <div class="cart-total-label">
                     TOTAL VALUE
@@ -408,9 +360,11 @@
         </div>
 
         <!-- CHECKOUT BUTTON -->
-        <a href="{{ route('checkout.index') }}" class="checkout-btn d-flex align-items-center justify-content-center text-decoration-none">
+        <button class="checkout-btn" id="checkoutBtn"
+                data-url="{{ route('checkout.index') }}"
+                data-empty="{{ $globalCartItems->isEmpty() ? '1' : '0' }}">
             Proceed to Checkout
-        </a>
+        </button>
     </div>
 </div>
 

@@ -10,15 +10,13 @@ use Carbon\Carbon;
 class OrderManagementController extends Controller
 {
     // ── Valid forward-only status transitions (admin only) ───────────
-    // unpaid is NOT here — admin cannot change unpaid status
     private array $transitions = [
         'on_process' => 'packed',
         'packed'     => 'delivered',
         'delivered'  => 'shipped',
-        // shipped → arrived: customer confirms OR auto after 7 days from shipped_at
     ];
 
-    // ── Index (full page load) ────────────────────────────────────────
+    // ── Index ─────────────────────────────────────────────────────────
     public function index(Request $request)
     {
         $this->autoCancelUnpaidOrders();
@@ -44,7 +42,7 @@ class OrderManagementController extends Controller
         ]);
     }
 
-    // ── Update status (forward only, admin) ───────────────────────────
+    // ── Update order status ───────────────────────────────────────────
     public function updateStatus(Request $request, int $id)
     {
         $order = DB::table('orders')->where('id', $id)->first();
@@ -53,7 +51,6 @@ class OrderManagementController extends Controller
             return response()->json(['error' => 'Order not found.'], 404);
         }
 
-        // Block admin from changing unpaid status
         if ($order->status === 'unpaid') {
             return response()->json(['error' => 'Cannot update unpaid orders. Waiting for customer payment.'], 422);
         }
@@ -78,21 +75,137 @@ class OrderManagementController extends Controller
         ]);
     }
 
-    // ── Auto-cancel: unpaid orders older than 24 hours ────────────────
+    // ── Resolve dispute ───────────────────────────────────────────────
+    public function resolveDispute(Request $request, int $id)
+    {
+        $request->validate([
+            'action'                      => 'required|in:refund,exchange,reject',
+            'admin_note'                  => 'required|string|max:1000',
+            'replacement_tracking_number' => 'nullable|string|max:255',
+        ]);
+
+        $dispute = DB::table('order_disputes')->where('id', $id)->first();
+        if (!$dispute) {
+            return response()->json(['error' => 'Dispute not found.'], 404);
+        }
+
+        if ($request->action === 'reject') {
+            DB::table('order_disputes')->where('id', $id)->update([
+                'status'          => 'rejected',
+                'resolution_type' => null,
+                'description'     => $dispute->description,
+                'admin_note'      => $request->admin_note,
+                'resolved_at'     => now(),
+                'updated_at'      => now(),
+            ]);
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Dispute rejected.',
+            ]);
+        }
+
+        if ($request->action === 'refund') {
+            DB::table('order_disputes')->where('id', $id)->update([
+                'status'          => 'negotiating',
+                'resolution_type' => 'refund',
+                'admin_note'      => $request->admin_note,
+                'updated_at'      => now(),
+            ]);
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Refund approved. Mark as resolved when refund is done.',
+            ]);
+        }
+
+        if ($request->action === 'exchange') {
+            $update = [
+                'status'          => 'negotiating',
+                'resolution_type' => 'exchange',
+                'admin_note'      => $request->admin_note,
+                'updated_at'      => now(),
+            ];
+
+            if ($request->filled('replacement_tracking_number')) {
+                $update['replacement_tracking_number'] = $request->replacement_tracking_number;
+                $update['replacement_shipped_at']      = now();
+            }
+
+            DB::table('order_disputes')->where('id', $id)->update($update);
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Exchange approved. Fill in tracking number when item is shipped.',
+            ]);
+        }
+    }
+
+    // ── Mark dispute as resolved (refund done / replacement arrived) ──
+    public function markDisputeResolved(Request $request, int $id)
+    {
+        $dispute = DB::table('order_disputes')->where('id', $id)->first();
+        if (!$dispute) {
+            return response()->json(['error' => 'Dispute not found.'], 404);
+        }
+
+        $update = [
+            'status'      => 'resolved',
+            'resolved_at' => now(),
+            'updated_at'  => now(),
+        ];
+
+        if ($dispute->resolution_type === 'exchange') {
+            $update['replacement_arrived_at'] = now();
+        }
+
+        DB::table('order_disputes')->where('id', $id)->update($update);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Dispute marked as resolved.',
+        ]);
+    }
+
+    // ── Update exchange tracking number ───────────────────────────────
+    public function updateTracking(Request $request, int $id)
+    {
+        $request->validate([
+            'replacement_tracking_number' => 'required|string|max:255',
+        ]);
+
+        $dispute = DB::table('order_disputes')->where('id', $id)->first();
+        if (!$dispute) {
+            return response()->json(['error' => 'Dispute not found.'], 404);
+        }
+
+        DB::table('order_disputes')->where('id', $id)->update([
+            'replacement_tracking_number' => $request->replacement_tracking_number,
+            'replacement_shipped_at'      => now(),
+            'updated_at'                  => now(),
+        ]);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Tracking number updated.',
+        ]);
+    }
+
+    // ── Auto-cancel unpaid orders older than 24h ──────────────────────
     private function autoCancelUnpaidOrders(): void
     {
         DB::table('orders')
             ->where('status', 'unpaid')
             ->where('created_at', '<=', Carbon::now()->subHours(24))
             ->update([
-                'status'               => 'cancelled',
-                'cancelled_at'         => now(),
-                'cancellation_reason'  => 'Payment timeout — order automatically cancelled after 24 hours.',
-                'updated_at'           => now(),
+                'status'              => 'cancelled',
+                'cancelled_at'        => now(),
+                'cancellation_reason' => 'Payment timeout — order automatically cancelled after 24 hours.',
+                'updated_at'          => now(),
             ]);
     }
 
-    // ── Auto-arrive: shipped orders older than 7 days from shipped_at ─
+    // ── Auto-arrive shipped orders older than 7 days ──────────────────
     private function autoArriveOrders(): void
     {
         $autoArrived = DB::table('orders')
@@ -105,11 +218,9 @@ class OrderManagementController extends Controller
             DB::table('orders')->where('id', $order->id)->update([
                 'status'     => 'arrived',
                 'arrived_at' => now(),
-                'is_auto_arrived' => true,
                 'updated_at' => now(),
             ]);
 
-            // Award points on arrival
             $pointsEarned = (int) floor($order->total_price / 10000);
             if ($pointsEarned > 0) {
                 DB::table('users')->where('id', $order->user_id)->increment('current_points', $pointsEarned);
@@ -127,77 +238,14 @@ class OrderManagementController extends Controller
         }
     }
 
-    // ── Complaints ───────────────────────────────────────────────────
-    public function complaints(Request $request)
-    {
-        $complaints = DB::table('order_complaints')
-            ->join('orders', 'order_complaints.order_id', '=', 'orders.id')
-            ->join('users', 'order_complaints.user_id', '=', 'users.id')
-            ->select(
-                'order_complaints.*',
-                'users.name as customer_name',
-                'users.email as customer_email',
-                'orders.total_price',
-                'orders.status as order_status',
-            )
-            ->orderByDesc('order_complaints.created_at')
-            ->get();
-
-        return view('admin.complaints', compact('complaints'));
-    }
-
-    public function resolveComplaint(Request $request, $id)
-    {
-        $request->validate([
-            'resolution'    => 'required|in:refund_money,resend,reject',
-            'refund_amount' => 'nullable|numeric|min:0',
-            'admin_note'    => 'nullable|string|max:500',
-        ]);
-
-        $complaint = DB::table('order_complaints')->where('id', $id)->first();
-        if (!$complaint) return response()->json(['error' => 'Complaint not found.'], 404);
-
-        $order = DB::table('orders')->where('id', $complaint->order_id)->first();
-
-        DB::table('order_complaints')->where('id', $id)->update([
-            'status'     => 'resolved',
-            'admin_note' => $request->admin_note,
-            'updated_at' => now(),
-        ]);
-
-        if ($request->resolution === 'refund_money') {
-            DB::table('orders')->where('id', $order->id)->update([
-                'refund_status' => 'approved',
-                'refund_type'   => 'money',
-                'refund_amount' => $request->refund_amount ?? $order->total_price,
-                'status'        => 'refunded',
-                'updated_at'    => now(),
-            ]);
-        } elseif ($request->resolution === 'resend') {
-            DB::table('orders')->where('id', $order->id)->update([
-                'refund_status' => 'approved',
-                'refund_type'   => 'resend',
-                'status'        => 'reshipped',
-                'updated_at'    => now(),
-            ]);
-        } elseif ($request->resolution === 'reject') {
-            DB::table('orders')->where('id', $order->id)->update([
-                'refund_status' => 'rejected',
-                'status'        => 'arrived',
-                'updated_at'    => now(),
-            ]);
-        }
-
-        return response()->json(['success' => true, 'message' => 'Complaint resolved.']);
-    }
-
     // ── Stat cards ────────────────────────────────────────────────────
     private function getStats(): array
     {
         return [
-            'unpaid'         => DB::table('orders')->where('status', 'unpaid')->count(),
-            'delivered'      => DB::table('orders')->where('status', 'delivered')->count(),
-            'weekly_revenue' => DB::table('orders')
+            'unpaid'          => DB::table('orders')->where('status', 'unpaid')->count(),
+            'delivered'       => DB::table('orders')->where('status', 'delivered')->count(),
+            'open_disputes'   => DB::table('order_disputes')->where('status', 'open')->count(),
+            'weekly_revenue'  => DB::table('orders')
                 ->whereNotIn('status', ['cancelled', 'unpaid'])
                 ->where('created_at', '>=', Carbon::now()->startOfWeek())
                 ->sum('total_price'),
@@ -211,6 +259,7 @@ class OrderManagementController extends Controller
             ->join('users', 'orders.user_id', '=', 'users.id')
             ->join('payment_methods', 'orders.payment_id', '=', 'payment_methods.id')
             ->join('shipping_address', 'orders.shipping_address_id', '=', 'shipping_address.id')
+            ->leftJoin('order_disputes', 'order_disputes.order_id', '=', 'orders.id')
             ->select(
                 'orders.id',
                 'orders.status',
@@ -235,7 +284,20 @@ class OrderManagementController extends Controller
                 'shipping_address.province_name',
                 'shipping_address.postal_code',
                 'shipping_address.receiver_name',
-                'shipping_address.receiver_phone'
+                'shipping_address.receiver_phone',
+                // Dispute info joined directly
+                'order_disputes.id as dispute_id',
+                'order_disputes.reason as dispute_reason',
+                'order_disputes.description as dispute_description',
+                'order_disputes.status as dispute_status',
+                'order_disputes.resolution_type as dispute_resolution_type',
+                'order_disputes.photo_path as dispute_photo',
+                'order_disputes.admin_note as dispute_admin_note',
+                'order_disputes.return_tracking_number as dispute_return_tracking',
+                'order_disputes.replacement_tracking_number as dispute_replacement_tracking',
+                'order_disputes.replacement_shipped_at as dispute_replacement_shipped_at',
+                'order_disputes.replacement_arrived_at as dispute_replacement_arrived_at',
+                'order_disputes.resolved_at as dispute_resolved_at'
             );
 
         if ($request->filled('search')) {
@@ -247,7 +309,11 @@ class OrderManagementController extends Controller
         }
 
         if ($request->filled('status') && $request->status !== 'all') {
-            $query->where('orders.status', $request->status);
+            if ($request->status === 'disputed') {
+                $query->whereNotNull('order_disputes.id');
+            } else {
+                $query->where('orders.status', $request->status);
+            }
         }
 
         if ($request->filled('payment') && $request->payment !== 'all') {

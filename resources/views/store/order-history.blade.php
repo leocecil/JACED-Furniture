@@ -269,14 +269,23 @@
                         @endif
                     </div>
 
-                    <div class="d-flex flex-column align-items-end gap-3 flex-shrink-0">
+                    <div class="d-flex flex-column align-items-end gap-2 flex-shrink-0">
                         <p class="fw-bold text-jaced-dark mb-0" style="font-size: 16px;">
                             Rp {{ number_format($order->total_price, 0, ',', '.') }}
                         </p>
-                        <a href="{{ route('store.orderhistory_detail.show', $order->id) }}"
-                           class="btn-order-details">
-                            Order Details
-                        </a>
+                        <div class="d-flex gap-2">
+                            @if ($order->status === 'unpaid')
+                                <a href="{{ route('store.orderhistory.repay', $order->id) }}"
+                                class="btn-order-details"
+                                style="background: var(--jaced-sage);">
+                                    Pay Now
+                                </a>
+                            @endif
+                            <a href="{{ route('store.orderhistory_detail.show', $order->id) }}"
+                            class="btn-order-details">
+                                Order Details
+                            </a>
+                        </div>
                     </div>
 
                 </div>

@@ -62,6 +62,8 @@ class Product extends Model
         return $this->hasMany(Wishlist::class);
     }
 
+    // ─── ACCESSORS ────────────────────────────────────────────────────────────
+
     public function getMainImageUrlAttribute(): string
     {
         if (!$this->mainImage) {
@@ -69,7 +71,9 @@ class Product extends Model
         }
         return asset($this->mainImage->image_path);
     }
+
     protected $appends = ['slug'];
+
     public function getSlugAttribute(): string
     {
         return \Illuminate\Support\Str::slug($this->name);

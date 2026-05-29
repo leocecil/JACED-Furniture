@@ -264,13 +264,13 @@
         cta.addEventListener('click', (e) => {
             e.preventDefault();
             const landing = document.querySelector('.jaced-landing');
-            landing.style.transition = 'transform 1s cubic-bezier(0.22, 1, 0.36, 1), filter 1s ease, opacity 0.8s ease';
+            landing.style.transition = 'transform 0.6s cubic-bezier(0.22, 1, 0.36, 1), filter 0.6s ease, opacity 0.5s ease';
             landing.style.transform = 'scale(1.15)';
             landing.style.filter = 'blur(18px)';
             landing.style.opacity = '0';
             setTimeout(() => {
-                window.location.href = cta.getAttribute('href');
-            }, 900);
+                window.location.replace(cta.getAttribute('href')); // pakai replace bukan href
+            }, 500);
         });
     }
 })();

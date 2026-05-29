@@ -59,6 +59,8 @@ class Order extends Model
         'refund_status',
         'refund_type',
         'refund_amount',
+        'tier_discount_amount',
+        'stage_id',
     ];
 
     protected $casts = [

@@ -26,6 +26,7 @@ class CreateVillagesTable extends Migration
             $table->char('code', 10)->unique();
             $table->char('district_code', 7);
             $table->string('name', 255);
+            $table->string('postal_code', 5)->nullable();
             $table->text('meta')->nullable();
             $table->timestamps();
 

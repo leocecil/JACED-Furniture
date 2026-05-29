@@ -70,39 +70,38 @@
 
         {{-- ===== EMPTY STATE ===== --}}
         <div class="wishlist-empty" id="wishlistEmpty">
-            <div class="wishlist-empty-icon">
-                <i class="far fa-heart"></i>
-            </div>
-            <h3 class="wishlist-empty-title">Your wishlist is empty</h3>
-            <p class="wishlist-empty-desc">Save pieces you love while browsing the collection.</p>
-            <a href="{{ route('shop') }}" class="wishlist-empty-btn">
-                Browse Collection <i class="fas fa-arrow-right ms-2"></i>
-            </a>
+            <div class="wishlist-empty-icon"><i class="far fa-heart"></i></div>
+            @guest
+                <h3 class="wishlist-empty-title">Please login first</h3>
+                <p class="wishlist-empty-desc">You need to be logged in to view your wishlist.</p>
+                <a href="{{ route('login') }}" class="wishlist-empty-btn">Login <i class="fas fa-arrow-right ms-2"></i></a>
+            @else
+                <h3 class="wishlist-empty-title">Your wishlist is empty</h3>
+                <p class="wishlist-empty-desc">Save pieces you love while browsing the collection.</p>
+                <a href="{{ route('shop') }}" class="wishlist-empty-btn">Browse Collection <i class="fas fa-arrow-right ms-2"></i></a>
+            @endguest
         </div>
 
         {{-- ===== NO RESULTS ===== --}}
-        <div class="wishlist-no-results" id="wishlistNoResults" style="display: none;">
+        <div class="wl-no-results" id="wishlistNoResults" style="display:none;">
             <i class="fas fa-search"></i>
-            <p>No items match your search.</p>
+            <p>No items match your filters.</p>
         </div>
 
         {{-- ===== PRODUCT GRID ===== --}}
-        <div class="row g-3" id="wishlistGrid"></div>
+        <div class="row g-4" id="wishlistGrid"></div>
 
         {{-- ===== LOAD MORE ===== --}}
-        <div class="wishlist-load-more-wrap" id="loadMoreWrap" style="display: none;">
-            <button class="wishlist-load-more-btn" id="loadMoreBtn">
-                <i class="fas fa-plus"></i>
-                Load More
-                <span class="wishlist-load-more-count" id="loadMoreCount"></span>
+        <div class="wl-load-more-wrap" id="loadMoreWrap" style="display:none;">
+            <button class="wl-load-more-btn" id="loadMoreBtn">
+                <i class="fas fa-plus"></i> Load More
+                <span id="loadMoreCount"></span>
             </button>
         </div>
 
     </div>
 </div>
 
-{{-- TOAST --}}
-{{-- CONFIRM POPUP --}}
 <div class="wl-confirm-backdrop" id="wlConfirmBackdrop">
     <div class="wl-confirm-modal">
         <div class="wl-confirm-icon"><i class="fas fa-heart-crack"></i></div>
@@ -122,147 +121,70 @@
 
 <style>
     body { background-color: var(--jaced-caramel-bg) !important; }
+    .wishlist-page { padding: 120px 0 80px; min-height: 100vh; }
+    .wishlist-page .container { max-width: 1320px; }
 
-    .wishlist-page {
-        padding: 120px 0 80px;
-        min-height: 100vh;
-    }
-    .wishlist-page .container { max-width: 1280px; }
+    /* HEADER */
+    .wishlist-header { display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:16px; margin-bottom:28px; padding-bottom:24px; border-bottom:1px solid var(--jaced-input); }
+    .wishlist-title { font-size:clamp(1.8rem,3vw,2.5rem); font-weight:700; letter-spacing:-0.03em; color:var(--jaced-brown-dark); margin:0; }
+    .wishlist-count { color:var(--jaced-muted); font-weight:400; }
+    .wishlist-header-right { display:flex; gap:12px; align-items:center; }
+    .wishlist-browse-btn { display:inline-flex; align-items:center; background:var(--jaced-brown-dark); color:var(--jaced-cream); padding:10px 20px; border-radius:999px; font-size:13px; font-weight:600; text-decoration:none; transition:background 0.3s ease; }
+    .wishlist-browse-btn:hover { background:var(--jaced-caramel); color:var(--jaced-cream); }
+    .wishlist-clear-all-btn { display:inline-flex; align-items:center; background:transparent; border:1px solid var(--jaced-input); color:var(--jaced-muted); padding:10px 20px; border-radius:999px; font-size:13px; font-weight:500; cursor:pointer; transition:all 0.3s ease; }
+    .wishlist-clear-all-btn:hover { background:#9c3535; border-color:#9c3535; color:white; }
 
-    .wishlist-header {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        flex-wrap: wrap;
-        gap: 16px;
-        margin-bottom: 28px;
-        padding-bottom: 24px;
-        border-bottom: 1px solid var(--jaced-input);
-    }
-    .wishlist-title {
-        font-size: clamp(1.8rem, 3vw, 2.5rem);
-        font-weight: 700;
-        letter-spacing: -0.03em;
-        color: var(--jaced-brown-dark);
-        margin: 0;
-    }
-    .wishlist-count { color: var(--jaced-muted); font-weight: 400; }
-    .wishlist-header-right { display: flex; gap: 12px; align-items: center; }
+    /* SEARCH */
+    .wl-search-wrap { position:relative; background:var(--jaced-card); border-radius:999px; border:1px solid var(--jaced-input); transition:border 0.3s ease; margin-bottom:14px; }
+    .wl-search-wrap:focus-within { border-color:var(--jaced-brown-dark); }
+    .wl-search-icon { position:absolute; left:22px; top:50%; transform:translateY(-50%); color:var(--jaced-muted); font-size:13px; }
+    .wl-search-input { background:transparent; border:none; width:100%; padding:14px 44px 14px 48px; font-size:14px; color:var(--jaced-brown-dark); outline:none; }
+    .wl-search-input::placeholder { color:var(--jaced-muted); }
+    .wl-search-clear { position:absolute; right:16px; top:50%; transform:translateY(-50%); background:transparent; border:none; color:var(--jaced-muted); font-size:12px; cursor:pointer; }
+    .wl-search-clear:hover { color:var(--jaced-brown-dark); }
 
-    .wishlist-browse-btn {
-        display: inline-flex; align-items: center;
-        background: var(--jaced-brown-dark); color: var(--jaced-cream);
-        padding: 10px 20px; border-radius: 999px;
-        font-size: 13px; font-weight: 600; text-decoration: none;
-        transition: background 0.3s ease;
-    }
-    .wishlist-browse-btn:hover { background: var(--jaced-caramel); color: var(--jaced-cream); }
+    /* FILTER PILLS */
+    .wl-filters-row { display:flex; gap:10px; flex-wrap:wrap; align-items:center; justify-content:center; margin-bottom:16px; }
+    .wl-pill-wrap { position:relative; }
+    .wl-pill { display:inline-flex; align-items:center; gap:8px; background:var(--jaced-card); border:1px solid var(--jaced-input); border-radius:999px; padding:9px 16px; cursor:pointer; transition:border 0.25s ease, box-shadow 0.25s ease; white-space:nowrap; font-size:13px; }
+    .wl-pill:hover { border-color:var(--jaced-brown-dark); }
+    .wl-pill.active-pill { background:var(--jaced-brown-dark); border-color:var(--jaced-brown-dark); }
+    .wl-pill.active-pill .pill-label, .wl-pill.active-pill .pill-value { color:var(--jaced-cream); }
+    .wl-pill.active-pill .pill-chevron { color:rgba(242,237,230,0.7); }
+    .wl-pill-wrap.open .wl-pill { border-color:var(--jaced-brown-dark); box-shadow:0 4px 18px rgba(39,46,29,0.08); }
+    .pill-label { font-size:10px; color:var(--jaced-muted); text-transform:uppercase; letter-spacing:0.15em; }
+    .pill-value { font-size:13px; color:var(--jaced-brown-dark); font-weight:600; max-width:140px; overflow:hidden; text-overflow:ellipsis; }
+    .pill-chevron { font-size:10px; color:var(--jaced-muted); transition:transform 0.3s ease; }
+    .wl-pill-wrap.open .pill-chevron { transform:rotate(180deg); }
 
-    .wishlist-clear-all-btn {
-        display: inline-flex; align-items: center;
-        background: transparent; border: 1px solid var(--jaced-input);
-        color: var(--jaced-muted); padding: 10px 20px;
-        border-radius: 999px; font-size: 13px; font-weight: 500;
-        cursor: pointer; transition: all 0.3s ease;
-    }
-    .wishlist-clear-all-btn:hover { background: #9c3535; border-color: #9c3535; color: white; }
+    .wl-pill-dropdown { position:absolute; top:calc(100% + 8px); left:0; min-width:210px; background:var(--jaced-card); border:1px solid var(--jaced-input); border-radius:16px; padding:8px; box-shadow:0 16px 40px rgba(39,46,29,0.12); opacity:0; visibility:hidden; transform:translateY(-8px); transition:opacity 0.25s ease, transform 0.25s ease, visibility 0.25s; z-index:200; }
+    .wl-pill-wrap.open .wl-pill-dropdown { opacity:1; visibility:visible; transform:translateY(0); }
+    .wl-dd-opt { display:flex; align-items:center; justify-content:space-between; width:100%; background:transparent; border:none; text-align:left; padding:10px 14px; font-size:13px; color:var(--jaced-brown-dark); cursor:pointer; border-radius:10px; transition:background 0.2s ease; }
+    .wl-dd-opt:hover { background:rgba(201,154,107,0.1); }
+    .wl-dd-opt.active { color:var(--jaced-caramel); font-weight:600; }
+    .wl-dd-opt i { font-size:10px; color:var(--jaced-caramel); }
 
-    .wishlist-toolbar {
-        display: flex; gap: 12px; margin-bottom: 16px;
-        flex-wrap: wrap; align-items: center;
-    }
-    .wishlist-search-wrap {
-        flex: 1; min-width: 240px; position: relative;
-        background: var(--jaced-card); border-radius: 999px;
-        border: 1px solid var(--jaced-input); transition: border 0.3s ease;
-    }
-    .wishlist-search-wrap:focus-within { border-color: var(--jaced-brown-dark); }
-    .wishlist-search-icon {
-        position: absolute; left: 18px; top: 50%;
-        transform: translateY(-50%); color: var(--jaced-muted); font-size: 13px;
-    }
-    .wishlist-search-input {
-        background: transparent; border: none; width: 100%;
-        padding: 12px 40px 12px 44px; font-size: 14px;
-        color: var(--jaced-brown-dark); outline: none;
-    }
-    .wishlist-search-input::placeholder { color: var(--jaced-muted); }
-    .wishlist-search-clear {
-        position: absolute; right: 14px; top: 50%;
-        transform: translateY(-50%); background: transparent;
-        border: none; color: var(--jaced-muted); cursor: pointer; font-size: 12px;
-    }
-    .wishlist-search-clear:hover { color: var(--jaced-brown-dark); }
+    .wl-clear-btn { display:inline-flex; align-items:center; padding:9px 16px; border-radius:999px; font-size:13px; font-weight:500; color:var(--jaced-muted); text-decoration:none; border:1px solid var(--jaced-input); transition:all 0.2s ease; }
+    .wl-clear-btn:hover { background:#9c3535; border-color:#9c3535; color:white; }
 
-    .wishlist-sort-wrap, .wishlist-filter-wrap { position: relative; }
-    .wishlist-sort-trigger {
-        display: flex; align-items: center; gap: 8px;
-        background: var(--jaced-card); border: 1px solid var(--jaced-input);
-        border-radius: 999px; padding: 10px 18px; cursor: pointer;
-        transition: border 0.25s ease; white-space: nowrap; user-select: none;
-    }
-    .wishlist-sort-trigger:hover { border-color: var(--jaced-brown-dark); }
-    .wishlist-sort-label { font-size: 11px; color: var(--jaced-muted); text-transform: uppercase; letter-spacing: 0.15em; }
-    .wishlist-sort-value { font-size: 13px; font-weight: 600; color: var(--jaced-brown-dark); }
-    .wishlist-sort-chevron { font-size: 10px; color: var(--jaced-muted); transition: transform 0.3s ease; }
-    .wishlist-sort-wrap.open .wishlist-sort-chevron,
-    .wishlist-filter-wrap.open .wishlist-sort-chevron { transform: rotate(180deg); }
+    /* ACTIVE CHIPS */
+    .wl-active-filters { display:flex; align-items:center; flex-wrap:wrap; gap:8px; padding:12px 16px; background:var(--jaced-card); border-radius:12px; margin-bottom:16px; }
+    .wl-active-label { font-size:11px; color:var(--jaced-muted); text-transform:uppercase; letter-spacing:0.15em; }
+    .wl-chip { display:inline-flex; align-items:center; gap:6px; padding:4px 12px; background:var(--jaced-brown-dark); color:var(--jaced-cream); border-radius:999px; font-size:12px; font-weight:500; }
+    .wl-chip button { background:transparent; border:none; color:var(--jaced-cream); opacity:0.7; cursor:pointer; font-size:10px; padding:0; }
+    .wl-chip button:hover { opacity:1; }
 
-    .wishlist-sort-menu {
-        position: absolute; top: calc(100% + 8px); right: 0;
-        min-width: 200px; background: var(--jaced-card);
-        border: 1px solid var(--jaced-input); border-radius: 16px;
-        padding: 8px; box-shadow: 0 16px 40px rgba(39,46,29,0.12);
-        opacity: 0; visibility: hidden; transform: translateY(-8px);
-        transition: opacity 0.25s ease, transform 0.25s ease, visibility 0.25s; z-index: 100;
-    }
-    .wishlist-sort-wrap.open .wishlist-sort-menu,
-    .wishlist-filter-wrap.open .wishlist-sort-menu {
-        opacity: 1; visibility: visible; transform: translateY(0);
-    }
-    .wishlist-sort-option {
-        display: flex; align-items: center; justify-content: space-between;
-        width: 100%; background: transparent; border: none; text-align: left;
-        padding: 10px 14px; font-size: 13px; color: var(--jaced-brown-dark);
-        cursor: pointer; border-radius: 10px; transition: background 0.2s ease;
-    }
-    .wishlist-sort-option:hover { background: rgba(201,154,107,0.1); }
-    .wishlist-sort-option.active { color: var(--jaced-caramel); font-weight: 600; }
+    /* EMPTY */
+    .wishlist-empty { text-align:center; padding:100px 24px; }
+    .wishlist-empty-icon { font-size:48px; color:var(--jaced-input); margin-bottom:20px; }
+    .wishlist-empty-title { font-size:22px; font-weight:600; color:var(--jaced-brown-dark); margin-bottom:8px; }
+    .wishlist-empty-desc { color:var(--jaced-muted); margin-bottom:28px; }
+    .wishlist-empty-btn { display:inline-flex; align-items:center; background:var(--jaced-brown-dark); color:var(--jaced-cream); padding:14px 32px; border-radius:999px; text-decoration:none; font-size:13px; font-weight:600; transition:background 0.3s ease; }
+    .wishlist-empty-btn:hover { background:var(--jaced-caramel); color:var(--jaced-cream); }
+    .wl-no-results { text-align:center; padding:60px 24px; color:var(--jaced-muted); }
+    .wl-no-results i { font-size:32px; margin-bottom:12px; display:block; }
 
-    .wishlist-active-filters {
-        display: flex; align-items: center; flex-wrap: wrap; gap: 8px;
-        margin-bottom: 20px; padding: 12px 16px;
-        background: var(--jaced-card); border-radius: 12px;
-    }
-    .wishlist-active-label { font-size: 11px; color: var(--jaced-muted); text-transform: uppercase; letter-spacing: 0.15em; }
-    .wishlist-chip {
-        display: inline-flex; align-items: center; gap: 6px;
-        padding: 4px 12px; background: var(--jaced-brown-dark);
-        color: var(--jaced-cream); border-radius: 999px; font-size: 12px; font-weight: 500;
-    }
-    .wishlist-chip button {
-        background: transparent; border: none; color: var(--jaced-cream);
-        opacity: 0.7; cursor: pointer; font-size: 10px; padding: 0; line-height: 1;
-    }
-    .wishlist-chip button:hover { opacity: 1; }
-
-    .wishlist-empty {
-        text-align: center; padding: 100px 24px;
-    }
-    .wishlist-empty-icon { font-size: 48px; color: var(--jaced-input); margin-bottom: 20px; }
-    .wishlist-empty-title { font-size: 22px; font-weight: 600; color: var(--jaced-brown-dark); margin-bottom: 8px; }
-    .wishlist-empty-desc { color: var(--jaced-muted); margin-bottom: 28px; }
-    .wishlist-empty-btn {
-        display: inline-flex; align-items: center;
-        background: var(--jaced-brown-dark); color: var(--jaced-cream);
-        padding: 14px 32px; border-radius: 999px; text-decoration: none;
-        font-size: 13px; font-weight: 600; transition: background 0.3s ease;
-    }
-    .wishlist-empty-btn:hover { background: var(--jaced-caramel); color: var(--jaced-cream); }
-
-    .wishlist-no-results { text-align: center; padding: 60px 24px; color: var(--jaced-muted); }
-    .wishlist-no-results i { font-size: 32px; margin-bottom: 12px; display: block; }
-
+    /* PRODUCT CARD - sama kayak shop */
     .wl-card {
         background: var(--jaced-card); border-radius: 16px; overflow: hidden;
         transition: transform 0.4s cubic-bezier(0.22,1,0.36,1), box-shadow 0.4s ease;
@@ -414,246 +336,177 @@
     .wish-toast.show { transform: translateX(-50%) translateY(0); opacity: 1; }
     .wish-toast i { color: #6fae6f; }
 
-    @media (max-width: 576px) {
-        .wishlist-toolbar { flex-direction: column; }
-        .wishlist-search-wrap { min-width: 100%; }
-        .wishlist-header { flex-direction: column; align-items: flex-start; }
+    @media (max-width:576px) {
+        .wishlist-header { flex-direction:column; align-items:flex-start; }
+        .wl-filters-row { gap:8px; }
     }
 </style>
 
 <script>
 (function () {
-    const grid = document.getElementById('wishlistGrid');
-    const emptyEl = document.getElementById('wishlistEmpty');
-    const noResultsEl = document.getElementById('wishlistNoResults');
-    const toolbarEl = document.getElementById('wishlistToolbar');
-    const countEl = document.getElementById('wishlistCount');
-    const toast = document.getElementById('wishToast');
-    const toastText = document.getElementById('wishToastText');
-    const activeFiltersEl = document.getElementById('activeFilters');
-    const activeChipsEl = document.getElementById('activeFilterChips');
+    const grid         = document.getElementById('wishlistGrid');
+    const emptyEl      = document.getElementById('wishlistEmpty');
+    const noResultsEl  = document.getElementById('wishlistNoResults');
+    const searchWrap   = document.getElementById('wlSearchWrap');
+    const filtersRow   = document.getElementById('wlFiltersRow');
+    const countEl      = document.getElementById('wishlistCount');
+    const toast        = document.getElementById('wishToast');
+    const toastText    = document.getElementById('wishToastText');
+    const activeFilEl  = document.getElementById('wlActiveFilters');
+    const activeChips  = document.getElementById('wlActiveChips');
     const loadMoreWrap = document.getElementById('loadMoreWrap');
-    const loadMoreCount = document.getElementById('loadMoreCount');
+    const loadMoreCnt  = document.getElementById('loadMoreCount');
+    const clearBtn     = document.getElementById('wlClearBtn');
     const PER_PAGE = 12;
 
-    let visibleCount = PER_PAGE;
-    let currentSort = 'default';
+    let visibleCount  = PER_PAGE;
+    let currentSort   = 'default';
     let currentFilter = 'all';
+    let currentMat    = 'all';
+    let currentSize   = 'all';
+    let currentPrice  = 'all';
     let currentSearch = '';
-    let toastTimer = null;
-    let allItems = [];
+    let toastTimer    = null;
+    let allItems      = [];
 
-    // =========================================
-    // API HELPERS
-    // =========================================
-
+    // ===== API =====
     async function fetchWishlist() {
         try {
-            const response = await fetch('/wishlist/items');
-
-            if (!response.ok) {
-                throw new Error('Failed');
-            }
-
-            return await response.json();
-
-        } catch (e) {
-            console.error(e);
+            @guest
             return [];
-        }
+            @endguest
+            const r = await fetch('/wishlist/items');
+            if (!r.ok) throw new Error('Failed');
+            return await r.json();
+        } catch(e) { console.error(e); return []; }
     }
 
     async function removeWishlist(id) {
-        return fetch(`/wishlist/${id}`, {
-            method: 'DELETE',
-            headers: {
-                'X-CSRF-TOKEN': '{{ csrf_token() }}',
-                'Accept': 'application/json'
-            }
-        });
+        return fetch(`/wishlist/${id}`, { method:'DELETE', headers:{ 'X-CSRF-TOKEN':'{{ csrf_token() }}', 'Accept':'application/json' } });
     }
 
     async function clearWishlist() {
-        return fetch('/wishlist-clear', {
-            method: 'DELETE',
-            headers: {
-                'X-CSRF-TOKEN': '{{ csrf_token() }}',
-                'Accept': 'application/json'
-            }
-        });
+        return fetch('/wishlist-clear', { method:'DELETE', headers:{ 'X-CSRF-TOKEN':'{{ csrf_token() }}', 'Accept':'application/json' } });
     }
 
-    // =========================================
-    // UTILITIES
-    // =========================================
-
+    // ===== TOAST =====
     function showToast(msg) {
         toastText.textContent = msg;
         toast.classList.add('show');
-
         clearTimeout(toastTimer);
-
-        toastTimer = setTimeout(() => {
-            toast.classList.remove('show');
-        }, 2500);
+        toastTimer = setTimeout(() => toast.classList.remove('show'), 2500);
     }
 
-    let confirmCallback = null;
-
-    function showConfirm(msg, onConfirm) {
+    // ===== CONFIRM =====
+    let confirmCb = null;
+    function showConfirm(msg, cb) {
         document.getElementById('wlConfirmMsg').textContent = msg;
         document.getElementById('wlConfirmBackdrop').classList.add('show');
-        confirmCallback = onConfirm;
+        confirmCb = cb;
     }
-
     document.getElementById('wlConfirmOk').addEventListener('click', () => {
         document.getElementById('wlConfirmBackdrop').classList.remove('show');
-
-        if (confirmCallback) {
-            confirmCallback();
-            confirmCallback = null;
-        }
+        if (confirmCb) { confirmCb(); confirmCb = null; }
     });
-
     document.getElementById('wlConfirmCancel').addEventListener('click', () => {
         document.getElementById('wlConfirmBackdrop').classList.remove('show');
-        confirmCallback = null;
+        confirmCb = null;
+    });
+    document.getElementById('wlConfirmBackdrop').addEventListener('click', e => {
+        if (e.target === e.currentTarget) { document.getElementById('wlConfirmBackdrop').classList.remove('show'); confirmCb = null; }
     });
 
-    document.getElementById('wlConfirmBackdrop').addEventListener('click', (e) => {
-        if (e.target === e.currentTarget) {
-            document.getElementById('wlConfirmBackdrop').classList.remove('show');
-            confirmCallback = null;
-        }
-    });
+    function parsePrice(v) { return parseInt(String(v||'0').replace(/\D/g,''))||0; }
 
-    function parsePrice(str) {
-        if (!str) return 0;
-        return parseInt(String(str).replace(/\D/g, '')) || 0;
+    function getSize(p) {
+        const max = Math.max(parseFloat(p.length||0), parseFloat(p.width||0), parseFloat(p.height||0));
+        if (max > 200) return 'large';
+        if (max < 80) return 'small';
+        return 'medium';
     }
 
-    // =========================================
-    // FILTER + SEARCH + SORT
-    // =========================================
-
+    // ===== FILTER =====
     function getFiltered() {
-
         let items = [...allItems];
-
-        // SEARCH
         if (currentSearch) {
-
             const q = currentSearch.toLowerCase();
-
-            items = items.filter(x =>
-                (x.product?.name || '').toLowerCase().includes(q) ||
-                (x.product?.category?.name || '').toLowerCase().includes(q)
-            );
+            items = items.filter(x => (x.product?.name||'').toLowerCase().includes(q) || (x.product?.category?.name||'').toLowerCase().includes(q));
         }
-
-        // FILTER
         if (currentFilter !== 'all') {
-
-            items = items.filter(x =>
-                (x.product?.category?.name || '').toLowerCase() === currentFilter.toLowerCase()
-            );
+            items = items.filter(x => (x.product?.category?.name||'').toLowerCase() === currentFilter.toLowerCase());
         }
-
-        // SORT
+        if (currentSize !== 'all') {
+            items = items.filter(x => getSize(x.product) === currentSize);
+        }
+        if (currentPrice !== 'all') {
+            const [mn, mx] = currentPrice.split('-').map(Number);
+            items = items.filter(x => { const p = parsePrice(x.product?.price); return p >= mn && p <= mx; });
+        }
         switch (currentSort) {
-            case 'name_asc':
-                items.sort((a, b) => (a.product?.name || '').localeCompare(b.product?.name || ''));
-                break;
-            case 'name_desc':
-                items.sort((a, b) => (b.product?.name || '').localeCompare(a.product?.name || ''));
-                break;
-            case 'price_asc':
-                items.sort((a, b) => parsePrice(a.product?.price) - parsePrice(b.product?.price));
-                break;
-            case 'price_desc':
-                items.sort((a, b) => parsePrice(b.product?.price) - parsePrice(a.product?.price));
-                break;
-            case 'category':
-                items.sort((a, b) => (a.product?.category?.name || '').localeCompare(b.product?.category?.name || ''));
-                break;
+            case 'name_asc':   items.sort((a,b) => (a.product?.name||'').localeCompare(b.product?.name||'')); break;
+            case 'name_desc':  items.sort((a,b) => (b.product?.name||'').localeCompare(a.product?.name||'')); break;
+            case 'price_asc':  items.sort((a,b) => parsePrice(a.product?.price)-parsePrice(b.product?.price)); break;
+            case 'price_desc': items.sort((a,b) => parsePrice(b.product?.price)-parsePrice(a.product?.price)); break;
         }
-
         return items;
     }
 
-    // =========================================
-    // RENDER
-    // =========================================
-
+    // ===== RENDER =====
     async function render() {
-
         allItems = await fetchWishlist();
-
         const filtered = getFiltered();
-
         countEl.textContent = `(${allItems.length})`;
 
-        // EMPTY STATE
         if (allItems.length === 0) {
-
             emptyEl.style.display = 'block';
             noResultsEl.style.display = 'none';
-            toolbarEl.style.display = 'none';
+            searchWrap.style.display = 'none';
+            filtersRow.style.display = 'none';
             loadMoreWrap.style.display = 'none';
-            activeFiltersEl.style.display = 'none';
-
+            activeFilEl.style.display = 'none';
             grid.innerHTML = '';
-
             return;
         }
 
         emptyEl.style.display = 'none';
-        toolbarEl.style.display = 'flex';
+        searchWrap.style.display = 'block';
+        filtersRow.style.display = 'flex';
 
-        // NO RESULTS
         if (filtered.length === 0) {
-
             noResultsEl.style.display = 'block';
             loadMoreWrap.style.display = 'none';
-
             grid.innerHTML = '';
-
-            renderActiveFilters();
-
+            renderChips();
             return;
         }
 
         noResultsEl.style.display = 'none';
-
-        const visibleItems = filtered.slice(0, visibleCount);
-
+        const visible = filtered.slice(0, visibleCount);
         const remaining = filtered.length - visibleCount;
 
-        grid.innerHTML = visibleItems.map((item, i) => `
-
+        grid.innerHTML = visible.map((item, i) => {
+            const p = item.product;
+            const imgPath = p.main_image?.image_path || '';
+            const imgSrc = imgPath.startsWith('http') ? imgPath : '/' + imgPath;
+            const dim = p.length && p.width ? `${p.length}×${p.width} ${p.unit||'cm'}` : '';
+            const delay = i * 0.06;
+            return `
             <div class="col-6 col-md-4 col-lg-3"
-                 style="opacity:0; transform:translateY(24px); transition: opacity 0.4s ease ${i * 0.05}s, transform 0.4s ease ${i * 0.05}s;"
+                 style="opacity:0; transform:translateY(24px); transition: opacity 0.45s ease ${delay}s, transform 0.45s cubic-bezier(0.22,1,0.36,1) ${delay}s;"
                  data-wishcard>
-
-                <div class="wl-card">
-
-                    <a href="/product/${item.product.slug}" style="text-decoration:none; color:inherit;">
-
-                        <div class="wl-card-img-wrap">
-
-                            <img src="${item.product.main_image.image_path}"
-                                 alt="${item.product.name}"
-                                 class="wl-card-img">
-
-                            <button class="wl-remove-btn"
-                                    data-id="${item.product.id}"
-                                    data-name="${item.product.name}"
-                                    title="Remove from wishlist">
-
-                                <i class="fas fa-heart"></i>
-
-                            </button>
-
+                <a href="/product/${p.slug}" class="wl-card">
+                    <div class="wl-card-img-wrap">
+                        <img src="${imgSrc}" alt="${p.name}" class="wl-card-img">
+                        <button class="wl-remove-btn" data-id="${p.id}" data-name="${p.name}" title="Remove from wishlist">
+                            <i class="fas fa-heart"></i>
+                        </button>
+                    </div>
+                    <div class="wl-card-info">
+                        <small class="wl-card-cat">${p.category?.name||'Furniture'}</small>
+                        <h5 class="wl-card-name">${p.name}</h5>
+                        <div class="wl-card-bottom">
+                            <span class="wl-card-price">Rp ${Number(p.price).toLocaleString('id-ID')}</span>
+                            ${dim ? `<span class="wl-card-dim">${dim}</span>` : ''}
                         </div>
 
                         <div class="wl-card-body">
@@ -695,28 +548,14 @@
 
         // ANIMATION
         requestAnimationFrame(() => {
-
             grid.querySelectorAll('[data-wishcard]').forEach(el => {
-
                 el.style.opacity = '1';
                 el.style.transform = 'translateY(0)';
             });
         });
 
-        // LOAD MORE
-        if (remaining > 0) {
-
-            loadMoreWrap.style.display = 'flex';
-            loadMoreCount.textContent = `(${remaining} more)`;
-
-        } else {
-
-            loadMoreWrap.style.display = 'none';
-        }
-
-        // =========================================
-        // REMOVE ITEM
-        // =========================================
+        loadMoreWrap.style.display = remaining > 0 ? 'flex' : 'none';
+        if (remaining > 0) loadMoreCnt.textContent = `(${remaining} more)`;
 
         grid.querySelectorAll('.wl-remove-btn').forEach(btn => {
 
@@ -814,45 +653,35 @@
         });
 
         updateCategoryOptions(allItems);
-        renderActiveFilters();
+        renderChips();
     }
 
-    // CATEGORY OPTIONS
+    // ===== CATEGORY OPTIONS =====
     function updateCategoryOptions(list) {
-
-        const cats = [...new Set(
-            list.map(x => x.product.category?.name).filter(Boolean)
-        )];
-
-        const filterMenu = document.getElementById('filterMenu');
-
-        filterMenu.querySelectorAll(
-            '.wishlist-sort-option:not([data-filter="all"])'
-        ).forEach(el => el.remove());
-
+        const cats = [...new Set(list.map(x => x.product.category?.name).filter(Boolean))];
+        const menu = document.getElementById('wlCatMenu');
+        menu.querySelectorAll('.wl-dd-opt:not([data-filter="all"])').forEach(el => el.remove());
         cats.forEach(cat => {
             const btn = document.createElement('button');
-            btn.className =
-                'wishlist-sort-option' +
-                (currentFilter === cat.toLowerCase() ? ' active' : '');
+            btn.className = 'wl-dd-opt' + (currentFilter === cat.toLowerCase() ? ' active' : '');
             btn.setAttribute('data-filter', cat.toLowerCase());
-            btn.textContent = cat;
+            btn.innerHTML = currentFilter === cat.toLowerCase() ? `${cat} <i class="fas fa-check"></i>` : cat;
             btn.addEventListener('click', () => {
                 currentFilter = cat.toLowerCase();
-                document.getElementById('filterLabel').textContent = cat;
-                filterMenu.querySelectorAll('.wishlist-sort-option')
-                    .forEach(b => b.classList.remove('active'));
-                btn.classList.add('active');
-                document.querySelector('.wishlist-filter-wrap')
-                    .classList.remove('open');
+                setPillValue('wlCatLabel', cat, 'wlCatWrap', true);
+                document.getElementById('wlCatWrap').classList.remove('open');
                 visibleCount = PER_PAGE;
                 render();
             });
-            filterMenu.appendChild(btn);
+            menu.appendChild(btn);
         });
     }
-    // ACTIVE FILTERS
-    function renderActiveFilters() {
+
+    // ===== CHIPS =====
+    function renderChips() {
+        const hasFilter = currentFilter !== 'all' || currentSearch || currentSize !== 'all' || currentPrice !== 'all' || currentSort !== 'default';
+        clearBtn.style.display = hasFilter ? 'inline-flex' : 'none';
+
         const chips = [];
         if (currentFilter !== 'all') {
             chips.push({
@@ -909,41 +738,23 @@
     searchInput.addEventListener('input', () => {
         clearTimeout(searchTimer);
         currentSearch = searchInput.value;
-        searchClear.style.display =
-            currentSearch ? 'block' : 'none';
-        searchTimer = setTimeout(() => {
-            visibleCount = PER_PAGE;
-            render();
-        }, 300);
+        searchClear.style.display = currentSearch ? 'block' : 'none';
+        searchTimer = setTimeout(() => { visibleCount = PER_PAGE; render(); }, 300);
     });
+    searchClear.addEventListener('click', () => { currentSearch=''; searchInput.value=''; searchClear.style.display='none'; render(); });
 
-    searchClear.addEventListener('click', () => {
-        currentSearch = '';
-        searchInput.value = '';
-        searchClear.style.display = 'none';
-        render();
-    });
+    // ===== LOAD MORE =====
+    document.getElementById('loadMoreBtn').addEventListener('click', () => { visibleCount += PER_PAGE; render(); });
 
-    // LOAD MORE
-    document.getElementById('loadMoreBtn')
-        .addEventListener('click', () => {
-            visibleCount += PER_PAGE;
+    // ===== CLEAR ALL =====
+    document.getElementById('clearAllBtn').addEventListener('click', async () => {
+        if (!allItems.length) return;
+        showConfirm('Clear your entire wishlist?', async () => {
+            await clearWishlist();
+            showToast('Wishlist cleared');
             render();
         });
-
-    // CLEAR ALL
-    document.getElementById('clearAllBtn')
-        .addEventListener('click', async () => {
-            if (!allItems.length) return;
-            showConfirm(
-                'Clear your entire wishlist?',
-                async () => {
-                    await clearWishlist();
-                    showToast('Wishlist cleared');
-                    render();
-                }
-            );
-        });
+    });
 
     // SORT
     const sortWrap = document.querySelector('.wishlist-sort-wrap');
@@ -989,3 +800,5 @@
 
 })();
 </script>
+
+@endsection

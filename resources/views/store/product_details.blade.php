@@ -362,21 +362,37 @@
     }
 
     /* WISHLIST */
-    .wishlist-btn{
+    .wishlist-btn {
         width: 42px;
         height: 42px;
         border-radius: 50%;
         border: 1px solid var(--jaced-input);
         background: var(--jaced-card);
         color: var(--jaced-brown-dark);
-        font-size: 22px;
-        transition: 0.2s ease;
+        font-size: 18px;
+        transition: all 0.25s ease;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
     }
-
-    .wishlist-btn:hover{
+    .wishlist-btn i { transition: all 0.25s ease; }
+    .wishlist-btn:hover {
         background: var(--jaced-brown-dark);
         color: white;
     }
+    .wishlist-btn.active {
+        background: var(--jaced-caramel);
+        color: white;
+        border-color: var(--jaced-caramel);
+    }
+    .wishlist-btn.active:hover {
+        background: rgba(156, 53, 53, 0.12);
+        color: #9c3535;
+        border-color: rgba(156, 53, 53, 0.3);
+    }
+    .wishlist-btn.active .fa-heart::before { content: "\f004"; }
+    .wishlist-btn.active:hover .fa-heart::before { content: "\f7a9"; }
 
     .wishlist-btn.active{
         background: var(--jaced-brown-dark);
@@ -538,6 +554,18 @@
         }
         .thumbnail-image{ height: 70px; }
     }
+
+    .pd-confirm-backdrop {
+        position: fixed; inset: 0;
+        background: rgba(28,28,26,0.5);
+        backdrop-filter: blur(4px);
+        z-index: 1300;
+        display: flex; align-items: center; justify-content: center;
+        opacity: 0; visibility: hidden;
+        transition: opacity 0.3s ease, visibility 0.3s;
+    }
+    .pd-confirm-backdrop.show { opacity: 1; visibility: visible; }
+    .pd-confirm-backdrop.show #pdConfirmModal { transform: scale(1) translateY(0) !important; }
 </style>
 
 <div class="container-fluid px-5 product-section">
