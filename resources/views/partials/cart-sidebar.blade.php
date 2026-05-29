@@ -386,8 +386,7 @@
 
         <!-- CHECKOUT BUTTON -->
         <button type="button" class="checkout-btn" id="checkoutBtn"
-            data-url="{{ route('checkout.index') }}"
-            data-empty="{{ $globalCartItems->isEmpty() ? '1' : '0' }}">
+            data-url="{{ route('checkout.index') }}">
             Proceed to Checkout
         </button>
     </div>
@@ -538,8 +537,8 @@
     }
 
     document.getElementById('checkoutBtn').addEventListener('click', function () {
-        const isEmpty = this.dataset.empty === '1';
-        if(isEmpty){
+        const cartItems = document.querySelectorAll('.cart-item');
+        if(cartItems.length === 0){
             const toast = document.getElementById('cartEmptyToast');
             toast.style.display = 'flex';
             setTimeout(() => {
@@ -547,7 +546,6 @@
             }, 2500);
             return;
         }
-
         window.location.href = this.dataset.url;
     });
 </script>
