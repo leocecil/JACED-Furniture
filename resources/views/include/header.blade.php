@@ -24,7 +24,7 @@
                     <a class="nav-link text-uppercase tracking-widest fw-bold {{ request()->routeIs('shop') ? 'active' : '' }}" style="font-size: 14px; letter-spacing: 2px;" href="{{ route('shop') }}">Shop</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link text-uppercase tracking-widest fw-bold" style="font-size: 14px; letter-spacing: 2px;" href="/about">About</a>
+                    <a class="nav-link text-uppercase tracking-widest fw-bold {{ request()->routeIs('about') ? 'active': '' }}" style="font-size: 14px; letter-spacing: 2px;" href="{{ route('about') }}">About</a>
                 </li>
                 @auth
                     <li class="nav-item">

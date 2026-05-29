@@ -25,6 +25,7 @@ class DatabaseSeeder extends Seeder
             StageSeeder::class,
             SettingSeeder::class,
             update_user::class,
+            PostalCodeSeeder::class,
         ]);
     }
 }

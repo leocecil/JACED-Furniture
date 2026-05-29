@@ -109,6 +109,7 @@ $statusStyles = [
     'shipped'    => ['bg' => '#E0F7FA', 'color' => '#00695C', 'label' => 'Shipped'],
     'arrived'    => ['bg' => '#E8F5E9', 'color' => '#2E7D32', 'label' => 'Arrived'],
     'cancelled'  => ['bg' => '#FFEBEE', 'color' => '#C62828', 'label' => 'Cancelled'],
+    'disputed'   => ['bg' => '#FFF3E0', 'color' => '#E65100', 'label' => 'Disputed'],
 ];
 
 $avatarColors = [
@@ -194,6 +195,22 @@ $statusOrder = ['unpaid', 'on_process', 'packed', 'delivered', 'shipped', 'arriv
                 </p>
             </div>
         </div>
+
+        {{-- Open Disputes badge in header --}}
+        @if($stats['open_disputes'] > 0)
+        <div class="col-12">
+            <div style="background:#FFF3E0; border:1px solid #FFCC80; border-radius:10px; padding:10px 16px; display:flex; align-items:center; gap:10px;">
+                <i class="bi bi-exclamation-triangle" style="color:#E65100; font-size:16px;"></i>
+                <span style="font-size:13px; font-weight:600; color:#E65100;">
+                    {{ $stats['open_disputes'] }} open dispute{{ $stats['open_disputes'] > 1 ? 's' : '' }} need your attention
+                </span>
+                <button onclick="document.getElementById('filterStatus').value='disputed'; fetchOrders(1);"
+                    style="margin-left:auto; background:#E65100; color:white; border:none; border-radius:6px; padding:4px 12px; font-size:12px; font-weight:600; cursor:pointer;">
+                    View Disputes
+                </button>
+            </div>
+        </div>
+        @endif
     </div>
 
     {{-- ── Orders Table Card ── --}}
@@ -217,6 +234,7 @@ $statusOrder = ['unpaid', 'on_process', 'packed', 'delivered', 'shipped', 'arriv
                     <option value="shipped">Shipped</option>
                     <option value="arrived">Arrived</option>
                     <option value="cancelled">Cancelled</option>
+                    <option value="disputed">Disputed</option>
                 </select>
             </div>
             <div class="filter-group">
@@ -480,7 +498,103 @@ $statusOrder = ['unpaid', 'on_process', 'packed', 'delivered', 'shipped', 'arriv
         t.classList.add('show');
         setTimeout(() => t.classList.remove('show'), 3000);
     }
-</script>
+
+    function showExchangeTracking(disputeId) {
+        const field = document.getElementById('exchange-tracking-field-' + disputeId);
+        if (field) field.style.display = 'block';
+    }
+
+    function resolveDispute(disputeId, action) {
+        const noteEl = document.getElementById('dispute-note-' + disputeId);
+        const note   = noteEl?.value?.trim();
+
+        // Inline warning jika note kosong
+        if (!note) {
+            noteEl.style.borderColor = '#C62828';
+            noteEl.style.boxShadow   = '0 0 0 3px rgba(198,40,40,0.15)';
+            noteEl.focus();
+
+            let errEl = document.getElementById('note-err-' + disputeId);
+            if (!errEl) {
+                errEl    = document.createElement('p');
+                errEl.id = 'note-err-' + disputeId;
+                errEl.style.cssText = 'font-size:11px; color:#C62828; margin:4px 0 0; font-weight:600;';
+                errEl.textContent   = '⚠ Admin note is required before taking action.';
+                noteEl.parentNode.insertBefore(errEl, noteEl.nextSibling);
+            }
+            return;
+        }
+
+        // Reset style jika sudah diisi
+        if (noteEl) {
+            noteEl.style.borderColor = '';
+            noteEl.style.boxShadow   = '';
+            const errEl = document.getElementById('note-err-' + disputeId);
+            if (errEl) errEl.remove();
+        }
+
+        // Khusus exchange: cek apakah tracking field muncul & ada isinya
+        const tracking = document.getElementById('tracking-input-' + disputeId)?.value?.trim();
+
+        const payload = { action, admin_note: note };
+        if (action === 'exchange' && tracking) payload.replacement_tracking_number = tracking;
+
+        fetch(`/admin/disputes/${disputeId}/resolve`, {
+            method:  'POST',
+            headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content },
+            body:    JSON.stringify(payload),
+        })
+        .then(r => r.json())
+        .then(data => {
+            if (data.success) { showToast('✓ ' + data.message); fetchOrders(1); }
+            else              { showToast('⚠ ' + (data.error || 'Something went wrong.')); }
+        })
+        .catch(() => showToast('Network error. Please try again.'));
+    }
+
+    function markDisputeResolved(disputeId) {
+        const btn = document.getElementById('resolveModalConfirm');
+        btn.disabled = true;
+        btn.textContent = 'Processing...';
+
+        fetch(`{{ url('admin/disputes') }}/${disputeId}/resolved`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': '{{ csrf_token() }}' },
+        })
+        .then(r => r.json())
+        .then(data => {
+            closeResolveModal();
+            btn.disabled = false;
+            if (data.success) {
+                showToast('✓ ' + data.message);
+                fetchOrders(1);
+            } else {
+                showToast('⚠ ' + (data.error || 'Something went wrong.'));
+            }
+        })
+        .catch(() => {
+            closeResolveModal();
+            btn.disabled = false;
+            showToast('Network error. Please try again.');
+        });
+    }
+
+    function updateTracking(disputeId) {
+        const tracking = document.getElementById('tracking-update-' + disputeId)?.value?.trim();
+        if (!tracking) { showToast('⚠ Please enter a tracking number.'); return; }
+
+        fetch(`/admin/disputes/${disputeId}/tracking`, {
+            method:  'POST',
+            headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content },
+            body:    JSON.stringify({ replacement_tracking_number: tracking }),
+        })
+        .then(r => r.json())
+        .then(data => {
+            if (data.success) { showToast('✓ ' + data.message); fetchOrders(1); }
+            else              { showToast('⚠ ' + (data.error || 'Something went wrong.')); }
+        });
+    }
+    </script>
 @endpush
 
 @endsection
