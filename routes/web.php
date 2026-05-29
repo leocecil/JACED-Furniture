@@ -78,6 +78,7 @@ Route::middleware(['role:customer'])->group(function() {
     Route::patch('/cart/{id}/increase', [CartController::class, 'increase'])->name('cart.increase');
     Route::patch('/cart/{id}/decrease', [CartController::class, 'decrease'])->name('cart.decrease');
     Route::delete('/cart/{id}', [CartController::class, 'delete'])->name('cart.delete');
+    Route::get('/cart/sidebar', [CartController::class, 'sidebar'])->name('cart.sidebar');
 
     // WISHLIST (DB-based via WishlistController)
     Route::get('/wishlist/items', [WishlistController::class, 'items']);
@@ -159,6 +160,7 @@ Route::middleware(['role:admin'])->group(function() {
     Route::post('/admin/vouchers/{id}/toggle', [VoucherManagementController::class, 'toggle'])->name('admin.vouchers.toggle');
     Route::delete('/admin/vouchers/{id}', [VoucherManagementController::class, 'destroy'])->name('admin.vouchers.destroy');
     Route::get('/admin/vouchers/stats', [VoucherManagementController::class, 'stats'])->name('admin.vouchers.stats');
+    Route::get('/admin/vouchers/{id}/used-orders',[VoucherManagementController::class, 'usedOrders'])->name('admin.vouchers.usedOrders');
 
     // Product Category Manager
     Route::post('/admin/categories', [CategoryController::class, 'store'])->name('categories.store');

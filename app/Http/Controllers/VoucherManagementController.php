@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Controllers\Controller;
 use App\Models\Order;
+use App\Models\VoucherType;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -14,8 +15,8 @@ class VoucherManagementController extends Controller
     public function index(Request $request)
     {
         // ── Stat cards ───────────────────────────────────────────────
-        $totalTypes   = DB::table('voucher_types')->count();
-        $activeTypes  = DB::table('voucher_types')->where('is_active', true)->count();
+        $totalTypes   = DB::table('voucher_types')->whereNull('voucher_types.deleted_at')->count();
+        $activeTypes  = DB::table('voucher_types')->where('is_active', true)->whereNull('voucher_types.deleted_at')->count();
         $totalRedeemed = DB::table('vouchers')->whereNotNull('redeemed_at')->count();
         $orderCount = Order::where('status', 'pending')->count();
         $totalDiscount = DB::table('vouchers')
@@ -25,6 +26,7 @@ class VoucherManagementController extends Controller
 
         // ── Voucher types query ──────────────────────────────────────
         $query = DB::table('voucher_types')
+            ->whereNull('voucher_types.deleted_at')
             ->select(
                 'voucher_types.id',
                 'voucher_types.name',
@@ -188,13 +190,15 @@ class VoucherManagementController extends Controller
     // ── Delete (only if none redeemed in this group) ──────────────────
     public function destroy(string $id)
     {
-        $voucher = DB::table('voucher_types')->where('id', $id)->first();
+        $voucher = VoucherType::find($id);
 
         if (!$voucher) {
-            return response()->json(['error' => 'Voucher not found.'], 404);
+            return response()->json([
+                'error' => 'Voucher not found.'
+            ], 404);
         }
 
-        // Check if any voucher of this type has been redeemed
+        // Check redeemed vouchers
         $redeemed = DB::table('vouchers')
             ->join('voucher_types', 'vouchers.voucher_type_id', '=', 'voucher_types.id')
             ->where('voucher_types.name', $voucher->name)
@@ -208,9 +212,8 @@ class VoucherManagementController extends Controller
             ], 422);
         }
 
-        // Delete all voucher_type rows with same name + max_discount
-        DB::table('voucher_types')
-            ->where('name', $voucher->name)
+        // Soft delete all vouchers in same group
+        VoucherType::where('name', $voucher->name)
             ->where('max_discount', $voucher->max_discount)
             ->delete();
 
@@ -223,7 +226,7 @@ class VoucherManagementController extends Controller
     // ── Stats (AJAX) ──────────────────────────────────────────────────
     public function stats()
     {
-        $totalTypes    = DB::table('voucher_types')->count();
+        $totalTypes    = DB::table('voucher_types')->whereNull('deleted_at')->count();
         $activeTypes   = DB::table('voucher_types')->where('is_active', true)->count();
         $totalRedeemed = DB::table('vouchers')->whereNotNull('redeemed_at')->count();
         $totalDiscount = DB::table('vouchers')
@@ -238,6 +241,38 @@ class VoucherManagementController extends Controller
             'totalRedeemed' => number_format($totalRedeemed),
             'totalDiscount' => 'Rp ' . number_format($totalDiscount / 1000000, 1) . 'M',
             'totalDiscountFull' => 'Rp ' . number_format($totalDiscount, 0, ',', '.'),
+        ]);
+    }
+
+    public function usedOrders(string $id)
+    {
+        $voucherType = DB::table('voucher_types')->where('id', $id)->first();
+
+        if (!$voucherType) {
+            return response()->json([
+                'success' => false,
+                'error' => 'Voucher not found.'
+            ], 404);
+        }
+
+        $orders = DB::table('orders')
+            ->join('vouchers', 'orders.voucher_id', '=', 'vouchers.id')
+            ->join('users', 'orders.user_id', '=', 'users.id')
+            ->where('vouchers.voucher_type_id', $voucherType->id)
+            ->select(
+                'orders.id',
+                'orders.created_at',
+                'orders.status',
+                'orders.total_price',
+                'users.first_name',
+                'users.last_name'
+            )
+            ->latest('orders.created_at')
+            ->get();
+
+        return response()->json([
+            'success' => true,
+            'orders' => $orders,
         ]);
     }
 }

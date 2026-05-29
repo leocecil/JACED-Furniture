@@ -409,6 +409,27 @@
         bottom: 28px;
         left: 50%;
         transform: translateX(-50%);
+        background: #1f3117;
+        color: #f4efe7;
+        padding: 18px 34px;
+        border-radius: 999px;
+        font-size: 15px;
+        font-weight: 600;
+        display: inline-flex;
+        align-items: center;
+        gap: 12px;
+        width: fit-content;
+        max-width: 90vw;
+        z-index: 3000;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.18);
+        animation: toastIn 0.35s ease;
+        letter-spacing: -0.01em;
+    }
+    /* .cart-toast{
+        position: fixed;
+        bottom: 28px;
+        left: 50%;
+        transform: translateX(-50%);
         background: var(--jaced-brown-dark);
         color: var(--jaced-cream);
         padding: 14px 26px;
@@ -426,7 +447,7 @@
         animation: toastIn 0.4s ease;
         opacity: 1;
         transition: opacity 0.3s ease;
-    }
+    } */
 
 
     .stock-badge{
@@ -669,7 +690,7 @@
 
 
             <!-- ACTION BUTTONS -->
-            <div class="row g-3 mt-2">
+            {{-- <div class="row g-3 mt-2">
                 <form action="{{ route('cart.add') }}" method="POST">
                     @csrf
                     <input type="hidden" name="product_id" value="{{ $product->id }}">
@@ -680,8 +701,16 @@
                         Add to Collection
                     </button>
                 </form>
-            </div>
+            </div> --}}
+            {{-- change 1 --}}
 
+            <div class="row g-3 mt-2">
+                <input type="hidden" id="cartQuantity" value="1">
+                <button type="button" id="addToCartBtn" class="btn btn-dark-custom action-btn w-100">
+                    <i class="fa-solid fa-bag-shopping me-2"></i>
+                    Add to Collection
+                </button>
+            </div>
             <!-- BOOTSTRAP ACCORDION -->
             <div class="accordion mt-4" id="productAccordion">
                 <div class="accordion-item">
@@ -704,19 +733,14 @@
                 </div>
             </div>
         </div>
-
-        <div class="cart-toast" id="cartToast" style="display:none;">
-            <i class="fas fa-check-circle"></i>
-            <span id="cartToastText"></span>
-        </div>
-
+{{-- 
         @if(session('success'))
         <script>
             window.addEventListener('DOMContentLoaded', () => {
                 showCartToast("{{ session('success') }}");
             });
         </script>
-        @endif
+        @endif --}}
     </div>
     @if($related->count())
     <div class="mt-5">
@@ -938,44 +962,6 @@
         updateCartQty();
     }
 
-    const cartToast = document.getElementById('cartToast');
-    const cartToastText = document.getElementById('cartToastText');
-
-    let cartToastTimer = null;
-
-    function showCartToast(message, type = 'success') {
-        const toast = document.getElementById('cartToast');
-        const text = document.getElementById('cartToastText');
-        const icon = toast.querySelector('i');
-
-        if(type === 'delete'){
-            icon.className = 'fas fa-trash';
-        }
-        else if(type === 'update'){
-            icon.className = 'fas fa-pen';
-        }
-        else if(type === 'wishlist'){
-            icon.className = 'fas fa-heart';
-        }
-        else{
-            icon.className = 'fas fa-check-circle';
-        }
-
-        text.textContent = message;
-        toast.style.display = 'inline-flex';
-        toast.classList.add('show');
-        clearTimeout(cartToastTimer);
-
-        cartToastTimer = setTimeout(() => {
-            toast.style.opacity = '0';
-            setTimeout(() => {
-                toast.style.display = 'none';
-                toast.style.opacity = '1';
-                toast.classList.remove('show');
-            }, 300);
-        }, 2500);
-    }
-
     const wishlistBtn = document.getElementById('wishlistBtn');
 
     wishlistBtn.addEventListener('click', async () => {
@@ -1016,6 +1002,87 @@
             showCartToast('Failed to update wishlist', 'delete');
         }
     });
-</script>
 
+    // document.getElementById('addToCartBtn').addEventListener('click', function() {
+
+    const addToCartBtn = document.getElementById('addToCartBtn');
+    addToCartBtn.addEventListener('click', function() {
+        const productId = '{{ $product->id }}';
+        const quantity = parseInt(document.getElementById('cartQuantity').value) || 1;
+
+        fetch('{{ route("cart.add") }}', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                'Accept': 'application/json'
+            },
+            body: JSON.stringify({
+                product_id: productId,
+                quantity: quantity
+            })
+        })
+        .then(res => res.json())
+        .then(data => {
+            if(data.success){
+                addToCartBtn.disabled = true;
+                addToCartBtn.innerHTML =
+                    '<i class="fas fa-check"></i> Added';
+
+                updateCartBadge(data.count);
+                refreshCartSidebar();
+                showCartToast('{{ $product->name }} added to cart', 'success');
+
+                setTimeout(() => {
+                    addToCartBtn.disabled = false;
+                    addToCartBtn.innerHTML =
+                        '<i class="fa-solid fa-bag-shopping me-2"></i> Add to Collection';
+                }, 2000);
+            }
+        });
+    });
+
+    // RELATED PRODUCTS - Add to Cart
+    document.querySelectorAll('.wl-atc-btn').forEach(btn => {
+        btn.addEventListener('click', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            const id = this.dataset.id;
+            const name = this.dataset.name;
+
+            this.disabled = true;
+            this.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Adding...';
+
+            fetch('{{ route("cart.add") }}', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json',
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                },
+                body: JSON.stringify({ product_id: id, quantity: 1 })
+            })
+            .then(res => res.json())
+            .then(data => {
+                if(data.success) {
+                    this.innerHTML = '<i class="fas fa-check"></i> Added';
+                    this.classList.add('added');
+                    updateCartBadge(data.count);
+                    refreshCartSidebar();
+                    showCartToast(name + ' added to cart', 'success');
+                    setTimeout(() => {
+                        this.disabled = false;
+                        this.innerHTML = '<i class="fas fa-shopping-bag"></i> Add to Collection';
+                        this.classList.remove('added');
+                    }, 2000);
+                }
+            })
+            .catch(() => {
+                this.disabled = false;
+                this.innerHTML = '<i class="fas fa-shopping-bag"></i> Add to Collection';
+                showCartToast('Failed to add product', 'delete');
+            });
+        });
+    });
+</script>
 @endsection

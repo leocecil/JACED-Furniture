@@ -22,105 +22,50 @@
             </div>
         </div>
 
-        {{-- ===== SEARCH (full width) ===== --}}
-        <div class="wl-search-wrap" id="wlSearchWrap" style="display:none;">
-            <i class="fas fa-search wl-search-icon"></i>
-            <input type="text" id="wishlistSearch" class="wl-search-input" placeholder="Search saved items...">
-            <button class="wl-search-clear" id="searchClearBtn" style="display:none;">
-                <i class="fas fa-times"></i>
-            </button>
+        {{-- ===== TOOLBAR: SEARCH + SORT + FILTER ===== --}}
+        <div class="wishlist-toolbar" id="wishlistToolbar" style="display: none;">
+            <div class="wishlist-search-wrap">
+                <i class="fas fa-search wishlist-search-icon"></i>
+                <input type="text" id="wishlistSearch" class="wishlist-search-input"
+                       placeholder="Search saved items...">
+                <button class="wishlist-search-clear" id="searchClearBtn" style="display:none;">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+
+            <div class="wishlist-sort-wrap">
+                <div class="wishlist-sort-trigger" id="sortTrigger">
+                    <span class="wishlist-sort-label">Sort</span>
+                    <span class="wishlist-sort-value" id="sortLabel">Default</span>
+                    <i class="fas fa-chevron-down wishlist-sort-chevron"></i>
+                </div>
+                <div class="wishlist-sort-menu" id="sortMenu">
+                    <button class="wishlist-sort-option active" data-sort="default">Default</button>
+                    <button class="wishlist-sort-option" data-sort="name_asc">Name A–Z</button>
+                    <button class="wishlist-sort-option" data-sort="name_desc">Name Z–A</button>
+                    <button class="wishlist-sort-option" data-sort="price_asc">Price: Low to High</button>
+                    <button class="wishlist-sort-option" data-sort="price_desc">Price: High to Low</button>
+                    <button class="wishlist-sort-option" data-sort="category">By Category</button>
+                </div>
+            </div>
+
+            <div class="wishlist-filter-wrap">
+                <div class="wishlist-sort-trigger" id="filterTrigger">
+                    <i class="fas fa-sliders-h me-2"></i>
+                    <span class="wishlist-sort-label">Category</span>
+                    <span class="wishlist-sort-value" id="filterLabel">All</span>
+                    <i class="fas fa-chevron-down wishlist-sort-chevron"></i>
+                </div>
+                <div class="wishlist-sort-menu" id="filterMenu">
+                    <button class="wishlist-sort-option active" data-filter="all">All</button>
+                </div>
+            </div>
         </div>
 
-        {{-- ===== FILTER PILLS ===== --}}
-        <div class="wl-filters-row" id="wlFiltersRow" style="display:none;">
-
-            {{-- SORT --}}
-            <div class="wl-pill-wrap" id="wlSortWrap">
-                <button type="button" class="wl-pill" id="wlSortTrigger">
-                    <span class="pill-label">Sort</span>
-                    <span class="pill-value" id="wlSortLabel">Recommended</span>
-                    <i class="fas fa-chevron-down pill-chevron"></i>
-                </button>
-                <div class="wl-pill-dropdown" id="wlSortMenu">
-                    <button class="wl-dd-opt active" data-sort="default">Recommended <i class="fas fa-check"></i></button>
-                    <button class="wl-dd-opt" data-sort="name_asc">Name A–Z</button>
-                    <button class="wl-dd-opt" data-sort="name_desc">Name Z–A</button>
-                    <button class="wl-dd-opt" data-sort="price_asc">Price: Low to High</button>
-                    <button class="wl-dd-opt" data-sort="price_desc">Price: High to Low</button>
-                </div>
-            </div>
-
-            {{-- CATEGORY (populated by JS) --}}
-            <div class="wl-pill-wrap" id="wlCatWrap">
-                <button type="button" class="wl-pill" id="wlCatTrigger">
-                    <span class="pill-label">Category</span>
-                    <span class="pill-value" id="wlCatLabel">All</span>
-                    <i class="fas fa-chevron-down pill-chevron"></i>
-                </button>
-                <div class="wl-pill-dropdown" id="wlCatMenu">
-                    <button class="wl-dd-opt active" data-filter="all">All <i class="fas fa-check"></i></button>
-                </div>
-            </div>
-
-            {{-- MATERIAL --}}
-            <div class="wl-pill-wrap" id="wlMatWrap">
-                <button type="button" class="wl-pill" id="wlMatTrigger">
-                    <span class="pill-label">Material</span>
-                    <span class="pill-value" id="wlMatLabel">All</span>
-                    <i class="fas fa-chevron-down pill-chevron"></i>
-                </button>
-                <div class="wl-pill-dropdown" id="wlMatMenu">
-                    <button class="wl-dd-opt active" data-mat="all">All <i class="fas fa-check"></i></button>
-                    <button class="wl-dd-opt" data-mat="solid-wood">Solid Wood</button>
-                    <button class="wl-dd-opt" data-mat="fabric">Fabric</button>
-                    <button class="wl-dd-opt" data-mat="leather">Leather</button>
-                    <button class="wl-dd-opt" data-mat="metal">Metal</button>
-                </div>
-            </div>
-
-            {{-- SIZE --}}
-            <div class="wl-pill-wrap" id="wlSizeWrap">
-                <button type="button" class="wl-pill" id="wlSizeTrigger">
-                    <span class="pill-label">Size</span>
-                    <span class="pill-value" id="wlSizeLabel">All</span>
-                    <i class="fas fa-chevron-down pill-chevron"></i>
-                </button>
-                <div class="wl-pill-dropdown" id="wlSizeMenu">
-                    <button class="wl-dd-opt active" data-size="all">All <i class="fas fa-check"></i></button>
-                    <button class="wl-dd-opt" data-size="small">Small</button>
-                    <button class="wl-dd-opt" data-size="medium">Medium</button>
-                    <button class="wl-dd-opt" data-size="large">Large</button>
-                </div>
-            </div>
-
-            {{-- PRICE --}}
-            <div class="wl-pill-wrap" id="wlPriceWrap">
-                <button type="button" class="wl-pill" id="wlPriceTrigger">
-                    <span class="pill-label">Price</span>
-                    <span class="pill-value" id="wlPriceLabel">Any</span>
-                    <i class="fas fa-chevron-down pill-chevron"></i>
-                </button>
-                <div class="wl-pill-dropdown" id="wlPriceMenu">
-                    <button class="wl-dd-opt active" data-price="all">Any <i class="fas fa-check"></i></button>
-                    <button class="wl-dd-opt" data-price="0-1000000">Under Rp 1.000.000</button>
-                    <button class="wl-dd-opt" data-price="1000000-5000000">Rp 1.000.000 – 5.000.000</button>
-                    <button class="wl-dd-opt" data-price="5000000-15000000">Rp 5.000.000 – 15.000.000</button>
-                    <button class="wl-dd-opt" data-price="15000000-30000000">Rp 15.000.000 – 30.000.000</button>
-                    <button class="wl-dd-opt" data-price="30000000-999999999">Above Rp 30.000.000</button>
-                </div>
-            </div>
-
-            {{-- CLEAR ALL --}}
-            <a href="#" class="wl-clear-btn" id="wlClearBtn" style="display:none;" onclick="wlClearAllFilters(); return false;">
-                <i class="fas fa-times me-1"></i> Clear filters
-            </a>
-
-        </div>
-
-        {{-- ===== ACTIVE CHIPS ===== --}}
-        <div class="wl-active-filters" id="wlActiveFilters" style="display:none;">
-            <span class="wl-active-label">Active:</span>
-            <div id="wlActiveChips"></div>
+        {{-- ===== ACTIVE FILTERS ===== --}}
+        <div class="wishlist-active-filters" id="activeFilters" style="display: none;">
+            <span class="wishlist-active-label">Filters:</span>
+            <div id="activeFilterChips"></div>
         </div>
 
         {{-- ===== EMPTY STATE ===== --}}
@@ -241,98 +186,155 @@
 
     /* PRODUCT CARD - sama kayak shop */
     .wl-card {
-        display:block; text-decoration:none; color:var(--jaced-brown-dark);
-        transition:transform 0.4s cubic-bezier(0.22,1,0.36,1);
-        position:relative; border-radius:20px;
+        background: var(--jaced-card); border-radius: 16px; overflow: hidden;
+        transition: transform 0.4s cubic-bezier(0.22,1,0.36,1), box-shadow 0.4s ease;
+        position: relative;
     }
-    .wl-card::before {
-        content:''; position:absolute; inset:-6px; border-radius:24px;
-        background:linear-gradient(135deg, var(--jaced-caramel), var(--jaced-brown-dark), var(--jaced-caramel));
-        background-size:200% 200%; opacity:0; transition:opacity 0.4s ease;
-        z-index:-1; animation:wlBorderRotate 3s linear infinite paused;
-    }
-    .wl-card:hover::before { opacity:1; animation-play-state:running; }
-    @keyframes wlBorderRotate { 0%{background-position:0% 50%} 50%{background-position:100% 50%} 100%{background-position:0% 50%} }
-    .wl-card:hover { color:var(--jaced-brown-dark); transform:translateY(-6px); }
+    .wl-card:hover { transform: translateY(-4px); box-shadow: 0 12px 32px rgba(39,46,29,0.1); }
+    .wl-card-img-wrap { position: relative; aspect-ratio: 1; overflow: hidden; background: var(--jaced-input); }
+    .wl-card-img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.6s cubic-bezier(0.22,1,0.36,1); }
+    .wl-card:hover .wl-card-img { transform: scale(1.06); }
 
-    .wl-card-img-wrap {
-        position:relative; aspect-ratio:1; background:var(--jaced-card);
-        border-radius:16px; overflow:hidden; margin-bottom:14px;
-        border:2px solid transparent; transition:border-color 0.4s ease, box-shadow 0.4s ease;
+    .wl-remove-btn i { transition: all 0.2s ease; }
+    .wl-remove-btn:hover i {
+        font-family: "Font Awesome 6 Free";
+        font-weight: 900;
     }
-    .wl-card:hover .wl-card-img-wrap {
-        border-color:var(--jaced-caramel);
-        box-shadow:0 0 0 6px rgba(201,154,107,0.18), 0 16px 40px rgba(39,46,29,0.12);
-    }
-    .wl-card-img { width:100%; height:100%; object-fit:cover; transition:transform 0.6s cubic-bezier(0.22,1,0.36,1); }
-    .wl-card:hover .wl-card-img { transform:scale(1.06); }
+    .wl-remove-btn:hover { background: rgba(156, 53, 53, 0.1); color: #9c3535; }
 
-    /* Heart - orange */
+    .wl-card-body { padding: 16px; }
+    .wl-card-cat { font-size: 10px; text-transform: uppercase; letter-spacing: 0.2em; color: var(--jaced-caramel); font-weight: 600; margin-bottom: 4px; display: block; }
+    .wl-card-name { font-size: 16px; font-weight: 600; color: var(--jaced-brown-dark); margin-bottom: 4px; letter-spacing: -0.01em; line-height: 1.3; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; 
+        display: -webkit-box; -webkit-line-clamp: 1; -webkit-box-orient: vertical; }
+    .wl-card-price { font-size: 20px; font-weight: 700; color: var(--jaced-sage); margin-bottom: 6px; display: block; }
+    .wl-card-actions { display: flex; gap: 8px; }
+
+    .wl-atc-btn {
+        flex: 1; display: flex; align-items: center; justify-content: center;
+        background: var(--jaced-brown-dark); color: var(--jaced-cream);
+        padding: 10px 16px; border-radius: 999px; font-size: 12px; font-weight: 600;
+        border: none; cursor: pointer; transition: background 0.3s ease; gap: 6px; width: 100%;
+    }
+    .wl-atc-btn:hover { background: var(--jaced-caramel); color: var(--jaced-cream); }
+    .wl-atc-btn.added { background: #4a7c59; }
+    .wl-atc-btn:disabled { opacity: 0.7; cursor: not-allowed; }
+
+    .wl-confirm-backdrop {
+        position: fixed; inset: 0;
+        background: rgba(28, 28, 26, 0.5);
+        backdrop-filter: blur(4px);
+        z-index: 1300;
+        display: flex; align-items: center; justify-content: center;
+        opacity: 0; visibility: hidden;
+        transition: opacity 0.3s ease, visibility 0.3s;
+    }
+    .wl-confirm-backdrop.show {
+        opacity: 1; visibility: visible;
+    }
+    .wl-confirm-modal {
+        background: var(--jaced-caramel-bg);
+        border-radius: 24px;
+        padding: 40px 36px;
+        max-width: 380px;
+        width: 90%;
+        text-align: center;
+        transform: scale(0.92) translateY(12px);
+        transition: transform 0.35s cubic-bezier(0.22, 1, 0.36, 1);
+        box-shadow: 0 24px 60px rgba(0,0,0,0.15);
+    }
+    .wl-confirm-backdrop.show .wl-confirm-modal {
+        transform: scale(1) translateY(0);
+    }
+    .wl-confirm-icon {
+        font-size: 32px;
+        color: #9c3535;
+        margin-bottom: 16px;
+    }
+    .wl-confirm-title {
+        font-size: 18px;
+        font-weight: 700;
+        color: var(--jaced-brown-dark);
+        margin-bottom: 8px;
+        letter-spacing: -0.02em;
+    }
+    .wl-confirm-msg {
+        font-size: 14px;
+        color: var(--jaced-muted);
+        margin-bottom: 28px;
+        line-height: 1.5;
+    }
+    .wl-confirm-actions {
+        display: flex;
+        gap: 12px;
+    }
+    .wl-confirm-cancel {
+        flex: 1;
+        background: transparent;
+        border: 1px solid var(--jaced-input);
+        color: var(--jaced-brown-dark);
+        padding: 12px;
+        border-radius: 999px;
+        font-size: 13px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+    .wl-confirm-cancel:hover {
+        background: var(--jaced-card);
+    }
+    .wl-confirm-ok {
+        flex: 1;
+        background: #9c3535;
+        border: none;
+        color: white;
+        padding: 12px;
+        border-radius: 999px;
+        font-size: 13px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+    .wl-confirm-ok:hover { background: #7a2828; }
+
     .wl-remove-btn {
-        position:absolute; top:12px; right:12px;
-        width:34px; height:34px; border-radius:50%;
-        background:var(--jaced-caramel); border:none;
-        display:flex; align-items:center; justify-content:center;
-        color:var(--jaced-cream); font-size:13px; cursor:pointer; z-index:3;
-        transition:background 0.2s ease, color 0.2s ease, transform 0.2s ease;
+        position: absolute; top: 12px; right: 12px;
+        width: 34px; height: 34px; border-radius: 50%;
+        background: rgba(242, 237, 230, 0.95);
+        backdrop-filter: blur(8px);
+        border: none; display: flex; align-items: center; justify-content: center;
+        color: var(--jaced-brown-dark); font-size: 13px; cursor: pointer; z-index: 3;
+        transition: background 0.2s ease, color 0.2s ease, transform 0.2s ease;
     }
-    .wl-remove-btn .fa-heart::before { content:"\f004"; }
-    .wl-remove-btn:hover .fa-heart::before { content:"\f7a9"; }
-    .wl-remove-btn:hover { background:rgba(156,53,53,0.15); color:#9c3535; transform:scale(1.1); }
-
-    /* Card info */
-    .wl-card-info { padding:0 4px; }
-    .wl-card-cat { display:block; font-size:10px; text-transform:uppercase; letter-spacing:0.2em; color:var(--jaced-caramel); font-weight:500; margin-bottom:5px; transition:color 0.4s ease; }
-    .wl-card-name { font-size:15px; font-weight:600; letter-spacing:-0.01em; margin:0 0 8px; color:var(--jaced-brown-dark); line-height:1.3; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; transition:color 0.4s ease; }
-    .wl-card-bottom { display:flex; justify-content:space-between; align-items:center; gap:8px; margin-bottom:12px; }
-    .wl-card-price { font-size:14px; font-weight:600; color:var(--jaced-brown-dark); transition:color 0.4s ease; }
-    .wl-card-dim { font-size:11px; color:var(--jaced-muted); font-weight:500; white-space:nowrap; transition:color 0.4s ease; }
-    .wl-card:hover .wl-card-name { color:var(--jaced-cream); }
-    .wl-card:hover .wl-card-cat { color:var(--jaced-caramel); }
-    .wl-card:hover .wl-card-price { color:var(--jaced-cream); }
-    .wl-card:hover .wl-card-dim { color:rgba(242,237,230,0.6); }
-
-    /* See Details - brown-dark default, sweep putih ke orange pas hover */
-    .wl-see-details {
-        display:flex; align-items:center; justify-content:center; gap:6px;
-        width:100%; padding:10px 16px; border-radius:999px;
-        font-size:12px; font-weight:600; text-decoration:none;
-        background:var(--jaced-caramel); color:var(--jaced-white);
-        position:relative; overflow:hidden;
-        transition:color 0.4s ease;
+    .wl-remove-btn .fa-heart::before { content: "\f004"; }
+    .wl-remove-btn:hover .fa-heart::before { content: "\f7a9"; }
+    .wl-remove-btn:hover {
+        background: rgba(156, 53, 53, 0.12);
+        color: #9c3535;
+        transform: scale(1.1);
     }
-    .wl-see-details::before {   
-        content:''; position:absolute; top:0; left:-100%; width:100%; height:100%;
-        background:var(--jaced-white);
-        transition:left 0.4s cubic-bezier(0.22,1,0.36,1); z-index:0;
+
+    .wishlist-load-more-wrap { display: flex; justify-content: center; margin-top: 40px; }
+    .wishlist-load-more-btn {
+        display: inline-flex; align-items: center; gap: 10px;
+        background: transparent; border: 1px solid var(--jaced-input);
+        color: var(--jaced-brown-dark); padding: 14px 36px; border-radius: 999px;
+        font-size: 13px; font-weight: 600; cursor: pointer;
+        transition: all 0.3s ease; letter-spacing: 0.05em;
     }
-    .wl-see-details:hover::before { left:0; }
-    .wl-see-details:hover { color:var(--jaced-brown-dark); }
-    .wl-see-details span, .wl-see-details i { position:relative; z-index:1; }
+    .wishlist-load-more-btn:hover { background: var(--jaced-brown-dark); color: var(--jaced-cream); border-color: var(--jaced-brown-dark); }
+    .wishlist-load-more-count { font-size: 11px; color: var(--jaced-muted); font-weight: 400; }
 
-    /* LOAD MORE */
-    .wl-load-more-wrap { display:flex; justify-content:center; margin-top:40px; }
-    .wl-load-more-btn { display:inline-flex; align-items:center; gap:10px; background:transparent; border:1px solid var(--jaced-input); color:var(--jaced-brown-dark); padding:14px 36px; border-radius:999px; font-size:13px; font-weight:600; cursor:pointer; transition:all 0.3s ease; }
-    .wl-load-more-btn:hover { background:var(--jaced-brown-dark); color:var(--jaced-cream); border-color:var(--jaced-brown-dark); }
-
-    /* CONFIRM */
-    .wl-confirm-backdrop { position:fixed; inset:0; background:rgba(28,28,26,0.5); backdrop-filter:blur(4px); z-index:1300; display:flex; align-items:center; justify-content:center; opacity:0; visibility:hidden; transition:opacity 0.3s ease, visibility 0.3s; }
-    .wl-confirm-backdrop.show { opacity:1; visibility:visible; }
-    .wl-confirm-modal { background:var(--jaced-caramel-bg); border-radius:24px; padding:40px 36px; max-width:380px; width:90%; text-align:center; transform:scale(0.92) translateY(12px); transition:transform 0.35s cubic-bezier(0.22,1,0.36,1); box-shadow:0 24px 60px rgba(0,0,0,0.15); }
-    .wl-confirm-backdrop.show .wl-confirm-modal { transform:scale(1) translateY(0); }
-    .wl-confirm-icon { font-size:32px; color:#9c3535; margin-bottom:16px; }
-    .wl-confirm-title { font-size:18px; font-weight:700; color:var(--jaced-brown-dark); margin-bottom:8px; letter-spacing:-0.02em; }
-    .wl-confirm-msg { font-size:14px; color:var(--jaced-muted); margin-bottom:28px; line-height:1.5; }
-    .wl-confirm-actions { display:flex; gap:12px; }
-    .wl-confirm-cancel { flex:1; background:transparent; border:1px solid var(--jaced-input); color:var(--jaced-brown-dark); padding:12px; border-radius:999px; font-size:13px; font-weight:600; cursor:pointer; transition:all 0.3s ease; }
-    .wl-confirm-cancel:hover { background:var(--jaced-card); }
-    .wl-confirm-ok { flex:1; background:#9c3535; border:none; color:white; padding:12px; border-radius:999px; font-size:13px; font-weight:600; cursor:pointer; transition:all 0.3s ease; }
-    .wl-confirm-ok:hover { background:#7a2828; }
-
-    /* TOAST */
-    .wish-toast { position:fixed; bottom:28px; left:50%; transform:translateX(-50%) translateY(80px); background:var(--jaced-brown-dark); color:var(--jaced-cream); padding:14px 26px; border-radius:999px; font-size:14px; font-weight:500; display:flex; align-items:center; gap:10px; z-index:1200; opacity:0; transition:transform 0.4s cubic-bezier(0.22,1,0.36,1), opacity 0.4s ease; box-shadow:0 12px 32px rgba(0,0,0,0.2); white-space:nowrap; }
-    .wish-toast.show { transform:translateX(-50%) translateY(0); opacity:1; }
-    .wish-toast i { color:#6fae6f; }
+    .wish-toast {
+        position: fixed; bottom: 28px; left: 50%;
+        transform: translateX(-50%) translateY(80px);
+        background: var(--jaced-brown-dark); color: var(--jaced-cream);
+        padding: 14px 26px; border-radius: 999px; font-size: 14px; font-weight: 500;
+        display: flex; align-items: center; gap: 10px; z-index: 1200; opacity: 0;
+        transition: transform 0.4s cubic-bezier(0.22,1,0.36,1), opacity 0.4s ease;
+        box-shadow: 0 12px 32px rgba(0,0,0,0.2); white-space: nowrap;
+    }
+    .wish-toast.show { transform: translateX(-50%) translateY(0); opacity: 1; }
+    .wish-toast i { color: #6fae6f; }
 
     @media (max-width:576px) {
         .wishlist-header { flex-direction:column; align-items:flex-start; }
@@ -506,15 +508,45 @@
                             <span class="wl-card-price">Rp ${Number(p.price).toLocaleString('id-ID')}</span>
                             ${dim ? `<span class="wl-card-dim">${dim}</span>` : ''}
                         </div>
-                        <div class="wl-see-details">
-                            <i class="fas fa-arrow-right"></i>
-                            <span>See Details</span>
-                        </div>
-                    </div>
-                </a>
-            </div>`;
-        }).join('');
 
+                        <div class="wl-card-body">
+
+                            <small class="wl-card-cat">
+                                ${item.product.category?.name || 'Furniture'}
+                            </small>
+
+                            <h5 class="wl-card-name">
+                                ${item.product.name}
+                            </h5>
+
+                            <span class="wl-card-price">
+                                Rp ${Number(item.product.price).toLocaleString('id-ID')}
+                            </span>
+
+                        </div>
+
+                    </a>
+
+                    <div class="wl-card-actions px-3 pb-3">
+
+                        <button class="wl-atc-btn"
+                                data-id="${item.product.id}"
+                                data-name="${item.product.name}">
+
+                            <i class="fas fa-shopping-bag"></i>
+                            Add to Collection
+
+                        </button>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        `).join('');
+
+        // ANIMATION
         requestAnimationFrame(() => {
             grid.querySelectorAll('[data-wishcard]').forEach(el => {
                 el.style.opacity = '1';
@@ -526,14 +558,97 @@
         if (remaining > 0) loadMoreCnt.textContent = `(${remaining} more)`;
 
         grid.querySelectorAll('.wl-remove-btn').forEach(btn => {
-            btn.addEventListener('click', e => {
-                e.preventDefault(); e.stopPropagation();
-                const id = btn.dataset.id, name = btn.dataset.name;
-                showConfirm(`Remove "${name}" from wishlist?`, async () => {
-                    await removeWishlist(id);
-                    showToast(name + ' removed');
-                    render();
-                });
+
+            btn.addEventListener('click', (e) => {
+
+                e.preventDefault();
+                e.stopPropagation();
+
+                const id = btn.dataset.id;
+                const name = btn.dataset.name;
+
+                showConfirm(
+                    `Remove "${name}" from wishlist?`,
+                    async () => {
+
+                        await removeWishlist(id);
+
+                        showToast(name + ' removed');
+
+                        render();
+                    }
+                );
+            });
+        });
+
+        // ADD TO CART
+        grid.querySelectorAll('.wl-atc-btn').forEach(btn => {
+            btn.addEventListener('click', async (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                const id = btn.dataset.id;
+                const name = btn.dataset.name;
+
+                btn.disabled = true;
+
+                btn.innerHTML =
+                    '<i class="fas fa-spinner fa-spin"></i> Adding...';
+
+                try {
+
+                    const response = await fetch('{{ route("cart.add") }}', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Accept': 'application/json',
+                            'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                        },
+
+                        body: JSON.stringify({
+                            product_id: id,
+                            quantity: 1
+                        })
+                    });
+
+                    if (!response.ok) {
+                        throw new Error();
+                    }
+
+                    const data = await response.json();
+                    refreshCartSidebar();
+                    // UPDATE CART BADGE
+                    const cartBadge = document.getElementById('cartCount');
+                    if(cartBadge){
+                        cartBadge.innerText = data.count;
+                    }
+                    // UPDATE CART TOTAL
+                    const cartTotal = document.getElementById('cartTotalPrice');
+                    if(cartTotal){
+                        cartTotal.innerText =
+                            'Rp ' + Number(data.total).toLocaleString('id-ID');
+                    }
+                    // OPTIONAL: REFRESH CART SIDEBAR CONTENT
+                    if(typeof loadCartSidebar === 'function'){
+                        loadCartSidebar();
+                    }
+                    btn.innerHTML =
+                        '<i class="fas fa-check"></i> Added';
+                    btn.classList.add('added');
+                    showToast(name + ' added to cart');
+                    setTimeout(() => {
+                        btn.disabled = false;
+                        btn.innerHTML =
+                            '<i class="fas fa-shopping-bag"></i> Add to Collection';
+                        btn.classList.remove('added');
+                    }, 2000);
+
+                } catch (e) {
+                    btn.disabled = false;
+                    btn.innerHTML =
+                        '<i class="fas fa-shopping-bag"></i> Add to Collection';
+
+                    showToast('Failed to add product');
+                }
             });
         });
 
@@ -568,112 +683,55 @@
         clearBtn.style.display = hasFilter ? 'inline-flex' : 'none';
 
         const chips = [];
-        if (currentFilter !== 'all') chips.push({ label: `Category: ${currentFilter}`, clear: () => { currentFilter='all'; setPillValue('wlCatLabel','All','wlCatWrap',false); render(); }});
-        if (currentSize !== 'all') chips.push({ label: `Size: ${currentSize}`, clear: () => { currentSize='all'; setPillValue('wlSizeLabel','All','wlSizeWrap',false); render(); }});
-        if (currentPrice !== 'all') chips.push({ label: `Price filter active`, clear: () => { currentPrice='all'; setPillValue('wlPriceLabel','Any','wlPriceWrap',false); render(); }});
-        if (currentSearch) chips.push({ label: `"${currentSearch}"`, clear: () => { currentSearch=''; document.getElementById('wishlistSearch').value=''; document.getElementById('searchClearBtn').style.display='none'; render(); }});
+        if (currentFilter !== 'all') {
+            chips.push({
+                label: `Category: ${currentFilter}`,
+                clear: () => {
+                    currentFilter = 'all';
+                    document.getElementById('filterLabel').textContent = 'All';
+                    render();
+                }
+            });
+        }
+
+        if (currentSearch) {
+            chips.push({
+                label: `"${currentSearch}"`,
+                clear: () => {
+                    currentSearch = '';
+                    document.getElementById('wishlistSearch').value = '';
+                    document.getElementById('searchClearBtn').style.display = 'none';
+                    render();
+                }
+            });
+        }
 
         if (chips.length > 0) {
-            activeFilEl.style.display = 'flex';
-            activeChips.innerHTML = chips.map((c,i) => `<span class="wl-chip">${c.label}<button data-chip="${i}"><i class="fas fa-times"></i></button></span>`).join('');
-            activeChips.querySelectorAll('button[data-chip]').forEach(b => b.addEventListener('click', () => chips[parseInt(b.dataset.chip)].clear()));
+
+            activeFiltersEl.style.display = 'flex';
+
+            activeChipsEl.innerHTML = chips.map((c, i) => `
+                <span class="wishlist-chip">
+                    ${c.label}
+                    <button data-chip="${i}">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </span>
+            `).join('');
+
+            activeChipsEl.querySelectorAll('button[data-chip]')
+                .forEach(btn => {
+                    btn.addEventListener('click', () => {
+                        chips[parseInt(btn.dataset.chip)].clear();
+                    });
+                });
+
         } else {
-            activeFilEl.style.display = 'none';
+            activeFiltersEl.style.display = 'none';
         }
     }
 
-    function setPillValue(labelId, value, wrapId, active) {
-        document.getElementById(labelId).textContent = value;
-        const pill = document.getElementById(wrapId)?.querySelector('.wl-pill');
-        if (pill) pill.classList.toggle('active-pill', active);
-    }
-
-    window.wlClearAllFilters = function() {
-        currentFilter='all'; currentMat='all'; currentSize='all'; currentPrice='all'; currentSearch='';
-        setPillValue('wlCatLabel','All','wlCatWrap',false);
-        setPillValue('wlMatLabel','All','wlMatWrap',false);
-        setPillValue('wlSizeLabel','All','wlSizeWrap',false);
-        setPillValue('wlPriceLabel','Any','wlPriceWrap',false);
-        document.getElementById('wishlistSearch').value='';
-        document.getElementById('searchClearBtn').style.display='none';
-        render();
-    };
-
-    // ===== PILL DROPDOWNS =====
-    const pillIds = ['wlSortWrap','wlCatWrap','wlMatWrap','wlSizeWrap','wlPriceWrap'];
-    pillIds.forEach(id => {
-        const wrap = document.getElementById(id);
-        const trig = wrap?.querySelector('.wl-pill');
-        if (!wrap || !trig) return;
-        trig.addEventListener('click', e => {
-            e.stopPropagation();
-            const isOpen = wrap.classList.contains('open');
-            pillIds.forEach(x => document.getElementById(x)?.classList.remove('open'));
-            if (!isOpen) wrap.classList.add('open');
-        });
-    });
-
-    // Sort
-    document.querySelectorAll('#wlSortMenu .wl-dd-opt').forEach(btn => {
-        btn.addEventListener('click', () => {
-            currentSort = btn.dataset.sort;
-            const label = btn.textContent.trim();
-            document.querySelectorAll('#wlSortMenu .wl-dd-opt').forEach(b => { b.classList.remove('active'); b.querySelector('i')?.remove(); });
-            btn.classList.add('active');
-            const ic = document.createElement('i'); ic.className='fas fa-check'; btn.appendChild(ic);
-            setPillValue('wlSortLabel', label, 'wlSortWrap', currentSort !== 'default');
-            document.getElementById('wlSortWrap').classList.remove('open');
-            render();
-        });
-    });
-
-    // Material (client-side, no actual filter data so just label)
-    document.querySelectorAll('#wlMatMenu .wl-dd-opt').forEach(btn => {
-        btn.addEventListener('click', () => {
-            currentMat = btn.dataset.mat;
-            const label = btn.textContent.trim();
-            document.querySelectorAll('#wlMatMenu .wl-dd-opt').forEach(b => { b.classList.remove('active'); b.querySelector('i')?.remove(); });
-            btn.classList.add('active');
-            const ic = document.createElement('i'); ic.className='fas fa-check'; btn.appendChild(ic);
-            setPillValue('wlMatLabel', label, 'wlMatWrap', currentMat !== 'all');
-            document.getElementById('wlMatWrap').classList.remove('open');
-        });
-    });
-
-    // Size
-    document.querySelectorAll('#wlSizeMenu .wl-dd-opt').forEach(btn => {
-        btn.addEventListener('click', () => {
-            currentSize = btn.dataset.size;
-            const label = btn.textContent.trim();
-            document.querySelectorAll('#wlSizeMenu .wl-dd-opt').forEach(b => { b.classList.remove('active'); b.querySelector('i')?.remove(); });
-            btn.classList.add('active');
-            const ic = document.createElement('i'); ic.className='fas fa-check'; btn.appendChild(ic);
-            setPillValue('wlSizeLabel', label, 'wlSizeWrap', currentSize !== 'all');
-            document.getElementById('wlSizeWrap').classList.remove('open');
-            visibleCount = PER_PAGE;
-            render();
-        });
-    });
-
-    // Price
-    document.querySelectorAll('#wlPriceMenu .wl-dd-opt').forEach(btn => {
-        btn.addEventListener('click', () => {
-            currentPrice = btn.dataset.price;
-            const label = btn.textContent.trim();
-            document.querySelectorAll('#wlPriceMenu .wl-dd-opt').forEach(b => { b.classList.remove('active'); b.querySelector('i')?.remove(); });
-            btn.classList.add('active');
-            const ic = document.createElement('i'); ic.className='fas fa-check'; btn.appendChild(ic);
-            setPillValue('wlPriceLabel', label, 'wlPriceWrap', currentPrice !== 'all');
-            document.getElementById('wlPriceWrap').classList.remove('open');
-            visibleCount = PER_PAGE;
-            render();
-        });
-    });
-
-    document.addEventListener('click', () => pillIds.forEach(id => document.getElementById(id)?.classList.remove('open')));
-    document.addEventListener('keydown', e => { if (e.key === 'Escape') pillIds.forEach(id => document.getElementById(id)?.classList.remove('open')); });
-
-    // ===== SEARCH =====
+    // SEARCH
     const searchInput = document.getElementById('wishlistSearch');
     const searchClear = document.getElementById('searchClearBtn');
     let searchTimer;
@@ -698,7 +756,48 @@
         });
     });
 
+    // SORT
+    const sortWrap = document.querySelector('.wishlist-sort-wrap');
+    document.getElementById('sortTrigger')
+        .addEventListener('click', (e) => {
+            e.stopPropagation();
+            sortWrap.classList.toggle('open');
+        });
+
+    document.querySelectorAll('#sortMenu .wishlist-sort-option')
+        .forEach(btn => {
+            btn.addEventListener('click', () => {
+                currentSort = btn.dataset.sort;
+                document.getElementById('sortLabel')
+                    .textContent = btn.textContent.trim();
+                document.querySelectorAll('#sortMenu .wishlist-sort-option')
+                    .forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                sortWrap.classList.remove('open');
+                render();
+            });
+        });
+
+    // FILTER
+    const filterWrap = document.querySelector('.wishlist-filter-wrap');
+    document.getElementById('filterTrigger')
+        .addEventListener('click', (e) => {
+            e.stopPropagation();
+            filterWrap.classList.toggle('open');
+        });
+
+    document.addEventListener('click', (e) => {
+        if (!sortWrap.contains(e.target)) {
+            sortWrap.classList.remove('open');
+        }
+        if (!filterWrap.contains(e.target)) {
+            filterWrap.classList.remove('open');
+        }
+    });
+
+    // INITIAL
     render();
+
 })();
 </script>
 

@@ -81,6 +81,7 @@ class OrderManagementController extends Controller
         $request->validate([
             'action'                      => 'required|in:refund,exchange,reject',
             'admin_note'                  => 'required|string|max:1000',
+            'refund_amount'               => 'nullable|numeric|min:0',
             'replacement_tracking_number' => 'nullable|string|max:255',
         ]);
 
@@ -89,11 +90,19 @@ class OrderManagementController extends Controller
             return response()->json(['error' => 'Dispute not found.'], 404);
         }
 
+        $order = DB::table('orders')->where('id', $dispute->order_id)->first();
+        if (!$order) {
+            return response()->json(['error' => 'Order not found.'], 404);
+        }
+
+        // Hitung subtotal & max refund
+        $subtotal  = $order->total_price - $order->delivery_fee - $order->service_tax + $order->discount_amount;
+        $maxRefund = $subtotal;
+
         if ($request->action === 'reject') {
             DB::table('order_disputes')->where('id', $id)->update([
                 'status'          => 'rejected',
                 'resolution_type' => null,
-                'description'     => $dispute->description,
                 'admin_note'      => $request->admin_note,
                 'resolved_at'     => now(),
                 'updated_at'      => now(),
@@ -106,25 +115,39 @@ class OrderManagementController extends Controller
         }
 
         if ($request->action === 'refund') {
+            $refundAmount = min((float) $request->refund_amount, $maxRefund);
+            $refundType   = $refundAmount >= $subtotal ? 'full' : 'partial';
+
             DB::table('order_disputes')->where('id', $id)->update([
-                'status'          => 'negotiating',
+                'status'          => 'resolved',
                 'resolution_type' => 'refund',
                 'admin_note'      => $request->admin_note,
+                'refund_amount'   => $refundAmount,
+                'resolved_at'     => now(),
                 'updated_at'      => now(),
+            ]);
+
+            DB::table('orders')->where('id', $order->id)->update([
+                'status'         => 'arrived',
+                'arrived_at'     => $order->arrived_at ?? now(),
+                'refund_status'  => 'completed',
+                'refund_type'    => $refundType,
+                'refund_amount'  => $refundAmount,
+                'updated_at'     => now(),
             ]);
 
             return response()->json([
                 'success' => true,
-                'message' => 'Refund approved. Mark as resolved when refund is done.',
+                'message' => 'Refund approved and marked as resolved.',
             ]);
         }
 
         if ($request->action === 'exchange') {
             $update = [
-                'status'          => 'negotiating',
-                'resolution_type' => 'exchange',
-                'admin_note'      => $request->admin_note,
-                'updated_at'      => now(),
+                'status'                       => 'shipping_replacement',
+                'resolution_type'              => 'exchange',
+                'admin_note'                   => $request->admin_note,
+                'updated_at'                   => now(),
             ];
 
             if ($request->filled('replacement_tracking_number')) {
@@ -136,7 +159,7 @@ class OrderManagementController extends Controller
 
             return response()->json([
                 'success' => true,
-                'message' => 'Exchange approved. Fill in tracking number when item is shipped.',
+                'message' => 'Replacement shipping in progress.',
             ]);
         }
     }
@@ -149,17 +172,18 @@ class OrderManagementController extends Controller
             return response()->json(['error' => 'Dispute not found.'], 404);
         }
 
-        $update = [
-            'status'      => 'resolved',
-            'resolved_at' => now(),
-            'updated_at'  => now(),
-        ];
+        DB::table('order_disputes')->where('id', $id)->update([
+            'status'                  => 'resolved',
+            'resolved_at'             => now(),
+            'replacement_arrived_at'  => $dispute->resolution_type === 'exchange' ? now() : $dispute->replacement_arrived_at,
+            'updated_at'              => now(),
+        ]);
 
-        if ($dispute->resolution_type === 'exchange') {
-            $update['replacement_arrived_at'] = now();
-        }
-
-        DB::table('order_disputes')->where('id', $id)->update($update);
+        DB::table('orders')->where('id', $dispute->order_id)->update([
+            'status'     => 'arrived',
+            'arrived_at' => now(),
+            'updated_at' => now(),
+        ]);
 
         return response()->json([
             'success' => true,

@@ -21,6 +21,7 @@ return new class extends Migration
             $table->decimal('max_discount', 10, 2);
             $table->boolean('is_active')->default(true);
             $table->timestamps();
+            $table->softDeletes();
         });
     }
 
