@@ -211,7 +211,9 @@ class UserController extends Controller
             'postal_code'    => $request->postal_code,
         ]);
 
-        return redirect()->route('profile.addresses')->with('success', 'Alamat berhasil diperbarui.');
+        return redirect()->route('profile.edit', auth()->id())
+            ->with('success', 'Address successfully updated.')
+            ->with('open_panel', 'addresses');
     }
 
     public function destroyAddress($id)
@@ -225,7 +227,9 @@ class UserController extends Controller
             if ($next) $next->update(['is_default' => true]);
         }
 
-        return redirect()->route('profile.addresses')->with('success', 'Alamat berhasil dihapus.');
+        return redirect()->route('profile.edit', auth()->id())
+            ->with('success', 'Address deleted successfully.')
+            ->with('open_panel', 'addresses');
     }
 
     public function setDefaultAddress($id)
@@ -234,7 +238,9 @@ class UserController extends Controller
         $user->shippingAddresses()->update(['is_default' => false]);
         $user->shippingAddresses()->findOrFail($id)->update(['is_default' => true]);
 
-        return redirect()->route('profile.addresses')->with('success', 'Alamat utama berhasil diubah.');
+        return redirect()->route('profile.edit', auth()->id())
+            ->with('success', 'Default address successfully updated.')
+            ->with('open_panel', 'addresses');
     }
 
     public function update_password(Request $request, $id)

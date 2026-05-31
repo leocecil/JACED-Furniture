@@ -254,7 +254,7 @@
                         {{-- Payment Method --}}
                         <div class="payment-section mt-3 pt-3 border-top">
                             <span class="field-label small mb-2 d-block fw-medium text-jaced-dark">Payment Method</span>
-                            <select name="payment_method" class="form-select form-select-sm" id="paymentMethod" onchange="handlePaymentChange(this.value)" required style="border-color: #d1cbbf;">
+                            <select name="payment_method" class="form-select form-select-sm" id="paymentMethod" required style="border-color: #d1cbbf;">
                                 <option value="">Choose Payment Method</option>
                                 @foreach ($paymentMethods as $method)
                                     <option value="{{ $method['value'] }}">{{ $method['label'] }}</option>
@@ -283,6 +283,9 @@
                         {{-- Hidden Input untuk mengirim ID Voucher yang dipilih ke Controller backend --}}
                         <input type="hidden" name="applied_voucher_id" id="applied-voucher-id" value="">
                         <input type="hidden" name="discount_amount" id="applied-discount-amount" value="0">
+                        <div id="qris-warning" class="alert alert-warning d-none mt-2" style="font-size: 12px; border-radius: 8px;">
+                            ⚠️ QRIS hanya tersedia untuk transaksi di bawah Rp 10.000.000
+                        </div>
 
                         <button type="submit" class="btn-jaced w-100 py-2" style="font-size: 15px;">
                             Make Order
@@ -447,6 +450,7 @@
         let provinceTS; // ← pindah ke global scope
         let currentDeliveryFee = 0;
         let voucherApplied = false;
+        let lastInteractionWasKeyboard = false;
 
         // Toggle radio voucher - klik lagi untuk untick
         document.addEventListener('DOMContentLoaded', function () {
@@ -482,6 +486,8 @@
             });
 
             // Modal & address
+            document.addEventListener('keydown', () => lastInteractionWasKeyboard = true);
+            document.addEventListener('mousedown', () => lastInteractionWasKeyboard = false);
             bsModal = new bootstrap.Modal(document.getElementById('addressModal'));
             provinceTS = new TomSelect('#modalProvinceSelect', {
                 allowEmptyOption: false,
@@ -645,7 +651,9 @@
             document.getElementById('modal_receiver_name').value = "";
             document.getElementById('modal_receiver_phone').value = "";
             document.getElementById('modal_address_line1').value = "";
-            document.getElementById('modal_postal_code').value = "";
+            // Reset postal wrapper ke input kosong, bukan cuma value-nya
+            document.getElementById('modal_postal_wrapper').innerHTML = 
+                '<input type="text" id="modal_postal_code" class="form-control form-control-sm" placeholder="10001">';
             provinceTS.setValue('', true);
             
             // Destroy TomSelect instances lama sebelum reset HTML
@@ -701,7 +709,31 @@
                 const villSelect = document.getElementById('modalVillageSelect');
                 villSelect.innerHTML = `<option value="${addressObj.village_code || ''}">${addressObj.village_name}</option>`;
                 villSelect.disabled = false;
-                initOrRefreshTS('modalVillageSelect', function(value) {});
+                initOrRefreshTS('modalVillageSelect', function(value) {
+                    const originalSelect = document.getElementById('modalVillageSelect');
+                    const selectedOption = originalSelect.querySelector(`option[value="${value}"]`);
+                    const villageId = selectedOption?.getAttribute('data-id');
+                    const postalWrapper = document.getElementById('modal_postal_wrapper');
+
+                    postalWrapper.innerHTML = `<input type="text" id="modal_postal_code" class="form-control form-control-sm" placeholder="10001">`;
+
+                    if (!villageId) return;
+
+                    fetch(`/api/postal-code?village_id=${villageId}`)
+                        .then(res => res.json())
+                        .then(codes => {
+                            if (codes.length === 1) {
+                                document.getElementById('modal_postal_code').value = codes[0];
+                            } else if (codes.length > 1) {
+                                let options = codes.map(c => `<option value="${c}">${c}</option>`).join('');
+                                postalWrapper.innerHTML = `
+                                    <select id="modal_postal_code" class="form-select form-select-sm">
+                                        <option value="">Pilih Kode Pos</option>
+                                        ${options}
+                                    </select>`;
+                            }
+                        });
+                });
                 if (window['modalVillageSelect_ts']) window['modalVillageSelect_ts'].setValue(addressObj.village_code || '', true);
             }
 
@@ -741,12 +773,6 @@
 
         /* Dropdown Wilayah Bertingkat */
         function loadCities(provinceCode) {
-            // Tambah variable tracker di atas, sejajar let currentDeliveryFee
-            let lastInteractionWasKeyboard = false;
-
-            // Tambah listener ini di dalam DOMContentLoaded
-            document.addEventListener('keydown', () => lastInteractionWasKeyboard = true);
-            document.addEventListener('mousedown', () => lastInteractionWasKeyboard = false);
             const citySelect = document.getElementById('modalCitySelect');
             const districtSelect = document.getElementById('modalDistrictSelect');
             const villageSelect = document.getElementById('modalVillageSelect');
@@ -776,12 +802,6 @@
         }
 
         function loadDistricts(cityCode, isKeyboard = false) {
-            // Tambah variable tracker di atas, sejajar let currentDeliveryFee
-            let lastInteractionWasKeyboard = false;
-
-            // Tambah listener ini di dalam DOMContentLoaded
-            document.addEventListener('keydown', () => lastInteractionWasKeyboard = true);
-            document.addEventListener('mousedown', () => lastInteractionWasKeyboard = false);
             const districtSelect = document.getElementById('modalDistrictSelect');
             const villageSelect = document.getElementById('modalVillageSelect');
 
@@ -809,11 +829,6 @@
         }
 
         function loadVillages(districtCode, isKeyboard = false) {
-            let lastInteractionWasKeyboard = false;
-
-            // Tambah listener ini di dalam DOMContentLoaded
-            document.addEventListener('keydown', () => lastInteractionWasKeyboard = true);
-            document.addEventListener('mousedown', () => lastInteractionWasKeyboard = false);
             const villageSelect = document.getElementById('modalVillageSelect');
             villageSelect.innerHTML = '<option value="">Pilih Kelurahan</option>';
             villageSelect.disabled = true;
@@ -884,7 +899,9 @@
             }
 
             // Baca via TomSelect instance jika ada, fallback ke native select
-            const provinceName = pSel.options[pSel.selectedIndex]?.text || '';
+            const provinceVal  = provinceTS.getValue();
+            const provinceOpt  = document.querySelector(`#modalProvinceSelect option[value="${provinceVal}"]`);
+            const provinceName = (provinceOpt && provinceOpt.value) ? provinceOpt.text : '';
             const cityTS_val   = window['modalCitySelect_ts'];
             const distTS_val   = window['modalDistrictSelect_ts'];
             const villTS_val   = window['modalVillageSelect_ts'];
@@ -917,7 +934,12 @@
                     <input type="hidden" name="receiver_phone" value="${receiverPhone}">
                     <input type="hidden" name="address_line1" value="${addressLine}">
                     <input type="hidden" name="province_code" value="${pSel.value}">
+                    <input type="hidden" name="province_name" value="${provinceName}">
+                    <input type="hidden" name="city_code" value="${cSel.value}">
                     <input type="hidden" name="city_name" value="${cityName}">
+                    <input type="hidden" name="district_code" value="${dSel.value}">
+                    <input type="hidden" name="district_name" value="${districtName}">
+                    <input type="hidden" name="village_code" value="${vSel.value}">
                     <input type="hidden" name="village_name" value="${villageName}">
                     <input type="hidden" name="postal_code" value="${postalCode}">
                 `;
@@ -962,7 +984,12 @@
                     <input type="hidden" name="receiver_phone" value="${receiverPhone}">
                     <input type="hidden" name="address_line1" value="${addressLine}">
                     <input type="hidden" name="province_code" value="${pSel.value}">
+                    <input type="hidden" name="province_name" value="${provinceName}">
+                    <input type="hidden" name="city_code" value="${cSel.value}">
                     <input type="hidden" name="city_name" value="${cityName}">
+                    <input type="hidden" name="district_code" value="${dSel.value}">
+                    <input type="hidden" name="district_name" value="${districtName}">
+                    <input type="hidden" name="village_code" value="${vSel.value}">
                     <input type="hidden" name="village_name" value="${villageName}">
                     <input type="hidden" name="postal_code" value="${postalCode}">
                 `;
@@ -1047,6 +1074,7 @@
             if(input) input.value = cost;
 
             calculateGrandTotal();
+            checkQrisLimit();
         }
 
 
@@ -1144,20 +1172,30 @@
         });
 
         // Saat user pilih payment method
-        document.querySelectorAll('input[name="payment_method"]').forEach(input => {
-            input.addEventListener('change', function () {
-                const total = parseInt('{{ $total }}'); // dari blade
-                const isQris = this.value === 'qris';
-                
-                if (isQris && total > 10000000) {
-                    // disable tombol checkout atau tampilkan warning
-                    document.getElementById('qris-warning').classList.remove('d-none');
-                    document.getElementById('btn-checkout').disabled = true;
-                } else {
-                    document.getElementById('qris-warning').classList.add('d-none');
-                    document.getElementById('btn-checkout').disabled = false;
-                }
-            });
+        // Ganti seluruh blok QRIS itu dengan ini:
+        function checkQrisLimit() {
+            const paymentMethod = document.getElementById('paymentMethod').value;
+            const warning = document.getElementById('qris-warning');
+            const submitBtn = document.querySelector('#checkoutForm button[type="submit"]');
+            const subtotal = {{ $subtotal ?? 0 }};
+            const tax = {{ $tax ?? 0 }};
+            const tierDiscount = {{ $tierDiscountAmount ?? 0 }};
+            
+            const voucherDiscount = parseFloat(document.getElementById('applied-discount-amount').value) || 0;
+            const currentTotal = subtotal + tax + currentDeliveryFee - tierDiscount - voucherDiscount;
+
+            if (paymentMethod === 'qris' && currentTotal > 10000000) {
+                if (warning) warning.classList.remove('d-none');
+                if (submitBtn) submitBtn.disabled = true;
+            } else {
+                if (warning) warning.classList.add('d-none');
+                if (submitBtn) submitBtn.disabled = false;
+            }
+        }
+
+        document.getElementById('paymentMethod').addEventListener('change', function() {
+            handlePaymentChange(this.value);
+            checkQrisLimit();
         });
     </script>
 @endpush

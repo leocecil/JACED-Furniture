@@ -110,7 +110,7 @@ class OrderHistoryController extends Controller
     public function submitComplaint(Request $request, $id)
     {
         $request->validate([
-            'type'        => 'required|in:missing,damaged,wrong_item',
+            'type'        => 'required|in:missing,damaged',
             'description' => 'required|string|max:1000',
             'photo'       => $request->input('type') === 'missing' ? 'nullable|image|max:2048' : 'required|image|max:2048',
         ]);
@@ -228,9 +228,6 @@ class OrderHistoryController extends Controller
         } elseif (!empty($paymentMethod)) {
             $enabledPayments[] = match($paymentMethod) {
                 'qris'        => 'other_qris',
-                'credit_card' => 'credit_card',
-                'ovo'         => 'ovo',
-                'dana'        => 'dana',
                 default       => $paymentMethod,
             };
         }
