@@ -99,6 +99,7 @@ class OrderHistoryController extends Controller
                 'type'       => 'earned',
                 'source'     => 'purchase',
                 'order_id'   => $order->id,
+                'expired_at' => now()->addYear(),
                 'created_at' => now(),
                 'updated_at' => now(),
             ]);

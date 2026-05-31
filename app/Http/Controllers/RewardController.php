@@ -10,8 +10,53 @@ use Illuminate\Support\Facades\Log;
 
 class RewardController extends Controller
 {
+
+    private function expirePoints(): void
+    {
+        $user = Auth::user();
+
+        $expiredRows = DB::table('point_histories')
+            ->where('user_id', $user->id)
+            ->where('type', 'earned')
+            ->where('points', '>', 0)
+            ->whereNotNull('expired_at')
+            ->where('expired_at', '<=', now())
+            ->whereNotExists(function ($query) {
+                $query->select(DB::raw(1))
+                    ->from('point_histories as ph2')
+                    ->where('ph2.type', 'expired')
+                    ->whereColumn('ph2.order_id', 'point_histories.id');
+            })
+            ->get();
+
+        foreach ($expiredRows as $row) {
+            DB::transaction(function () use ($row, $user) {
+                $deduct = min($row->points, $user->current_points);
+                if ($deduct <= 0) return;
+
+                DB::table('users')
+                    ->where('id', $user->id)
+                    ->decrement('current_points', $deduct);
+
+                DB::table('point_histories')->insert([
+                    'user_id'    => $user->id,
+                    'points'     => -$deduct,
+                    'type'       => 'expired',
+                    'source'     => 'expiry',
+                    'order_id'   => $row->id,
+                    'expired_at' => null,
+                    'created_at' => now(),
+                    'updated_at' => now(),
+                ]);
+
+                // refresh supaya decrement berikutnya akurat
+                $user->refresh();
+            });
+        }
+    }
     public function index()
     {
+        $this->expirePoints(); 
         $user = Auth::user();
         
         $currentPoints     = $user->current_points ?? 0;
@@ -35,6 +80,7 @@ class RewardController extends Controller
                     'purchase'       => 'Purchase Reward',
                     'redeem_voucher' => 'Voucher Redeemed',
                     'redeem'         => 'Points Redeemed',
+                    'expiry'         => 'Points Expired',
                     default          => ucfirst($item->source),
                 },
                 'date'   => \Carbon\Carbon::parse($item->created_at)->format('d M Y'),
@@ -114,23 +160,11 @@ class RewardController extends Controller
         ));
     }
 
-    public function pointHistory()
+    public function pointHistory(Request $request)
     {
+        $this->expirePoints();
         $user = Auth::user();
         $currentPoints = $user->current_points ?? 0;
-
-        $histories = DB::table('point_histories')
-            ->where('user_id', $user->id)
-            ->orderBy('created_at', 'desc')
-            ->get();
-
-        // Hitung total earned dan redeemed tahun ini
-        $currentYear = now()->year;
-        $earnedThisYear = DB::table('point_histories')
-            ->where('user_id', $user->id)
-            ->where('type', 'earned')
-            ->whereYear('created_at', $currentYear)
-            ->sum('points');
 
         // Ambil tahun-tahun yang ada di history untuk dropdown
         $availableYears = DB::table('point_histories')
@@ -140,9 +174,42 @@ class RewardController extends Controller
             ->orderBy('year', 'desc')
             ->pluck('year');
 
+        // ✅ FIX: default year dari data yang ada, bukan now()->year
+        // Kalau tidak ada data sama sekali, fallback ke tahun sekarang
+        $defaultYear = $availableYears->first() ?? now()->year;
+        $selectedYear = $request->input('year', $defaultYear);
+
+        // ✅ FIX: earnedThisYear ikut selectedYear, bukan selalu now()->year
+        $earnedThisYear = DB::table('point_histories')
+            ->where('user_id', $user->id)
+            ->where('type', 'earned')
+            ->whereYear('created_at', $selectedYear)
+            ->sum('points');
+
+        // ✅ MOVE: totalRedeemed dihitung di controller, bukan blade
+        $totalRedeemed = DB::table('point_histories')
+            ->where('user_id', $user->id)
+            ->whereIn('type', ['redeemed', 'expired']) 
+            ->whereYear('created_at', $selectedYear)
+            ->sum('points');
+
+        // ✅ ADD: pagination, bukan ->get() semua sekaligus
+        $histories = DB::table('point_histories')
+            ->where('user_id', $user->id)
+            ->whereYear('created_at', $selectedYear)
+            ->orderBy('created_at', 'desc')
+            ->paginate(50);
+
+        $currentYear = now()->year;
+
         return view('profile.reward-center.point-history', compact(
-            'currentPoints', 'histories',
-            'earnedThisYear', 'availableYears', 'currentYear'
+            'currentPoints',
+            'histories',
+            'earnedThisYear',
+            'totalRedeemed',
+            'availableYears',
+            'selectedYear',  // ✅ ADD: pass selectedYear ke view
+            'currentYear',
         ));
     }
 

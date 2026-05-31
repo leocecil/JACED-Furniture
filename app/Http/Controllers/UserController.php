@@ -106,11 +106,12 @@ class UserController extends Controller
             $user->avatar_rewarded     = true;
             $user->save();
 
-            \App\Models\PointHistory::create([
+            PointHistory::create([
                 'user_id' => $user->id,
                 'points'  => 30,
                 'type'    => 'earned',
                 'source'  => 'Profile Completion - Avatar',
+                'expired_at' => now()->addYear(),
             ]);
 
             return redirect()->route('profile.edit', $user->id)
@@ -183,6 +184,7 @@ class UserController extends Controller
                 'points'  => $pointAmount,
                 'type'    => 'earned',
                 'source'  => 'Profile Completion - Address',
+                'expired_at' => now()->addYear(),
             ]);
 
             return redirect()->route('profile.addresses')

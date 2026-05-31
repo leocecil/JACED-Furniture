@@ -17,7 +17,8 @@ class OrderSeeder extends Seeder
         $orders = [
             [
                 'user_id'             => 47,
-                'payment_id'          => 1,
+                'payment_id'          => 2,
+                'va_bank_id'          => 2,
                 'voucher_id'          => null,
                 'shipping_address_id' => 71,
                 'delivery_fee'        => 15000.0,
@@ -35,6 +36,7 @@ class OrderSeeder extends Seeder
             [
                 'user_id'             => 12,
                 'payment_id'          => 2,
+                'va_bank_id'          => 2,
                 'voucher_id'          => null,
                 'shipping_address_id' => 11,
                 'delivery_fee'        => 35000.0,
@@ -52,6 +54,7 @@ class OrderSeeder extends Seeder
             [
                 'user_id'             => 24,
                 'payment_id'          => 2,
+                'va_bank_id'          => 2,
                 'voucher_id'          => null,
                 'shipping_address_id' => 35,
                 'delivery_fee'        => 15000.0,
@@ -68,7 +71,8 @@ class OrderSeeder extends Seeder
             ],
             [
                 'user_id'             => 31,
-                'payment_id'          => 3,
+                'payment_id'          => 2,
+                'va_bank_id'          => 2,
                 'voucher_id'          => null,
                 'shipping_address_id' => 49,
                 'delivery_fee'        => 35000.0,
@@ -85,7 +89,8 @@ class OrderSeeder extends Seeder
             ],
             [
                 'user_id'             => 25,
-                'payment_id'          => 5,
+                'payment_id'          => 2,
+                'va_bank_id'          => 2,
                 'voucher_id'          => null,
                 'shipping_address_id' => 38,
                 'delivery_fee'        => 40000.0,
@@ -102,7 +107,8 @@ class OrderSeeder extends Seeder
             ],
             [
                 'user_id'             => 30,
-                'payment_id'          => 3,
+                'payment_id'          => 2,
+                'va_bank_id'          => 2,
                 'voucher_id'          => null,
                 'shipping_address_id' => 47,
                 'delivery_fee'        => 30000.0,
@@ -119,7 +125,8 @@ class OrderSeeder extends Seeder
             ],
             [
                 'user_id'             => 24,
-                'payment_id'          => 3,
+                'payment_id'          => 2,
+                'va_bank_id'          => 2,
                 'voucher_id'          => null,
                 'shipping_address_id' => 35,
                 'delivery_fee'        => 35000.0,
@@ -137,6 +144,7 @@ class OrderSeeder extends Seeder
             [
                 'user_id'             => 52,
                 'payment_id'          => 2,
+                'va_bank_id'          => 2,
                 'voucher_id'          => null,
                 'shipping_address_id' => 76,
                 'delivery_fee'        => 40000.0,
@@ -153,7 +161,8 @@ class OrderSeeder extends Seeder
             ],
             [
                 'user_id'             => 44,
-                'payment_id'          => 5,
+                'payment_id'          => 2,
+                'va_bank_id'          => 2,
                 'voucher_id'          => null,
                 'shipping_address_id' => 68,
                 'delivery_fee'        => 20000.0,
@@ -170,7 +179,8 @@ class OrderSeeder extends Seeder
             ],
             [
                 'user_id'             => 47,
-                'payment_id'          => 4,
+                'payment_id'          => 2,
+                'va_bank_id'          => 2,
                 'voucher_id'          => null,
                 'shipping_address_id' => 71,
                 'delivery_fee'        => 35000.0,
@@ -187,7 +197,8 @@ class OrderSeeder extends Seeder
             ],
             [
                 'user_id'             => 7,
-                'payment_id'          => 5,
+                'payment_id'          => 2,
+                'va_bank_id'          => 2,
                 'voucher_id'          => null,
                 'shipping_address_id' => 1,
                 'delivery_fee'        => 30000.0,
@@ -204,7 +215,8 @@ class OrderSeeder extends Seeder
             ],
             [
                 'user_id'             => 7,
-                'payment_id'          => 5,
+                'payment_id'          => 2,
+                'va_bank_id'          => 2,
                 'voucher_id'          => null,
                 'shipping_address_id' => 2,
                 'delivery_fee'        => 25000.0,
@@ -221,7 +233,8 @@ class OrderSeeder extends Seeder
             ],
             [
                 'user_id'             => 55,
-                'payment_id'          => 5,
+                'payment_id'          => 2,
+                'va_bank_id'          => 2,
                 'voucher_id'          => null,
                 'shipping_address_id' => 79,
                 'delivery_fee'        => 15000.0,
@@ -239,6 +252,7 @@ class OrderSeeder extends Seeder
             [
                 'user_id'             => 30,
                 'payment_id'          => 2,
+                'va_bank_id'          => 2,
                 'voucher_id'          => null,
                 'shipping_address_id' => 48,
                 'delivery_fee'        => 35000.0,
@@ -255,7 +269,8 @@ class OrderSeeder extends Seeder
             ],
             [
                 'user_id'             => 17,
-                'payment_id'          => 5,
+                'payment_id'          => 2,
+                'va_bank_id'          => 2,
                 'voucher_id'          => null,
                 'shipping_address_id' => 22,
                 'delivery_fee'        => 30000.0,
@@ -272,7 +287,8 @@ class OrderSeeder extends Seeder
             ],
             [
                 'user_id'             => 49,
-                'payment_id'          => 4,
+                'payment_id'          => 2,
+                'va_bank_id'          => 2,
                 'voucher_id'          => null,
                 'shipping_address_id' => 73,
                 'delivery_fee'        => 35000.0,
@@ -289,7 +305,8 @@ class OrderSeeder extends Seeder
             ],
             [
                 'user_id'             => 21,
-                'payment_id'          => 1,
+                'payment_id'          => 2,
+                'va_bank_id'          => 2,
                 'voucher_id'          => null,
                 'shipping_address_id' => 29,
                 'delivery_fee'        => 20000.0,
@@ -306,7 +323,8 @@ class OrderSeeder extends Seeder
             ],
             [
                 'user_id'             => 41,
-                'payment_id'          => 5,
+                'payment_id'          => 2,
+                'va_bank_id'          => 2,
                 'voucher_id'          => null,
                 'shipping_address_id' => 65,
                 'delivery_fee'        => 25000.0,
@@ -323,7 +341,8 @@ class OrderSeeder extends Seeder
             ],
             [
                 'user_id'             => 34,
-                'payment_id'          => 4,
+                'payment_id'          => 2,
+                'va_bank_id'          => 2,
                 'voucher_id'          => null,
                 'shipping_address_id' => 56,
                 'delivery_fee'        => 45000.0,
@@ -341,6 +360,7 @@ class OrderSeeder extends Seeder
             [
                 'user_id'             => 13,
                 'payment_id'          => 2,
+                'va_bank_id'          => 2,
                 'voucher_id'          => null,
                 'shipping_address_id' => 13,
                 'delivery_fee'        => 45000.0,
@@ -357,7 +377,8 @@ class OrderSeeder extends Seeder
             ],
             [
                 'user_id'             => 42,
-                'payment_id'          => 1,
+                'payment_id'          => 2,
+                'va_bank_id'          => 2,
                 'voucher_id'          => null,
                 'shipping_address_id' => 66,
                 'delivery_fee'        => 45000.0,
@@ -375,6 +396,7 @@ class OrderSeeder extends Seeder
             [
                 'user_id'             => 32,
                 'payment_id'          => 2,
+                'va_bank_id'          => 2,
                 'voucher_id'          => null,
                 'shipping_address_id' => 51,
                 'delivery_fee'        => 20000.0,
@@ -392,6 +414,7 @@ class OrderSeeder extends Seeder
             [
                 'user_id'             => 19,
                 'payment_id'          => 2,
+                'va_bank_id'          => 2,
                 'voucher_id'          => null,
                 'shipping_address_id' => 26,
                 'delivery_fee'        => 35000.0,
@@ -408,7 +431,8 @@ class OrderSeeder extends Seeder
             ],
             [
                 'user_id'             => 40,
-                'payment_id'          => 1,
+                'payment_id'          => 2,
+                'va_bank_id'          => 2,
                 'voucher_id'          => null,
                 'shipping_address_id' => 64,
                 'delivery_fee'        => 15000.0,
@@ -425,7 +449,8 @@ class OrderSeeder extends Seeder
             ],
             [
                 'user_id'             => 43,
-                'payment_id'          => 5,
+                'payment_id'          => 2,
+                'va_bank_id'          => 2,
                 'voucher_id'          => null,
                 'shipping_address_id' => 67,
                 'delivery_fee'        => 25000.0,
@@ -443,6 +468,7 @@ class OrderSeeder extends Seeder
             [
                 'user_id'             => 20,
                 'payment_id'          => 2,
+                'va_bank_id'          => 2,
                 'voucher_id'          => null,
                 'shipping_address_id' => 28,
                 'delivery_fee'        => 35000.0,
@@ -459,7 +485,8 @@ class OrderSeeder extends Seeder
             ],
             [
                 'user_id'             => 23,
-                'payment_id'          => 3,
+                'payment_id'          => 2,
+                'va_bank_id'          => 2,
                 'voucher_id'          => null,
                 'shipping_address_id' => 33,
                 'delivery_fee'        => 40000.0,
@@ -476,7 +503,8 @@ class OrderSeeder extends Seeder
             ],
             [
                 'user_id'             => 13,
-                'payment_id'          => 3,
+                'payment_id'          => 2,
+                'va_bank_id'          => 2,
                 'voucher_id'          => null,
                 'shipping_address_id' => 13,
                 'delivery_fee'        => 20000.0,
@@ -493,7 +521,8 @@ class OrderSeeder extends Seeder
             ],
             [
                 'user_id'             => 50,
-                'payment_id'          => 5,
+                'payment_id'          => 2,
+                'va_bank_id'          => 2,
                 'voucher_id'          => null,
                 'shipping_address_id' => 74,
                 'delivery_fee'        => 15000.0,
@@ -510,7 +539,8 @@ class OrderSeeder extends Seeder
             ],
             [
                 'user_id'             => 28,
-                'payment_id'          => 3,
+                'payment_id'          => 2,
+                'va_bank_id'          => 2,
                 'voucher_id'          => null,
                 'shipping_address_id' => 43,
                 'delivery_fee'        => 45000.0,
@@ -527,7 +557,8 @@ class OrderSeeder extends Seeder
             ],
             [
                 'user_id'             => 30,
-                'payment_id'          => 4,
+                'payment_id'          => 2,
+                'va_bank_id'          => 2,
                 'voucher_id'          => null,
                 'shipping_address_id' => 47,
                 'delivery_fee'        => 20000.0,
@@ -544,7 +575,8 @@ class OrderSeeder extends Seeder
             ],
             [
                 'user_id'             => 17,
-                'payment_id'          => 4,
+                'payment_id'          => 2,
+                'va_bank_id'          => 2,
                 'voucher_id'          => null,
                 'shipping_address_id' => 21,
                 'delivery_fee'        => 45000.0,
@@ -562,6 +594,7 @@ class OrderSeeder extends Seeder
             [
                 'user_id'             => 9,
                 'payment_id'          => 2,
+                'va_bank_id'          => 2,
                 'voucher_id'          => null,
                 'shipping_address_id' => 6,
                 'delivery_fee'        => 25000.0,
@@ -578,7 +611,8 @@ class OrderSeeder extends Seeder
             ],
             [
                 'user_id'             => 24,
-                'payment_id'          => 3,
+                'payment_id'          => 2,
+                'va_bank_id'          => 2,
                 'voucher_id'          => null,
                 'shipping_address_id' => 35,
                 'delivery_fee'        => 35000.0,
@@ -595,7 +629,8 @@ class OrderSeeder extends Seeder
             ],
             [
                 'user_id'             => 23,
-                'payment_id'          => 1,
+                'payment_id'          => 2,
+                'va_bank_id'          => 2,
                 'voucher_id'          => null,
                 'shipping_address_id' => 33,
                 'delivery_fee'        => 35000.0,
@@ -612,7 +647,8 @@ class OrderSeeder extends Seeder
             ],
             [
                 'user_id'             => 19,
-                'payment_id'          => 1,
+                'payment_id'          => 2,
+                'va_bank_id'          => 2,
                 'voucher_id'          => null,
                 'shipping_address_id' => 26,
                 'delivery_fee'        => 40000.0,
@@ -629,7 +665,8 @@ class OrderSeeder extends Seeder
             ],
             [
                 'user_id'             => 28,
-                'payment_id'          => 1,
+                'payment_id'          => 2,
+                'va_bank_id'          => 2,
                 'voucher_id'          => null,
                 'shipping_address_id' => 44,
                 'delivery_fee'        => 20000.0,
@@ -647,6 +684,7 @@ class OrderSeeder extends Seeder
             [
                 'user_id'             => 33,
                 'payment_id'          => 2,
+                'va_bank_id'          => 2,
                 'voucher_id'          => null,
                 'shipping_address_id' => 54,
                 'delivery_fee'        => 25000.0,
@@ -663,7 +701,8 @@ class OrderSeeder extends Seeder
             ],
             [
                 'user_id'             => 20,
-                'payment_id'          => 5,
+                'payment_id'          => 2,
+                'va_bank_id'          => 2,
                 'voucher_id'          => null,
                 'shipping_address_id' => 28,
                 'delivery_fee'        => 45000.0,
@@ -680,7 +719,8 @@ class OrderSeeder extends Seeder
             ],
             [
                 'user_id'             => 54,
-                'payment_id'          => 1,
+                'payment_id'          => 2,
+                'va_bank_id'          => 2,
                 'voucher_id'          => null,
                 'shipping_address_id' => 78,
                 'delivery_fee'        => 15000.0,
@@ -697,7 +737,8 @@ class OrderSeeder extends Seeder
             ],
             [
                 'user_id'             => 22,
-                'payment_id'          => 5,
+                'payment_id'          => 2,
+                'va_bank_id'          => 2,
                 'voucher_id'          => null,
                 'shipping_address_id' => 32,
                 'delivery_fee'        => 30000.0,
@@ -714,7 +755,8 @@ class OrderSeeder extends Seeder
             ],
             [
                 'user_id'             => 22,
-                'payment_id'          => 1,
+                'payment_id'          => 2,
+                'va_bank_id'          => 2,
                 'voucher_id'          => null,
                 'shipping_address_id' => 31,
                 'delivery_fee'        => 35000.0,
@@ -731,7 +773,8 @@ class OrderSeeder extends Seeder
             ],
             [
                 'user_id'             => 22,
-                'payment_id'          => 4,
+                'payment_id'          => 2,
+                'va_bank_id'          => 2,
                 'voucher_id'          => null,
                 'shipping_address_id' => 31,
                 'delivery_fee'        => 45000.0,
@@ -749,6 +792,7 @@ class OrderSeeder extends Seeder
             [
                 'user_id'             => 42,
                 'payment_id'          => 2,
+                'va_bank_id'          => 2,
                 'voucher_id'          => null,
                 'shipping_address_id' => 66,
                 'delivery_fee'        => 25000.0,
@@ -765,7 +809,8 @@ class OrderSeeder extends Seeder
             ],
             [
                 'user_id'             => 35,
-                'payment_id'          => 3,
+                'payment_id'          => 2,
+                'va_bank_id'          => 2,
                 'voucher_id'          => null,
                 'shipping_address_id' => 57,
                 'delivery_fee'        => 40000.0,
@@ -782,7 +827,8 @@ class OrderSeeder extends Seeder
             ],
             [
                 'user_id'             => 20,
-                'payment_id'          => 4,
+                'payment_id'          => 2,
+                'va_bank_id'          => 2,
                 'voucher_id'          => null,
                 'shipping_address_id' => 27,
                 'delivery_fee'        => 45000.0,
@@ -799,7 +845,8 @@ class OrderSeeder extends Seeder
             ],
             [
                 'user_id'             => 44,
-                'payment_id'          => 5,
+                'payment_id'          => 2,
+                'va_bank_id'          => 2,
                 'voucher_id'          => null,
                 'shipping_address_id' => 68,
                 'delivery_fee'        => 20000.0,
@@ -816,7 +863,8 @@ class OrderSeeder extends Seeder
             ],
             [
                 'user_id'             => 24,
-                'payment_id'          => 4,
+                'payment_id'          => 2,
+                'va_bank_id'          => 2,
                 'voucher_id'          => null,
                 'shipping_address_id' => 36,
                 'delivery_fee'        => 35000.0,
@@ -833,7 +881,8 @@ class OrderSeeder extends Seeder
             ],
             [
                 'user_id'             => 43,
-                'payment_id'          => 1,
+                'payment_id'          => 2,
+                'va_bank_id'          => 2,
                 'voucher_id'          => null,
                 'shipping_address_id' => 67,
                 'delivery_fee'        => 30000.0,
@@ -850,7 +899,8 @@ class OrderSeeder extends Seeder
             ],
             [
                 'user_id'             => 27,
-                'payment_id'          => 4,
+                'payment_id'          => 2,
+                'va_bank_id'          => 2,
                 'voucher_id'          => null,
                 'shipping_address_id' => 41,
                 'delivery_fee'        => 15000.0,
@@ -867,7 +917,8 @@ class OrderSeeder extends Seeder
             ],
             [
                 'user_id'             => 54,
-                'payment_id'          => 3,
+                'payment_id'          => 2,
+                'va_bank_id'          => 2,
                 'voucher_id'          => null,
                 'shipping_address_id' => 78,
                 'delivery_fee'        => 20000.0,
@@ -884,7 +935,8 @@ class OrderSeeder extends Seeder
             ],
             [
                 'user_id'             => 15,
-                'payment_id'          => 1,
+                'payment_id'          => 2,
+                'va_bank_id'          => 2,
                 'voucher_id'          => null,
                 'shipping_address_id' => 18,
                 'delivery_fee'        => 15000.0,
@@ -901,7 +953,8 @@ class OrderSeeder extends Seeder
             ],
             [
                 'user_id'             => 44,
-                'payment_id'          => 3,
+                'payment_id'          => 2,
+                'va_bank_id'          => 2,
                 'voucher_id'          => null,
                 'shipping_address_id' => 68,
                 'delivery_fee'        => 40000.0,
@@ -918,7 +971,8 @@ class OrderSeeder extends Seeder
             ],
             [
                 'user_id'             => 56,
-                'payment_id'          => 5,
+                'payment_id'          => 2,
+                'va_bank_id'          => 2,
                 'voucher_id'          => null,
                 'shipping_address_id' => 80,
                 'delivery_fee'        => 35000.0,
@@ -935,7 +989,8 @@ class OrderSeeder extends Seeder
             ],
             [
                 'user_id'             => 48,
-                'payment_id'          => 1,
+                'payment_id'          => 2,
+                'va_bank_id'          => 2,
                 'voucher_id'          => null,
                 'shipping_address_id' => 72,
                 'delivery_fee'        => 40000.0,
@@ -952,7 +1007,8 @@ class OrderSeeder extends Seeder
             ],
             [
                 'user_id'             => 40,
-                'payment_id'          => 5,
+                'payment_id'          => 2,
+                'va_bank_id'          => 2,
                 'voucher_id'          => null,
                 'shipping_address_id' => 64,
                 'delivery_fee'        => 45000.0,
@@ -969,7 +1025,8 @@ class OrderSeeder extends Seeder
             ],
             [
                 'user_id'             => 12,
-                'payment_id'          => 4,
+                'payment_id'          => 2,
+                'va_bank_id'          => 2,
                 'voucher_id'          => null,
                 'shipping_address_id' => 12,
                 'delivery_fee'        => 30000.0,
@@ -986,7 +1043,8 @@ class OrderSeeder extends Seeder
             ],
             [
                 'user_id'             => 20,
-                'payment_id'          => 3,
+                'payment_id'          => 2,
+                'va_bank_id'          => 2,
                 'voucher_id'          => null,
                 'shipping_address_id' => 28,
                 'delivery_fee'        => 20000.0,
@@ -1003,7 +1061,8 @@ class OrderSeeder extends Seeder
             ],
             [
                 'user_id'             => 53,
-                'payment_id'          => 4,
+                'payment_id'          => 2,
+                'va_bank_id'          => 2,
                 'voucher_id'          => null,
                 'shipping_address_id' => 77,
                 'delivery_fee'        => 25000.0,
@@ -1021,6 +1080,7 @@ class OrderSeeder extends Seeder
             [
                 'user_id'             => 21,
                 'payment_id'          => 2,
+                'va_bank_id'          => 2,
                 'voucher_id'          => null,
                 'shipping_address_id' => 30,
                 'delivery_fee'        => 25000.0,
@@ -1037,7 +1097,8 @@ class OrderSeeder extends Seeder
             ],
             [
                 'user_id'             => 51,
-                'payment_id'          => 3,
+                'payment_id'          => 2,
+                'va_bank_id'          => 2,
                 'voucher_id'          => null,
                 'shipping_address_id' => 75,
                 'delivery_fee'        => 25000.0,
@@ -1054,7 +1115,8 @@ class OrderSeeder extends Seeder
             ],
             [
                 'user_id'             => 53,
-                'payment_id'          => 1,
+                'payment_id'          => 2,
+                'va_bank_id'          => 2,
                 'voucher_id'          => null,
                 'shipping_address_id' => 77,
                 'delivery_fee'        => 35000.0,
@@ -1071,7 +1133,8 @@ class OrderSeeder extends Seeder
             ],
             [
                 'user_id'             => 25,
-                'payment_id'          => 4,
+                'payment_id'          => 2,
+                'va_bank_id'          => 2,
                 'voucher_id'          => null,
                 'shipping_address_id' => 37,
                 'delivery_fee'        => 25000.0,
@@ -1088,7 +1151,8 @@ class OrderSeeder extends Seeder
             ],
             [
                 'user_id'             => 37,
-                'payment_id'          => 1,
+                'payment_id'          => 2,
+                'va_bank_id'          => 2,
                 'voucher_id'          => null,
                 'shipping_address_id' => 61,
                 'delivery_fee'        => 15000.0,
@@ -1105,7 +1169,8 @@ class OrderSeeder extends Seeder
             ],
             [
                 'user_id'             => 22,
-                'payment_id'          => 5,
+                'payment_id'          => 2,
+                'va_bank_id'          => 2,
                 'voucher_id'          => null,
                 'shipping_address_id' => 31,
                 'delivery_fee'        => 30000.0,
@@ -1122,7 +1187,8 @@ class OrderSeeder extends Seeder
             ],
             [
                 'user_id'             => 35,
-                'payment_id'          => 5,
+                'payment_id'          => 2,
+                'va_bank_id'          => 2,
                 'voucher_id'          => null,
                 'shipping_address_id' => 58,
                 'delivery_fee'        => 20000.0,
@@ -1140,6 +1206,7 @@ class OrderSeeder extends Seeder
             [
                 'user_id'             => 18,
                 'payment_id'          => 2,
+                'va_bank_id'          => 2,
                 'voucher_id'          => null,
                 'shipping_address_id' => 23,
                 'delivery_fee'        => 15000.0,
@@ -1156,7 +1223,8 @@ class OrderSeeder extends Seeder
             ],
             [
                 'user_id'             => 50,
-                'payment_id'          => 3,
+                'payment_id'          => 2,
+                'va_bank_id'          => 2,
                 'voucher_id'          => null,
                 'shipping_address_id' => 74,
                 'delivery_fee'        => 45000.0,
@@ -1173,7 +1241,8 @@ class OrderSeeder extends Seeder
             ],
             [
                 'user_id'             => 16,
-                'payment_id'          => 1,
+                'payment_id'          => 2,
+                'va_bank_id'          => 2,
                 'voucher_id'          => null,
                 'shipping_address_id' => 19,
                 'delivery_fee'        => 25000.0,
@@ -1190,7 +1259,8 @@ class OrderSeeder extends Seeder
             ],
             [
                 'user_id'             => 39,
-                'payment_id'          => 4,
+                'payment_id'          => 2,
+                'va_bank_id'          => 2,
                 'voucher_id'          => null,
                 'shipping_address_id' => 63,
                 'delivery_fee'        => 45000.0,
@@ -1207,7 +1277,8 @@ class OrderSeeder extends Seeder
             ],
             [
                 'user_id'             => 50,
-                'payment_id'          => 5,
+                'payment_id'          => 2,
+                'va_bank_id'          => 2,
                 'voucher_id'          => null,
                 'shipping_address_id' => 74,
                 'delivery_fee'        => 25000.0,
@@ -1224,7 +1295,8 @@ class OrderSeeder extends Seeder
             ],
             [
                 'user_id'             => 33,
-                'payment_id'          => 3,
+                'payment_id'          => 2,
+                'va_bank_id'          => 2,
                 'voucher_id'          => null,
                 'shipping_address_id' => 54,
                 'delivery_fee'        => 40000.0,
@@ -1241,7 +1313,8 @@ class OrderSeeder extends Seeder
             ],
             [
                 'user_id'             => 32,
-                'payment_id'          => 4,
+                'payment_id'          => 2,
+                'va_bank_id'          => 2,
                 'voucher_id'          => null,
                 'shipping_address_id' => 51,
                 'delivery_fee'        => 15000.0,
@@ -1258,7 +1331,8 @@ class OrderSeeder extends Seeder
             ],
             [
                 'user_id'             => 19,
-                'payment_id'          => 5,
+                'payment_id'          => 2,
+                'va_bank_id'          => 2,
                 'voucher_id'          => null,
                 'shipping_address_id' => 26,
                 'delivery_fee'        => 25000.0,
@@ -1275,7 +1349,8 @@ class OrderSeeder extends Seeder
             ],
             [
                 'user_id'             => 35,
-                'payment_id'          => 1,
+                'payment_id'          => 2,
+                'va_bank_id'          => 2,
                 'voucher_id'          => null,
                 'shipping_address_id' => 58,
                 'delivery_fee'        => 15000.0,
@@ -1292,7 +1367,8 @@ class OrderSeeder extends Seeder
             ],
             [
                 'user_id'             => 21,
-                'payment_id'          => 4,
+                'payment_id'          => 2,
+                'va_bank_id'          => 2,
                 'voucher_id'          => null,
                 'shipping_address_id' => 29,
                 'delivery_fee'        => 45000.0,
@@ -1310,6 +1386,7 @@ class OrderSeeder extends Seeder
             [
                 'user_id'             => 37,
                 'payment_id'          => 2,
+                'va_bank_id'          => 2,
                 'voucher_id'          => null,
                 'shipping_address_id' => 61,
                 'delivery_fee'        => 25000.0,
@@ -1326,7 +1403,8 @@ class OrderSeeder extends Seeder
             ],
             [
                 'user_id'             => 56,
-                'payment_id'          => 3,
+                'payment_id'          => 2,
+                'va_bank_id'          => 2,
                 'voucher_id'          => null,
                 'shipping_address_id' => 80,
                 'delivery_fee'        => 45000.0,
@@ -1343,7 +1421,8 @@ class OrderSeeder extends Seeder
             ],
             [
                 'user_id'             => 16,
-                'payment_id'          => 5,
+                'payment_id'          => 2,
+                'va_bank_id'          => 2,
                 'voucher_id'          => null,
                 'shipping_address_id' => 20,
                 'delivery_fee'        => 40000.0,
@@ -1361,6 +1440,7 @@ class OrderSeeder extends Seeder
             [
                 'user_id'             => 22,
                 'payment_id'          => 2,
+                'va_bank_id'          => 2,
                 'voucher_id'          => null,
                 'shipping_address_id' => 32,
                 'delivery_fee'        => 40000.0,
@@ -1377,7 +1457,8 @@ class OrderSeeder extends Seeder
             ],
             [
                 'user_id'             => 48,
-                'payment_id'          => 4,
+                'payment_id'          => 2,
+                'va_bank_id'          => 2,
                 'voucher_id'          => null,
                 'shipping_address_id' => 72,
                 'delivery_fee'        => 40000.0,
@@ -1395,6 +1476,7 @@ class OrderSeeder extends Seeder
             [
                 'user_id'             => 16,
                 'payment_id'          => 2,
+                'va_bank_id'          => 2,
                 'voucher_id'          => null,
                 'shipping_address_id' => 20,
                 'delivery_fee'        => 40000.0,
@@ -1411,7 +1493,8 @@ class OrderSeeder extends Seeder
             ],
             [
                 'user_id'             => 52,
-                'payment_id'          => 5,
+                'payment_id'          => 2,
+                'va_bank_id'          => 2,
                 'voucher_id'          => null,
                 'shipping_address_id' => 76,
                 'delivery_fee'        => 30000.0,
@@ -1428,7 +1511,8 @@ class OrderSeeder extends Seeder
             ],
             [
                 'user_id'             => 17,
-                'payment_id'          => 1,
+                'payment_id'          => 2,
+                'va_bank_id'          => 2,
                 'voucher_id'          => null,
                 'shipping_address_id' => 22,
                 'delivery_fee'        => 35000.0,
@@ -1446,6 +1530,7 @@ class OrderSeeder extends Seeder
             [
                 'user_id'             => 50,
                 'payment_id'          => 2,
+                'va_bank_id'          => 2,
                 'voucher_id'          => null,
                 'shipping_address_id' => 74,
                 'delivery_fee'        => 20000.0,
@@ -1462,7 +1547,8 @@ class OrderSeeder extends Seeder
             ],
             [
                 'user_id'             => 36,
-                'payment_id'          => 4,
+                'payment_id'          => 2,
+                'va_bank_id'          => 2,
                 'voucher_id'          => null,
                 'shipping_address_id' => 60,
                 'delivery_fee'        => 35000.0,
@@ -1479,7 +1565,8 @@ class OrderSeeder extends Seeder
             ],
             [
                 'user_id'             => 26,
-                'payment_id'          => 3,
+                'payment_id'          => 2,
+                'va_bank_id'          => 2,
                 'voucher_id'          => null,
                 'shipping_address_id' => 40,
                 'delivery_fee'        => 35000.0,
@@ -1496,7 +1583,8 @@ class OrderSeeder extends Seeder
             ],
             [
                 'user_id'             => 25,
-                'payment_id'          => 1,
+                'payment_id'          => 2,
+                'va_bank_id'          => 2,
                 'voucher_id'          => null,
                 'shipping_address_id' => 38,
                 'delivery_fee'        => 45000.0,
@@ -1513,7 +1601,8 @@ class OrderSeeder extends Seeder
             ],
             [
                 'user_id'             => 25,
-                'payment_id'          => 5,
+                'payment_id'          => 2,
+                'va_bank_id'          => 2,
                 'voucher_id'          => null,
                 'shipping_address_id' => 37,
                 'delivery_fee'        => 45000.0,
@@ -1530,7 +1619,8 @@ class OrderSeeder extends Seeder
             ],
             [
                 'user_id'             => 35,
-                'payment_id'          => 5,
+                'payment_id'          => 2,
+                'va_bank_id'          => 2,
                 'voucher_id'          => null,
                 'shipping_address_id' => 57,
                 'delivery_fee'        => 35000.0,
@@ -1548,6 +1638,7 @@ class OrderSeeder extends Seeder
             [
                 'user_id'             => 39,
                 'payment_id'          => 2,
+                'va_bank_id'          => 2,
                 'voucher_id'          => null,
                 'shipping_address_id' => 63,
                 'delivery_fee'        => 45000.0,
@@ -1564,7 +1655,8 @@ class OrderSeeder extends Seeder
             ],
             [
                 'user_id'             => 50,
-                'payment_id'          => 5,
+                'payment_id'          => 2,
+                'va_bank_id'          => 2,
                 'voucher_id'          => null,
                 'shipping_address_id' => 74,
                 'delivery_fee'        => 40000.0,
@@ -1581,7 +1673,8 @@ class OrderSeeder extends Seeder
             ],
             [
                 'user_id'             => 54,
-                'payment_id'          => 5,
+                'payment_id'          => 2,
+                'va_bank_id'          => 2,
                 'voucher_id'          => null,
                 'shipping_address_id' => 78,
                 'delivery_fee'        => 35000.0,
@@ -1598,7 +1691,8 @@ class OrderSeeder extends Seeder
             ],
             [
                 'user_id'             => 21,
-                'payment_id'          => 4,
+                'payment_id'          => 2,
+                'va_bank_id'          => 2,
                 'voucher_id'          => null,
                 'shipping_address_id' => 29,
                 'delivery_fee'        => 25000.0,
@@ -1615,7 +1709,8 @@ class OrderSeeder extends Seeder
             ],
             [
                 'user_id'             => 38,
-                'payment_id'          => 1,
+                'payment_id'          => 2,
+                'va_bank_id'          => 2,
                 'voucher_id'          => null,
                 'shipping_address_id' => 62,
                 'delivery_fee'        => 40000.0,
@@ -1632,7 +1727,8 @@ class OrderSeeder extends Seeder
             ],
             [
                 'user_id'             => 13,
-                'payment_id'          => 5,
+                'payment_id'          => 2,
+                'va_bank_id'          => 2,
                 'voucher_id'          => null,
                 'shipping_address_id' => 14,
                 'delivery_fee'        => 15000.0,
@@ -1649,7 +1745,8 @@ class OrderSeeder extends Seeder
             ],
             [
                 'user_id'             => 50,
-                'payment_id'          => 5,
+                'payment_id'          => 2,
+                'va_bank_id'          => 2,
                 'voucher_id'          => null,
                 'shipping_address_id' => 74,
                 'delivery_fee'        => 15000.0,
@@ -1666,7 +1763,8 @@ class OrderSeeder extends Seeder
             ],
             [
                 'user_id'             => 49,
-                'payment_id'          => 5,
+                'payment_id'          => 2,
+                'va_bank_id'          => 2,
                 'voucher_id'          => null,
                 'shipping_address_id' => 73,
                 'delivery_fee'        => 35000.0,
@@ -1683,7 +1781,8 @@ class OrderSeeder extends Seeder
             ],
             [
                 'user_id'             => 20,
-                'payment_id'          => 3,
+                'payment_id'          => 2,
+                'va_bank_id'          => 2,
                 'voucher_id'          => null,
                 'shipping_address_id' => 27,
                 'delivery_fee'        => 35000.0,
@@ -1700,7 +1799,8 @@ class OrderSeeder extends Seeder
             ],
             [
                 'user_id'             => 23,
-                'payment_id'          => 1,
+                'payment_id'          => 2,
+                'va_bank_id'          => 2,
                 'voucher_id'          => null,
                 'shipping_address_id' => 33,
                 'delivery_fee'        => 15000.0,
@@ -1717,7 +1817,8 @@ class OrderSeeder extends Seeder
             ],
             [
                 'user_id'             => 18,
-                'payment_id'          => 1,
+                'payment_id'          => 2,
+                'va_bank_id'          => 2,
                 'voucher_id'          => null,
                 'shipping_address_id' => 24,
                 'delivery_fee'        => 30000.0,
@@ -1734,7 +1835,8 @@ class OrderSeeder extends Seeder
             ],
             [
                 'user_id'             => 39,
-                'payment_id'          => 5,
+                'payment_id'          => 2,
+                'va_bank_id'          => 2,
                 'voucher_id'          => null,
                 'shipping_address_id' => 63,
                 'delivery_fee'        => 30000.0,
@@ -1751,7 +1853,8 @@ class OrderSeeder extends Seeder
             ],
             [
                 'user_id'             => 50,
-                'payment_id'          => 4,
+                'payment_id'          => 2,
+                'va_bank_id'          => 2,
                 'voucher_id'          => null,
                 'shipping_address_id' => 74,
                 'delivery_fee'        => 20000.0,
@@ -1768,7 +1871,8 @@ class OrderSeeder extends Seeder
             ],
             [
                 'user_id'             => 24,
-                'payment_id'          => 4,
+                'payment_id'          => 2,
+                'va_bank_id'          => 2,
                 'voucher_id'          => null,
                 'shipping_address_id' => 36,
                 'delivery_fee'        => 45000.0,
@@ -1785,7 +1889,8 @@ class OrderSeeder extends Seeder
             ],
             [
                 'user_id'             => 51,
-                'payment_id'          => 5,
+                'payment_id'          => 2,
+                'va_bank_id'          => 2,
                 'voucher_id'          => null,
                 'shipping_address_id' => 75,
                 'delivery_fee'        => 30000.0,
@@ -1802,7 +1907,8 @@ class OrderSeeder extends Seeder
             ],
             [
                 'user_id'             => 53,
-                'payment_id'          => 3,
+                'payment_id'          => 2,
+                'va_bank_id'          => 2,
                 'voucher_id'          => null,
                 'shipping_address_id' => 77,
                 'delivery_fee'        => 15000.0,
@@ -1819,7 +1925,8 @@ class OrderSeeder extends Seeder
             ],
             [
                 'user_id'             => 34,
-                'payment_id'          => 3,
+                'payment_id'          => 2,
+                'va_bank_id'          => 2,
                 'voucher_id'          => null,
                 'shipping_address_id' => 55,
                 'delivery_fee'        => 25000.0,
@@ -1836,7 +1943,8 @@ class OrderSeeder extends Seeder
             ],
             [
                 'user_id'             => 45,
-                'payment_id'          => 3,
+                'payment_id'          => 2,
+                'va_bank_id'          => 2,
                 'voucher_id'          => null,
                 'shipping_address_id' => 69,
                 'delivery_fee'        => 45000.0,
@@ -1853,7 +1961,8 @@ class OrderSeeder extends Seeder
             ],
             [
                 'user_id'             => 42,
-                'payment_id'          => 1,
+                'payment_id'          => 2,
+                'va_bank_id'          => 2,
                 'voucher_id'          => null,
                 'shipping_address_id' => 66,
                 'delivery_fee'        => 15000.0,
@@ -1870,7 +1979,8 @@ class OrderSeeder extends Seeder
             ],
             [
                 'user_id'             => 18,
-                'payment_id'          => 3,
+                'payment_id'          => 2,
+                'va_bank_id'          => 2,
                 'voucher_id'          => null,
                 'shipping_address_id' => 24,
                 'delivery_fee'        => 40000.0,
@@ -1887,7 +1997,8 @@ class OrderSeeder extends Seeder
             ],
             [
                 'user_id'             => 40,
-                'payment_id'          => 4,
+                'payment_id'          => 2,
+                'va_bank_id'          => 2,
                 'voucher_id'          => null,
                 'shipping_address_id' => 64,
                 'delivery_fee'        => 20000.0,
@@ -1904,7 +2015,8 @@ class OrderSeeder extends Seeder
             ],
             [
                 'user_id'             => 55,
-                'payment_id'          => 1,
+                'payment_id'          => 2,
+                'va_bank_id'          => 2,
                 'voucher_id'          => null,
                 'shipping_address_id' => 79,
                 'delivery_fee'        => 25000.0,
@@ -1921,7 +2033,8 @@ class OrderSeeder extends Seeder
             ],
             [
                 'user_id'             => 34,
-                'payment_id'          => 3,
+                'payment_id'          => 2,
+                'va_bank_id'          => 2,
                 'voucher_id'          => null,
                 'shipping_address_id' => 55,
                 'delivery_fee'        => 20000.0,
@@ -1938,7 +2051,8 @@ class OrderSeeder extends Seeder
             ],
             [
                 'user_id'             => 32,
-                'payment_id'          => 1,
+                'payment_id'          => 2,
+                'va_bank_id'          => 2,
                 'voucher_id'          => null,
                 'shipping_address_id' => 51,
                 'delivery_fee'        => 40000.0,
@@ -1956,6 +2070,7 @@ class OrderSeeder extends Seeder
             [
                 'user_id'             => 34,
                 'payment_id'          => 2,
+                'va_bank_id'          => 2,
                 'voucher_id'          => null,
                 'shipping_address_id' => 55,
                 'delivery_fee'        => 30000.0,
@@ -1973,6 +2088,7 @@ class OrderSeeder extends Seeder
             [
                 'user_id'             => 8,
                 'payment_id'          => 1,
+                'va_bank_id'          => null,
                 'voucher_id'          => null,
                 'shipping_address_id' => 4,
                 'delivery_fee'        => 25000.0,
@@ -1989,7 +2105,8 @@ class OrderSeeder extends Seeder
             ],
             [
                 'user_id'             => 17,
-                'payment_id'          => 3,
+                'payment_id'          => 2,
+                'va_bank_id'          => 2,
                 'voucher_id'          => null,
                 'shipping_address_id' => 22,
                 'delivery_fee'        => 45000.0,
@@ -2007,6 +2124,7 @@ class OrderSeeder extends Seeder
             [
                 'user_id'             => 26,
                 'payment_id'          => 2,
+                'va_bank_id'          => 2,
                 'voucher_id'          => null,
                 'shipping_address_id' => 40,
                 'delivery_fee'        => 25000.0,
@@ -2024,6 +2142,7 @@ class OrderSeeder extends Seeder
             [
                 'user_id'             => 53,
                 'payment_id'          => 2,
+                'va_bank_id'          => 2,
                 'voucher_id'          => null,
                 'shipping_address_id' => 77,
                 'delivery_fee'        => 45000.0,
@@ -2040,7 +2159,8 @@ class OrderSeeder extends Seeder
             ],
             [
                 'user_id'             => 43,
-                'payment_id'          => 5,
+                'payment_id'          => 2,
+                'va_bank_id'          => 2,
                 'voucher_id'          => null,
                 'shipping_address_id' => 67,
                 'delivery_fee'        => 30000.0,
@@ -2057,7 +2177,8 @@ class OrderSeeder extends Seeder
             ],
             [
                 'user_id'             => 35,
-                'payment_id'          => 3,
+                'payment_id'          => 2,
+                'va_bank_id'          => 2,
                 'voucher_id'          => null,
                 'shipping_address_id' => 58,
                 'delivery_fee'        => 15000.0,
@@ -2074,7 +2195,8 @@ class OrderSeeder extends Seeder
             ],
             [
                 'user_id'             => 10,
-                'payment_id'          => 3,
+                'payment_id'          => 2,
+                'va_bank_id'          => 2,
                 'voucher_id'          => null,
                 'shipping_address_id' => 8,
                 'delivery_fee'        => 30000.0,
@@ -2091,7 +2213,8 @@ class OrderSeeder extends Seeder
             ],
             [
                 'user_id'             => 43,
-                'payment_id'          => 3,
+                'payment_id'          => 2,
+                'va_bank_id'          => 2,
                 'voucher_id'          => null,
                 'shipping_address_id' => 67,
                 'delivery_fee'        => 20000.0,
@@ -2108,7 +2231,8 @@ class OrderSeeder extends Seeder
             ],
             [
                 'user_id'             => 52,
-                'payment_id'          => 4,
+                'payment_id'          => 2,
+                'va_bank_id'          => 2,
                 'voucher_id'          => null,
                 'shipping_address_id' => 76,
                 'delivery_fee'        => 30000.0,
@@ -2125,7 +2249,8 @@ class OrderSeeder extends Seeder
             ],
             [
                 'user_id'             => 56,
-                'payment_id'          => 5,
+                'payment_id'          => 2,
+                'va_bank_id'          => 2,
                 'voucher_id'          => null,
                 'shipping_address_id' => 80,
                 'delivery_fee'        => 25000.0,
@@ -2142,7 +2267,8 @@ class OrderSeeder extends Seeder
             ],
             [
                 'user_id'             => 53,
-                'payment_id'          => 3,
+                'payment_id'          => 2,
+                'va_bank_id'          => 2,
                 'voucher_id'          => null,
                 'shipping_address_id' => 77,
                 'delivery_fee'        => 35000.0,
@@ -2160,6 +2286,7 @@ class OrderSeeder extends Seeder
             [
                 'user_id'             => 31,
                 'payment_id'          => 2,
+                'va_bank_id'          => 2,
                 'voucher_id'          => null,
                 'shipping_address_id' => 50,
                 'delivery_fee'        => 25000.0,
@@ -2176,7 +2303,8 @@ class OrderSeeder extends Seeder
             ],
             [
                 'user_id'             => 18,
-                'payment_id'          => 3,
+                'payment_id'          => 2,
+                'va_bank_id'          => 2,
                 'voucher_id'          => null,
                 'shipping_address_id' => 23,
                 'delivery_fee'        => 35000.0,
@@ -2193,7 +2321,8 @@ class OrderSeeder extends Seeder
             ],
             [
                 'user_id'             => 56,
-                'payment_id'          => 3,
+                'payment_id'          => 2,
+                'va_bank_id'          => 2,
                 'voucher_id'          => null,
                 'shipping_address_id' => 80,
                 'delivery_fee'        => 40000.0,
@@ -2210,7 +2339,8 @@ class OrderSeeder extends Seeder
             ],
             [
                 'user_id'             => 35,
-                'payment_id'          => 4,
+                'payment_id'          => 2,
+                'va_bank_id'          => 2,
                 'voucher_id'          => null,
                 'shipping_address_id' => 57,
                 'delivery_fee'        => 35000.0,
@@ -2227,7 +2357,8 @@ class OrderSeeder extends Seeder
             ],
             [
                 'user_id'             => 22,
-                'payment_id'          => 4,
+                'payment_id'          => 2,
+                'va_bank_id'          => 2,
                 'voucher_id'          => null,
                 'shipping_address_id' => 32,
                 'delivery_fee'        => 45000.0,
@@ -2244,7 +2375,8 @@ class OrderSeeder extends Seeder
             ],
             [
                 'user_id'             => 19,
-                'payment_id'          => 3,
+                'payment_id'          => 2,
+                'va_bank_id'          => 2,
                 'voucher_id'          => null,
                 'shipping_address_id' => 25,
                 'delivery_fee'        => 45000.0,
@@ -2261,7 +2393,8 @@ class OrderSeeder extends Seeder
             ],
             [
                 'user_id'             => 17,
-                'payment_id'          => 4,
+                'payment_id'          => 2,
+                'va_bank_id'          => 2,
                 'voucher_id'          => null,
                 'shipping_address_id' => 22,
                 'delivery_fee'        => 30000.0,
@@ -2279,6 +2412,7 @@ class OrderSeeder extends Seeder
             [
                 'user_id'             => 39,
                 'payment_id'          => 2,
+                'va_bank_id'          => 2,
                 'voucher_id'          => null,
                 'shipping_address_id' => 63,
                 'delivery_fee'        => 40000.0,
@@ -2295,7 +2429,8 @@ class OrderSeeder extends Seeder
             ],
             [
                 'user_id'             => 15,
-                'payment_id'          => 4,
+                'payment_id'          => 2,
+                'va_bank_id'          => 2,
                 'voucher_id'          => null,
                 'shipping_address_id' => 18,
                 'delivery_fee'        => 15000.0,
@@ -2313,6 +2448,7 @@ class OrderSeeder extends Seeder
             [
                 'user_id'             => 56,
                 'payment_id'          => 2,
+                'va_bank_id'          => 2,
                 'voucher_id'          => null,
                 'shipping_address_id' => 80,
                 'delivery_fee'        => 35000.0,
@@ -2329,7 +2465,8 @@ class OrderSeeder extends Seeder
             ],
             [
                 'user_id'             => 41,
-                'payment_id'          => 5,
+                'payment_id'          => 2,
+                'va_bank_id'          => 2,
                 'voucher_id'          => null,
                 'shipping_address_id' => 65,
                 'delivery_fee'        => 20000.0,
@@ -2347,6 +2484,7 @@ class OrderSeeder extends Seeder
             [
                 'user_id'             => 43,
                 'payment_id'          => 2,
+                'va_bank_id'          => 2,
                 'voucher_id'          => null,
                 'shipping_address_id' => 67,
                 'delivery_fee'        => 15000.0,
@@ -2363,7 +2501,8 @@ class OrderSeeder extends Seeder
             ],
             [
                 'user_id'             => 47,
-                'payment_id'          => 3,
+                'payment_id'          => 2,
+                'va_bank_id'          => 2,
                 'voucher_id'          => null,
                 'shipping_address_id' => 71,
                 'delivery_fee'        => 15000.0,
@@ -2381,6 +2520,7 @@ class OrderSeeder extends Seeder
             [
                 'user_id'             => 29,
                 'payment_id'          => 2,
+                'va_bank_id'          => 2,
                 'voucher_id'          => null,
                 'shipping_address_id' => 46,
                 'delivery_fee'        => 25000.0,
@@ -2398,6 +2538,7 @@ class OrderSeeder extends Seeder
             [
                 'user_id'             => 19,
                 'payment_id'          => 2,
+                'va_bank_id'          => 2,
                 'voucher_id'          => null,
                 'shipping_address_id' => 25,
                 'delivery_fee'        => 25000.0,
@@ -2414,7 +2555,8 @@ class OrderSeeder extends Seeder
             ],
             [
                 'user_id'             => 56,
-                'payment_id'          => 3,
+                'payment_id'          => 2,
+                'va_bank_id'          => 2,
                 'voucher_id'          => null,
                 'shipping_address_id' => 80,
                 'delivery_fee'        => 40000.0,
@@ -2431,7 +2573,8 @@ class OrderSeeder extends Seeder
             ],
             [
                 'user_id'             => 38,
-                'payment_id'          => 5,
+                'payment_id'          => 2,
+                'va_bank_id'          => 2,
                 'voucher_id'          => null,
                 'shipping_address_id' => 62,
                 'delivery_fee'        => 15000.0,
@@ -2448,7 +2591,8 @@ class OrderSeeder extends Seeder
             ],
             [
                 'user_id'             => 12,
-                'payment_id'          => 3,
+                'payment_id'          => 2,
+                'va_bank_id'          => 2,
                 'voucher_id'          => null,
                 'shipping_address_id' => 12,
                 'delivery_fee'        => 35000.0,
@@ -2465,7 +2609,8 @@ class OrderSeeder extends Seeder
             ],
             [
                 'user_id'             => 34,
-                'payment_id'          => 1,
+                'payment_id'          => 2,
+                'va_bank_id'          => 2,
                 'voucher_id'          => null,
                 'shipping_address_id' => 56,
                 'delivery_fee'        => 45000.0,
@@ -2482,7 +2627,8 @@ class OrderSeeder extends Seeder
             ],
             [
                 'user_id'             => 48,
-                'payment_id'          => 3,
+                'payment_id'          => 2,
+                'va_bank_id'          => 2,
                 'voucher_id'          => null,
                 'shipping_address_id' => 72,
                 'delivery_fee'        => 30000.0,
@@ -2499,7 +2645,8 @@ class OrderSeeder extends Seeder
             ],
             [
                 'user_id'             => 55,
-                'payment_id'          => 5,
+                'payment_id'          => 2,
+                'va_bank_id'          => 2,
                 'voucher_id'          => null,
                 'shipping_address_id' => 79,
                 'delivery_fee'        => 40000.0,
@@ -2516,7 +2663,8 @@ class OrderSeeder extends Seeder
             ],
             [
                 'user_id'             => 18,
-                'payment_id'          => 5,
+                'payment_id'          => 2,
+                'va_bank_id'          => 2,
                 'voucher_id'          => null,
                 'shipping_address_id' => 24,
                 'delivery_fee'        => 15000.0,
@@ -2533,7 +2681,8 @@ class OrderSeeder extends Seeder
             ],
             [
                 'user_id'             => 15,
-                'payment_id'          => 4,
+                'payment_id'          => 2,
+                'va_bank_id'          => 2,
                 'voucher_id'          => null,
                 'shipping_address_id' => 17,
                 'delivery_fee'        => 45000.0,
@@ -2550,7 +2699,8 @@ class OrderSeeder extends Seeder
             ],
             [
                 'user_id'             => 17,
-                'payment_id'          => 3,
+                'payment_id'          => 2,
+                'va_bank_id'          => 2,
                 'voucher_id'          => null,
                 'shipping_address_id' => 21,
                 'delivery_fee'        => 25000.0,
@@ -2567,7 +2717,8 @@ class OrderSeeder extends Seeder
             ],
             [
                 'user_id'             => 42,
-                'payment_id'          => 4,
+                'payment_id'          => 2,
+                'va_bank_id'          => 2,
                 'voucher_id'          => null,
                 'shipping_address_id' => 66,
                 'delivery_fee'        => 35000.0,
@@ -2584,7 +2735,8 @@ class OrderSeeder extends Seeder
             ],
             [
                 'user_id'             => 33,
-                'payment_id'          => 5,
+                'payment_id'          => 2,
+                'va_bank_id'          => 2,
                 'voucher_id'          => null,
                 'shipping_address_id' => 54,
                 'delivery_fee'        => 30000.0,
@@ -2601,7 +2753,8 @@ class OrderSeeder extends Seeder
             ],
             [
                 'user_id'             => 39,
-                'payment_id'          => 1,
+                'payment_id'          => 2,
+                'va_bank_id'          => 2,
                 'voucher_id'          => null,
                 'shipping_address_id' => 63,
                 'delivery_fee'        => 35000.0,
@@ -2618,7 +2771,8 @@ class OrderSeeder extends Seeder
             ],
             [
                 'user_id'             => 25,
-                'payment_id'          => 3,
+                'payment_id'          => 2,
+                'va_bank_id'          => 2,
                 'voucher_id'          => null,
                 'shipping_address_id' => 37,
                 'delivery_fee'        => 20000.0,
@@ -2635,7 +2789,8 @@ class OrderSeeder extends Seeder
             ],
             [
                 'user_id'             => 49,
-                'payment_id'          => 5,
+                'payment_id'          => 2,
+                'va_bank_id'          => 2,
                 'voucher_id'          => null,
                 'shipping_address_id' => 73,
                 'delivery_fee'        => 35000.0,
@@ -2652,7 +2807,8 @@ class OrderSeeder extends Seeder
             ],
             [
                 'user_id'             => 47,
-                'payment_id'          => 4,
+                'payment_id'          => 2,
+                'va_bank_id'          => 2,
                 'voucher_id'          => null,
                 'shipping_address_id' => 71,
                 'delivery_fee'        => 40000.0,
@@ -2669,7 +2825,8 @@ class OrderSeeder extends Seeder
             ],
             [
                 'user_id'             => 10,
-                'payment_id'          => 4,
+                'payment_id'          => 2,
+                'va_bank_id'          => 2,
                 'voucher_id'          => null,
                 'shipping_address_id' => 7,
                 'delivery_fee'        => 30000.0,
@@ -2686,7 +2843,8 @@ class OrderSeeder extends Seeder
             ],
             [
                 'user_id'             => 15,
-                'payment_id'          => 5,
+                'payment_id'          => 2,
+                'va_bank_id'          => 2,
                 'voucher_id'          => null,
                 'shipping_address_id' => 18,
                 'delivery_fee'        => 20000.0,
@@ -2703,7 +2861,8 @@ class OrderSeeder extends Seeder
             ],
             [
                 'user_id'             => 13,
-                'payment_id'          => 3,
+                'payment_id'          => 2,
+                'va_bank_id'          => 2,
                 'voucher_id'          => null,
                 'shipping_address_id' => 13,
                 'delivery_fee'        => 30000.0,
@@ -2720,7 +2879,8 @@ class OrderSeeder extends Seeder
             ],
             [
                 'user_id'             => 39,
-                'payment_id'          => 4,
+                'payment_id'          => 2,
+                'va_bank_id'          => 2,
                 'voucher_id'          => null,
                 'shipping_address_id' => 63,
                 'delivery_fee'        => 30000.0,
@@ -2737,7 +2897,8 @@ class OrderSeeder extends Seeder
             ],
             [
                 'user_id'             => 45,
-                'payment_id'          => 3,
+                'payment_id'          => 2,
+                'va_bank_id'          => 2,
                 'voucher_id'          => null,
                 'shipping_address_id' => 69,
                 'delivery_fee'        => 45000.0,
@@ -2755,6 +2916,7 @@ class OrderSeeder extends Seeder
             [
                 'user_id'             => 32,
                 'payment_id'          => 1,
+                'va_bank_id'          => null,
                 'voucher_id'          => null,
                 'shipping_address_id' => 52,
                 'delivery_fee'        => 35000.0,
@@ -2771,7 +2933,8 @@ class OrderSeeder extends Seeder
             ],
             [
                 'user_id'             => 35,
-                'payment_id'          => 5,
+                'payment_id'          => 2,
+                'va_bank_id'          => 2,
                 'voucher_id'          => null,
                 'shipping_address_id' => 58,
                 'delivery_fee'        => 35000.0,
@@ -2788,7 +2951,8 @@ class OrderSeeder extends Seeder
             ],
             [
                 'user_id'             => 39,
-                'payment_id'          => 5,
+                'payment_id'          => 2,
+                'va_bank_id'          => 2,
                 'voucher_id'          => null,
                 'shipping_address_id' => 63,
                 'delivery_fee'        => 25000.0,
@@ -2806,6 +2970,7 @@ class OrderSeeder extends Seeder
             [
                 'user_id'             => 46,
                 'payment_id'          => 2,
+                'va_bank_id'          => 2,
                 'voucher_id'          => null,
                 'shipping_address_id' => 70,
                 'delivery_fee'        => 40000.0,
@@ -2822,7 +2987,8 @@ class OrderSeeder extends Seeder
             ],
             [
                 'user_id'             => 43,
-                'payment_id'          => 4,
+                'payment_id'          => 2,
+                'va_bank_id'          => 2,
                 'voucher_id'          => null,
                 'shipping_address_id' => 67,
                 'delivery_fee'        => 25000.0,
@@ -2839,7 +3005,8 @@ class OrderSeeder extends Seeder
             ],
             [
                 'user_id'             => 48,
-                'payment_id'          => 1,
+                'payment_id'          => 2,
+                'va_bank_id'          => 2,
                 'voucher_id'          => null,
                 'shipping_address_id' => 72,
                 'delivery_fee'        => 35000.0,
@@ -2857,6 +3024,7 @@ class OrderSeeder extends Seeder
             [
                 'user_id'             => 51,
                 'payment_id'          => 2,
+                'va_bank_id'          => 2,
                 'voucher_id'          => null,
                 'shipping_address_id' => 75,
                 'delivery_fee'        => 45000.0,
@@ -2874,6 +3042,7 @@ class OrderSeeder extends Seeder
             [
                 'user_id'             => 54,
                 'payment_id'          => 2,
+                'va_bank_id'          => 2,
                 'voucher_id'          => null,
                 'shipping_address_id' => 78,
                 'delivery_fee'        => 30000.0,
@@ -2890,7 +3059,8 @@ class OrderSeeder extends Seeder
             ],
             [
                 'user_id'             => 41,
-                'payment_id'          => 5,
+                'payment_id'          => 2,
+                'va_bank_id'          => 2,
                 'voucher_id'          => null,
                 'shipping_address_id' => 65,
                 'delivery_fee'        => 35000.0,
@@ -2907,7 +3077,8 @@ class OrderSeeder extends Seeder
             ],
             [
                 'user_id'             => 26,
-                'payment_id'          => 3,
+                'payment_id'          => 2,
+                'va_bank_id'          => 2,
                 'voucher_id'          => null,
                 'shipping_address_id' => 39,
                 'delivery_fee'        => 25000.0,
@@ -2924,7 +3095,8 @@ class OrderSeeder extends Seeder
             ],
             [
                 'user_id'             => 14,
-                'payment_id'          => 4,
+                'payment_id'          => 2,
+                'va_bank_id'          => 2,
                 'voucher_id'          => null,
                 'shipping_address_id' => 16,
                 'delivery_fee'        => 20000.0,
@@ -2941,7 +3113,8 @@ class OrderSeeder extends Seeder
             ],
             [
                 'user_id'             => 41,
-                'payment_id'          => 5,
+                'payment_id'          => 2,
+                'va_bank_id'          => 2,
                 'voucher_id'          => null,
                 'shipping_address_id' => 65,
                 'delivery_fee'        => 40000.0,
@@ -2959,6 +3132,7 @@ class OrderSeeder extends Seeder
             [
                 'user_id'             => 40,
                 'payment_id'          => 2,
+                'va_bank_id'          => 2,
                 'voucher_id'          => null,
                 'shipping_address_id' => 64,
                 'delivery_fee'        => 30000.0,
@@ -2975,7 +3149,8 @@ class OrderSeeder extends Seeder
             ],
             [
                 'user_id'             => 48,
-                'payment_id'          => 4,
+                'payment_id'          => 2,
+                'va_bank_id'          => 2,
                 'voucher_id'          => null,
                 'shipping_address_id' => 72,
                 'delivery_fee'        => 40000.0,
@@ -2992,7 +3167,8 @@ class OrderSeeder extends Seeder
             ],
             [
                 'user_id'             => 43,
-                'payment_id'          => 5,
+                'payment_id'          => 2,
+                'va_bank_id'          => 2,
                 'voucher_id'          => null,
                 'shipping_address_id' => 67,
                 'delivery_fee'        => 20000.0,
@@ -3009,7 +3185,8 @@ class OrderSeeder extends Seeder
             ],
             [
                 'user_id'             => 54,
-                'payment_id'          => 1,
+                'payment_id'          => 2,
+                'va_bank_id'          => 2,
                 'voucher_id'          => null,
                 'shipping_address_id' => 78,
                 'delivery_fee'        => 20000.0,
@@ -3026,7 +3203,8 @@ class OrderSeeder extends Seeder
             ],
             [
                 'user_id'             => 39,
-                'payment_id'          => 3,
+                'payment_id'          => 2,
+                'va_bank_id'          => 2,
                 'voucher_id'          => null,
                 'shipping_address_id' => 63,
                 'delivery_fee'        => 35000.0,
@@ -3044,6 +3222,7 @@ class OrderSeeder extends Seeder
             [
                 'user_id'             => 50,
                 'payment_id'          => 2,
+                'va_bank_id'          => 2,
                 'voucher_id'          => null,
                 'shipping_address_id' => 74,
                 'delivery_fee'        => 15000.0,
@@ -3061,6 +3240,7 @@ class OrderSeeder extends Seeder
             [
                 'user_id'             => 32,
                 'payment_id'          => 2,
+                'va_bank_id'          => 2,
                 'voucher_id'          => null,
                 'shipping_address_id' => 51,
                 'delivery_fee'        => 25000.0,
@@ -3077,7 +3257,8 @@ class OrderSeeder extends Seeder
             ],
             [
                 'user_id'             => 26,
-                'payment_id'          => 3,
+                'payment_id'          => 2,
+                'va_bank_id'          => 2,
                 'voucher_id'          => null,
                 'shipping_address_id' => 39,
                 'delivery_fee'        => 25000.0,
@@ -3094,7 +3275,8 @@ class OrderSeeder extends Seeder
             ],
             [
                 'user_id'             => 17,
-                'payment_id'          => 5,
+                'payment_id'          => 2,
+                'va_bank_id'          => 2,
                 'voucher_id'          => null,
                 'shipping_address_id' => 22,
                 'delivery_fee'        => 20000.0,
@@ -3111,7 +3293,8 @@ class OrderSeeder extends Seeder
             ],
             [
                 'user_id'             => 37,
-                'payment_id'          => 4,
+                'payment_id'          => 2,
+                'va_bank_id'          => 2,
                 'voucher_id'          => null,
                 'shipping_address_id' => 61,
                 'delivery_fee'        => 45000.0,
@@ -3128,7 +3311,8 @@ class OrderSeeder extends Seeder
             ],
             [
                 'user_id'             => 22,
-                'payment_id'          => 5,
+                'payment_id'          => 2,
+                'va_bank_id'          => 2,
                 'voucher_id'          => null,
                 'shipping_address_id' => 31,
                 'delivery_fee'        => 35000.0,
@@ -3146,6 +3330,7 @@ class OrderSeeder extends Seeder
             [
                 'user_id'             => 41,
                 'payment_id'          => 2,
+                'va_bank_id'          => 2,
                 'voucher_id'          => null,
                 'shipping_address_id' => 65,
                 'delivery_fee'        => 30000.0,
@@ -3162,7 +3347,8 @@ class OrderSeeder extends Seeder
             ],
             [
                 'user_id'             => 15,
-                'payment_id'          => 4,
+                'payment_id'          => 2,
+                'va_bank_id'          => 2,
                 'voucher_id'          => null,
                 'shipping_address_id' => 18,
                 'delivery_fee'        => 35000.0,
@@ -3179,7 +3365,8 @@ class OrderSeeder extends Seeder
             ],
             [
                 'user_id'             => 11,
-                'payment_id'          => 4,
+                'payment_id'          => 2,
+                'va_bank_id'          => 2,
                 'voucher_id'          => null,
                 'shipping_address_id' => 9,
                 'delivery_fee'        => 45000.0,
@@ -3196,7 +3383,8 @@ class OrderSeeder extends Seeder
             ],
             [
                 'user_id'             => 15,
-                'payment_id'          => 3,
+                'payment_id'          => 2,
+                'va_bank_id'          => 2,
                 'voucher_id'          => null,
                 'shipping_address_id' => 18,
                 'delivery_fee'        => 40000.0,
@@ -3214,6 +3402,7 @@ class OrderSeeder extends Seeder
             [
                 'user_id'             => 29,
                 'payment_id'          => 2,
+                'va_bank_id'          => 2,
                 'voucher_id'          => null,
                 'shipping_address_id' => 45,
                 'delivery_fee'        => 35000.0,
@@ -3231,6 +3420,7 @@ class OrderSeeder extends Seeder
             [
                 'user_id'             => 31,
                 'payment_id'          => 2,
+                'va_bank_id'          => 2,
                 'voucher_id'          => null,
                 'shipping_address_id' => 49,
                 'delivery_fee'        => 20000.0,
@@ -3247,7 +3437,8 @@ class OrderSeeder extends Seeder
             ],
             [
                 'user_id'             => 11,
-                'payment_id'          => 5,
+                'payment_id'          => 2,
+                'va_bank_id'          => 2,
                 'voucher_id'          => null,
                 'shipping_address_id' => 9,
                 'delivery_fee'        => 45000.0,
@@ -3265,6 +3456,7 @@ class OrderSeeder extends Seeder
             [
                 'user_id'             => 56,
                 'payment_id'          => 2,
+                'va_bank_id'          => 2,
                 'voucher_id'          => null,
                 'shipping_address_id' => 80,
                 'delivery_fee'        => 25000.0,
@@ -3281,7 +3473,8 @@ class OrderSeeder extends Seeder
             ],
             [
                 'user_id'             => 16,
-                'payment_id'          => 4,
+                'payment_id'          => 2,
+                'va_bank_id'          => 2,
                 'voucher_id'          => null,
                 'shipping_address_id' => 19,
                 'delivery_fee'        => 40000.0,
@@ -3298,7 +3491,8 @@ class OrderSeeder extends Seeder
             ],
             [
                 'user_id'             => 49,
-                'payment_id'          => 5,
+                'payment_id'          => 2,
+                'va_bank_id'          => 2,
                 'voucher_id'          => null,
                 'shipping_address_id' => 73,
                 'delivery_fee'        => 20000.0,
@@ -3316,6 +3510,7 @@ class OrderSeeder extends Seeder
             [
                 'user_id'             => 21,
                 'payment_id'          => 2,
+                'va_bank_id'          => 2,
                 'voucher_id'          => null,
                 'shipping_address_id' => 30,
                 'delivery_fee'        => 20000.0,
@@ -3332,7 +3527,8 @@ class OrderSeeder extends Seeder
             ],
             [
                 'user_id'             => 23,
-                'payment_id'          => 3,
+                'payment_id'          => 2,
+                'va_bank_id'          => 2,
                 'voucher_id'          => null,
                 'shipping_address_id' => 33,
                 'delivery_fee'        => 15000.0,
@@ -3349,7 +3545,8 @@ class OrderSeeder extends Seeder
             ],
             [
                 'user_id'             => 24,
-                'payment_id'          => 5,
+                'payment_id'          => 2,
+                'va_bank_id'          => 2,
                 'voucher_id'          => null,
                 'shipping_address_id' => 36,
                 'delivery_fee'        => 30000.0,
@@ -3366,7 +3563,8 @@ class OrderSeeder extends Seeder
             ],
             [
                 'user_id'             => 20,
-                'payment_id'          => 3,
+                'payment_id'          => 2,
+                'va_bank_id'          => 2,
                 'voucher_id'          => null,
                 'shipping_address_id' => 28,
                 'delivery_fee'        => 30000.0,
@@ -3383,7 +3581,8 @@ class OrderSeeder extends Seeder
             ],
             [
                 'user_id'             => 36,
-                'payment_id'          => 3,
+                'payment_id'          => 2,
+                'va_bank_id'          => 2,
                 'voucher_id'          => null,
                 'shipping_address_id' => 60,
                 'delivery_fee'        => 25000.0,
@@ -3400,7 +3599,8 @@ class OrderSeeder extends Seeder
             ],
             [
                 'user_id'             => 33,
-                'payment_id'          => 5,
+                'payment_id'          => 2,
+                'va_bank_id'          => 2,
                 'voucher_id'          => null,
                 'shipping_address_id' => 53,
                 'delivery_fee'        => 20000.0,
@@ -3418,6 +3618,7 @@ class OrderSeeder extends Seeder
             [
                 'user_id'             => 19,
                 'payment_id'          => 2,
+                'va_bank_id'          => 2,
                 'voucher_id'          => null,
                 'shipping_address_id' => 26,
                 'delivery_fee'        => 30000.0,
@@ -3435,6 +3636,7 @@ class OrderSeeder extends Seeder
             [
                 'user_id'             => 17,
                 'payment_id'          => 2,
+                'va_bank_id'          => 2,
                 'voucher_id'          => null,
                 'shipping_address_id' => 22,
                 'delivery_fee'        => 45000.0,
@@ -3452,6 +3654,7 @@ class OrderSeeder extends Seeder
             [
                 'user_id'             => 7,
                 'payment_id'          => 2,
+                'va_bank_id'          => 2,
                 'voucher_id'          => null,
                 'shipping_address_id' => 2,
                 'delivery_fee'        => 25000.0,
@@ -3468,7 +3671,8 @@ class OrderSeeder extends Seeder
             ],
             [
                 'user_id'             => 10,
-                'payment_id'          => 4,
+                'payment_id'          => 2,
+                'va_bank_id'          => 2,
                 'voucher_id'          => null,
                 'shipping_address_id' => 8,
                 'delivery_fee'        => 15000.0,
@@ -3486,6 +3690,7 @@ class OrderSeeder extends Seeder
             [
                 'user_id'             => 39,
                 'payment_id'          => 2,
+                'va_bank_id'          => 2,
                 'voucher_id'          => null,
                 'shipping_address_id' => 63,
                 'delivery_fee'        => 15000.0,
@@ -3502,7 +3707,8 @@ class OrderSeeder extends Seeder
             ],
             [
                 'user_id'             => 30,
-                'payment_id'          => 4,
+                'payment_id'          => 2,
+                'va_bank_id'          => 2,
                 'voucher_id'          => null,
                 'shipping_address_id' => 48,
                 'delivery_fee'        => 30000.0,
@@ -3520,6 +3726,7 @@ class OrderSeeder extends Seeder
             [
                 'user_id'             => 31,
                 'payment_id'          => 1,
+                'va_bank_id'          => null,
                 'voucher_id'          => null,
                 'shipping_address_id' => 50,
                 'delivery_fee'        => 35000.0,
@@ -3537,6 +3744,7 @@ class OrderSeeder extends Seeder
             [
                 'user_id'             => 13,
                 'payment_id'          => 2,
+                'va_bank_id'          => 2,
                 'voucher_id'          => null,
                 'shipping_address_id' => 13,
                 'delivery_fee'        => 35000.0,
@@ -3554,6 +3762,7 @@ class OrderSeeder extends Seeder
             [
                 'user_id'             => 43,
                 'payment_id'          => 2,
+                'va_bank_id'          => 2,
                 'voucher_id'          => null,
                 'shipping_address_id' => 67,
                 'delivery_fee'        => 45000.0,
@@ -3571,6 +3780,7 @@ class OrderSeeder extends Seeder
             [
                 'user_id'             => 54,
                 'payment_id'          => 1,
+                'va_bank_id'          => null,
                 'voucher_id'          => null,
                 'shipping_address_id' => 78,
                 'delivery_fee'        => 35000.0,
@@ -3587,7 +3797,8 @@ class OrderSeeder extends Seeder
             ],
             [
                 'user_id'             => 56,
-                'payment_id'          => 3,
+                'payment_id'          => 2,
+                'va_bank_id'          => 2,
                 'voucher_id'          => null,
                 'shipping_address_id' => 80,
                 'delivery_fee'        => 20000.0,
@@ -3604,7 +3815,8 @@ class OrderSeeder extends Seeder
             ],
             [
                 'user_id'             => 50,
-                'payment_id'          => 1,
+                'payment_id'          => 2,
+                'va_bank_id'          => 2,
                 'voucher_id'          => null,
                 'shipping_address_id' => 74,
                 'delivery_fee'        => 40000.0,
@@ -3621,7 +3833,8 @@ class OrderSeeder extends Seeder
             ],
             [
                 'user_id'             => 47,
-                'payment_id'          => 4,
+                'payment_id'          => 2,
+                'va_bank_id'          => 2,
                 'voucher_id'          => null,
                 'shipping_address_id' => 71,
                 'delivery_fee'        => 20000.0,
@@ -3638,7 +3851,8 @@ class OrderSeeder extends Seeder
             ],
             [
                 'user_id'             => 12,
-                'payment_id'          => 4,
+                'payment_id'          => 2,
+                'va_bank_id'          => 2,
                 'voucher_id'          => null,
                 'shipping_address_id' => 11,
                 'delivery_fee'        => 35000.0,
@@ -3655,7 +3869,8 @@ class OrderSeeder extends Seeder
             ],
             [
                 'user_id'             => 45,
-                'payment_id'          => 4,
+                'payment_id'          => 2,
+                'va_bank_id'          => 2,
                 'voucher_id'          => null,
                 'shipping_address_id' => 69,
                 'delivery_fee'        => 20000.0,
@@ -3672,7 +3887,8 @@ class OrderSeeder extends Seeder
             ],
             [
                 'user_id'             => 24,
-                'payment_id'          => 3,
+                'payment_id'          => 2,
+                'va_bank_id'          => 2,
                 'voucher_id'          => null,
                 'shipping_address_id' => 36,
                 'delivery_fee'        => 25000.0,
@@ -3689,7 +3905,8 @@ class OrderSeeder extends Seeder
             ],
             [
                 'user_id'             => 23,
-                'payment_id'          => 4,
+                'payment_id'          => 2,
+                'va_bank_id'          => 2,
                 'voucher_id'          => null,
                 'shipping_address_id' => 33,
                 'delivery_fee'        => 30000.0,
@@ -3706,7 +3923,8 @@ class OrderSeeder extends Seeder
             ],
             [
                 'user_id'             => 28,
-                'payment_id'          => 3,
+                'payment_id'          => 2,
+                'va_bank_id'          => 2,
                 'voucher_id'          => null,
                 'shipping_address_id' => 44,
                 'delivery_fee'        => 25000.0,
@@ -3723,7 +3941,8 @@ class OrderSeeder extends Seeder
             ],
             [
                 'user_id'             => 18,
-                'payment_id'          => 3,
+                'payment_id'          => 2,
+                'va_bank_id'          => 2,
                 'voucher_id'          => null,
                 'shipping_address_id' => 24,
                 'delivery_fee'        => 25000.0,
@@ -3740,7 +3959,8 @@ class OrderSeeder extends Seeder
             ],
             [
                 'user_id'             => 14,
-                'payment_id'          => 5,
+                'payment_id'          => 2,
+                'va_bank_id'          => 2,
                 'voucher_id'          => null,
                 'shipping_address_id' => 15,
                 'delivery_fee'        => 30000.0,
@@ -3757,7 +3977,8 @@ class OrderSeeder extends Seeder
             ],
             [
                 'user_id'             => 25,
-                'payment_id'          => 4,
+                'payment_id'          => 2,
+                'va_bank_id'          => 2,
                 'voucher_id'          => null,
                 'shipping_address_id' => 37,
                 'delivery_fee'        => 40000.0,
@@ -3775,6 +3996,7 @@ class OrderSeeder extends Seeder
             [
                 'user_id'             => 34,
                 'payment_id'          => 1,
+                'va_bank_id'          => null,
                 'voucher_id'          => null,
                 'shipping_address_id' => 56,
                 'delivery_fee'        => 45000.0,
@@ -3792,6 +4014,7 @@ class OrderSeeder extends Seeder
             [
                 'user_id'             => 30,
                 'payment_id'          => 1,
+                'va_bank_id'          => null,
                 'voucher_id'          => null,
                 'shipping_address_id' => 47,
                 'delivery_fee'        => 35000.0,
@@ -3808,7 +4031,8 @@ class OrderSeeder extends Seeder
             ],
             [
                 'user_id'             => 48,
-                'payment_id'          => 3,
+                'payment_id'          => 2,
+                'va_bank_id'          => 2,
                 'voucher_id'          => null,
                 'shipping_address_id' => 72,
                 'delivery_fee'        => 30000.0,
@@ -3825,7 +4049,8 @@ class OrderSeeder extends Seeder
             ],
             [
                 'user_id'             => 30,
-                'payment_id'          => 4,
+                'payment_id'          => 2,
+                'va_bank_id'          => 2,
                 'voucher_id'          => null,
                 'shipping_address_id' => 48,
                 'delivery_fee'        => 15000.0,
@@ -3843,6 +4068,7 @@ class OrderSeeder extends Seeder
             [
                 'user_id'             => 25,
                 'payment_id'          => 1,
+                'va_bank_id'          => null,
                 'voucher_id'          => null,
                 'shipping_address_id' => 38,
                 'delivery_fee'        => 25000.0,
@@ -3859,7 +4085,8 @@ class OrderSeeder extends Seeder
             ],
             [
                 'user_id'             => 37,
-                'payment_id'          => 4,
+                'payment_id'          => 2,
+                'va_bank_id'          => 2,
                 'voucher_id'          => null,
                 'shipping_address_id' => 61,
                 'delivery_fee'        => 45000.0,
@@ -3877,6 +4104,7 @@ class OrderSeeder extends Seeder
             [
                 'user_id'             => 28,
                 'payment_id'          => 2,
+                'va_bank_id'          => 2,
                 'voucher_id'          => null,
                 'shipping_address_id' => 43,
                 'delivery_fee'        => 30000.0,
@@ -3894,6 +4122,7 @@ class OrderSeeder extends Seeder
             [
                 'user_id'             => 21,
                 'payment_id'          => 2,
+                'va_bank_id'          => 2,
                 'voucher_id'          => null,
                 'shipping_address_id' => 30,
                 'delivery_fee'        => 15000.0,
@@ -3911,6 +4140,7 @@ class OrderSeeder extends Seeder
             [
                 'user_id'             => 52,
                 'payment_id'          => 2,
+                'va_bank_id'          => 2,
                 'voucher_id'          => null,
                 'shipping_address_id' => 76,
                 'delivery_fee'        => 20000.0,
@@ -3927,7 +4157,8 @@ class OrderSeeder extends Seeder
             ],
             [
                 'user_id'             => 36,
-                'payment_id'          => 3,
+                'payment_id'          => 2,
+                'va_bank_id'          => 2,
                 'voucher_id'          => null,
                 'shipping_address_id' => 59,
                 'delivery_fee'        => 45000.0,
@@ -3944,7 +4175,8 @@ class OrderSeeder extends Seeder
             ],
             [
                 'user_id'             => 36,
-                'payment_id'          => 3,
+                'payment_id'          => 2,
+                'va_bank_id'          => 2,
                 'voucher_id'          => null,
                 'shipping_address_id' => 59,
                 'delivery_fee'        => 25000.0,
@@ -3961,7 +4193,8 @@ class OrderSeeder extends Seeder
             ],
             [
                 'user_id'             => 14,
-                'payment_id'          => 3,
+                'payment_id'          => 2,
+                'va_bank_id'          => 2,
                 'voucher_id'          => null,
                 'shipping_address_id' => 15,
                 'delivery_fee'        => 30000.0,
@@ -3978,7 +4211,8 @@ class OrderSeeder extends Seeder
             ],
             [
                 'user_id'             => 18,
-                'payment_id'          => 5,
+                'payment_id'          => 2,
+                'va_bank_id'          => 2,
                 'voucher_id'          => null,
                 'shipping_address_id' => 24,
                 'delivery_fee'        => 25000.0,
@@ -3995,7 +4229,8 @@ class OrderSeeder extends Seeder
             ],
             [
                 'user_id'             => 35,
-                'payment_id'          => 3,
+                'payment_id'          => 2,
+                'va_bank_id'          => 2,
                 'voucher_id'          => null,
                 'shipping_address_id' => 57,
                 'delivery_fee'        => 30000.0,
@@ -4012,7 +4247,8 @@ class OrderSeeder extends Seeder
             ],
             [
                 'user_id'             => 17,
-                'payment_id'          => 5,
+                'payment_id'          => 2,
+                'va_bank_id'          => 2,
                 'voucher_id'          => null,
                 'shipping_address_id' => 21,
                 'delivery_fee'        => 45000.0,
@@ -4029,7 +4265,8 @@ class OrderSeeder extends Seeder
             ],
             [
                 'user_id'             => 36,
-                'payment_id'          => 5,
+                'payment_id'          => 2,
+                'va_bank_id'          => 2,
                 'voucher_id'          => null,
                 'shipping_address_id' => 60,
                 'delivery_fee'        => 35000.0,
@@ -4046,7 +4283,8 @@ class OrderSeeder extends Seeder
             ],
             [
                 'user_id'             => 20,
-                'payment_id'          => 1,
+                'payment_id'          => 2,
+                'va_bank_id'          => 3,
                 'voucher_id'          => null,
                 'shipping_address_id' => 28,
                 'delivery_fee'        => 25000.0,
@@ -4063,7 +4301,8 @@ class OrderSeeder extends Seeder
             ],
             [
                 'user_id'             => 29,
-                'payment_id'          => 4,
+                'payment_id'          => 2,
+                'va_bank_id'          => 2,
                 'voucher_id'          => null,
                 'shipping_address_id' => 45,
                 'delivery_fee'        => 45000.0,
@@ -4080,7 +4319,8 @@ class OrderSeeder extends Seeder
             ],
             [
                 'user_id'             => 20,
-                'payment_id'          => 1,
+                'payment_id'          => 2,
+                'va_bank_id'          => 3,
                 'voucher_id'          => null,
                 'shipping_address_id' => 27,
                 'delivery_fee'        => 35000.0,
@@ -4098,6 +4338,7 @@ class OrderSeeder extends Seeder
             [
                 'user_id'             => 24,
                 'payment_id'          => 2,
+                'va_bank_id'          => 2,
                 'voucher_id'          => null,
                 'shipping_address_id' => 35,
                 'delivery_fee'        => 45000.0,
@@ -4114,7 +4355,8 @@ class OrderSeeder extends Seeder
             ],
             [
                 'user_id'             => 50,
-                'payment_id'          => 4,
+                'payment_id'          => 2,
+                'va_bank_id'          => 2,
                 'voucher_id'          => null,
                 'shipping_address_id' => 74,
                 'delivery_fee'        => 35000.0,
@@ -4131,7 +4373,8 @@ class OrderSeeder extends Seeder
             ],
             [
                 'user_id'             => 54,
-                'payment_id'          => 3,
+                'payment_id'          => 2,
+                'va_bank_id'          => 2,
                 'voucher_id'          => null,
                 'shipping_address_id' => 78,
                 'delivery_fee'        => 45000.0,
@@ -4149,6 +4392,7 @@ class OrderSeeder extends Seeder
             [
                 'user_id'             => 11,
                 'payment_id'          => 2,
+                'va_bank_id'          => 2,
                 'voucher_id'          => null,
                 'shipping_address_id' => 10,
                 'delivery_fee'        => 45000.0,
@@ -4165,7 +4409,8 @@ class OrderSeeder extends Seeder
             ],
             [
                 'user_id'             => 28,
-                'payment_id'          => 1,
+                'payment_id'          => 2,
+                'va_bank_id'          => 2,
                 'voucher_id'          => null,
                 'shipping_address_id' => 43,
                 'delivery_fee'        => 40000.0,
@@ -4183,6 +4428,7 @@ class OrderSeeder extends Seeder
             [
                 'user_id'             => 15,
                 'payment_id'          => 2,
+                'va_bank_id'          => 2,
                 'voucher_id'          => null,
                 'shipping_address_id' => 18,
                 'delivery_fee'        => 40000.0,
@@ -4199,7 +4445,8 @@ class OrderSeeder extends Seeder
             ],
             [
                 'user_id'             => 51,
-                'payment_id'          => 4,
+                'payment_id'          => 2,
+                'va_bank_id'          => 2,
                 'voucher_id'          => null,
                 'shipping_address_id' => 75,
                 'delivery_fee'        => 20000.0,
@@ -4216,7 +4463,8 @@ class OrderSeeder extends Seeder
             ],
             [
                 'user_id'             => 44,
-                'payment_id'          => 5,
+                'payment_id'          => 2,
+                'va_bank_id'          => 2,
                 'voucher_id'          => null,
                 'shipping_address_id' => 68,
                 'delivery_fee'        => 15000.0,
@@ -4233,7 +4481,8 @@ class OrderSeeder extends Seeder
             ],
             [
                 'user_id'             => 21,
-                'payment_id'          => 1,
+                'payment_id'          => 2,
+                'va_bank_id'          => 2,
                 'voucher_id'          => null,
                 'shipping_address_id' => 30,
                 'delivery_fee'        => 30000.0,
@@ -4251,6 +4500,7 @@ class OrderSeeder extends Seeder
             [
                 'user_id'             => 56,
                 'payment_id'          => 2,
+                'va_bank_id'          => 2,
                 'voucher_id'          => null,
                 'shipping_address_id' => 80,
                 'delivery_fee'        => 15000.0,
@@ -4267,7 +4517,8 @@ class OrderSeeder extends Seeder
             ],
             [
                 'user_id'             => 13,
-                'payment_id'          => 1,
+                'payment_id'          => 2,
+                'va_bank_id'          => 2,
                 'voucher_id'          => null,
                 'shipping_address_id' => 13,
                 'delivery_fee'        => 35000.0,
@@ -4284,7 +4535,8 @@ class OrderSeeder extends Seeder
             ],
             [
                 'user_id'             => 45,
-                'payment_id'          => 1,
+                'payment_id'          => 2,
+                'va_bank_id'          => 2,
                 'voucher_id'          => null,
                 'shipping_address_id' => 69,
                 'delivery_fee'        => 40000.0,
@@ -4301,7 +4553,8 @@ class OrderSeeder extends Seeder
             ],
             [
                 'user_id'             => 32,
-                'payment_id'          => 1,
+                'payment_id'          => 2,
+                'va_bank_id'          => 2,
                 'voucher_id'          => null,
                 'shipping_address_id' => 52,
                 'delivery_fee'        => 25000.0,
@@ -4318,7 +4571,8 @@ class OrderSeeder extends Seeder
             ],
             [
                 'user_id'             => 15,
-                'payment_id'          => 5,
+                'payment_id'          => 2,
+                'va_bank_id'          => 2,
                 'voucher_id'          => null,
                 'shipping_address_id' => 18,
                 'delivery_fee'        => 15000.0,
@@ -4335,7 +4589,8 @@ class OrderSeeder extends Seeder
             ],
             [
                 'user_id'             => 10,
-                'payment_id'          => 5,
+                'payment_id'          => 2,
+                'va_bank_id'          => 2,
                 'voucher_id'          => null,
                 'shipping_address_id' => 8,
                 'delivery_fee'        => 25000.0,
@@ -4352,7 +4607,8 @@ class OrderSeeder extends Seeder
             ],
             [
                 'user_id'             => 12,
-                'payment_id'          => 1,
+                'payment_id'          => 2,
+                'va_bank_id'          => 2,
                 'voucher_id'          => null,
                 'shipping_address_id' => 12,
                 'delivery_fee'        => 25000.0,
@@ -4370,6 +4626,7 @@ class OrderSeeder extends Seeder
             [
                 'user_id'             => 51,
                 'payment_id'          => 2,
+                'va_bank_id'          => 2,
                 'voucher_id'          => null,
                 'shipping_address_id' => 75,
                 'delivery_fee'        => 15000.0,
@@ -4386,7 +4643,8 @@ class OrderSeeder extends Seeder
             ],
             [
                 'user_id'             => 52,
-                'payment_id'          => 1,
+                'payment_id'          => 2,
+                'va_bank_id'          => 2,
                 'voucher_id'          => null,
                 'shipping_address_id' => 76,
                 'delivery_fee'        => 40000.0,
@@ -4403,7 +4661,8 @@ class OrderSeeder extends Seeder
             ],
             [
                 'user_id'             => 14,
-                'payment_id'          => 3,
+                'payment_id'          => 2,
+                'va_bank_id'          => 2,
                 'voucher_id'          => null,
                 'shipping_address_id' => 15,
                 'delivery_fee'        => 45000.0,
@@ -4420,7 +4679,8 @@ class OrderSeeder extends Seeder
             ],
             [
                 'user_id'             => 43,
-                'payment_id'          => 3,
+                'payment_id'          => 2,
+                'va_bank_id'          => 2,
                 'voucher_id'          => null,
                 'shipping_address_id' => 67,
                 'delivery_fee'        => 15000.0,
@@ -4437,7 +4697,8 @@ class OrderSeeder extends Seeder
             ],
             [
                 'user_id'             => 7,
-                'payment_id'          => 1,
+                'payment_id'          => 2,
+                'va_bank_id'          => 2,
                 'voucher_id'          => null,
                 'shipping_address_id' => 1,
                 'delivery_fee'        => 30000.0,
@@ -4454,7 +4715,8 @@ class OrderSeeder extends Seeder
             ],
             [
                 'user_id'             => 53,
-                'payment_id'          => 3,
+                'payment_id'          => 2,
+                'va_bank_id'          => 2,
                 'voucher_id'          => null,
                 'shipping_address_id' => 77,
                 'delivery_fee'        => 30000.0,
@@ -4471,7 +4733,8 @@ class OrderSeeder extends Seeder
             ],
             [
                 'user_id'             => 11,
-                'payment_id'          => 3,
+                'payment_id'          => 2,
+                'va_bank_id'          => 2,
                 'voucher_id'          => null,
                 'shipping_address_id' => 10,
                 'delivery_fee'        => 20000.0,
@@ -4488,7 +4751,8 @@ class OrderSeeder extends Seeder
             ],
             [
                 'user_id'             => 25,
-                'payment_id'          => 5,
+                'payment_id'          => 2,
+                'va_bank_id'          => 2,
                 'voucher_id'          => null,
                 'shipping_address_id' => 38,
                 'delivery_fee'        => 15000.0,
@@ -4505,7 +4769,8 @@ class OrderSeeder extends Seeder
             ],
             [
                 'user_id'             => 21,
-                'payment_id'          => 1,
+                'payment_id'          => 2,
+                'va_bank_id'          => 2,
                 'voucher_id'          => null,
                 'shipping_address_id' => 30,
                 'delivery_fee'        => 30000.0,
@@ -4523,6 +4788,7 @@ class OrderSeeder extends Seeder
             [
                 'user_id'             => 38,
                 'payment_id'          => 2,
+                'va_bank_id'          => 2,
                 'voucher_id'          => null,
                 'shipping_address_id' => 62,
                 'delivery_fee'        => 40000.0,
@@ -4539,7 +4805,8 @@ class OrderSeeder extends Seeder
             ],
             [
                 'user_id'             => 12,
-                'payment_id'          => 5,
+                'payment_id'          => 2,
+                'va_bank_id'          => 2,
                 'voucher_id'          => null,
                 'shipping_address_id' => 11,
                 'delivery_fee'        => 25000.0,
@@ -4556,7 +4823,8 @@ class OrderSeeder extends Seeder
             ],
             [
                 'user_id'             => 23,
-                'payment_id'          => 4,
+                'payment_id'          => 2,
+                'va_bank_id'          => 2,
                 'voucher_id'          => null,
                 'shipping_address_id' => 34,
                 'delivery_fee'        => 15000.0,
@@ -4573,7 +4841,8 @@ class OrderSeeder extends Seeder
             ],
             [
                 'user_id'             => 19,
-                'payment_id'          => 5,
+                'payment_id'          => 2,
+                'va_bank_id'          => 2,
                 'voucher_id'          => null,
                 'shipping_address_id' => 25,
                 'delivery_fee'        => 45000.0,
@@ -4590,7 +4859,8 @@ class OrderSeeder extends Seeder
             ],
             [
                 'user_id'             => 20,
-                'payment_id'          => 3,
+                'payment_id'          => 2,
+                'va_bank_id'          => 2,
                 'voucher_id'          => null,
                 'shipping_address_id' => 28,
                 'delivery_fee'        => 20000.0,
@@ -4607,7 +4877,8 @@ class OrderSeeder extends Seeder
             ],
             [
                 'user_id'             => 12,
-                'payment_id'          => 3,
+                'payment_id'          => 2,
+                'va_bank_id'          => 2,
                 'voucher_id'          => null,
                 'shipping_address_id' => 11,
                 'delivery_fee'        => 35000.0,
@@ -4624,7 +4895,8 @@ class OrderSeeder extends Seeder
             ],
             [
                 'user_id'             => 54,
-                'payment_id'          => 1,
+                'payment_id'          => 2,
+                'va_bank_id'          => 2,
                 'voucher_id'          => null,
                 'shipping_address_id' => 78,
                 'delivery_fee'        => 20000.0,
@@ -4641,7 +4913,8 @@ class OrderSeeder extends Seeder
             ],
             [
                 'user_id'             => 32,
-                'payment_id'          => 1,
+                'payment_id'          => 2,
+                'va_bank_id'          => 2,
                 'voucher_id'          => null,
                 'shipping_address_id' => 52,
                 'delivery_fee'        => 40000.0,
@@ -4658,7 +4931,8 @@ class OrderSeeder extends Seeder
             ],
             [
                 'user_id'             => 35,
-                'payment_id'          => 1,
+                'payment_id'          => 2,
+                'va_bank_id'          => 2,
                 'voucher_id'          => null,
                 'shipping_address_id' => 57,
                 'delivery_fee'        => 15000.0,
@@ -4676,6 +4950,7 @@ class OrderSeeder extends Seeder
             [
                 'user_id'             => 31,
                 'payment_id'          => 2,
+                'va_bank_id'          => 2,
                 'voucher_id'          => null,
                 'shipping_address_id' => 50,
                 'delivery_fee'        => 30000.0,
@@ -4692,7 +4967,8 @@ class OrderSeeder extends Seeder
             ],
             [
                 'user_id'             => 42,
-                'payment_id'          => 1,
+                'payment_id'          => 2,
+                'va_bank_id'          => 2,
                 'voucher_id'          => null,
                 'shipping_address_id' => 66,
                 'delivery_fee'        => 30000.0,
@@ -4709,7 +4985,8 @@ class OrderSeeder extends Seeder
             ],
             [
                 'user_id'             => 52,
-                'payment_id'          => 4,
+                'payment_id'          => 2,
+                'va_bank_id'          => 2,
                 'voucher_id'          => null,
                 'shipping_address_id' => 76,
                 'delivery_fee'        => 20000.0,
@@ -4726,7 +5003,8 @@ class OrderSeeder extends Seeder
             ],
             [
                 'user_id'             => 8,
-                'payment_id'          => 5,
+                'payment_id'          => 2,
+                'va_bank_id'          => 2,
                 'voucher_id'          => null,
                 'shipping_address_id' => 4,
                 'delivery_fee'        => 20000.0,
@@ -4744,6 +5022,7 @@ class OrderSeeder extends Seeder
             [
                 'user_id'             => 13,
                 'payment_id'          => 2,
+                'va_bank_id'          => 2,
                 'voucher_id'          => null,
                 'shipping_address_id' => 13,
                 'delivery_fee'        => 20000.0,
@@ -4760,7 +5039,8 @@ class OrderSeeder extends Seeder
             ],
             [
                 'user_id'             => 44,
-                'payment_id'          => 3,
+                'payment_id'          => 2,
+                'va_bank_id'          => 2,
                 'voucher_id'          => null,
                 'shipping_address_id' => 68,
                 'delivery_fee'        => 35000.0,
@@ -4777,7 +5057,8 @@ class OrderSeeder extends Seeder
             ],
             [
                 'user_id'             => 19,
-                'payment_id'          => 5,
+                'payment_id'          => 2,
+                'va_bank_id'          => 2,
                 'voucher_id'          => null,
                 'shipping_address_id' => 26,
                 'delivery_fee'        => 25000.0,
@@ -4795,6 +5076,7 @@ class OrderSeeder extends Seeder
             [
                 'user_id'             => 46,
                 'payment_id'          => 2,
+                'va_bank_id'          => 2,
                 'voucher_id'          => null,
                 'shipping_address_id' => 70,
                 'delivery_fee'        => 45000.0,
@@ -4811,7 +5093,8 @@ class OrderSeeder extends Seeder
             ],
             [
                 'user_id'             => 40,
-                'payment_id'          => 1,
+                'payment_id'          => 2,
+                'va_bank_id'          => 2,
                 'voucher_id'          => null,
                 'shipping_address_id' => 64,
                 'delivery_fee'        => 40000.0,
@@ -4828,7 +5111,8 @@ class OrderSeeder extends Seeder
             ],
             [
                 'user_id'             => 34,
-                'payment_id'          => 3,
+                'payment_id'          => 2,
+                'va_bank_id'          => 2,
                 'voucher_id'          => null,
                 'shipping_address_id' => 56,
                 'delivery_fee'        => 20000.0,
@@ -4845,7 +5129,8 @@ class OrderSeeder extends Seeder
             ],
             [
                 'user_id'             => 53,
-                'payment_id'          => 5,
+                'payment_id'          => 2,
+                'va_bank_id'          => 2,
                 'voucher_id'          => null,
                 'shipping_address_id' => 77,
                 'delivery_fee'        => 20000.0,
@@ -4863,6 +5148,7 @@ class OrderSeeder extends Seeder
             [
                 'user_id'             => 28,
                 'payment_id'          => 2,
+                'va_bank_id'          => 2,
                 'voucher_id'          => null,
                 'shipping_address_id' => 43,
                 'delivery_fee'        => 20000.0,
@@ -4879,7 +5165,8 @@ class OrderSeeder extends Seeder
             ],
             [
                 'user_id'             => 51,
-                'payment_id'          => 3,
+                'payment_id'          => 2,
+                'va_bank_id'          => 2,
                 'voucher_id'          => null,
                 'shipping_address_id' => 75,
                 'delivery_fee'        => 30000.0,
@@ -4896,7 +5183,8 @@ class OrderSeeder extends Seeder
             ],
             [
                 'user_id'             => 38,
-                'payment_id'          => 3,
+                'payment_id'          => 2,
+                'va_bank_id'          => 2,
                 'voucher_id'          => null,
                 'shipping_address_id' => 62,
                 'delivery_fee'        => 15000.0,
@@ -4914,6 +5202,7 @@ class OrderSeeder extends Seeder
             [
                 'user_id'             => 9,
                 'payment_id'          => 1,
+                'va_bank_id'          => null,
                 'voucher_id'          => null,
                 'shipping_address_id' => 6,
                 'delivery_fee'        => 25000.0,
@@ -4930,7 +5219,8 @@ class OrderSeeder extends Seeder
             ],
             [
                 'user_id'             => 45,
-                'payment_id'          => 1,
+                'payment_id'          => 2,
+                'va_bank_id'          => 2,
                 'voucher_id'          => null,
                 'shipping_address_id' => 69,
                 'delivery_fee'        => 20000.0,
@@ -4947,7 +5237,8 @@ class OrderSeeder extends Seeder
             ],
             [
                 'user_id'             => 33,
-                'payment_id'          => 3,
+                'payment_id'          => 2,
+                'va_bank_id'          => 2,
                 'voucher_id'          => null,
                 'shipping_address_id' => 54,
                 'delivery_fee'        => 30000.0,
@@ -4964,7 +5255,8 @@ class OrderSeeder extends Seeder
             ],
             [
                 'user_id'             => 12,
-                'payment_id'          => 5,
+                'payment_id'          => 2,
+                'va_bank_id'          => 2,
                 'voucher_id'          => null,
                 'shipping_address_id' => 12,
                 'delivery_fee'        => 45000.0,
@@ -4981,7 +5273,8 @@ class OrderSeeder extends Seeder
             ],
             [
                 'user_id'             => 32,
-                'payment_id'          => 4,
+                'payment_id'          => 2,
+                'va_bank_id'          => 2,
                 'voucher_id'          => null,
                 'shipping_address_id' => 52,
                 'delivery_fee'        => 30000.0,
@@ -4998,7 +5291,8 @@ class OrderSeeder extends Seeder
             ],
             [
                 'user_id'             => 30,
-                'payment_id'          => 4,
+                'payment_id'          => 2,
+                'va_bank_id'          => 2,
                 'voucher_id'          => null,
                 'shipping_address_id' => 47,
                 'delivery_fee'        => 15000.0,
@@ -5015,7 +5309,8 @@ class OrderSeeder extends Seeder
             ],
             [
                 'user_id'             => 49,
-                'payment_id'          => 5,
+                'payment_id'          => 2,
+                'va_bank_id'          => 2,
                 'voucher_id'          => null,
                 'shipping_address_id' => 73,
                 'delivery_fee'        => 30000.0,
@@ -5032,7 +5327,8 @@ class OrderSeeder extends Seeder
             ],
             [
                 'user_id'             => 26,
-                'payment_id'          => 4,
+                'payment_id'          => 2,
+                'va_bank_id'          => 2,
                 'voucher_id'          => null,
                 'shipping_address_id' => 39,
                 'delivery_fee'        => 20000.0,
@@ -5050,6 +5346,7 @@ class OrderSeeder extends Seeder
             [
                 'user_id'             => 17,
                 'payment_id'          => 2,
+                'va_bank_id'          => 2,
                 'voucher_id'          => null,
                 'shipping_address_id' => 21,
                 'delivery_fee'        => 30000.0,
@@ -5066,7 +5363,8 @@ class OrderSeeder extends Seeder
             ],
             [
                 'user_id'             => 42,
-                'payment_id'          => 5,
+                'payment_id'          => 2,
+                'va_bank_id'          => 2,
                 'voucher_id'          => null,
                 'shipping_address_id' => 66,
                 'delivery_fee'        => 30000.0,
@@ -5083,7 +5381,8 @@ class OrderSeeder extends Seeder
             ],
             [
                 'user_id'             => 16,
-                'payment_id'          => 5,
+                'payment_id'          => 2,
+                'va_bank_id'          => 2,
                 'voucher_id'          => null,
                 'shipping_address_id' => 19,
                 'delivery_fee'        => 30000.0,
@@ -5100,7 +5399,8 @@ class OrderSeeder extends Seeder
             ],
             [
                 'user_id'             => 48,
-                'payment_id'          => 5,
+                'payment_id'          => 2,
+                'va_bank_id'          => 2,
                 'voucher_id'          => null,
                 'shipping_address_id' => 72,
                 'delivery_fee'        => 15000.0,
@@ -5118,6 +5418,7 @@ class OrderSeeder extends Seeder
             [
                 'user_id'             => 32,
                 'payment_id'          => 2,
+                'va_bank_id'          => 2,
                 'voucher_id'          => null,
                 'shipping_address_id' => 52,
                 'delivery_fee'        => 25000.0,
@@ -5135,6 +5436,7 @@ class OrderSeeder extends Seeder
             [
                 'user_id'             => 38,
                 'payment_id'          => 2,
+                'va_bank_id'          => 2,
                 'voucher_id'          => null,
                 'shipping_address_id' => 62,
                 'delivery_fee'        => 45000.0,
@@ -5151,7 +5453,8 @@ class OrderSeeder extends Seeder
             ],
             [
                 'user_id'             => 33,
-                'payment_id'          => 5,
+                'payment_id'          => 2,
+                'va_bank_id'          => 2,
                 'voucher_id'          => null,
                 'shipping_address_id' => 54,
                 'delivery_fee'        => 20000.0,
@@ -5169,6 +5472,7 @@ class OrderSeeder extends Seeder
             [
                 'user_id'             => 56,
                 'payment_id'          => 2,
+                'va_bank_id'          => 2,
                 'voucher_id'          => null,
                 'shipping_address_id' => 80,
                 'delivery_fee'        => 25000.0,
@@ -5185,7 +5489,8 @@ class OrderSeeder extends Seeder
             ],
             [
                 'user_id'             => 30,
-                'payment_id'          => 5,
+                'payment_id'          => 2,
+                'va_bank_id'          => 2,
                 'voucher_id'          => null,
                 'shipping_address_id' => 48,
                 'delivery_fee'        => 20000.0,
@@ -5202,7 +5507,8 @@ class OrderSeeder extends Seeder
             ],
             [
                 'user_id'             => 37,
-                'payment_id'          => 3,
+                'payment_id'          => 2,
+                'va_bank_id'          => 2,
                 'voucher_id'          => null,
                 'shipping_address_id' => 61,
                 'delivery_fee'        => 45000.0,
@@ -5220,6 +5526,7 @@ class OrderSeeder extends Seeder
             [
                 'user_id'             => 21,
                 'payment_id'          => 2,
+                'va_bank_id'          => 2,
                 'voucher_id'          => null,
                 'shipping_address_id' => 29,
                 'delivery_fee'        => 35000.0,
@@ -5236,7 +5543,8 @@ class OrderSeeder extends Seeder
             ],
             [
                 'user_id'             => 7,
-                'payment_id'          => 3,
+                'payment_id'          => 2,
+                'va_bank_id'          => 2,
                 'voucher_id'          => null,
                 'shipping_address_id' => 1,
                 'delivery_fee'        => 20000.0,
@@ -5253,7 +5561,8 @@ class OrderSeeder extends Seeder
             ],
             [
                 'user_id'             => 36,
-                'payment_id'          => 5,
+                'payment_id'          => 2,
+                'va_bank_id'          => 2,
                 'voucher_id'          => null,
                 'shipping_address_id' => 60,
                 'delivery_fee'        => 25000.0,
@@ -5270,7 +5579,8 @@ class OrderSeeder extends Seeder
             ],
             [
                 'user_id'             => 50,
-                'payment_id'          => 4,
+                'payment_id'          => 2,
+                'va_bank_id'          => 2,
                 'voucher_id'          => null,
                 'shipping_address_id' => 74,
                 'delivery_fee'        => 15000.0,
@@ -5287,7 +5597,8 @@ class OrderSeeder extends Seeder
             ],
             [
                 'user_id'             => 45,
-                'payment_id'          => 3,
+                'payment_id'          => 2,
+                'va_bank_id'          => 2,
                 'voucher_id'          => null,
                 'shipping_address_id' => 69,
                 'delivery_fee'        => 30000.0,
@@ -5304,7 +5615,8 @@ class OrderSeeder extends Seeder
             ],
             [
                 'user_id'             => 54,
-                'payment_id'          => 5,
+                'payment_id'          => 2,
+                'va_bank_id'          => 2,
                 'voucher_id'          => null,
                 'shipping_address_id' => 78,
                 'delivery_fee'        => 35000.0,
@@ -5321,7 +5633,8 @@ class OrderSeeder extends Seeder
             ],
             [
                 'user_id'             => 26,
-                'payment_id'          => 5,
+                'payment_id'          => 2,
+                'va_bank_id'          => 2,
                 'voucher_id'          => null,
                 'shipping_address_id' => 39,
                 'delivery_fee'        => 20000.0,
@@ -5338,7 +5651,8 @@ class OrderSeeder extends Seeder
             ],
             [
                 'user_id'             => 29,
-                'payment_id'          => 3,
+                'payment_id'          => 2,
+                'va_bank_id'          => 2,
                 'voucher_id'          => null,
                 'shipping_address_id' => 45,
                 'delivery_fee'        => 15000.0,
@@ -5355,7 +5669,8 @@ class OrderSeeder extends Seeder
             ],
             [
                 'user_id'             => 47,
-                'payment_id'          => 4,
+                'payment_id'          => 2,
+                'va_bank_id'          => 2,
                 'voucher_id'          => null,
                 'shipping_address_id' => 71,
                 'delivery_fee'        => 20000.0,
@@ -5372,7 +5687,8 @@ class OrderSeeder extends Seeder
             ],
             [
                 'user_id'             => 28,
-                'payment_id'          => 5,
+                'payment_id'          => 2,
+                'va_bank_id'          => 2,
                 'voucher_id'          => null,
                 'shipping_address_id' => 44,
                 'delivery_fee'        => 40000.0,
@@ -5389,7 +5705,8 @@ class OrderSeeder extends Seeder
             ],
             [
                 'user_id'             => 10,
-                'payment_id'          => 4,
+                'payment_id'          => 2,
+                'va_bank_id'          => 2,
                 'voucher_id'          => null,
                 'shipping_address_id' => 7,
                 'delivery_fee'        => 35000.0,
@@ -5406,7 +5723,8 @@ class OrderSeeder extends Seeder
             ],
             [
                 'user_id'             => 34,
-                'payment_id'          => 4,
+                'payment_id'          => 2,
+                'va_bank_id'          => 2,
                 'voucher_id'          => null,
                 'shipping_address_id' => 56,
                 'delivery_fee'        => 25000.0,
@@ -5424,6 +5742,7 @@ class OrderSeeder extends Seeder
             [
                 'user_id'             => 55,
                 'payment_id'          => 1,
+                'va_bank_id'          => null,
                 'voucher_id'          => null,
                 'shipping_address_id' => 79,
                 'delivery_fee'        => 20000.0,
@@ -5440,7 +5759,8 @@ class OrderSeeder extends Seeder
             ],
             [
                 'user_id'             => 13,
-                'payment_id'          => 5,
+                'payment_id'          => 2,
+                'va_bank_id'          => 2,
                 'voucher_id'          => null,
                 'shipping_address_id' => 14,
                 'delivery_fee'        => 30000.0,
@@ -5457,7 +5777,8 @@ class OrderSeeder extends Seeder
             ],
             [
                 'user_id'             => 50,
-                'payment_id'          => 3,
+                'payment_id'          => 2,
+                'va_bank_id'          => 2,
                 'voucher_id'          => null,
                 'shipping_address_id' => 74,
                 'delivery_fee'        => 20000.0,
@@ -5474,7 +5795,8 @@ class OrderSeeder extends Seeder
             ],
             [
                 'user_id'             => 53,
-                'payment_id'          => 5,
+                'payment_id'          => 2,
+                'va_bank_id'          => 2,
                 'voucher_id'          => null,
                 'shipping_address_id' => 77,
                 'delivery_fee'        => 40000.0,
@@ -5491,7 +5813,8 @@ class OrderSeeder extends Seeder
             ],
             [
                 'user_id'             => 13,
-                'payment_id'          => 1,
+                'payment_id'          => 2,
+                'va_bank_id'          => 2,
                 'voucher_id'          => null,
                 'shipping_address_id' => 13,
                 'delivery_fee'        => 30000.0,
@@ -5509,6 +5832,7 @@ class OrderSeeder extends Seeder
             [
                 'user_id'             => 51,
                 'payment_id'          => 2,
+                'va_bank_id'          => 2,
                 'voucher_id'          => null,
                 'shipping_address_id' => 75,
                 'delivery_fee'        => 35000.0,
@@ -5525,7 +5849,8 @@ class OrderSeeder extends Seeder
             ],
             [
                 'user_id'             => 45,
-                'payment_id'          => 4,
+                'payment_id'          => 2,
+                'va_bank_id'          => 2,
                 'voucher_id'          => null,
                 'shipping_address_id' => 69,
                 'delivery_fee'        => 45000.0,
@@ -5542,7 +5867,8 @@ class OrderSeeder extends Seeder
             ],
             [
                 'user_id'             => 40,
-                'payment_id'          => 3,
+                'payment_id'          => 2,
+                'va_bank_id'          => 2,
                 'voucher_id'          => null,
                 'shipping_address_id' => 64,
                 'delivery_fee'        => 25000.0,
@@ -5559,7 +5885,8 @@ class OrderSeeder extends Seeder
             ],
             [
                 'user_id'             => 22,
-                'payment_id'          => 1,
+                'payment_id'          => 2,
+                'va_bank_id'          => 2,
                 'voucher_id'          => null,
                 'shipping_address_id' => 31,
                 'delivery_fee'        => 15000.0,
@@ -5576,7 +5903,8 @@ class OrderSeeder extends Seeder
             ],
             [
                 'user_id'             => 56,
-                'payment_id'          => 1,
+                'payment_id'          => 2,
+                'va_bank_id'          => 2,
                 'voucher_id'          => null,
                 'shipping_address_id' => 80,
                 'delivery_fee'        => 45000.0,
@@ -5593,7 +5921,8 @@ class OrderSeeder extends Seeder
             ],
             [
                 'user_id'             => 25,
-                'payment_id'          => 3,
+                'payment_id'          => 2,
+                'va_bank_id'          => 2,
                 'voucher_id'          => null,
                 'shipping_address_id' => 38,
                 'delivery_fee'        => 35000.0,
@@ -5610,7 +5939,8 @@ class OrderSeeder extends Seeder
             ],
             [
                 'user_id'             => 24,
-                'payment_id'          => 3,
+                'payment_id'          => 2,
+                'va_bank_id'          => 2,
                 'voucher_id'          => null,
                 'shipping_address_id' => 35,
                 'delivery_fee'        => 20000.0,
@@ -5628,6 +5958,7 @@ class OrderSeeder extends Seeder
             [
                 'user_id'             => 51,
                 'payment_id'          => 2,
+                'va_bank_id'          => 2,
                 'voucher_id'          => null,
                 'shipping_address_id' => 75,
                 'delivery_fee'        => 35000.0,
@@ -5644,7 +5975,8 @@ class OrderSeeder extends Seeder
             ],
             [
                 'user_id'             => 8,
-                'payment_id'          => 4,
+                'payment_id'          => 2,
+                'va_bank_id'          => 2,
                 'voucher_id'          => null,
                 'shipping_address_id' => 3,
                 'delivery_fee'        => 40000.0,
@@ -5661,7 +5993,8 @@ class OrderSeeder extends Seeder
             ],
             [
                 'user_id'             => 50,
-                'payment_id'          => 3,
+                'payment_id'          => 2,
+                'va_bank_id'          => 2,
                 'voucher_id'          => null,
                 'shipping_address_id' => 74,
                 'delivery_fee'        => 25000.0,
@@ -5679,6 +6012,7 @@ class OrderSeeder extends Seeder
             [
                 'user_id'             => 49,
                 'payment_id'          => 2,
+                'va_bank_id'          => 2,
                 'voucher_id'          => null,
                 'shipping_address_id' => 73,
                 'delivery_fee'        => 45000.0,
@@ -5695,7 +6029,8 @@ class OrderSeeder extends Seeder
             ],
             [
                 'user_id'             => 17,
-                'payment_id'          => 4,
+                'payment_id'          => 2,
+                'va_bank_id'          => 2,
                 'voucher_id'          => null,
                 'shipping_address_id' => 21,
                 'delivery_fee'        => 45000.0,
@@ -5712,7 +6047,8 @@ class OrderSeeder extends Seeder
             ],
             [
                 'user_id'             => 22,
-                'payment_id'          => 4,
+                'payment_id'          => 2,
+                'va_bank_id'          => 2,
                 'voucher_id'          => null,
                 'shipping_address_id' => 31,
                 'delivery_fee'        => 40000.0,
@@ -5729,7 +6065,8 @@ class OrderSeeder extends Seeder
             ],
             [
                 'user_id'             => 48,
-                'payment_id'          => 1,
+                'payment_id'          => 2,
+                'va_bank_id'          => 2,
                 'voucher_id'          => null,
                 'shipping_address_id' => 72,
                 'delivery_fee'        => 25000.0,
@@ -5747,6 +6084,7 @@ class OrderSeeder extends Seeder
             [
                 'user_id'             => 30,
                 'payment_id'          => 2,
+                'va_bank_id'          => 2,
                 'voucher_id'          => null,
                 'shipping_address_id' => 47,
                 'delivery_fee'        => 15000.0,
@@ -5763,7 +6101,8 @@ class OrderSeeder extends Seeder
             ],
             [
                 'user_id'             => 28,
-                'payment_id'          => 3,
+                'payment_id'          => 2,
+                'va_bank_id'          => 2,
                 'voucher_id'          => null,
                 'shipping_address_id' => 44,
                 'delivery_fee'        => 20000.0,
@@ -5780,7 +6119,8 @@ class OrderSeeder extends Seeder
             ],
             [
                 'user_id'             => 52,
-                'payment_id'          => 1,
+                'payment_id'          => 2,
+                'va_bank_id'          => 2,
                 'voucher_id'          => null,
                 'shipping_address_id' => 76,
                 'delivery_fee'        => 15000.0,
@@ -5797,7 +6137,8 @@ class OrderSeeder extends Seeder
             ],
             [
                 'user_id'             => 55,
-                'payment_id'          => 1,
+                'payment_id'          => 2,
+                'va_bank_id'          => 2,
                 'voucher_id'          => null,
                 'shipping_address_id' => 79,
                 'delivery_fee'        => 40000.0,
@@ -5814,7 +6155,8 @@ class OrderSeeder extends Seeder
             ],
             [
                 'user_id'             => 44,
-                'payment_id'          => 4,
+                'payment_id'          => 2,
+                'va_bank_id'          => 2,
                 'voucher_id'          => null,
                 'shipping_address_id' => 68,
                 'delivery_fee'        => 40000.0,
@@ -5832,6 +6174,7 @@ class OrderSeeder extends Seeder
             [
                 'user_id'             => 44,
                 'payment_id'          => 2,
+                'va_bank_id'          => 2,
                 'voucher_id'          => null,
                 'shipping_address_id' => 68,
                 'delivery_fee'        => 25000.0,
@@ -5848,7 +6191,8 @@ class OrderSeeder extends Seeder
             ],
             [
                 'user_id'             => 32,
-                'payment_id'          => 3,
+                'payment_id'          => 2,
+                'va_bank_id'          => 2,
                 'voucher_id'          => null,
                 'shipping_address_id' => 52,
                 'delivery_fee'        => 20000.0,
@@ -5865,7 +6209,8 @@ class OrderSeeder extends Seeder
             ],
             [
                 'user_id'             => 20,
-                'payment_id'          => 3,
+                'payment_id'          => 2,
+                'va_bank_id'          => 2,
                 'voucher_id'          => null,
                 'shipping_address_id' => 28,
                 'delivery_fee'        => 35000.0,
@@ -5882,7 +6227,8 @@ class OrderSeeder extends Seeder
             ],
             [
                 'user_id'             => 37,
-                'payment_id'          => 5,
+                'payment_id'          => 2,
+                'va_bank_id'          => 2,
                 'voucher_id'          => null,
                 'shipping_address_id' => 61,
                 'delivery_fee'        => 40000.0,
@@ -5899,7 +6245,8 @@ class OrderSeeder extends Seeder
             ],
             [
                 'user_id'             => 10,
-                'payment_id'          => 3,
+                'payment_id'          => 2,
+                'va_bank_id'          => 2,
                 'voucher_id'          => null,
                 'shipping_address_id' => 7,
                 'delivery_fee'        => 20000.0,
@@ -5916,7 +6263,8 @@ class OrderSeeder extends Seeder
             ],
             [
                 'user_id'             => 55,
-                'payment_id'          => 3,
+                'payment_id'          => 2,
+                'va_bank_id'          => 2,
                 'voucher_id'          => null,
                 'shipping_address_id' => 79,
                 'delivery_fee'        => 40000.0,
@@ -5933,7 +6281,8 @@ class OrderSeeder extends Seeder
             ],
             [
                 'user_id'             => 49,
-                'payment_id'          => 4,
+                'payment_id'          => 2,
+                'va_bank_id'          => 2,
                 'voucher_id'          => null,
                 'shipping_address_id' => 73,
                 'delivery_fee'        => 35000.0,
@@ -5951,6 +6300,7 @@ class OrderSeeder extends Seeder
             [
                 'user_id'             => 56,
                 'payment_id'          => 2,
+                'va_bank_id'          => 2,
                 'voucher_id'          => null,
                 'shipping_address_id' => 80,
                 'delivery_fee'        => 45000.0,
@@ -5967,7 +6317,8 @@ class OrderSeeder extends Seeder
             ],
             [
                 'user_id'             => 53,
-                'payment_id'          => 3,
+                'payment_id'          => 2,
+                'va_bank_id'          => 2,
                 'voucher_id'          => null,
                 'shipping_address_id' => 77,
                 'delivery_fee'        => 25000.0,
@@ -5985,6 +6336,7 @@ class OrderSeeder extends Seeder
             [
                 'user_id'             => 42,
                 'payment_id'          => 2,
+                'va_bank_id'          => 2,
                 'voucher_id'          => null,
                 'shipping_address_id' => 66,
                 'delivery_fee'        => 35000.0,
@@ -6001,7 +6353,8 @@ class OrderSeeder extends Seeder
             ],
             [
                 'user_id'             => 10,
-                'payment_id'          => 4,
+                'payment_id'          => 2,
+                'va_bank_id'          => 2,
                 'voucher_id'          => null,
                 'shipping_address_id' => 8,
                 'delivery_fee'        => 45000.0,
@@ -6018,7 +6371,8 @@ class OrderSeeder extends Seeder
             ],
             [
                 'user_id'             => 39,
-                'payment_id'          => 4,
+                'payment_id'          => 2,
+                'va_bank_id'          => 2,
                 'voucher_id'          => null,
                 'shipping_address_id' => 63,
                 'delivery_fee'        => 25000.0,
@@ -6036,6 +6390,7 @@ class OrderSeeder extends Seeder
             [
                 'user_id'             => 30,
                 'payment_id'          => 2,
+                'va_bank_id'          => 2,
                 'voucher_id'          => null,
                 'shipping_address_id' => 48,
                 'delivery_fee'        => 20000.0,
@@ -6052,7 +6407,8 @@ class OrderSeeder extends Seeder
             ],
             [
                 'user_id'             => 48,
-                'payment_id'          => 1,
+                'payment_id'          => 2,
+                'va_bank_id'          => 2,
                 'voucher_id'          => null,
                 'shipping_address_id' => 72,
                 'delivery_fee'        => 35000.0,
@@ -6069,7 +6425,8 @@ class OrderSeeder extends Seeder
             ],
             [
                 'user_id'             => 39,
-                'payment_id'          => 4,
+                'payment_id'          => 2,
+                'va_bank_id'          => 2,
                 'voucher_id'          => null,
                 'shipping_address_id' => 63,
                 'delivery_fee'        => 40000.0,
@@ -6086,7 +6443,8 @@ class OrderSeeder extends Seeder
             ],
             [
                 'user_id'             => 47,
-                'payment_id'          => 4,
+                'payment_id'          => 2,
+                'va_bank_id'          => 2,
                 'voucher_id'          => null,
                 'shipping_address_id' => 71,
                 'delivery_fee'        => 15000.0,
@@ -6103,7 +6461,8 @@ class OrderSeeder extends Seeder
             ],
             [
                 'user_id'             => 12,
-                'payment_id'          => 1,
+                'payment_id'          => 2,
+                'va_bank_id'          => 2,
                 'voucher_id'          => null,
                 'shipping_address_id' => 11,
                 'delivery_fee'        => 15000.0,
@@ -6120,7 +6479,8 @@ class OrderSeeder extends Seeder
             ],
             [
                 'user_id'             => 31,
-                'payment_id'          => 5,
+                'payment_id'          => 2,
+                'va_bank_id'          => 2,
                 'voucher_id'          => null,
                 'shipping_address_id' => 49,
                 'delivery_fee'        => 35000.0,
@@ -6137,7 +6497,8 @@ class OrderSeeder extends Seeder
             ],
             [
                 'user_id'             => 13,
-                'payment_id'          => 3,
+                'payment_id'          => 2,
+                'va_bank_id'          => 2,
                 'voucher_id'          => null,
                 'shipping_address_id' => 14,
                 'delivery_fee'        => 20000.0,
@@ -6154,7 +6515,8 @@ class OrderSeeder extends Seeder
             ],
             [
                 'user_id'             => 54,
-                'payment_id'          => 5,
+                'payment_id'          => 2,
+                'va_bank_id'          => 2,
                 'voucher_id'          => null,
                 'shipping_address_id' => 78,
                 'delivery_fee'        => 35000.0,
@@ -6171,7 +6533,8 @@ class OrderSeeder extends Seeder
             ],
             [
                 'user_id'             => 45,
-                'payment_id'          => 5,
+                'payment_id'          => 2,
+                'va_bank_id'          => 2,
                 'voucher_id'          => null,
                 'shipping_address_id' => 69,
                 'delivery_fee'        => 20000.0,
@@ -6188,7 +6551,8 @@ class OrderSeeder extends Seeder
             ],
             [
                 'user_id'             => 18,
-                'payment_id'          => 5,
+                'payment_id'          => 2,
+                'va_bank_id'          => 2,
                 'voucher_id'          => null,
                 'shipping_address_id' => 23,
                 'delivery_fee'        => 25000.0,
@@ -6205,7 +6569,8 @@ class OrderSeeder extends Seeder
             ],
             [
                 'user_id'             => 49,
-                'payment_id'          => 3,
+                'payment_id'          => 2,
+                'va_bank_id'          => 2,
                 'voucher_id'          => null,
                 'shipping_address_id' => 73,
                 'delivery_fee'        => 25000.0,
@@ -6223,6 +6588,7 @@ class OrderSeeder extends Seeder
             [
                 'user_id'             => 46,
                 'payment_id'          => 2,
+                'va_bank_id'          => 2,
                 'voucher_id'          => null,
                 'shipping_address_id' => 70,
                 'delivery_fee'        => 45000.0,
@@ -6240,6 +6606,7 @@ class OrderSeeder extends Seeder
             [
                 'user_id'             => 27,
                 'payment_id'          => 2,
+                'va_bank_id'          => 2,
                 'voucher_id'          => null,
                 'shipping_address_id' => 42,
                 'delivery_fee'        => 40000.0,
@@ -6256,7 +6623,8 @@ class OrderSeeder extends Seeder
             ],
             [
                 'user_id'             => 53,
-                'payment_id'          => 4,
+                'payment_id'          => 2,
+                'va_bank_id'          => 2,
                 'voucher_id'          => null,
                 'shipping_address_id' => 77,
                 'delivery_fee'        => 45000.0,
@@ -6273,7 +6641,8 @@ class OrderSeeder extends Seeder
             ],
             [
                 'user_id'             => 24,
-                'payment_id'          => 5,
+                'payment_id'          => 2,
+                'va_bank_id'          => 2,
                 'voucher_id'          => null,
                 'shipping_address_id' => 35,
                 'delivery_fee'        => 15000.0,
@@ -6290,7 +6659,8 @@ class OrderSeeder extends Seeder
             ],
             [
                 'user_id'             => 42,
-                'payment_id'          => 5,
+                'payment_id'          => 2,
+                'va_bank_id'          => 2,
                 'voucher_id'          => null,
                 'shipping_address_id' => 66,
                 'delivery_fee'        => 20000.0,
@@ -6307,7 +6677,8 @@ class OrderSeeder extends Seeder
             ],
             [
                 'user_id'             => 36,
-                'payment_id'          => 4,
+                'payment_id'          => 2,
+                'va_bank_id'          => 2,
                 'voucher_id'          => null,
                 'shipping_address_id' => 59,
                 'delivery_fee'        => 20000.0,
@@ -6324,7 +6695,8 @@ class OrderSeeder extends Seeder
             ],
             [
                 'user_id'             => 43,
-                'payment_id'          => 4,
+                'payment_id'          => 2,
+                'va_bank_id'          => 2,
                 'voucher_id'          => null,
                 'shipping_address_id' => 67,
                 'delivery_fee'        => 15000.0,
@@ -6341,7 +6713,8 @@ class OrderSeeder extends Seeder
             ],
             [
                 'user_id'             => 49,
-                'payment_id'          => 5,
+                'payment_id'          => 2,
+                'va_bank_id'          => 2,
                 'voucher_id'          => null,
                 'shipping_address_id' => 73,
                 'delivery_fee'        => 40000.0,
@@ -6358,7 +6731,8 @@ class OrderSeeder extends Seeder
             ],
             [
                 'user_id'             => 40,
-                'payment_id'          => 3,
+                'payment_id'          => 2,
+                'va_bank_id'          => 2,
                 'voucher_id'          => null,
                 'shipping_address_id' => 64,
                 'delivery_fee'        => 30000.0,
@@ -6375,7 +6749,8 @@ class OrderSeeder extends Seeder
             ],
             [
                 'user_id'             => 21,
-                'payment_id'          => 3,
+                'payment_id'          => 2,
+                'va_bank_id'          => 2,
                 'voucher_id'          => null,
                 'shipping_address_id' => 30,
                 'delivery_fee'        => 35000.0,

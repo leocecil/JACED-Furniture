@@ -1171,8 +1171,6 @@
             }
         });
 
-        // Saat user pilih payment method
-        // Ganti seluruh blok QRIS itu dengan ini:
         function checkQrisLimit() {
             const paymentMethod = document.getElementById('paymentMethod').value;
             const warning = document.getElementById('qris-warning');
