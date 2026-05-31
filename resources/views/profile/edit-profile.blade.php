@@ -3,6 +3,7 @@
 @push('styles')
 <link rel="stylesheet" href="{{ asset('css/jaced.css') }}">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
+<link href="https://cdn.jsdelivr.net/npm/tom-select@2.3.1/dist/css/tom-select.bootstrap5.min.css" rel="stylesheet">
 <style>
     * { box-sizing: border-box; }
     html, body { overflow-x: hidden; }
@@ -730,18 +731,18 @@
                             <div class="row">
                                 <div class="col-12">
                                     <label class="form-label">Current Password</label>
-                                    <input type="password" name="current_password" class="jaced-input" placeholder="Masukkan password saat ini">
+                                    <input type="password" name="current_password" class="jaced-input" placeholder="Enter recent password" required>
                                     @error('current_password')
                                         <p style="color:#c0392b; font-size:11px; margin-top:-12px;">{{ $message }}</p>
                                     @enderror
                                 </div>
                                 <div class="col-md-6">
                                     <label class="form-label">New Password</label>
-                                    <input type="password" name="password" class="jaced-input" placeholder="Min. 8 characters">
+                                    <input type="password" name="password" class="jaced-input" placeholder="Min. 8 characters" required>
                                 </div>
                                 <div class="col-md-6">
                                     <label class="form-label">Confirm New Password</label>
-                                    <input type="password" name="password_confirmation" class="jaced-input" placeholder="Repeat new password">
+                                    <input type="password" name="password_confirmation" class="jaced-input" placeholder="Repeat new password" required>
                                 </div>
                             </div>
                             <p class="mb-0 mt-1 d-flex align-items-center gap-2" style="font-size:11px;color:var(--jaced-muted);">
@@ -867,7 +868,7 @@
                                 <span style="color:var(--jaced-input);">|</span>
                                 <span style="font-size:13px; color:var(--jaced-muted);">{{ $addr->receiver_phone }}</span>
                                 @if($addr->is_default)
-                                    <span style="font-size:10px; font-weight:700; color:var(--jaced-sage); background:#e8ede8; border:1px solid var(--jaced-sage); border-radius:999px; padding:2px 10px;">Utama</span>
+                                    <span style="font-size:10px; font-weight:700; color:var(--jaced-sage); background:#e8ede8; border:1px solid var(--jaced-sage); border-radius:999px; padding:2px 10px;">Default</span>
                                 @endif
                             </div>
                         </div>
@@ -884,16 +885,17 @@
                                 </form>
                             @endif
                             @if(!$addr->is_default || $addresses->count() === 1)
-                                <form action="{{ route('profile.addresses.destroy', $addr->id) }}" method="POST" onsubmit="return confirm('Hapus alamat ini?')">
+                                <form action="{{ route('profile.addresses.destroy', $addr->id) }}" method="POST" id="form-delete-{{ $addr->id }}">
                                     @csrf @method('DELETE')
-                                    <button type="submit" class="btn-address-action btn-address-delete">🗑️ Hapus</button>
+                                    <button type="button" class="btn-address-action btn-address-delete" 
+                                        onclick="confirmDeleteAddress({{ $addr->id }})">🗑️ Delete</button>
                                 </form>
                             @endif
                         </div>
                     </div>
                 @empty
                     <div class="text-center py-5" style="color:var(--jaced-muted); font-size:14px;">
-                        Kamu belum memiliki alamat tersimpan.
+                        You don't have any saved addresses yet.
                     </div>
                 @endforelse
 
@@ -901,7 +903,7 @@
                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
                         <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
                     </svg>
-                    Tambah Alamat Baru
+                    Add New Address
                 </button>
             </div>
         </main>
@@ -920,7 +922,7 @@
     <div class="modal-dialog modal-dialog-centered modal-lg">
         <div class="modal-content" style="border-radius: 14px; border: none;">
             <div class="modal-header" style="border-bottom: 1px solid var(--jaced-input); background: #faf9f6;">
-                <h5 class="modal-title fw-bold" id="modalTitle" style="color: var(--jaced-brown-dark);">Tambah Alamat</h5>
+                <h5 class="modal-title fw-bold" id="modalTitle" style="color: var(--jaced-brown-dark);">Add New Address</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
 
@@ -931,21 +933,21 @@
                 <div class="modal-body p-4">
                     <div class="row g-3">
                         <div class="col-12 col-md-6">
-                            <label class="form-label" style="font-size: 13px; font-weight: 600;">Nama Penerima</label>
+                            <label class="form-label" style="font-size: 13px; font-weight: 600;">Receiver Name</label>
                             <input type="text" name="receiver_name" id="f_receiver_name" class="form-control form-control-sm" required>
                         </div>
                         <div class="col-12 col-md-6">
-                            <label class="form-label" style="font-size: 13px; font-weight: 600;">Nomor Telepon</label>
+                            <label class="form-label" style="font-size: 13px; font-weight: 600;">Phone Number</label>
                             <input type="text" name="receiver_phone" id="f_receiver_phone" class="form-control form-control-sm" required>
                         </div>
                         <div class="col-12">
-                            <label class="form-label" style="font-size: 13px; font-weight: 600;">Alamat Lengkap</label>
+                            <label class="form-label" style="font-size: 13px; font-weight: 600;">Full Address</label>
                             <input type="text" name="address_line1" id="f_address_line1" class="form-control form-control-sm" required>
                         </div>
                         <div class="col-12 col-md-6">
-                            <label class="form-label" style="font-size: 13px; font-weight: 600;">Provinsi</label>
+                            <label class="form-label" style="font-size: 13px; font-weight: 600;">Province</label>
                             <select name="province_code" id="f_province" class="form-select form-select-sm" onchange="loadCities(this.value)" required>
-                                <option value="">Pilih Provinsi</option>
+                                <option value="">Select Province</option>
                                 @foreach ($provinces as $p)
                                     <option value="{{ $p->code }}">{{ $p->name }}</option>
                                 @endforeach
@@ -953,36 +955,36 @@
                             <input type="hidden" name="province_name" id="f_province_name">
                         </div>
                         <div class="col-12 col-md-6">
-                            <label class="form-label" style="font-size: 13px; font-weight: 600;">Kota / Kabupaten</label>
+                            <label class="form-label" style="font-size: 13px; font-weight: 600;">City / Regency</label>
                             <select name="city_code" id="f_city" class="form-select form-select-sm" onchange="loadDistricts(this.value)" disabled required>
-                                <option value="">Pilih Kota</option>
+                                <option value="">Select City</option>
                             </select>
                             <input type="hidden" name="city_name" id="f_city_name">
                         </div>
                         <div class="col-12 col-md-4">
-                            <label class="form-label" style="font-size: 13px; font-weight: 600;">Kecamatan</label>
+                            <label class="form-label" style="font-size: 13px; font-weight: 600;">District</label>
                             <select name="district_code" id="f_district" class="form-select form-select-sm" onchange="loadVillages(this.value)" disabled>
-                                <option value="">Pilih Kecamatan</option>
+                                <option value="">Select District</option>
                             </select>
                             <input type="hidden" name="district_name" id="f_district_name">
                         </div>
                         <div class="col-12 col-md-4">
-                            <label class="form-label" style="font-size: 13px; font-weight: 600;">Kelurahan</label>
+                            <label class="form-label" style="font-size: 13px; font-weight: 600;">Village</label>
                             <select name="village_code" id="f_village" class="form-select form-select-sm" disabled>
-                                <option value="">Pilih Kelurahan</option>
+                                <option value="">Select Village</option>
                             </select>
                             <input type="hidden" name="village_name" id="f_village_name">
                         </div>
                         <div class="col-12 col-md-4">
-                            <label class="form-label" style="font-size: 13px; font-weight: 600;">Kode Pos</label>
+                            <label class="form-label" style="font-size: 13px; font-weight: 600;">Postal Code</label>
                             <input type="text" name="postal_code" id="f_postal_code" class="form-control form-control-sm" required>
                         </div>
                     </div>
                 </div>
 
                 <div class="modal-footer" style="border-top: 1px solid var(--jaced-input); background: #faf9f6;">
-                    <button type="button" class="btn btn-sm btn-light border" data-bs-dismiss="modal">Batal</button>
-                    <button type="submit" class="btn btn-sm text-white" style="background-color: var(--jaced-sage);">Simpan Alamat</button>
+                    <button type="button" class="btn btn-sm btn-light border" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-sm text-white" style="background-color: var(--jaced-sage);">Save Address</button>
                 </div>
             </form>
         </div>
@@ -1019,6 +1021,7 @@
 
 @push('scripts')
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script src="https://cdn.jsdelivr.net/npm/tom-select@2.3.1/dist/js/tom-select.complete.min.js"></script>
 <script>
     function showPanel(name, tabEl) {
         // sembunyikan semua panel
@@ -1104,19 +1107,77 @@
 
     const bsModal = new bootstrap.Modal(document.getElementById('addressModal'));
 
+    // TomSelect untuk Province di profile modal
+    const profileProvinceTS = new TomSelect('#f_province', {
+        placeholder: 'Pilih Provinsi',
+        allowEmptyOption: false,
+        selectOnTab: true,
+        closeAfterSelect: true,
+        maxOptions: null,
+        onItemAdd: function(value) {
+            this._addedViaKeyboard = true; // ← tandai
+            this.blur();
+            const opt = document.querySelector(`#f_province option[value="${value}"]`);
+            document.getElementById('f_province_name').value = opt?.textContent?.trim() || '';
+            if (value) loadCities(value, true);
+        },
+        onChange: function(value) {
+            if (this._addedViaKeyboard) {
+                this._addedViaKeyboard = false; // ← reset, skip onChange
+                return;
+            }
+            const opt = document.querySelector(`#f_province option[value="${value}"]`);
+            document.getElementById('f_province_name').value = opt?.textContent?.trim() || '';
+            if (value) loadCities(value, false);
+        }
+    });
+
+    function initProfileTS(id, onChangeCb) {
+        if (window[id + '_ts']) {
+            window[id + '_ts'].destroy();
+            window[id + '_ts'] = null;
+        }
+        window[id + '_ts'] = new TomSelect('#' + id, {
+            placeholder: 'Pilih...',
+            allowEmptyOption: false,
+            selectOnTab: true,
+            closeAfterSelect: true,
+            maxOptions: null,
+            onItemAdd: function(value) {
+                this._addedViaKeyboard = true; // ← tandai
+                this.blur();
+                if (onChangeCb) onChangeCb(value, true);
+            },
+            onChange: function(value) {
+                if (this._addedViaKeyboard) {
+                    this._addedViaKeyboard = false; // ← skip, sudah dihandle onItemAdd
+                    return;
+                }
+                if (value && onChangeCb) onChangeCb(value, false);
+            }
+        });
+        return window[id + '_ts'];
+    }
+
     function openAddModal() {
         document.getElementById('modalTitle').innerText = 'Tambah Alamat Baru';
         document.getElementById('addressForm').action = '{{ route('profile.addresses.store') }}';
         document.getElementById('methodSpoof').innerHTML = '';
 
-        // Reset semua field
-        ['f_receiver_name','f_receiver_phone','f_address_line1','f_postal_code','f_province_name','f_city_name','f_district_name','f_village_name'].forEach(id => {
-            document.getElementById(id).value = '';
+        profileProvinceTS.setValue('', true);
+        ['f_city', 'f_district', 'f_village'].forEach(id => {
+            if (window[id + '_ts']) {
+                window[id + '_ts'].destroy();
+                window[id + '_ts'] = null;
+            }
         });
-        document.getElementById('f_province').value = '';
         resetSelect('f_city', 'Pilih Kota', true);
         resetSelect('f_district', 'Pilih Kecamatan', true);
         resetSelect('f_village', 'Pilih Kelurahan', true);
+
+        ['f_receiver_name','f_receiver_phone','f_address_line1','f_postal_code','f_province_name','f_city_name','f_district_name','f_village_name'].forEach(id => {
+            document.getElementById(id).value = '';
+        });
 
         bsModal.show();
     }
@@ -1138,53 +1199,60 @@
         // Set province
         document.getElementById('f_province').value = addr.province_code;
 
-        // Set kota (pre-fill tanpa fetch ulang)
+        profileProvinceTS.setValue(addr.province_code, true);
+
         const citySelect = document.getElementById('f_city');
-        citySelect.innerHTML = `<option value="${addr.city_code}" selected>${addr.city_name}</option>`;
+        citySelect.innerHTML = `<option value="${addr.city_code}">${addr.city_name}</option>`;
         citySelect.disabled = false;
+        initProfileTS('f_city', function(value) {
+            const opt = document.querySelector(`#f_city option[value="${value}"]`);
+            document.getElementById('f_city_name').value = opt?.textContent?.trim() || '';
+            document.getElementById('f_district_name').value = '';
+            document.getElementById('f_village_name').value = '';
+            loadDistricts(value);
+        });
+        window['f_city_ts']?.setValue(addr.city_code, true);
 
         const distSelect = document.getElementById('f_district');
-        distSelect.innerHTML = `<option value="${addr.district_code}" selected>${addr.district_name}</option>`;
+        distSelect.innerHTML = `<option value="${addr.district_code}">${addr.district_name}</option>`;
         distSelect.disabled = false;
+        initProfileTS('f_district', function(value) {
+            const opt = document.querySelector(`#f_district option[value="${value}"]`);
+            document.getElementById('f_district_name').value = opt?.textContent?.trim() || '';
+            document.getElementById('f_village_name').value = '';
+            loadVillages(value);
+        });
+        window['f_district_ts']?.setValue(addr.district_code, true);
 
         const villSelect = document.getElementById('f_village');
-        villSelect.innerHTML = `<option value="${addr.village_code}" selected>${addr.village_name}</option>`;
+        villSelect.innerHTML = `<option value="${addr.village_code}">${addr.village_name}</option>`;
         villSelect.disabled = false;
+        initProfileTS('f_village', function(value) {
+            const opt = document.querySelector(`#f_village option[value="${value}"]`);
+            document.getElementById('f_village_name').value = opt?.textContent?.trim() || '';
+        });
+        window['f_village_ts']?.setValue(addr.village_code, true);
 
         bsModal.show();
     }
 
     function resetSelect(id, placeholder, disable) {
+        if (window[id + '_ts']) {
+            window[id + '_ts'].destroy();
+            window[id + '_ts'] = null;
+        }
         const el = document.getElementById(id);
         el.innerHTML = `<option value="">${placeholder}</option>`;
         el.disabled = disable;
     }
 
-    // Update hidden name fields saat dropdown berubah
-    document.getElementById('f_province').addEventListener('change', function() {
-        const opt = this.options[this.selectedIndex];
-        document.getElementById('f_province_name').value = opt.text !== 'Pilih Provinsi' ? opt.text : '';
-    });
-
-    document.getElementById('f_city').addEventListener('change', function() {
-        const opt = this.options[this.selectedIndex];
-        document.getElementById('f_city_name').value = opt.text !== 'Pilih Kota' ? opt.text : '';
-    });
-
-    document.getElementById('f_district').addEventListener('change', function() {
-        const opt = this.options[this.selectedIndex];
-        document.getElementById('f_district_name').value = opt.text !== 'Pilih Kecamatan' ? opt.text : '';
-    });
-
-    document.getElementById('f_village').addEventListener('change', function() {
-        const opt = this.options[this.selectedIndex];
-        document.getElementById('f_village_name').value = opt.text !== 'Pilih Kelurahan' ? opt.text : '';
-    });
-
-    function loadCities(provinceCode) {
+    function loadCities(provinceCode, isKeyboard = false) {
         resetSelect('f_city', 'Pilih Kota', true);
         resetSelect('f_district', 'Pilih Kecamatan', true);
         resetSelect('f_village', 'Pilih Kelurahan', true);
+        document.getElementById('f_city_name').value = '';
+        document.getElementById('f_district_name').value = '';
+        document.getElementById('f_village_name').value = '';
         if (!provinceCode) return;
 
         fetch(`/api/cities?province_code=${provinceCode}`)
@@ -1193,12 +1261,22 @@
                 const sel = document.getElementById('f_city');
                 cities.forEach(c => sel.innerHTML += `<option value="${c.code}">${c.name}</option>`);
                 sel.disabled = false;
+                initProfileTS('f_city', function(value, kb) {
+                    const opt = document.querySelector(`#f_city option[value="${value}"]`);
+                    document.getElementById('f_city_name').value = opt?.textContent?.trim() || '';
+                    document.getElementById('f_district_name').value = '';
+                    document.getElementById('f_village_name').value = '';
+                    loadDistricts(value, kb);
+                });
+                if (isKeyboard) setTimeout(() => window['f_city_ts']?.open(), 150); // ← auto open
             });
     }
 
-    function loadDistricts(cityCode) {
+    function loadDistricts(cityCode, isKeyboard = false) {
         resetSelect('f_district', 'Pilih Kecamatan', true);
         resetSelect('f_village', 'Pilih Kelurahan', true);
+        document.getElementById('f_district_name').value = '';
+        document.getElementById('f_village_name').value = '';
         if (!cityCode) return;
 
         fetch(`/api/districts?city_code=${cityCode}`)
@@ -1207,19 +1285,46 @@
                 const sel = document.getElementById('f_district');
                 districts.forEach(d => sel.innerHTML += `<option value="${d.code}">${d.name}</option>`);
                 sel.disabled = false;
+                initProfileTS('f_district', function(value, kb) {
+                    const opt = document.querySelector(`#f_district option[value="${value}"]`);
+                    document.getElementById('f_district_name').value = opt?.textContent?.trim() || '';
+                    document.getElementById('f_village_name').value = '';
+                    loadVillages(value, kb);
+                });
+                if (isKeyboard) setTimeout(() => window['f_district_ts']?.open(), 150); // ← auto open
             });
     }
 
-    function loadVillages(districtCode) {
+    function loadVillages(districtCode, isKeyboard = false) {
         resetSelect('f_village', 'Pilih Kelurahan', true);
+        document.getElementById('f_village_name').value = '';
         if (!districtCode) return;
 
         fetch(`/api/villages?district_code=${districtCode}`)
             .then(r => r.json())
             .then(villages => {
                 const sel = document.getElementById('f_village');
-                villages.forEach(v => sel.innerHTML += `<option value="${v.code}">${v.name}</option>`);
+                villages.forEach(v => sel.innerHTML += `<option value="${v.code}" data-id="${v.id}">${v.name}</option>`); // ← tambah data-id
                 sel.disabled = false;
+                initProfileTS('f_village', function(value) {
+                    const originalSelect = document.getElementById('f_village');
+                    const selectedOption = originalSelect.querySelector(`option[value="${value}"]`);
+                    
+                    document.getElementById('f_village_name').value = selectedOption?.textContent?.trim() || '';
+
+                    // ← Autofill kode pos
+                    const villageId = selectedOption?.getAttribute('data-id');
+                    if (!villageId) return;
+
+                    fetch(`/api/postal-code?village_id=${villageId}`)
+                        .then(res => res.json())
+                        .then(codes => {
+                            if (codes.length >= 1) {
+                                document.getElementById('f_postal_code').value = codes[0];
+                            }
+                        });
+                });
+                if (isKeyboard) setTimeout(() => window['f_village_ts']?.open(), 150);
             });
     }
     // Toast notification
@@ -1260,6 +1365,31 @@
         document.getElementById('btn-cancel-profile').style.display = 'none';
     }
 
+    function confirmDeleteAddress(id) {
+        Swal.fire({
+            width: 300,
+            title: 'Delete Address?',
+            text: 'This address will be permanently deleted.',
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonText: 'Yes, delete it', 
+            cancelButtonText: 'Cancel',
+            buttonsStyling: false,
+            customClass: {
+                popup:         'swal-jaced',
+                title:         'swal-jaced-title',
+                htmlContainer: 'swal-jaced-text',
+                confirmButton: 'swal-btn-confirm',
+                cancelButton:  'swal-btn-cancel',
+                icon:          'swal-jaced-icon',
+            },
+        }).then(result => {
+            if (result.isConfirmed) {
+                document.getElementById('form-delete-' + id).submit();
+            }
+        });
+    }
+
     function confirmDeleteAccount() {
         Swal.fire({
             width: 360,
@@ -1280,6 +1410,12 @@
             },
         });
     }
+
+    @if(session('open_panel'))
+        document.addEventListener('DOMContentLoaded', function() {
+            showPanel('{{ session('open_panel') }}', null);
+        });
+    @endif
 
     // Auto expand password section kalau ada error
     @if($errors->has('current_password') || $errors->has('password'))

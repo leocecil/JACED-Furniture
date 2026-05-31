@@ -93,6 +93,7 @@ Route::middleware(['role:customer'])->group(function() {
     Route::get('/api/cities', [OrderController::class, 'getCities'])->name('api.cities');
     Route::get('/api/districts', [OrderController::class, 'getDistricts'])->name('api.districts');
     Route::get('/api/villages', [OrderController::class, 'getVillages'])->name('api.villages');
+    Route::get('/api/postal-code', [OrderController::class, 'getPostalCode']);
     Route::get('/api/shipping-cost', [OrderController::class, 'getShippingCost']);
 
     // Payment Gateway Status Callback

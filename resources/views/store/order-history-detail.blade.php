@@ -502,14 +502,23 @@
             </p>
 
             {{-- Status Info Banner --}}
-            @if ($order->status === 'disputed')
+            @if ($order->status === 'disputed' || $order->refund_status === 'completed')
                 @if($dispute?->resolution_type === 'refund' && $dispute?->status === 'resolved')
                     <div style="background:#E0F7FA; border-radius:10px; padding:14px 18px; margin-bottom:24px; display:flex; align-items:center; gap:12px;">
                         <span style="font-size:22px;">💰</span>
                         <div>
-                            <p style="font-size:13px; color:#006064; font-weight:600; margin:0 0 2px;">Refund Approved</p>
-                            <p style="font-size:12px; color:var(--jaced-muted); margin:0;">
-                                Refund sedang diproses. Estimasi 3-5 hari kerja.
+                            <p style="font-size:13px; color:#006064; font-weight:600; margin:0 0 4px;">Refund Approved</p>
+                            <p style="font-size:12px; color:var(--jaced-muted); margin:0 0 2px;">
+                                @if($dispute->refund_amount >= ($order->total_price - $order->delivery_fee - $order->service_tax + $order->discount_amount + $order->tier_discount_amount))
+                                    Full refund sebesar
+                                @else
+                                    Partial refund sebesar
+                                @endif
+                                <strong>Rp {{ number_format($dispute->refund_amount, 0, ',', '.') }}</strong>
+                                sedang diproses.
+                            </p>
+                            <p style="font-size:11px; color:var(--jaced-muted); margin:0;">
+                                Estimasi 3–5 hari kerja.
                             </p>
                         </div>
                     </div>
@@ -805,7 +814,7 @@
                                             <select name="type" class="form-select mt-1" style="font-size: 13px;">
                                                 <option value="missing">Item Not Received / Lost</option>
                                                 <option value="damaged">Item Damaged</option>
-                                                <option value="wrong_item">Wrong Item Sent</option>
+                                            
                                             </select>
                                         </div>
                                         <div class="mb-3">
@@ -927,7 +936,6 @@
                     <select name="type" class="form-select" style="font-size:13px;" onchange="togglePhotoRequired(this.value)">
                         <option value="missing">Item Not Received / Lost</option>
                         <option value="damaged">Item Damaged</option>
-                        <option value="wrong_item">Wrong Item Sent</option>
                     </select>
                 </div>
                 <div class="mb-3">
