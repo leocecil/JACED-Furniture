@@ -131,6 +131,7 @@ Route::middleware(['role:admin'])->group(function() {
     Route::put('/admin/profile/info',       [AdminProfileController::class, 'updateInfo'])->name('admin.profile.info');
     Route::put('/admin/profile/password',   [AdminProfileController::class, 'updatePassword'])->name('admin.profile.password');
     Route::post('/admin/profile/avatar',    [AdminProfileController::class, 'uploadAvatar'])->name('admin.profile.avatar');
+    Route::post('/profile/verify-password', [AdminProfileController::class, 'verifyPassword'])->name('admin.profile.verify-password');
 
     // Admin Dashboard Summary
     Route::get('/admin/dashboard', [DashboardController::class, 'index'])->name('admin.dashboard');

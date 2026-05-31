@@ -43,6 +43,24 @@ class AdminProfileController extends Controller
     }
 
     /**
+     * AJAX: verify current password before allowing change.
+     * Returns JSON { valid: bool, message?: string }
+     */
+    public function verifyPassword(Request $request)
+    {
+        $request->validate([
+            'current_password' => ['required', 'string'],
+        ]);
+
+        $valid = Hash::check($request->current_password, Auth::user()->password);
+
+        return response()->json([
+            'valid'   => $valid,
+            'message' => $valid ? null : 'The current password is incorrect.',
+        ]);
+    }
+
+    /**
      * Update password.
      */
     public function updatePassword(Request $request)
@@ -55,7 +73,7 @@ class AdminProfileController extends Controller
         $user = Auth::user();
 
         if (!Hash::check($request->current_password, $user->password)) {
-            return back()->withErrors(['current_password' => 'The current password is incorrect.'])->withInput();
+            return back()->withErrors(['current_password' => 'The current password is incorrect.']);
         }
 
         $user->update([
@@ -76,7 +94,7 @@ class AdminProfileController extends Controller
 
         $user = Auth::user();
 
-        // Delete old avatar if it exists (and is not the default)
+        // Delete old avatar if it exists
         if ($user->avatar && Storage::disk('public')->exists($user->avatar)) {
             Storage::disk('public')->delete($user->avatar);
         }
@@ -85,7 +103,6 @@ class AdminProfileController extends Controller
 
         $user->update(['avatar' => $path]);
 
-        // Mark avatar_rewarded if not yet done
         if (!$user->avatar_rewarded) {
             $user->update(['avatar_rewarded' => true]);
         }
