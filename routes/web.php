@@ -1,6 +1,7 @@
 ﻿<?php
 
 use App\Http\Controllers\AboutController;
+use App\Http\Controllers\AdminProfileController;
 use App\Http\Controllers\AnalyticsController;
 use App\Http\Controllers\Auth\GoogleController;
 use App\Http\Controllers\AuthController;
@@ -125,6 +126,12 @@ Route::post('/admin/logout', [AuthController::class, 'logout_admin'])->name('adm
 
 // ── MIDDLEWARE ADMIN ROLE ──
 Route::middleware(['role:admin'])->group(function() {
+    // Admin Profile Management
+    Route::get('/admin/profile',            [AdminProfileController::class, 'index'])->name('admin.profile');
+    Route::put('/admin/profile/info',       [AdminProfileController::class, 'updateInfo'])->name('admin.profile.info');
+    Route::put('/admin/profile/password',   [AdminProfileController::class, 'updatePassword'])->name('admin.profile.password');
+    Route::post('/admin/profile/avatar',    [AdminProfileController::class, 'uploadAvatar'])->name('admin.profile.avatar');
+
     // Admin Dashboard Summary
     Route::get('/admin/dashboard', [DashboardController::class, 'index'])->name('admin.dashboard');
     Route::get('/admin/dashboard/sales-chart', [DashboardController::class, 'salesChart'])->name('admin.dashboard.salesChart');
