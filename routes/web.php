@@ -7,6 +7,7 @@ use App\Http\Controllers\Auth\GoogleController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\CartController;
 use App\Http\Controllers\CategoryController;
+use App\Http\Controllers\ChatbotController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\InventoryController;
 use App\Http\Controllers\OrderController;
@@ -42,6 +43,9 @@ Route::get('/about', [AboutController::class, 'index'])->name('about');
 Route::get('/product/{slug}', [ProductController::class, 'show'])->name('product.show');
 Route::get('/api/products/batch', [ProductController::class, 'batchProducts']);
 Route::get('/wishlist', function () { return view('store.wishlist'); })->name('wishlist');
+
+// Chatbot
+Route::post('/chatbot/chat', [ChatbotController::class, 'chat'])->middleware('throttle:30,1');
 
 // ── MIDDLEWARE CUSTOMER ROLE ──
 Route::middleware(['role:customer'])->group(function() {
@@ -81,7 +85,7 @@ Route::middleware(['role:customer'])->group(function() {
     Route::delete('/cart/{id}', [CartController::class, 'delete'])->name('cart.delete');
     Route::get('/cart/sidebar', [CartController::class, 'sidebar'])->name('cart.sidebar');
 
-    // WISHLIST (DB-based via WishlistController)
+    // WISHLIST (DB-based)
     Route::get('/wishlist/items', [WishlistController::class, 'items']);
     Route::post('/wishlist/toggle', [WishlistController::class, 'toggle'])->name('wishlist.toggle');
     Route::delete('/wishlist/{id}', [WishlistController::class, 'remove'])->name('wishlist.remove');
