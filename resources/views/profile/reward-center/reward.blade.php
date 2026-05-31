@@ -9,6 +9,17 @@
         min-height: 100vh;
     }
 
+    @keyframes pageIn {
+        from { opacity: 0; transform: translateY(16px); }
+        to   { opacity: 1; transform: translateY(0); }
+    }
+    .page-enter {
+        animation: pageIn 0.45s cubic-bezier(0.25, 1, 0.5, 1) both;
+    }
+    .page-enter-delay-1 { animation-delay: 0.08s; }
+    .page-enter-delay-2 { animation-delay: 0.16s; }
+    .page-enter-delay-3 { animation-delay: 0.24s; }
+
     /* PREMIUM DYNAMIC GRADIENT TIER CARDS */
     .premium-tier-card {
         border-radius: 24px;
@@ -17,58 +28,69 @@
         overflow: hidden;
         color: white;
         box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
-        transition: all 0.5s cubic-bezier(0.25, 0.8, 0.25, 1);
+        transition: box-shadow 0.3s ease;
     }
 
     /* Efek kilau eksklusif di background */
-    .premium-tier-card::before {
-        content: '';
-        position: absolute;
-        top: -50%; right: -30%;
-        width: 300px; height: 300px;
-        background: rgba(255, 255, 255, 0.06);
-        border-radius: 50%;
-        filter: blur(40px);
+    .premium-tier-card > * { position: relative; z-index: 2; }
+
+    .premium-tier-card .tier-badge,
+    .premium-tier-card .small,
+    .premium-tier-card .stage-tab-pill {
+        text-shadow: 0 1px 4px rgba(0,0,0,0.2);
     }
 
     /* Warna Gradasi Tiap Stage */
-    .tier-gradient-bronze { background: linear-gradient(135deg, var(--jaced-caramel), #6E4524); }
-    .tier-gradient-silver { background: linear-gradient(135deg, #8A95A5, #4A5361); }
-    .tier-gradient-gold { background: linear-gradient(135deg, #DFBA73, #A17B30); }
-    .tier-gradient-platinum { background: linear-gradient(135deg, #2D3748, #1A202C); }
-
-    /* OVERLAY JIKA PREVIEW TIER YANG TERKUNCI */
-    .tier-locked-overlay {
-        position: absolute;
-        top: 0; left: 0; right: 0; bottom: 0;
-        background: rgba(0, 0, 0, 0.45);
-        backdrop-filter: blur(6px);
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-        z-index: 30;
-        opacity: 0;
-        pointer-events: none;
-        transition: opacity 0.4s ease;
+    .tier-gradient-bronze { 
+        /* background: linear-gradient(160deg, #e8a96a 0%, #c47a35 25%, #8B5E2A 55%, #6E4524 75%, #9d6b38 100%); */
     }
-    .premium-tier-card.is-preview-locked .tier-locked-overlay {
-        opacity: 1;
-        pointer-events: auto;
+    .tier-gradient-silver { 
+        /* background: linear-gradient(160deg, #d0d8e4 0%, #9aa5b4 25%, #5a6472 55%, #3a4250 75%, #7a8898 100%); */
+    }
+    .tier-gradient-gold { 
+        /* background: linear-gradient(160deg, #f5e070 0%, #d4a825 25%, #9a7510 55%, #7a5c08 75%, #c49820 100%); */
+    }
+    .tier-gradient-platinum { 
+        /* background: linear-gradient(160deg, #6b7280 0%, #374151 25%, #1a202c 55%, #0d1117 75%, #4a5568 100%); */
     }
 
     .tier-badge {
-        background: rgba(255, 255, 255, 0.15);
-        backdrop-filter: blur(6px);
-        border: 1px solid rgba(255, 255, 255, 0.2);
         padding: 6px 14px;
         border-radius: 999px;
         font-size: 11px;
-        font-weight: 600;
+        font-weight: 700;
         letter-spacing: 0.05em;
         display: inline-flex;
         align-items: center;
         gap: 6px;
+    }
+
+    .tier-badge.status-current {
+        background: rgba(255,255,255,0.2);
+        border: 1px solid rgba(255,255,255,0.4);
+        color: white;
+    }
+    .tier-badge.status-unlocked {
+        background: rgba(255,255,255,0.12);
+        border: 1px solid rgba(255,255,255,0.25);
+        color: rgba(255,255,255,0.8);
+    }
+    .tier-badge.status-locked {
+        background: rgba(0,0,0,0.25);
+        border: 1px solid rgba(255,255,255,0.15);
+        color: rgba(255,255,255,0.6);
+    }
+
+    .premium-tier-card.is-locked .tier-title,
+    .premium-tier-card.is-locked .tier-progress-wrap,
+    .premium-tier-card.is-locked .stage-tab-pill:not(.active-pill),
+    .premium-tier-card.is-locked p.small {
+        opacity: 0.45;
+    }
+
+    .premium-tier-card.is-locked .tier-title {
+        opacity: 0.5;
+        filter: grayscale(0.3);
     }
 
     .tier-title {
@@ -77,11 +99,12 @@
         letter-spacing: -0.02em;
         margin-top: 15px;
         margin-bottom: 5px;
+        text-shadow: 0 1px 8px rgba(0,0,0,0.25);
     }
 
     /* PROGRESS BAR BANNER */
     .tier-progress-wrap {
-        max-width: 350px;
+        max-width: 420px;
         margin-top: 20px;
     }
     .custom-progress {
@@ -121,41 +144,51 @@
     }
     .btn-banner-outline:hover { background: rgba(255, 255, 255, 0.2); color: white; }
 
-    /* STAGE TABS UNDER BANNER */
-    .stage-tabs-container {
-        display: flex;
-        gap: 10px;
-        background: var(--jaced-cream);
-        padding: 6px;
-        border-radius: 14px;
-        margin-top: -15px;
-        margin-bottom: 35px;
-        position: relative;
-        z-index: 40;
-        max-width: 450px;
-        box-shadow: 0 4px 15px rgba(0,0,0,0.02);
-    }
-    .stage-tab-new {
-        flex: 1;
-        text-align: center;
-        padding: 8px 12px;
-        border-radius: 10px;
-        font-size: 12px;
+    .btn-view-all-link {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        font-size: 13px;
         font-weight: 600;
-        color: var(--jaced-muted);
+        color: var(--jaced-brown-dark);
+        text-decoration: none;
+        padding: 6px 0;
+        border-bottom: none;
+        position: relative;
+        transition: color 0.2s ease;
+    }
+    .btn-view-all-link::after {
+        content: '';
+        position: absolute;
+        bottom: 0; left: 0;
+        width: 0; height: 1.5px;
+        background: var(--jaced-caramel);
+        transition: width 0.25s ease;
+    }
+    .btn-view-all-link:hover { color: var(--jaced-caramel); }
+    .btn-view-all-link:hover::after { width: 100%; }
+
+    /* STAGE TABS UNDER BANNER */
+    .stage-tab-pill {
+        padding: 5px 14px;
+        border-radius: 999px;
+        font-size: 11px;
+        font-weight: 600;
+        border: 1px solid rgba(255,255,255,0.3);
+        background: rgba(255,255,255,0.1);
+        color: rgba(255,255,255,0.7);
         cursor: pointer;
-        transition: all 0.3s ease;
-        border: none;
-        background: transparent;
+        transition: all 0.2s ease;
+        letter-spacing: 0.03em;
     }
-    .stage-tab-new.active-tab {
+    .stage-tab-pill:hover {
+        background: rgba(255,255,255,0.2);
+        color: white;
+    }
+    .stage-tab-pill.active-pill {
         background: white;
-        color: var(--jaced-dark);
-        box-shadow: 0 2px 8px rgba(0,0,0,0.05);
-    }
-    .stage-tab-new:hover:not(.active-tab) {
-        background: rgba(255, 255, 255, 0.4);
-        color: var(--jaced-dark);
+        color: var(--jaced-brown-dark);
+        border-color: white;
     }
 
     /* LAYOUT CARDS BELOW */
@@ -246,6 +279,15 @@
         width: 100%;
         cursor: not-allowed;
     }
+
+    @media (max-width: 767px) {
+        .btn-banner-primary,
+        .btn-banner-outline {
+            flex: 1;
+            text-align: center;
+            justify-content: center;
+        }
+    }
 </style>
 @endpush
 
@@ -269,7 +311,7 @@
             animation: slideIn 0.3s ease;
         ">
             <div style="width: 36px; height: 36px; background: #edf7ed; border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
-                ✅
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#4a7c59" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
             </div>
             <div>
                 <p class="mb-0 fw-bold" style="font-size: 13px; color: var(--jaced-brown-dark);">Success!</p>
@@ -304,22 +346,15 @@
         </a>
 
         {{-- PAGE HEADER TITLE --}}
-        <div class="mb-4 mt-2">
+        <div class="mb-4 mt-2 page-enter">
             <h1 class="fw-bold tracking-tight" style="color: var(--jaced-brown-dark); font-size: 2.25rem;">Reward Center</h1>
             <p class="text-jaced-muted small">Accumulate points on every furniture purchase and tier up for VIP rewards.</p>
         </div>
 
         {{-- MAIN BANNER OVERHAUL (DENGAN IDENTITAS ASLI & OVERLAY PREVIEW) --}}
-        <div id="mainTierCard" class="premium-tier-card tier-gradient-{{ strtolower($stage) }} mb-4">
-            
-            {{-- BLURRED LOCK OVERLAY --}}
-            {{-- <div class="tier-locked-overlay">
-                <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.25" stroke-linecap="round" stroke-linejoin="round" class="mb-2 text-white-75"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
-                <h5 class="fw-bold mb-1 text-white" id="lockOverlayTitle">Silver Stage Locked</h5>
-                <p class="small text-white-50 mb-3" id="lockOverlayDesc">This tier will unlock automatically once points criteria met.</p>
-                <button class="btn btn-sm btn-light fw-bold px-3 py-1.5" style="border-radius: 8px; font-size: 11px;" onclick="resetToCurrentTier()">Return to My Current Stage</button>
-            </div> --}}
-
+        <div id="mainTierCard" class="premium-tier-card mb-4 page-enter">
+            <div id="tierLayerA" style="position:absolute; inset:0; border-radius:24px; z-index:0; transition:opacity 0.5s ease; pointer-events:none;"></div>
+            <div id="tierLayerB" style="position:absolute; inset:0; border-radius:24px; z-index:0; transition:opacity 0.5s ease; pointer-events:none; opacity:0;"></div>
             <div class="row align-items-center g-4">
                 
                 {{-- Sisi Kiri: Member Level & Progress --}}
@@ -331,15 +366,21 @@
                     
                     <h2 class="tier-title" id="tierCardTitle">{{ strtoupper($stage) }} MEMBER</h2>
                     <p class="small text-white-75 mb-0">Active Tier Period: Valid until 31 Dec 2026</p>
+                    <div class="d-flex gap-2 flex-wrap mt-3">
+                        <button id="tab-Bronze"   class="stage-tab-pill {{ $stage == 'Bronze'   ? 'active-pill' : '' }}" onclick="switchTierPreview('Bronze')">Bronze</button>
+                        <button id="tab-Silver"   class="stage-tab-pill {{ $stage == 'Silver'   ? 'active-pill' : '' }}" onclick="switchTierPreview('Silver')">Silver</button>
+                        <button id="tab-Gold"     class="stage-tab-pill {{ $stage == 'Gold'     ? 'active-pill' : '' }}" onclick="switchTierPreview('Gold')">Gold</button>
+                        <button id="tab-Platinum" class="stage-tab-pill {{ $stage == 'Platinum' ? 'active-pill' : '' }}" onclick="switchTierPreview('Platinum')">Platinum</button>
+                    </div>
 
                     {{-- Dinamis Progress Bar --}}
                     <div class="tier-progress-wrap">
                         <div class="custom-progress">
                             <div id="tierProgressBar" class="custom-progress-bar" style="width: 0%;"></div>
                         </div>
-                        <div class="d-flex justify-content-between text-white-75 small mt-2">
-                            <span>Benefits Status: Active</span>
-                            <span id="tierPointsInfo" class="fw-semibold"></span>
+                        <div class="d-flex justify-content-between text-white-75 small mt-2" style="gap: 12px;">
+                            <span id="benefitStatusLabel" style="white-space: nowrap;">Benefits Status: Active</span>
+                            <span id="tierPointsInfo" class="fw-semibold" style="white-space: nowrap; text-align: right;"></span>
                         </div>
                     </div>
                 </div>
@@ -350,6 +391,9 @@
                     <div class="d-flex align-items-baseline justify-content-md-end gap-2 mb-1">
                         <h1 class="display-4 fw-bold mb-0 text-white" style="line-height: 1;">{{ number_format($currentPoints) }}</h1>
                         <span class="h5 mb-0 text-white-75">Pts</span>
+                    </div>
+                    <div id="tierBenefitBadge" class="mb-3">
+                        <span style="background:rgba(255,255,255,0.15); border:1px solid rgba(255,255,255,0.25); padding:5px 12px; border-radius:8px; font-size:11px; font-weight:700; color:white; letter-spacing:0.03em;"></span>
                     </div>
                     <p class="text-white-50 small mb-4">
                         Lifetime Accumulation: <strong>{{ number_format($accumulatedPoints) }} Pts</strong>
@@ -372,20 +416,12 @@
             </div>
         </div>
 
-        {{-- STAGE TABS SELECTOR LOOK --}}
-        <div class="stage-tabs-container">
-            <button id="tab-Bronze"   class="stage-tab-new {{ $stage == 'Bronze'   ? 'active-tab' : '' }}" onclick="switchTierPreview('Bronze')">Bronze</button>
-            <button id="tab-Silver"   class="stage-tab-new {{ $stage == 'Silver'   ? 'active-tab' : '' }}" onclick="switchTierPreview('Silver')">Silver</button>
-            <button id="tab-Gold"     class="stage-tab-new {{ $stage == 'Gold'     ? 'active-tab' : '' }}" onclick="switchTierPreview('Gold')">Gold</button>
-            <button id="tab-Platinum" class="stage-tab-new {{ $stage == 'Platinum' ? 'active-tab' : '' }}" onclick="switchTierPreview('Platinum')">Platinum</button>
-        </div>
-
         {{-- BOTTOM CONTROLLER LAYOUT --}}
-        <div class="row g-4 align-items-start">
+        <div class="row g-4 align-items-start page-enter page-enter-delay-2">
             
             {{-- LAYOUT KIRI: POINT HISTORY --}}
             <div class="col-12 col-lg-5">
-                <div class="premium-box">
+                <div class="premium-box d-flex flex-column" style="height:100%;">
                     <div class="d-flex align-items-center justify-content-between mb-4">
                         <div class="d-flex align-items-center gap-2">
                             <h3 class="section-title-new mb-0">Point History</h3>
@@ -393,7 +429,7 @@
                         </div>
                     </div>
 
-                    <div class="history-list mb-3">
+                    <div class="history-list flex-grow-1" style="overflow-y:auto; max-height:320px;">
                         @forelse ($pointHistoryItems as $item)
                             <div class="history-row">
                                 <div class="d-flex align-items-center gap-3">
@@ -406,8 +442,8 @@
                                     </div>
                                 </div>
                                 <div class="text-end">
-                                    <span class="fw-bold {{ ($item['type'] ?? 'earned') === 'redeemed' ? 'text-danger' : 'text-success' }}">
-                                        {{ ($item['type'] ?? 'earned') === 'earned' ? '+' : '' }}{{ $item['points'] }}
+                                    <span class="fw-bold {{ in_array(($item['type'] ?? 'earned'), ['redeemed', 'expired']) ? 'text-danger' : 'text-success' }}">
+                                        {{ in_array(($item['type'] ?? 'earned'), ['redeemed', 'expired']) ? '' : '+' }}{{ $item['points'] }}
                                     </span>
                                 </div>
                             </div>
@@ -416,7 +452,12 @@
                         @endforelse
                     </div>
 
-                    <a href="{{ route('point-history') }}" class="text-decoration-none fw-semibold small text-jaced-dark" style="border-bottom: 1px solid var(--jaced-dark);">View All History Details →</a>
+                    <div style="padding-top:14px; border-top:1px solid var(--jaced-card); margin-top:auto;">
+                        <a href="{{ route('point-history') }}" class="btn-view-all-link">
+                            View All History Details
+                            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+                        </a>
+                    </div>
                 </div>
             </div>
 
@@ -425,7 +466,7 @@
                 <div class="premium-box">
                     <div class="d-flex align-items-center justify-content-between mb-4">
                         <h3 class="section-title-new mb-0">Available Redeem Goals</h3>
-                        <a href="{{ route('redeem-point') }}" class="text-decoration-none text-jaced-muted small fw-medium">See All Goals</a>
+                        <a href="{{ route('redeem-point') }}" class="btn-view-all-link" style="font-size:12px; color:var(--jaced-muted);">See All Goals</a>
                     </div>
 
                     <div class="row g-3">
@@ -445,9 +486,15 @@
                                     <div class="p-3">
                                         <div class="mb-2">
                                             @if($goal->used_for === 'delivery')
-                                                <span class="badge" style="background-color: var(--jaced-caramel-bg); color: var(--jaced-sage); font-size: 10px;">🚚 Gratis Ongkir</span>
+                                                <span class="badge d-inline-flex align-items-center gap-1" style="background-color: var(--jaced-caramel-bg); color: var(--jaced-sage); font-size: 10px;">
+                                                    <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="3" width="15" height="13"/><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg>
+                                                    Free Shipping
+                                                </span>
                                             @else
-                                                <span class="badge" style="background-color: #fcf5f3; color: #bd654e; font-size: 10px;">🏷️ Diskon Produk</span>
+                                                <span class="badge d-inline-flex align-items-center gap-1" style="background-color: #fcf5f3; color: #bd654e; font-size: 10px;">
+                                                    <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>
+                                                    Product Discount
+                                                </span>
                                             @endif
                                         </div>
                                         <h5 class="fw-bold mb-2 text-jaced-dark" style="font-size: 13px; min-height: 38px; line-height: 1.4;">{{ $goal->name }}</h5>
@@ -483,7 +530,7 @@
 </div>
 
 {{-- MODAL DETAIL VOUCHER --}}
-<div class="jaced-modal-overlay" id="goalDetailModal" style="display:none; opacity:0;">
+<div class="jaced-modal-overlay" id="goalDetailModal" style="display:none; opacity:0;" onclick="handleModalBackdropClick(event)">
     <div class="jaced-modal-box" style="max-width: 380px; width: 90%; text-align: left; padding: 0; overflow: hidden;">
         <img id="goalDetailImg" src="" alt="" style="width: 100%; height: 160px; object-fit: cover;">
         <div style="padding: 24px;">
@@ -491,26 +538,26 @@
             <h3 style="font-size: 16px; font-weight: 700; color: var(--jaced-dark); margin: 0 0 12px;" id="goalDetailName"></h3>
       
             <div class="d-flex flex-column mb-2">
-                <span style="font-size: 12px; color: var(--jaced-muted);">Deskripsi</span>
+                <span style="font-size: 12px; color: var(--jaced-muted);">Description</span>
                 <span id="goalDetailDesc" style="font-size: 13px; color: var(--jaced-dark);"></span>
             </div>
             <div style="font-size: 13px; color: var(--jaced-muted); margin-bottom: 20px;">
                 <div class="d-flex justify-content-between mb-2">
-                    <span>Persentase Diskon</span>
+                    <span>Discount Percentage</span>
                     <strong id="goalDetailPct" style="color: var(--jaced-dark);"></strong>
                 </div>
                 <div class="d-flex justify-content-between mb-2">
-                    <span>Maksimal Potongan</span>
+                    <span>Maximum Discount</span>
                     <strong id="goalDetailMax" style="color: var(--jaced-dark);"></strong>
                 </div>
                 <div class="d-flex justify-content-between">
-                    <span>Point Dibutuhkan</span>
+                    <span>Points Required</span>
                     <strong id="goalDetailPts" style="color: var(--jaced-caramel);"></strong>
                 </div>
             </div>
 
             <div class="d-flex gap-2">
-                <button class="btn-modal-secondary" onclick="closeGoalDetail()" style="background: transparent; border: 1px solid var(--jaced-input); border-radius: 8px; padding: 10px 16px; font-size: 13px; color: var(--jaced-brown-dark);">Tutup</button>
+                <button class="btn-modal-secondary" onclick="closeGoalDetail()" style="background: transparent; border: 1px solid var(--jaced-input); border-radius: 8px; padding: 10px 16px; font-size: 13px; color: var(--jaced-brown-dark);">Close</button>
                 <div id="goalDetailAction" style="flex: 1;"></div>
             </div>
         </div>
@@ -528,15 +575,25 @@
     const userCurrentStage = "{{ $stage }}";
 </script>
 <script>
-    const tierGradients = {
-        'Bronze': 'bronze', 'Silver': 'silver', 'Gold': 'gold', 'Platinum': 'platinum'
+    const tierBgMap = {
+        'bronze':   'linear-gradient(160deg, #e8a96a 0%, #c47a35 25%, #8B5E2A 55%, #6E4524 75%, #9d6b38 100%)',
+        'silver':   'linear-gradient(160deg, #d0d8e4 0%, #9aa5b4 25%, #5a6472 55%, #3a4250 75%, #7a8898 100%)',
+        'gold':     'linear-gradient(160deg, #f5e070 0%, #d4a825 25%, #9a7510 55%, #7a5c08 75%, #c49820 100%)',
+        'platinum': 'linear-gradient(160deg, #6b7280 0%, #374151 25%, #1a202c 55%, #0d1117 75%, #4a5568 100%)',
     };
+
+    const layerA = document.getElementById('tierLayerA');
+    const layerB = document.getElementById('tierLayerB');
+    let activeLayer = 'A';
+
+    // Set initial background
+    layerA.style.background = tierBgMap[userCurrentStage.toLowerCase()];
+    layerA.style.opacity = '1';
 
     const cardEl    = document.getElementById('mainTierCard');
     const barEl     = document.getElementById('tierProgressBar');
     const titleEl   = document.getElementById('tierCardTitle');
     const infoEl    = document.getElementById('tierPointsInfo');
-    const contextEl = document.getElementById('tierLabelContext');
 
     function getProgressForTier(tierName) {
         const sorted = [...stagesData].sort((a, b) => a.min - b.min);
@@ -547,7 +604,7 @@
         // Sudah unlock tier ini → full
         if (userAccumulatedPoints >= tier.min) {
             if (!next) return { pct: 100, info: 'Maximum Tier Reached' };
-            return { pct: 100, info: `${tierName} Unlocked ✓` };
+            return { pct: 100, info: `${tierName} Unlocked` };
         }
 
         // Belum unlock → hitung dari 0 menuju threshold tier ini
@@ -562,36 +619,71 @@
 
     function switchTierPreview(targetTier) {
         // Update active tab
-        document.querySelectorAll('.stage-tab-new').forEach(btn => btn.classList.remove('active-tab'));
-        document.getElementById(`tab-${targetTier}`).classList.add('active-tab');
+        document.querySelectorAll('.stage-tab-pill').forEach(btn => btn.classList.remove('active-pill'));
+        document.getElementById(`tab-${targetTier}`).classList.add('active-pill');
 
         // Ganti gradasi card
-        cardEl.className = `premium-tier-card tier-gradient-${targetTier.toLowerCase()} mb-4`;
+        const newGrad = targetTier.toLowerCase();
+        const newBg = tierBgMap[newGrad];
 
-        // Update title
-        titleEl.innerText = `${targetTier.toUpperCase()} MEMBER`;
+        if (activeLayer === 'A') {
+            layerB.style.background = newBg;
+            layerB.style.opacity = '1';
+            layerA.style.opacity = '0';
+            activeLayer = 'B';
+        } else {
+            layerA.style.background = newBg;
+            layerA.style.opacity = '1';
+            layerB.style.opacity = '0';
+            activeLayer = 'A';
+        }
 
         // Hitung progress dinamis
+        const tierData = stagesData.find(s => s.name === targetTier);
+        const isLocked = userAccumulatedPoints < tierData.min;
+
+        titleEl.style.transition = 'opacity 0.2s ease';
+        titleEl.style.opacity = '0';
+        setTimeout(() => {
+            titleEl.innerText = `${targetTier.toUpperCase()} MEMBER`;
+            titleEl.style.opacity = '1';
+        }, 200);
         const { pct, info } = getProgressForTier(targetTier);
         barEl.style.width = pct + '%';
         infoEl.innerText  = info;
 
-        // Cek apakah tier ini sudah unlocked oleh user
-        const tierData = stagesData.find(s => s.name === targetTier);
-        const isLocked = userAccumulatedPoints < tierData.min;
+        cardEl.className = `premium-tier-card mb-4${isLocked ? ' is-locked' : ''}`;
+        const benefitLabel = document.getElementById('benefitStatusLabel');
+        benefitLabel.innerText = isLocked ? 'Benefits Status: Locked' : 'Benefits Status: Active';
+
+        const benefitMap = {
+            'Bronze':   'No discount benefit yet',
+            'Silver':   '5% discount on every order',
+            'Gold':     '10% discount on every order',
+            'Platinum': '15% discount on every order',
+        };
+        const benefitBadge = document.querySelector('#tierBenefitBadge span');
+        if (benefitBadge) benefitBadge.innerText = '✦ ' + (benefitMap[targetTier] || '');
+
+        const badgeEl = document.querySelector('.tier-badge');
+        badgeEl.classList.remove('status-current', 'status-unlocked', 'status-locked');
+
+        const lockIcon = `<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>`;
+        const checkIcon = `<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>`;
+        const starIcon = `<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="6"/><path d="M15.477 12.89L17 22l-5-3-5 3 1.523-9.11"/></svg>`;
 
         if (isLocked) {
-            contextEl.innerText = '🔒 LOCKED MEMBERSHIP STAGE';
+            badgeEl.classList.add('status-locked');
+            badgeEl.innerHTML = lockIcon + '<span>LOCKED — NOT YET UNLOCKED</span>';
         } else if (targetTier === userCurrentStage) {
-            contextEl.innerText = 'CURRENT MEMBERSHIP STAGE';
+            badgeEl.classList.add('status-current');
+            badgeEl.innerHTML = starIcon + '<span>YOUR CURRENT STAGE</span>';
         } else {
-            contextEl.innerText = 'UNLOCKED MEMBERSHIP STAGE';
+            badgeEl.classList.add('status-unlocked');
+            badgeEl.innerHTML = checkIcon + '<span>UNLOCKED STAGE</span>';
         }
     }
 
-    function resetToCurrentTier() {
-        switchTierPreview(userCurrentStage);
-    }
 
     // Modal logic (tidak berubah)
     const goalModal = document.getElementById('goalDetailModal');
@@ -606,8 +698,8 @@
 
         const badgeEl = document.getElementById('goalDetailBadge');
         badgeEl.innerHTML = usedFor === 'delivery'
-            ? '<span class="badge" style="background-color: var(--jaced-caramel-bg); color: var(--jaced-sage); font-size: 11px;">🚚 Gratis Ongkir</span>'
-            : '<span class="badge" style="background-color: #fcf5f3; color: #bd654e; font-size: 11px;">🏷️ Diskon Produk</span>';
+            ? `<span class="badge d-inline-flex align-items-center gap-1" style="background-color: var(--jaced-caramel-bg); color: var(--jaced-sage); font-size: 11px;"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="3" width="15" height="13"/><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg> Free Shipping</span>`
+            : `<span class="badge d-inline-flex align-items-center gap-1" style="background-color: #fcf5f3; color: #bd654e; font-size: 11px;"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg> Product Discount</span>`;
 
         const actionEl = document.getElementById('goalDetailAction');
         actionEl.innerHTML = isEnough
@@ -625,6 +717,10 @@
     function closeGoalDetail() {
         goalModal.style.opacity = '0';
         setTimeout(() => { goalModal.style.display = 'none'; }, 300);
+    }
+
+    function handleModalBackdropClick(e) {
+        if (e.target === document.getElementById('goalDetailModal')) closeGoalDetail();
     }
 
     // Inisialisasi tampilan sesuai tier user saat ini

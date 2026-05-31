@@ -18,6 +18,7 @@ return new class extends Migration
             $table->string('type'); // 'earned' atau 'redeemed'
             $table->string('source'); // 'purchase', 'redeem_voucher', dll
             $table->unsignedBigInteger('order_id')->nullable(); // kalau earned dari order
+            $table->timestamp('expired_at')->nullable();
             $table->timestamps();
             $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
             $table->foreign('order_id')->references('id')->on('orders')->onDelete('set null');
