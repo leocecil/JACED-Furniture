@@ -113,6 +113,36 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     });
 
+    // ── Stat Card Filter ─────────────────────────────────────────
+    const filterLabels = {
+        'all'  : 'All Time',
+        'week' : 'This Week',
+        'month': 'This Month',
+        '3m'   : 'Last 3 Months',
+        'year' : 'This Year',
+    };
+
+    document.querySelectorAll('.stat-filter-btn').forEach(btn => {
+        btn.addEventListener('click', function () {
+            document.querySelectorAll('.stat-filter-btn').forEach(b => b.classList.remove('active'));
+            this.classList.add('active');
+
+            const range = this.dataset.range;
+
+            fetch(`${window.dashboardData.statFilterUrl}?range=${range}`)
+                .then(r => r.json())
+                .then(json => {
+                    document.getElementById('revenue-value').textContent =
+                        'Rp ' + json.totalRevenue.toLocaleString('id-ID');
+                    document.getElementById('orders-value').textContent =
+                        json.totalOrders.toLocaleString('id-ID');
+
+                    document.getElementById('revenue-pill').textContent = filterLabels[range];
+                    document.getElementById('orders-pill').textContent  = filterLabels[range];
+                });
+        });
+    });
+
 });
 
 // ── Modal Controls ───────────────────────────────────────────────

@@ -77,12 +77,6 @@ $disputeTypeLabels = [
     <div class="d-none d-md-flex align-items-center px-4 py-3 order-row-trigger"
         style="cursor:pointer; transition:background .15s; gap:0;"
         onclick="togglePanel({{ $order->id }})">
-
-        <div style="width:40px; flex-shrink:0;">
-            <input type="checkbox" class="order-checkbox"
-                style="width:16px; height:16px; accent-color:var(--jaced-sage); cursor:pointer;"
-                onclick="event.stopPropagation()">
-        </div>
         <div style="flex:0 0 12%; font-size:13px; font-weight:600; color:var(--jaced-brown-dark);">
             #ORD-{{ str_pad($order->id, 4, '0', STR_PAD_LEFT) }}
             @if($hasDispute)

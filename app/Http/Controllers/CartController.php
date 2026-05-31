@@ -75,6 +75,7 @@ class CartController extends Controller
         return response()->json([
             'success' => true,
             'quantity' => $cart->quantity,
+            'stock' => $cart->product->stock,
             'subtotal' => $cart->product->price * $cart->quantity,
             'total' => $total,
             'count' => $count,

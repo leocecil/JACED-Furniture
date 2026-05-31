@@ -124,8 +124,9 @@ class DashboardController extends Controller
         $labels = [];
         $data   = [];
 
+        $now = Carbon::now()->startOfMonth();
         for ($i = $months - 1; $i >= 0; $i--) {
-            $date  = Carbon::now()->subMonths($i);
+            $date  = $now->copy()->subMonths($i);
             $start = $date->copy()->startOfMonth();
             $end   = $date->copy()->endOfMonth();
 
@@ -139,5 +140,38 @@ class DashboardController extends Controller
         }
 
         return ['labels' => $labels, 'data' => $data];
+    }
+
+    public function statCards(Request $request)
+    {
+        $range = $request->get('range', 'all');
+
+        $query = DB::table('orders')->whereNotIn('status', ['cancelled', 'unpaid']);
+        $countQuery = DB::table('orders');
+
+        switch ($range) {
+            case 'week':
+                $query->whereBetween('created_at', [Carbon::now()->startOfWeek(), Carbon::now()->endOfWeek()]);
+                $countQuery->whereBetween('created_at', [Carbon::now()->startOfWeek(), Carbon::now()->endOfWeek()]);
+                break;
+            case 'month':
+                $query->whereYear('created_at', now()->year)->whereMonth('created_at', now()->month);
+                $countQuery->whereYear('created_at', now()->year)->whereMonth('created_at', now()->month);
+                break;
+            case '3m':
+                $query->where('created_at', '>=', Carbon::now()->subMonths(3)->startOfDay());
+                $countQuery->where('created_at', '>=', Carbon::now()->subMonths(3)->startOfDay());
+                break;
+            case 'year':
+                $query->whereYear('created_at', now()->year);
+                $countQuery->whereYear('created_at', now()->year);
+                break;
+            // 'all' — no filter
+        }
+
+        return response()->json([
+            'totalRevenue' => (float) $query->sum('total_price'),
+            'totalOrders'  => (int)   $countQuery->count(),
+        ]);
     }
 }

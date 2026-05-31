@@ -465,7 +465,11 @@
                     document.getElementById('cartTotalPrice').innerText =
                         'Rp ' + Number(data.total).toLocaleString('id-ID');
                     updateCartBadge(data.count);
-                    showCartToast('Product quantity increased', 'update');
+                    if(data.quantity === data.stock){
+                        showCartToast("You've reached the maximum stock available.", 'warning');
+                    } else{
+                        showCartToast('Product quantity increased', 'update');
+                    }
                     // updateCartUI(data);
                 });
             });
@@ -490,7 +494,11 @@
                     document.getElementById('cartTotalPrice').innerText =
                         'Rp ' + Number(data.total).toLocaleString('id-ID');
                     updateCartBadge(data.count);
-                    showCartToast('Product quantity decreased', 'update');
+                    if(data.quantity === 1){
+                        showCartToast("Minimum quantity to purchase is 1.", 'warning');
+                    } else{
+                        showCartToast('Product quantity decreased', 'update');
+                    }
                     // updateCartUI(data);
                 });
             });
@@ -548,4 +556,6 @@
         }
         window.location.href = this.dataset.url;
     });
+
+    attachCartListeners();
 </script>
