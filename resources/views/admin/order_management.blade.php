@@ -2,7 +2,6 @@
 
 @section('content')
 
-<link rel="stylesheet" href="{{ asset('css/jaced.css') }}">
 <link rel="stylesheet" href="{{ asset('css/admin/order-management.css') }}">
 
 @php

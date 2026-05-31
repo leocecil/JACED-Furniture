@@ -3,7 +3,6 @@
 @section('title', 'Voucher Management')
 
 @push('styles')
-<link rel="stylesheet" href="{{ asset('css/jaced.css') }}">
 <link rel="stylesheet" href="{{ asset('css/admin/voucher-management.css') }}">
 @endpush
 

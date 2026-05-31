@@ -1,3 +1,17 @@
+    :root {
+        --jaced-white: #F9F9F7;
+        --jaced-cream: #F2EDE6;
+        --jaced-card: #FAF7F2;
+        --jaced-brown-dark: #272E1D;
+        --jaced-dark: #1C1C1A;
+        --jaced-brown: #5A4D47;
+        --jaced-caramel: #C99A6B;
+        --jaced-sage: #5A6B5B;
+        --jaced-input: #DDD6CE;
+        --jaced-muted: #8A857D;
+        --jaced-caramel-bg: #F5EBE0;
+    }
+
     .panel-section-title {
         font-size: 11px; font-weight: 700; letter-spacing: 1px;
         text-transform: uppercase; color: var(--jaced-sage);
@@ -130,4 +144,22 @@
 
     .small.text-muted {
         margin-right: 16px;
+    }
+
+    .font-serif-jaced {
+        font-family: 'Lexend', sans-serif;
+    }
+
+    .text-jaced-dark {
+        color: var(--jaced-brown-dark) !important;
+    }
+    
+    .text-jaced-muted {
+        color: var(--jaced-muted) !important;
+    }
+
+    .jaced-card {
+        background-color: white;
+        border-radius: 12px;
+        border: none;
     }

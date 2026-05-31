@@ -128,6 +128,7 @@ Route::middleware(['role:admin'])->group(function() {
     Route::get('/admin/dashboard', [DashboardController::class, 'index'])->name('admin.dashboard');
     Route::get('/admin/dashboard/sales-chart', [DashboardController::class, 'salesChart'])->name('admin.dashboard.salesChart');
     Route::post('/admin/dashboard/set-target', [DashboardController::class, 'setTarget'])->name('admin.dashboard.setTarget');
+    Route::get('/admin/dashboard/stat-cards', [DashboardController::class, 'statCards'])->name('admin.dashboard.statCards');
 
     // Order Overview & Operational Management
     Route::get('/admin/order_management', [OrderManagementController::class, 'index'])->name('order_management');

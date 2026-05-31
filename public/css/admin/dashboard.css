@@ -23,7 +23,6 @@
     }
 
     body, .dashboard-wrap {
-        background: var(--cream);
         font-family: var(--bs-font-sans-serif);
         color: var(--ink);
     }
@@ -134,7 +133,26 @@
         cursor: pointer;
         transition: all .15s;
     }
-    .range-btn.active, .range-btn:hover {
+    .range-btn.active, .range-btn:hover{
+        background: var(--accent);
+        border-color: var(--accent);
+        color: #fff;
+    }
+
+    button.card-range-btn {
+        background: none;
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        padding: 4px 10px;
+        font-size: 12px;
+        font-weight: 500;
+        color: var(--ink-muted);
+        cursor: pointer;
+        transition: all .15s;
+    }
+
+    button.card-range-btn.active,
+    button.card-range-btn:hover {
         background: var(--accent);
         border-color: var(--accent);
         color: #fff;
