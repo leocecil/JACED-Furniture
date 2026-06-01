@@ -292,7 +292,25 @@
                                         </button>
                                     </div>
 
-                                    <img src="{{ $product->main_image }}" alt="{{ $product->name }}" class="shop-product-img">
+                                    @php
+                                        $hoverImage =
+                                            $product->all_images[1]->url
+                                            ?? $product->main_image;
+                                    @endphp
+
+                                    <div class="shop-product-image-stack"
+                                        data-images='@json(
+                                            collect($product->all_images)
+                                                ->pluck('url')
+                                                ->values()
+                                        )'>
+
+                                        <img
+                                            src="{{ $product->main_image }}"
+                                            alt="{{ $product->name }}"
+                                            class="shop-product-img js-product-slider">
+
+                                    </div>
 
                                     @if($soldOut)
                                         <div class="shop-soldout-overlay">
@@ -537,7 +555,33 @@
         .shop-soldout-overlay { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; background: rgba(28,28,26,0.35); z-index: 4; }
         .shop-soldout-text { background: rgba(242,237,230,0.95); color: #1c1c1a; font-size: 12px; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; padding: 8px 18px; border-radius: 999px; }
 
-        .shop-product-img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.6s cubic-bezier(0.22,1,0.36,1); }
+        .shop-product-image-stack{
+            position:relative;
+            width:100%;
+            height:100%;
+        }
+
+        .shop-product-img{
+
+            width:100%;
+            height:100%;
+
+            object-fit:cover;
+
+            transition:
+                transform .8s cubic-bezier(.22,1,.36,1),
+                filter .35s ease;
+        }
+
+        .shop-product-img.is-switching{
+            filter:
+                blur(6px)
+                brightness(.92);
+        }
+
+        .shop-product-card:hover .shop-product-img{
+            transform:scale(1.08);
+        }
         .shop-product-card:hover .shop-product-img { transform: scale(1.06); }
         .shop-product-badge { position: absolute; top: 12px; left: 12px; padding: 4px 10px; border-radius: 999px; font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.1em; color: var(--jaced-cream); z-index: 3; }
         .badge-caramel { background: var(--jaced-caramel); }
@@ -964,6 +1008,98 @@
             }
             form.submit();
         }
+
+        // ===== PRODUCT HOVER IMAGE SLIDESHOW =====
+        (function(){
+
+            document.querySelectorAll(
+                '.shop-product-image-stack'
+            ).forEach(function(card){
+
+                const img =
+                    card.querySelector(
+                        '.js-product-slider'
+                    );
+
+                if(!img) return;
+
+                let images=[];
+
+                try{
+                    images = JSON.parse(
+                        card.dataset.images || '[]'
+                    );
+                }
+                catch(e){
+                    return;
+                }
+
+                if(images.length <= 1) return;
+
+                let current = 0;
+                let interval = null;
+
+                function show(index){
+                img.classList.add('is-switching');
+
+                setTimeout(function(){
+
+                    img.src = images[index];
+
+                },120);
+
+                setTimeout(function(){
+
+                    img.classList.remove(
+                        'is-switching'
+                    );
+
+                },280);
+
+            }
+
+                card.addEventListener(
+                    'mouseenter',
+                    function(){
+
+                        if(interval) return;
+
+                        // LANGSUNG gambar 2
+                        current = 1 % images.length;
+
+                        show(current);
+
+                        interval = setInterval(function(){
+
+                            current =
+                                (current + 1)
+                                % images.length;
+
+                            show(current);
+
+                        },1500);
+
+                    }
+                );
+
+                card.addEventListener(
+                    'mouseleave',
+                    function(){
+
+                        clearInterval(interval);
+
+                        interval = null;
+
+                        current = 0;
+
+                        show(0);
+
+                    }
+                );
+
+            });
+
+        })();
     </script>
 
 @endsection

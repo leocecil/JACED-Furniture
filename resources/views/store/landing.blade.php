@@ -308,6 +308,14 @@
         cta.addEventListener('click', (e) => {
             e.preventDefault();
 
+            const target = cta.href;
+
+            // bikin redirect disiapkan SEKARANG
+            const nextPage = document.createElement('link');
+            nextPage.rel = 'prefetch';
+            nextPage.href = target;
+            document.head.appendChild(nextPage);
+
             const clouds = [
                 { size: 1000, top: '20%',  left: '-50%', delay: 0,   duration: 2.8 },
                 { size: 700,  top: '55%',  left: '-45%', delay: 80,  duration: 3.0 },
@@ -360,8 +368,9 @@
             }, 250);
 
             setTimeout(() => {
-                window.location.replace(cta.getAttribute('href'));
-            }, 1600);
+                window.location.href = cta.href;
+
+            },1600);
         });
     }
 })();

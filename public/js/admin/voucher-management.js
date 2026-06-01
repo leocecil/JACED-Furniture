@@ -32,7 +32,7 @@
 
     // ── Point cost preview ────────────────────────────────────────────
     window.updatePointPreview = function updatePointPreview() {
-        const maxDiscount = parseFloat(document.getElementById('dMaxDiscount').value);
+        const maxDiscount = parseFloat(document.getElementById('dMaxDiscount').value.replace(/\./g, ''));
         const preview     = document.getElementById('pointPreview');
         const previewVal  = document.getElementById('pointPreviewValue');
 
@@ -51,7 +51,7 @@
         const name     = document.getElementById('dName').value.trim();
         const desc     = document.getElementById('dDesc').value.trim();
         const discPct  = document.getElementById('dDiscountPct').value;
-        const maxDisc  = document.getElementById('dMaxDiscount').value;
+        const maxDisc  = document.getElementById('dMaxDiscount').value.replace(/\./g, '');
         const qty      = document.getElementById('dQuantity').value;
 
         if (!name || !desc || !discPct || !maxDisc || !qty) {
@@ -239,4 +239,12 @@
     window.closeUsedOrdersModal = function closeUsedOrdersModal() {
         document.getElementById('usedOrdersDrawer').classList.remove('open');
         document.getElementById('usedOrdersOverlay').classList.remove('open');
+    }
+
+    window.formatRupiah = function formatRupiah(input) {
+        // Ambil angka aja
+        let value = input.value.replace(/\D/g, '');
+
+        // Format jadi ribuan
+        input.value = new Intl.NumberFormat('id-ID').format(value);
     }
