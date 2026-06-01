@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Carbon\Carbon;
 
 class Order extends Model
 {
@@ -34,6 +35,22 @@ class Order extends Model
     public function vaBank()
     {
         return $this->belongsTo(VaBank::class);
+    }
+
+    /**
+     * Waktu kadaluarsa pembayaran: 24 jam sejak order dibuat.
+     */
+    public function getPaymentExpiredAtAttribute(): Carbon
+    {
+        return $this->created_at->addHours(24);
+    }
+
+    /**
+     * Apakah waktu pembayaran sudah habis?
+     */
+    public function getIsPaymentExpiredAttribute(): bool
+    {
+        return $this->status === 'unpaid' && now()->isAfter($this->payment_expired_at);
     }
 
     protected $fillable = [

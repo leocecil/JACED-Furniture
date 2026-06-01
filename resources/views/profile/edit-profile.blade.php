@@ -292,17 +292,11 @@
             gap: 0;
         }
 
-        /* Sembunyikan sidebar desktop di mobile */
-        .col-left { display: none; }
-
-        .col-right-content { padding: 16px 12px; }
-
-        /* Tab bar muncul di mobile */
         .mobile-tab-bar {
             display: flex;
             justify-content: center;
-            background: transparent; /* transparan! */
-            border-bottom: none; /* hapus border bawah */
+            background: transparent; 
+            border-bottom: none; 
             position: sticky;
             top: 0;
             z-index: 100;
@@ -592,11 +586,9 @@
         </a>
     </div>
 
-    {{-- USER BAR: card dengan avatar besar --}}
     <div class="d-md-none" style="padding: 0 12px 8px;">
         <div class="jaced-card" style="padding: 20px 16px; text-align: center;">
             
-            {{-- Avatar dengan tombol kamera --}}
             <div style="position: relative; width: 80px; height: 80px; margin: 0 auto 12px;">
                 <div style="width: 80px; height: 80px; border-radius: 50%; overflow: hidden; border: 3px solid white; box-shadow: 0 4px 12px rgba(0,0,0,0.08);">
                     <img src="{{ $user->avatar ? (str_starts_with($user->avatar, 'http') ? $user->avatar : asset($user->avatar)) : asset('image/avatars/default_avatar.png') }}"
@@ -998,7 +990,7 @@
     </form>
 @endif
 
-<form id="form-delete-account" action="{{ route('profile.addresses.destroy', $user->id) }}" method="POST" style="display:none;">
+<form id="form-delete-account" action="{{ route('profile.delete', $user->id) }}" method="POST">
     @csrf
     @method('DELETE')
 </form>
@@ -1222,7 +1214,7 @@
         },
         onChange: function(value) {
             if (this._addedViaKeyboard) {
-                this._addedViaKeyboard = false; // ← reset, skip onChange
+                this._addedViaKeyboard = false; 
                 return;
             }
             const opt = document.querySelector(`#f_province option[value="${value}"]`);
@@ -1243,13 +1235,13 @@
             closeAfterSelect: true,
             maxOptions: null,
             onItemAdd: function(value) {
-                this._addedViaKeyboard = true; // ← tandai
+                this._addedViaKeyboard = true; 
                 this.blur();
                 if (onChangeCb) onChangeCb(value, true);
             },
             onChange: function(value) {
                 if (this._addedViaKeyboard) {
-                    this._addedViaKeyboard = false; // ← skip, sudah dihandle onItemAdd
+                    this._addedViaKeyboard = false; 
                     return;
                 }
                 if (value && onChangeCb) onChangeCb(value, false);
@@ -1367,7 +1359,7 @@
                     document.getElementById('f_village_name').value = '';
                     loadDistricts(value, kb);
                 });
-                if (isKeyboard) setTimeout(() => window['f_city_ts']?.open(), 150); // ← auto open
+                if (isKeyboard) setTimeout(() => window['f_city_ts']?.open(), 150); 
             });
     }
 
@@ -1390,7 +1382,7 @@
                     document.getElementById('f_village_name').value = '';
                     loadVillages(value, kb);
                 });
-                if (isKeyboard) setTimeout(() => window['f_district_ts']?.open(), 150); // ← auto open
+                if (isKeyboard) setTimeout(() => window['f_district_ts']?.open(), 150); 
             });
     }
 
@@ -1403,7 +1395,7 @@
             .then(r => r.json())
             .then(villages => {
                 const sel = document.getElementById('f_village');
-                villages.forEach(v => sel.innerHTML += `<option value="${v.code}" data-id="${v.id}">${v.name}</option>`); // ← tambah data-id
+                villages.forEach(v => sel.innerHTML += `<option value="${v.code}" data-id="${v.id}">${v.name}</option>`); 
                 sel.disabled = false;
                 initProfileTS('f_village', function(value) {
                     const originalSelect = document.getElementById('f_village');
@@ -1411,7 +1403,6 @@
                     
                     document.getElementById('f_village_name').value = selectedOption?.textContent?.trim() || '';
 
-                    // ← Autofill kode pos
                     const villageId = selectedOption?.getAttribute('data-id');
                     if (!villageId) return;
 
@@ -1651,7 +1642,6 @@
         });
     @endif
 
-    // Auto expand password section kalau ada error
     @if($errors->has('current_password') || $errors->has('password'))
         document.addEventListener('DOMContentLoaded', function() {
             document.getElementById('passwordFieldsContainer').style.display = 'block';
@@ -1661,7 +1651,6 @@
             btn.style.color = 'white';
             btn.style.borderColor = '#C0392B';
 
-            // Scroll ke password section
             setTimeout(() => {
                 document.getElementById('passwordFieldsContainer').scrollIntoView({ 
                     behavior: 'smooth', 

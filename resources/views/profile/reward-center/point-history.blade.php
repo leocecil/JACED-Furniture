@@ -240,7 +240,7 @@
                     for ($m = 1; $m <= 12; $m++) {
                         $monthlyData[$m] = ['earned' => 0, 'redeemed' => 0];
                     }
-                    foreach ($histories as $h) {
+                    foreach ($chartData as $h) {
                         $mo = \Carbon\Carbon::parse($h->created_at)->month;
                         if ($h->type === 'earned')   $monthlyData[$mo]['earned']   += abs($h->points);
                         if (in_array($h->type, ['redeemed', 'expired'])) $monthlyData[$mo]['redeemed'] += abs($h->points);

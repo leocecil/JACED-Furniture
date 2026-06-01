@@ -346,12 +346,12 @@
     <div style="max-width: 1100px; margin: 0 auto;">
         
         {{-- BACK BUTTON --}}
-        <a href="{{ route('profile') }}" class="back-link mb-4 d-inline-flex align-items-center gap-2 text-decoration-none text-jaced-muted small fw-semibold">
+        <a href="{{ route('home') }}" class="back-link mb-4 d-inline-flex align-items-center gap-2 text-decoration-none text-jaced-muted small fw-semibold">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
                 <line x1="19" y1="12" x2="5" y2="12"></line>
                 <polyline points="12 19 5 12 12 5"></polyline>
             </svg>
-            <span>Back to Profile</span>
+            <span>Back to Home</span>
         </a>
 
         {{-- PAGE HEADER TITLE --}}
@@ -366,7 +366,7 @@
             <div id="tierLayerB" style="position:absolute; inset:0; border-radius:24px; z-index:0; transition:opacity 0.5s ease; pointer-events:none; opacity:0;"></div>
             <div class="row align-items-center g-4">
                 
-                {{-- Sisi Kiri: Member Level & Progress --}}
+                {{-- Left Side: Member Level & Progress --}}
                 <div class="col-12 col-md-7">
                     <div class="tier-badge">
                         <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="6"/><path d="M15.477 12.89L17 22l-5-3-5 3 1.523-9.11"/></svg>
@@ -382,7 +382,7 @@
                         <button id="tab-Platinum" class="stage-tab-pill {{ $stage == 'Platinum' ? 'active-pill' : '' }}" onclick="switchTierPreview('Platinum')">Platinum</button>
                     </div>
 
-                    {{-- Dinamis Progress Bar --}}
+                    {{-- Dinamic Progress Bar --}}
                     <div class="tier-progress-wrap">
                         <div class="custom-progress">
                             <div id="tierProgressBar" class="custom-progress-bar" style="width: 0%;"></div>
@@ -394,7 +394,7 @@
                     </div>
                 </div>
 
-                {{-- Sisi Kanan: Poin Angka Besar --}}
+                {{-- Right Side: Poin Angka Besar --}}
                 <div class="col-12 col-md-5 text-md-end border-start-md border-white-opacity-25 ps-md-5">
                     <p class="text-white-75 small text-uppercase tracking-wider mb-1" style="font-size: 11px; font-weight: 600;">Available Points</p>
                     <div class="d-flex align-items-baseline justify-content-md-end gap-2 mb-1">
@@ -428,7 +428,7 @@
         {{-- BOTTOM CONTROLLER LAYOUT --}}
         <div class="row g-4 align-items-start page-enter page-enter-delay-2">
             
-            {{-- LAYOUT KIRI: POINT HISTORY --}}
+            {{-- LAYOUT LEFT: POINT HISTORY --}}
             <div class="col-12 col-lg-5" style="align-self:stretch;">
                 <div class="premium-box d-flex flex-column" style="height:100%;">
                     <div class="d-flex align-items-center justify-content-between mb-4">
@@ -509,6 +509,9 @@
                                             @endif
                                         </div>
                                         <h5 class="fw-bold mb-2 text-jaced-dark" style="font-size: 13px; min-height: 38px; line-height: 1.4;">{{ $goal->name }}</h5>
+                                        <p style="font-size: 11px; color: var(--jaced-muted); margin-bottom: 4px;">
+                                            Available stock: {{ $goal->stock }} voucher{{ $goal->stock > 1 ? 's' : '' }}
+                                        </p>
                                         <p class="mb-3 text-jaced-muted small">
                                             Cost: <span class="text-jaced-dark fw-bold" style="font-size: 15px;">{{ number_format($goal->point_cost) }}</span> Pts
                                         </p>

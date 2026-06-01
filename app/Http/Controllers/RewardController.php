@@ -64,14 +64,12 @@ class RewardController extends Controller
         $currentPoints     = $user->current_points ?? 0;
         $accumulatedPoints = $user->accumulated_points ?? 0;
 
-        // Stage berdasarkan total spending order paid
         $stageModel = DB::table('stages')
                 ->where('min_points_accumulative', '<=', $accumulatedPoints)
                 ->orderBy('min_points_accumulative', 'desc')
                 ->first();
         $stage = $stageModel ? $stageModel->name : 'Bronze';
 
-        // Point history dari DB
         $pointHistoryItems = DB::table('point_histories')
             ->where('user_id', $user->id)
             ->orderBy('created_at', 'desc')
@@ -91,8 +89,11 @@ class RewardController extends Controller
                 'type'   => $item->type,
             ]);
 
-        // Redeem goals dari voucher_types
-        $redeemGoals = DB::table('voucher_types')->limit(2)->get();
+        $redeemGoals = DB::table('voucher_types')
+            ->selectRaw('MIN(id) as id, name, description, used_for, point_cost, discount_percentage, max_discount, COUNT(*) as stock')
+            ->groupBy('name', 'description', 'used_for', 'point_cost', 'discount_percentage', 'max_discount')
+            ->limit(2)
+            ->get();
 
         $stages = Stage::orderBy('min_points_accumulative', 'asc')->get();
 
@@ -106,9 +107,6 @@ class RewardController extends Controller
         ));
     }
 
-    /**
-     * Fungsi ketika user klik tombol "Redeem Now" di kartu hadiah
-     */
     public function redeem(Request $request)
     {
         $user          = Auth::user();
@@ -121,6 +119,13 @@ class RewardController extends Controller
         }
 
         try {
+            $stockCount = DB::table('voucher_types')
+                ->where('name', $voucherType->name)
+                ->count();
+
+            if ($stockCount <= 0) {
+                return redirect()->back()->with('error', 'This voucher is out of stock.');
+            }
             DB::transaction(function () use ($user, $voucherType) {
                 $freshUser = DB::table('users')
                     ->where('id', $user->id)
@@ -169,7 +174,10 @@ class RewardController extends Controller
     {
         $user = Auth::user();
         $currentPoints = $user->current_points ?? 0;
-        $redeemGoals = DB::table('voucher_types')->get();
+        $redeemGoals = DB::table('voucher_types')
+            ->selectRaw('MIN(id) as id, name, description, used_for, point_cost, discount_percentage, max_discount, COUNT(*) as stock')
+            ->groupBy('name', 'description', 'used_for', 'point_cost', 'discount_percentage', 'max_discount')
+            ->get();
 
         return view('profile.reward-center.redeem-point', compact(
             'currentPoints', 'redeemGoals'
@@ -182,7 +190,6 @@ class RewardController extends Controller
         $user = Auth::user();
         $currentPoints = $user->current_points ?? 0;
 
-        // Ambil tahun-tahun yang ada di history untuk dropdown
         $availableYears = DB::table('point_histories')
             ->where('user_id', $user->id)
             ->selectRaw('YEAR(created_at) as year')
@@ -190,31 +197,32 @@ class RewardController extends Controller
             ->orderBy('year', 'desc')
             ->pluck('year');
 
-        // ✅ FIX: default year dari data yang ada, bukan now()->year
-        // Kalau tidak ada data sama sekali, fallback ke tahun sekarang
         $defaultYear = $availableYears->first() ?? now()->year;
         $selectedYear = $request->input('year', $defaultYear);
 
-        // ✅ FIX: earnedThisYear ikut selectedYear, bukan selalu now()->year
         $earnedThisYear = DB::table('point_histories')
             ->where('user_id', $user->id)
             ->where('type', 'earned')
             ->whereYear('created_at', $selectedYear)
             ->sum('points');
 
-        // ✅ MOVE: totalRedeemed dihitung di controller, bukan blade
         $totalRedeemed = DB::table('point_histories')
             ->where('user_id', $user->id)
             ->whereIn('type', ['redeemed', 'expired']) 
             ->whereYear('created_at', $selectedYear)
             ->sum('points');
 
-        // ✅ ADD: pagination, bukan ->get() semua sekaligus
         $histories = DB::table('point_histories')
             ->where('user_id', $user->id)
             ->whereYear('created_at', $selectedYear)
             ->orderBy('created_at', 'desc')
             ->paginate(50);
+
+        $chartData = DB::table('point_histories')
+            ->where('user_id', $user->id)
+            ->whereYear('created_at', $selectedYear)
+            ->select('type', 'points', 'created_at')
+            ->get();
 
         $currentYear = now()->year;
 
@@ -224,8 +232,9 @@ class RewardController extends Controller
             'earnedThisYear',
             'totalRedeemed',
             'availableYears',
-            'selectedYear',  // ✅ ADD: pass selectedYear ke view
+            'selectedYear', 
             'currentYear',
+            'chartData',
         ));
     }
 
@@ -247,7 +256,6 @@ class RewardController extends Controller
 
         session(['pending_voucher_id' => $voucherId]);
 
-        // Cek cart kosong atau tidak
         $cartCount = DB::table('carts')
             ->where('user_id', Auth::id())
             ->count();
@@ -270,7 +278,7 @@ class RewardController extends Controller
             ->where('vouchers.is_active', true)
             ->whereNull('vouchers.redeemed_at')
             ->where('vouchers.expiry_date', '>', now())
-            ->select('vouchers.*', 'voucher_types.name', 'voucher_types.used_for', 'voucher_types.discount_percentage', 'voucher_types.max_discount', 'voucher_types.description') // ← tambah description
+            ->select('vouchers.*', 'voucher_types.name', 'voucher_types.used_for', 'voucher_types.discount_percentage', 'voucher_types.max_discount', 'voucher_types.description') 
             ->get();
 
         $historyVouchers = DB::table('vouchers')

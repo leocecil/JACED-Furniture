@@ -116,11 +116,21 @@
 
         .summary-row.discount-row .label,
         .summary-row.discount-row .value {
-            color: #5c695d;
+            color: #b83d2a;
+            font-weight: 600;
+        }
+
+        .summary-row.voucher-discount-row .label,
+        .summary-row.voucher-discount-row .value {
+            color: #b83d2a;
             font-weight: 600;
         }
 
         .summary-row.discount-row .value::before {
+            content: '− ';
+        }
+
+        .summary-row.voucher-discount-row .value::before {
             content: '− ';
         }
 
@@ -228,8 +238,8 @@
         }
 
         .voucher-card-left.shipping {
-            background: #f1f4f2;
-            border-right: 1px dashed #b8cabb;
+            background: #fdf3f2;
+            border-right: 1px dashed #e8b8b8;
         }
 
         .voucher-card-left.product {
@@ -245,7 +255,7 @@
         }
 
         .voucher-type-label.shipping {
-            color: #5c695d;
+            color: #b83d2a;
         }
 
         .voucher-type-label.product {
@@ -259,7 +269,7 @@
         }
 
         .voucher-pct.shipping {
-            color: #5c695d;
+            color: #b83d2a;
         }
 
         .voucher-pct.product {
@@ -335,9 +345,9 @@
         }
 
         .voucher-preview-bar.shipping {
-            background: #f1f4f2;
-            color: #5c695d;
-            border: 1px solid #b8cabb;
+            background: #fdf3f2;
+            color: #b83d2a;
+            border: 1px solid #e8b8b8;
         }
 
         .voucher-preview-bar.product {
@@ -536,12 +546,12 @@
         /* Voucher trigger pulse saat ada voucher applied */
         .voucher-trigger.has-voucher {
             border-style: solid;
-            border-color: #5c695d;
-            background: #f1f4f2;
+            border-color: #b83d2a;
+            background: #fdf3f2;
         }
 
         .voucher-trigger.has-voucher .voucher-label {
-            color: #5c695d;
+            color: #b83d2a;
             font-weight: 600;
         }
 
@@ -655,6 +665,13 @@
             transition: transform 0.2s ease, box-shadow 0.2s ease, background-color 0.2s ease;
         }
 
+        .btn-jaced:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none !important;
+            box-shadow: none !important;
+        }
+
         .btn-jaced:hover:not(:disabled) {
             transform: translateY(-2px);
             box-shadow: 0 6px 20px rgba(42, 35, 24, 0.2);
@@ -734,6 +751,50 @@
         .addr-field-error.visible {
             opacity: 1;
         }
+
+        .payment-select-wrapper {
+            position: relative;
+        }
+        .payment-select {
+            border: 1px solid #e2dcd0;
+            border-radius: 8px;
+            padding: 9px 12px;
+            font-size: 13px;
+            color: #2a2318;
+            background: #fff;
+            width: 100%;
+            appearance: none;
+            transition: border-color 0.2s ease, box-shadow 0.2s ease;
+            cursor: pointer;
+        }
+        .payment-select:focus {
+            outline: none;
+            border-color: #5c695d;
+            box-shadow: 0 0 0 3px rgba(92,105,93,0.1);
+        }
+        .payment-select.is-invalid {
+            border-color: #c0392b;
+            box-shadow: 0 0 0 3px rgba(192,57,43,0.1);
+            animation: shake 0.4s ease;
+        }
+        .payment-select-arrow {
+            position: absolute;
+            right: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            pointer-events: none;
+            color: #8c7e6c;
+        }
+        .payment-error {
+            font-size: 11px;
+            color: #c0392b;
+            margin-top: 4px;
+            opacity: 0;
+            transition: opacity 0.2s ease;
+        }
+        .payment-error.visible {
+            opacity: 1;
+        }
     </style>
 @endpush
 
@@ -780,11 +841,15 @@
                                             <div class="flex-grow-1">
                                                 <div class="fw-semibold text-jaced-dark" style="font-size: 14px;">
                                                     {{ $item['name'] }}</div>
-                                                <div class="text-jaced-muted small">{{ $item['variant'] }} • Qty:
-                                                    {{ $item['qty'] }}</div>
+                                                <div class="text-jaced-muted small">
+                                                    @if(!empty(trim($item['variant'] ?? '')) && trim($item['variant']) !== '-')
+                                                        {{ trim($item['variant']) }} &bull; 
+                                                    @endif
+                                                    Qty: {{ $item['qty'] }}
+                                                </div>
                                             </div>
                                             <div class="fw-semibold text-jaced-dark" style="font-size: 14px;">Rp
-                                                {{ number_format($item['price'], 2) }}</div>
+                                                {{ number_format($item['price'], 0, ',', '.') }}</div>
                                         </div>
                                     @empty
                                         <p class="text-jaced-muted">Your cart is empty.</p>
@@ -897,7 +962,7 @@
                                     {{ number_format($shipping, 0, ',', '.') }}</span>
                             </div>
                             <div class="summary-row">
-                                <span class="label">Service Tax</span>
+                                <span class="label">Service Fee</span>
                                 <span class="value" id="summary-tax" data-raw="{{ $tax }}">Rp
                                     {{ number_format($tax, 0, ',', '.') }}</span>
                             </div>
@@ -917,11 +982,11 @@
                             @endif
 
                             {{-- Voucher discount rows (hidden by default) --}}
-                            <div class="summary-row discount-row d-none" id="row-discount-delivery">
+                            <div class="summary-row voucher-discount-row d-none" id="row-discount-delivery">
                                 <span class="label">Shipping Discount</span>
                                 <span class="value" id="summary-discount-delivery">Rp 0</span>
                             </div>
-                            <div class="summary-row discount-row d-none" id="row-discount-product">
+                            <div class="summary-row voucher-discount-row d-none" id="row-discount-product">
                                 <span class="label">Voucher Discount</span>
                                 <span class="value" id="summary-discount-product">Rp 0</span>
                             </div>
@@ -929,16 +994,18 @@
                             {{-- Voucher trigger --}}
                             <div class="voucher-trigger" data-bs-toggle="modal" data-bs-target="#voucherModal">
                                 <div class="voucher-left">
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="#8c7e6c"
-                                        viewBox="0 0 16 16">
-                                        <path
-                                            d="M3.5 0a.5.5 0 0 1 .5.5V1h8V.5a.5.5 0 0 1 1 0V1h1a2 2 0 0 1 2 2v11a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V3a2 2 0 0 1 2-2h1V.5a.5.5 0 0 1 .5-.5ZM1 4v3.5a.5.5 0 0 0 .5.5.5.5 0 0 1 0 1 .5.5 0 0 0-.5.5V14a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-3.5a.5.5 0 0 0-.5-.5.5.5 0 0 1 0-1 .5.5 0 0 0 .5-.5V4a1 1 0 0 0-1-1H2a1 1 0 0 0-1 1Z" />
-                                    </svg>
+                                    <span id="voucher-trigger-icon">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#8c7e6c" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                            <line x1="19" y1="5" x2="5" y2="19"/>
+                                            <circle cx="6.5" cy="6.5" r="2.5"/>
+                                            <circle cx="17.5" cy="17.5" r="2.5"/>
+                                        </svg>
+                                    </span>
                                     <span class="voucher-label" id="selectedVoucherText">Use a Voucher</span>
                                 </div>
                                 <div style="display:flex; align-items:center; gap:6px;">
                                     <span class="badge d-none" id="voucherActiveBadge"
-                                        style="background:#5c695d; font-size:10px; font-weight:600;">Applied</span>
+                                        style="background:#b83d2a; font-size:10px; font-weight:600;">Applied</span>
                                     <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="#8c7e6c"
                                         viewBox="0 0 16 16">
                                         <path fill-rule="evenodd"
@@ -949,28 +1016,34 @@
 
                             {{-- Payment Method --}}
                             <div class="mb-3">
-                                <label class="d-block mb-1"
-                                    style="font-size: 12px; font-weight: 600; color: #8c7e6c; text-transform: uppercase; letter-spacing: 0.06em;">Payment
-                                    Method</label>
-                                <select name="payment_method" class="form-select form-select-sm" id="paymentMethod"
-                                    required style="border-color: #d1cbbf; font-size: 13px;">
-                                    <option value="">Choose Payment Method</option>
-                                    @foreach ($paymentMethods as $method)
-                                        <option value="{{ $method['value'] }}">{{ $method['label'] }}</option>
-                                    @endforeach
-                                </select>
-
-                                <div id="bankDropdown" style="display: none; margin-top: 8px;">
-                                    <label class="d-block mb-1"
-                                        style="font-size: 12px; font-weight: 600; color: #8c7e6c; text-transform: uppercase; letter-spacing: 0.06em;">Select
-                                        Bank</label>
-                                    <select name="bank" class="form-select form-select-sm"
-                                        style="border-color: #d1cbbf; font-size: 13px;">
-                                        <option value="">Select Bank</option>
-                                        @foreach ($banks as $bank)
-                                            <option value="{{ $bank['value'] }}">{{ $bank['name'] }}</option>
+                                <label class="addr-field-label d-block mb-1">Payment Method</label>
+                                <div class="payment-select-wrapper">
+                                    <select name="payment_method" class="payment-select" id="paymentMethod">
+                                        <option value="">Choose Payment Method</option>
+                                        @foreach ($paymentMethods as $method)
+                                            <option value="{{ $method['value'] }}">{{ $method['label'] }}</option>
                                         @endforeach
                                     </select>
+                                    <svg class="payment-select-arrow" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                        <polyline points="6 9 12 15 18 9"></polyline>
+                                    </svg>
+                                </div>
+                                <span class="payment-error" id="err_payment_method">Please select a payment method</span>
+
+                                <div id="bankDropdown" style="display: none; margin-top: 8px;">
+                                    <label class="addr-field-label d-block mb-1">Select Bank</label>
+                                    <div class="payment-select-wrapper">
+                                        <select name="bank" class="payment-select" id="bankSelect">
+                                            <option value="">Select Bank</option>
+                                            @foreach ($banks as $bank)
+                                                <option value="{{ $bank['value'] }}">{{ $bank['name'] }}</option>
+                                            @endforeach
+                                        </select>
+                                        <svg class="payment-select-arrow" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                            <polyline points="6 9 12 15 18 9"></polyline>
+                                        </svg>
+                                    </div>
+                                    <span class="payment-error" id="err_bank">Please select a bank</span>
                                 </div>
                             </div>
 
@@ -991,7 +1064,7 @@
                                     <path
                                         d="M7.002 11a1 1 0 1 1 2 0 1 1 0 0 1-2 0zM7.1 4.995a.905.905 0 1 1 1.8 0l-.35 3.507a.552.552 0 0 1-1.1 0L7.1 4.995z" />
                                 </svg>
-                                <span>QRIS is only available for transactions below Rp 10,000,000</span>
+                                <span>QRIS is only available for transactions below Rp 10.000.000</span>
                             </div>
 
                             {{-- Hidden inputs --}}
@@ -1047,7 +1120,7 @@
                                     {{-- Left color block --}}
                                     <div class="voucher-card-left {{ $typeClass }}">
                                         <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20"
-                                            fill="{{ $isShipping ? '#5c695d' : '#bd654e' }}" viewBox="0 0 16 16">
+                                            fill="{{ $isShipping ? '#b83d2a' : '#b83d2a' }}" viewBox="0 0 16 16">
                                             <path
                                                 d="M0 3.5A1.5 1.5 0 0 1 1.5 2h13A1.5 1.5 0 0 1 16 3.5v2a.5.5 0 0 1-.5.5c-.75 0-1.5.75-1.5 1.5S14.75 9 15.5 9a.5.5 0 0 1 .5.5v2a1.5 1.5 0 0 1-1.5 1.5h-13A1.5 1.5 0 0 1 0 11.5v-2a.5.5 0 0 1 .5-.5C1.25 9 2 8.25 2 7.5S1.25 6 .5 6a.5.5 0 0 1-.5-.5v-2z" />
                                         </svg>
@@ -1395,12 +1468,12 @@
                         let badgeHtml = '';
                         if (usedFor === 'delivery') {
                             badgeHtml = `<span class="badge-voucher-active px-2 py-1 rounded text-white fw-bold" 
-                                        style="background-color: #5c695d; font-size: 11px; border: 1px solid #4a544b;">
+                                        style="background-color: #b83d2a; font-size: 11px; border: 1px solid #b83d2a;">
                                             Free Shipping
                                         </span>`;
                         } else {
                             badgeHtml = `<span class="badge-voucher-active px-2 py-1 rounded fw-bold" 
-                                        style="background-color: #fcf5f3; color: #bd654e; border: 1px solid #bd654e; font-size: 11px;">
+                                        style="background-color: #fcf5f3; color: #b83d2a; border: 1px solid #b83d2a; font-size: 11px;">
                                             ${voucherName}
                                         </span>`;
                         }
@@ -1422,8 +1495,8 @@
                 const textDisplay = document.getElementById('selectedVoucherText');
                 @if ($pendingVoucher->used_for === 'delivery')
                     textDisplay.innerHTML = `
-                        <span class="px-2 py-1 rounded fw-bold d-inline-flex align-items-center gap-1" style="background-color: #f1f4f2; color: #5c695d; border: 1px solid #5c695d; font-size: 11px;">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="11" height="11" fill="#5c695d" viewBox="0 0 16 16">
+                        <span class="px-2 py-1 rounded fw-bold d-inline-flex align-items-center gap-1" style="background-color: #fdf3f2; color: #b83d2a; border: 1px solid #b83d2a; font-size: 11px;">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="11" height="11" fill="#b83d2a" viewBox="0 0 16 16">
                                 <path d="M0 3.5A1.5 1.5 0 0 1 1.5 2h13A1.5 1.5 0 0 1 16 3.5v2a.5.5 0 0 1-.5.5c-.75 0-1.5.75-1.5 1.5S14.75 9 15.5 9a.5.5 0 0 1 .5.5v2a1.5 1.5 0 0 1-1.5 1.5h-13A1.5 1.5 0 0 1 0 11.5v-2a.5.5 0 0 1 .5-.5C1.25 9 2 8.25 2 7.5S1.25 6 .5 6a.5.5 0 0 1-.5-.5v-2z"/>
                             </svg>
                             Free Shipping
@@ -1481,8 +1554,8 @@
             if (usedFor === 'delivery') {
                 textDisplay.innerHTML = `
                     <span class="px-2 py-1 rounded fw-bold d-inline-flex align-items-center gap-1" 
-                        style="background-color: #f1f4f2; color: #5c695d; border: 1px solid #5c695d; font-size: 11px;">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="11" height="11" fill="#5c695d" viewBox="0 0 16 16">
+                        style="background-color: #fdf3f2; color: #b83d2a; border: 1px solid #b83d2a; font-size: 11px;">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="11" height="11" fill="#b83d2a" viewBox="0 0 16 16">
                             <path d="M0 3.5A1.5 1.5 0 0 1 1.5 2h13A1.5 1.5 0 0 1 16 3.5v2a.5.5 0 0 1-.5.5c-.75 0-1.5.75-1.5 1.5S14.75 9 15.5 9a.5.5 0 0 1 .5.5v2a1.5 1.5 0 0 1-1.5 1.5h-13A1.5 1.5 0 0 1 0 11.5v-2a.5.5 0 0 1 .5-.5C1.25 9 2 8.25 2 7.5S1.25 6 .5 6a.5.5 0 0 1-.5-.5v-2z"/>
                         </svg>
                         Free Shipping
@@ -1505,6 +1578,7 @@
             if (activeBadge) activeBadge.classList.remove('d-none');
 
             voucherApplied = true;
+            document.getElementById('voucher-trigger-icon')?.style.setProperty('display', 'none');
             document.querySelector('.voucher-trigger')?.classList.add('has-voucher');
             calculateGrandTotal();
         }
@@ -2078,6 +2152,7 @@
 
 
         function clearSelectedVoucher() {
+            document.getElementById('voucher-trigger-icon')?.style.setProperty('display', 'inline');
             voucherApplied = false;
             document.querySelector('.voucher-trigger')?.classList.remove('has-voucher');
             document.getElementById('applied-voucher-id').value = "";
@@ -2171,8 +2246,25 @@
 
             if (!paymentMethod) {
                 e.preventDefault();
-                alert('Please select a payment method.');
+                const sel = document.getElementById('paymentMethod');
+                const err = document.getElementById('err_payment_method');
+                sel.classList.add('is-invalid');
+                err.classList.add('visible');
+                sel.scrollIntoView({ behavior: 'smooth', block: 'center' });
                 return;
+            }
+
+            if (paymentMethod === 'virtual_account') {
+                const bankSelect = document.querySelector('select[name="bank"]');
+                if (!bankSelect || !bankSelect.value) {
+                    e.preventDefault();
+                    // styling error seperti payment method
+                    bankSelect.classList.add('is-invalid');
+                    const errBank = document.getElementById('err_bank');
+                    if (errBank) errBank.classList.add('visible');
+                    bankSelect.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    return;
+                }
             }
         });
 
@@ -2199,6 +2291,8 @@
         document.getElementById('paymentMethod').addEventListener('change', function() {
             handlePaymentChange(this.value);
             checkQrisLimit();
+            this.classList.remove('is-invalid');
+            document.getElementById('err_payment_method')?.classList.remove('visible');
         });
     </script>
 @endpush

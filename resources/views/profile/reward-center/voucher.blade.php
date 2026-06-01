@@ -538,7 +538,9 @@
             : `<span class="badge" style="background:#fcf5f3;color:#bd654e;font-size:11px;">Product Discount</span>`;
 
         const action = document.getElementById('vModalAction');
-        action.innerHTML = `<button class="btn-use-now" onclick="useVoucher(${voucherId}, this)">Use Now →</button>`;
+        action.innerHTML = isExpired
+            ? '<button class="btn-use-now" disabled style="opacity:.45;cursor:not-allowed;">Expired</button>'
+            : `<button class="btn-use-now" onclick="useVoucher(${voucherId}, this)">Use Now →</button>`;
 
         vModal.style.display = 'flex';
         setTimeout(() => {

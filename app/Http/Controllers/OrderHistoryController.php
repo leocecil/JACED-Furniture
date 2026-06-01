@@ -9,6 +9,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Validation\Rule;
 
 class OrderHistoryController extends Controller
 {
@@ -74,19 +75,16 @@ class OrderHistoryController extends Controller
 
     public function markReceived($id)
     {
-        Log::info('markReceived called', ['id' => $id, 'user' => Auth::id()]);
         $order = Auth::user()->orders()->findOrFail($id);
-        Log::info('order found', ['status' => $order->status]);
 
         if ($order->status !== 'shipped') {
-            return redirect()->back()->with('error', 'Order tidak bisa dikonfirmasi.');
+            return redirect()->back()->with('error', 'Order cannot be confirmed.');
         }
 
         $order->status = 'arrived';
         $order->arrived_at = now();
         $order->save();
 
-        // Tambah poin saat arrived
         $poinBaru = floor($order->total_price / 10000);
         if ($poinBaru > 0) {
             $user = Auth::user();
@@ -113,13 +111,13 @@ class OrderHistoryController extends Controller
         $request->validate([
             'type'        => 'required|in:missing,damaged',
             'description' => 'required|string|max:1000',
-            'photo'       => $request->input('type') === 'missing' ? 'nullable|image|max:2048' : 'required|image|max:2048',
+            'photo'       => $request->input('type') === Rule::requiredIf($request->input('type') === 'damaged'), 'nullable', 'image', 'max:2048',
         ]);
 
         $order = Auth::user()->orders()->findOrFail($id);
 
         if ($order->status !== 'shipped') {
-            return redirect()->back()->with('error', 'Komplain hanya bisa diajukan sebelum pesanan dikonfirmasi.');
+            return redirect()->back()->with('error', 'Complaint can only be submitted before the order is confirmed.');
         }
 
         $photoPath = null;
@@ -141,7 +139,7 @@ class OrderHistoryController extends Controller
         $order->disputed_at = now();
         $order->save();
 
-        return redirect()->back()->with('success', 'Komplain berhasil diajukan. Admin akan segera meninjau.');
+        return redirect()->back()->with('success', 'Complaint successfully submitted. Admin will review it soon.');
     }
 
     public function cancelOrder(Request $request, $id)
@@ -149,7 +147,7 @@ class OrderHistoryController extends Controller
         $order = Auth::user()->orders()->findOrFail($id);
 
         if (!in_array($order->status, ['unpaid', 'on_process'])) {
-            return redirect()->back()->with('error', 'Order tidak bisa dibatalkan.');
+            return redirect()->back()->with('error', 'Order cannot be cancelled.');
         }
 
         $needsRefund = $order->status === 'on_process';
@@ -160,10 +158,10 @@ class OrderHistoryController extends Controller
         }
 
         $reasonLabel = match($reason) {
-            'wrong_address'      => 'Salah alamat pengiriman',
-            'change_of_mind'     => 'Berubah pikiran',
-            'found_cheaper'      => 'Menemukan harga lebih murah',
-            'ordered_by_mistake' => 'Pesanan tidak sengaja',
+            'wrong_address'      => 'Wrong delivery address',
+            'change_of_mind'     => 'Change of mind',
+            'found_cheaper'      => 'Found a cheaper price',
+            'ordered_by_mistake' => 'Ordered by mistake',
             default              => $reason,
         };
 
@@ -177,8 +175,8 @@ class OrderHistoryController extends Controller
         $order->save();
 
         $message = $needsRefund
-            ? 'Order dibatalkan. Refund akan diproses dalam 3-5 hari kerja.'
-            : 'Order berhasil dibatalkan.';
+            ? 'Order cancelled. Refund will be processed within 3-5 business days.'
+            : 'Order successfully cancelled.';
 
         return redirect()->back()->with('success', $message);
     }
@@ -204,7 +202,17 @@ class OrderHistoryController extends Controller
         $order = Order::with(['orderDetails.product', 'paymentMethod', 'vaBank'])->findOrFail($id);
 
         if ($order->user_id !== Auth::id() || $order->status !== 'unpaid') {
-            return redirect()->route('store.orderhistory')->with('error', 'Order tidak valid.');
+            return redirect()->route('store.orderhistory')->with('error', 'Invalid order.');
+        }
+
+        if ($order->is_payment_expired) {
+            $order->status = 'cancelled';
+            $order->cancelled_at = now();
+            $order->cancellation_reason = 'Payment time expired';
+            $order->save();
+ 
+            return redirect()->route('store.orderhistory')
+                ->with('error', 'Payment time has expired. Your order has been automatically cancelled.');
         }
 
         \Midtrans\Config::$serverKey    = config('midtrans.server_key');
@@ -215,7 +223,6 @@ class OrderHistoryController extends Controller
         $newMidtransOrderId = 'JACED-ORD-' . $order->id . '-' . time();
         $order->update(['midtrans_order_id' => $newMidtransOrderId]);
 
-        // Rebuild enabled_payments dari data order
         $paymentMethod = $order->paymentMethod?->name;
         $chosenBank    = $order->vaBank?->name;
 
@@ -233,10 +240,17 @@ class OrderHistoryController extends Controller
             };
         }
 
+        $remainingMinutes = max(1, (int) now()->diffInMinutes($order->payment_expired_at, false));
+
         $params = [
             'transaction_details' => [
                 'order_id'     => $newMidtransOrderId,
                 'gross_amount' => (int) $order->total_price,
+            ],
+            'expiry' => [
+                'start_time' => now()->format('Y-m-d H:i:s O'),
+                'unit'       => 'minutes',
+                'duration'   => $remainingMinutes,
             ],
             'callbacks' => [
                 'finish' => route('payment_return', $order->id),
