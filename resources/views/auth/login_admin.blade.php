@@ -1,7 +1,5 @@
 @extends('layouts.abase')
 
-@section('title', 'Admin Login')
-
 @section('content')
 <div class="text-center mb-4">
     <h3 class="fw-bold mb-1" style="color: var(--jaced-brown-dark);">Welcome Back</h3>

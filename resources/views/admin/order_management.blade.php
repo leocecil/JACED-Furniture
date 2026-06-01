@@ -59,7 +59,7 @@ $statusOrder = ['unpaid', 'on_process', 'packed', 'delivered', 'shipped', 'arriv
 
     {{-- ── Stat Cards ── --}}
     <div class="row g-3 mb-4">
-        <div class="col-6 col-md-4">
+        <div class="col-12 col-sm-6 col-md-4">
             <div class="jaced-card p-3 p-md-4 h-100">
                 <div class="d-flex align-items-center justify-content-between mb-3">
                     <div style="background:var(--jaced-caramel-bg); border-radius:8px; padding:8px;">
@@ -72,7 +72,7 @@ $statusOrder = ['unpaid', 'on_process', 'packed', 'delivered', 'shipped', 'arriv
             </div>
         </div>
 
-        <div class="col-6 col-md-4">
+        <div class="col-12 col-sm-6 col-md-4">
             <div class="jaced-card p-3 p-md-4 h-100">
                 <div class="d-flex align-items-center justify-content-between mb-3">
                     <div style="background:#E3F2FD; border-radius:8px; padding:8px;">
@@ -103,7 +103,7 @@ $statusOrder = ['unpaid', 'on_process', 'packed', 'delivered', 'shipped', 'arriv
 
         @if($stats['open_disputes'] > 0)
         <div class="col-12">
-            <div style="background:#FFF3E0; border:1px solid #FFCC80; border-radius:10px; padding:10px 16px; display:flex; align-items:center; gap:10px;">
+            <div class="dispute-alert">
                 <i class="bi bi-exclamation-triangle" style="color:#E65100; font-size:16px;"></i>
                 <span style="font-size:13px; font-weight:600; color:#E65100;">
                     {{ $stats['open_disputes'] }} open dispute{{ $stats['open_disputes'] > 1 ? 's' : '' }} need your attention
@@ -153,11 +153,11 @@ $statusOrder = ['unpaid', 'on_process', 'packed', 'delivered', 'shipped', 'arriv
             </div>
             <div class="filter-group">
                 <span class="filter-label">From</span>
-                <input type="date" id="filterDateFrom" class="filter-input" style="min-width:unset; width:145px;" onchange="fetchOrders(1)">
+                <input type="date" id="filterDateFrom" class="filter-input date-filter" onchange="fetchOrders(1)">
             </div>
             <div class="filter-group">
                 <span class="filter-label">To</span>
-                <input type="date" id="filterDateTo" class="filter-input" style="min-width:unset; width:145px;" onchange="fetchOrders(1)">
+                <input type="date" id="filterDateTo" class="filter-input date-filter" onchange="fetchOrders(1)">
             </div>
             <button class="btn-clear" onclick="clearFilters()">Clear</button>
         </div>

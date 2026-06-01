@@ -668,3 +668,130 @@
     .ap-forgot-link:hover {
         text-decoration: underline;
     }
+
+    @media (max-width: 576px) {
+
+        .ap-modal {
+            max-width: 100%;
+            padding: 1.25rem;
+            border-radius: 12px;
+        }
+
+        .ap-modal-header {
+            margin-bottom: 1rem;
+        }
+
+        .ap-modal-footer {
+            flex-direction: column-reverse;
+        }
+
+        .ap-modal-footer .ap-btn {
+            width: 100%;
+            justify-content: center;
+        }
+
+        .ap-modal-title {
+            font-size: .9rem;
+        }
+
+        .ap-modal-desc {
+            font-size: .8rem;
+        }
+    }
+
+    /* ===================================
+    RESPONSIVE
+    =================================== */
+
+    /* Tablet */
+    @media (max-width: 1024px) {
+
+        .ap-sidebar {
+            width: 35%;
+        }
+
+        .ap-card,
+        .ap-profile-card {
+            padding: 1.5rem;
+        }
+
+    }
+
+    /* Mobile */
+    @media (max-width: 768px) {
+
+        .ap-page {
+            padding: 1rem;
+        }
+
+        .ap-heading {
+            margin-bottom: 1rem;
+            font-size: .95rem;
+        }
+
+        .ap-layout {
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .ap-sidebar {
+            width: 100%;
+            position: static;
+        }
+
+        .ap-profile-card {
+            padding: 1.25rem;
+        }
+
+        .ap-card {
+            padding: 1.25rem;
+        }
+
+        /* Avatar */
+        .ap-avatar-wrap,
+        .ap-avatar {
+            width: 80px;
+            height: 80px;
+        }
+
+        .ap-profile-name {
+            font-size: 1rem;
+        }
+
+        /* Form */
+        .ap-form-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .ap-form-grid .ap-field-full {
+            grid-column: auto;
+        }
+
+        /* Footer button */
+        .ap-form-footer {
+            justify-content: stretch;
+        }
+
+        .ap-form-footer .ap-btn {
+            width: 100%;
+            justify-content: center;
+        }
+
+        /* Security card */
+        .ap-security-row {
+            flex-direction: column;
+            align-items: flex-start;
+        }
+
+        .ap-security-row .ap-btn {
+            width: 100%;
+            justify-content: center;
+        }
+
+        /* Account details */
+        .ap-account-row {
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 4px;
+        }
+    }

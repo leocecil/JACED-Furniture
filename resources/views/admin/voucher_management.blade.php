@@ -98,63 +98,65 @@
         </div>
 
         {{-- Table --}}
-        <table class="jaced-table">
-            <thead>
-                <tr>
-                    <th>Voucher Name</th>
-                    <th>Type</th>
-                    <th>Discount</th>
-                    <th>Max Discount</th>
-                    <th>Point Cost</th>
-                    <th>Codes</th>
-                    <th>Status</th>
-                </tr>
-            </thead>
-            <tbody>
-                @forelse($voucherTypes as $vt)
-                @php
-                    $usedPct  = $vt->total_quantity > 0 ? round(($vt->redeemed_count / $vt->total_quantity) * 100) : 0;
-                    $fillClass = $usedPct >= 100 ? 'full' : ($usedPct >= 75 ? 'warn' : '');
-                @endphp
-                <tr id="row-{{ $vt->id }}" class="clickable-row" onclick="openDetailPanel('{{ $vt->id }}')" title="Click to view details">
-                    <td>
-                        <div class="voucher-name">{{ $vt->name }}</div>
-                        <div class="voucher-desc">{{ Str::limit($vt->description, 65) }}</div>
-                    </td>
-                    <td>
-                        <span style="text-transform:capitalize; font-size:13px;">
-                            {{ $vt->used_for === 'product' ? '🛍️ Product' : '🚚 Delivery' }}
-                        </span>
-                    </td>
-                    <td><strong>{{ $vt->discount_percentage }}%</strong></td>
-                    <td>Rp {{ number_format($vt->max_discount, 0, ',', '.') }}</td>
-                    <td>{{ number_format($vt->point_cost) }} pts</td>
-                    <td>
-                        <div class="usage-bar-wrap">
-                            <div class="usage-bar-top">
-                                <span>{{ $vt->redeemed_count }}/{{ $vt->total_quantity }}</span>
-                                <span>{{ $usedPct }}%</span>
+        <div class="table-responsive">
+            <table class="jaced-table">
+                <thead>
+                    <tr>
+                        <th>Voucher Name</th>
+                        <th>Type</th>
+                        <th>Discount</th>
+                        <th>Max Discount</th>
+                        <th>Point Cost</th>
+                        <th>Codes</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @forelse($voucherTypes as $vt)
+                    @php
+                        $usedPct  = $vt->total_quantity > 0 ? round(($vt->redeemed_count / $vt->total_quantity) * 100) : 0;
+                        $fillClass = $usedPct >= 100 ? 'full' : ($usedPct >= 75 ? 'warn' : '');
+                    @endphp
+                    <tr id="row-{{ $vt->id }}" class="clickable-row" onclick="openDetailPanel('{{ $vt->id }}')" title="Click to view details">
+                        <td>
+                            <div class="voucher-name">{{ $vt->name }}</div>
+                            <div class="voucher-desc">{{ Str::limit($vt->description, 65) }}</div>
+                        </td>
+                        <td>
+                            <span style="text-transform:capitalize; font-size:13px;">
+                                {{ $vt->used_for === 'product' ? '🛍️ Product' : '🚚 Delivery' }}
+                            </span>
+                        </td>
+                        <td><strong>{{ $vt->discount_percentage }}%</strong></td>
+                        <td>Rp {{ number_format($vt->max_discount, 0, ',', '.') }}</td>
+                        <td>{{ number_format($vt->point_cost) }} pts</td>
+                        <td>
+                            <div class="usage-bar-wrap">
+                                <div class="usage-bar-top">
+                                    <span>{{ $vt->redeemed_count }}/{{ $vt->total_quantity }}</span>
+                                    <span>{{ $usedPct }}%</span>
+                                </div>
+                                <div class="usage-bar">
+                                    <div class="usage-bar-fill {{ $fillClass }}" style="width:{{ $usedPct }}%;"></div>
+                                </div>
                             </div>
-                            <div class="usage-bar">
-                                <div class="usage-bar-fill {{ $fillClass }}" style="width:{{ $usedPct }}%;"></div>
-                            </div>
-                        </div>
-                    </td>
-                    <td>
-                        <span class="badge-status {{ $vt->is_active ? 'badge-active' : 'badge-inactive' }}" id="badge-{{ $vt->id }}">
-                            {{ $vt->is_active ? 'Active' : 'Inactive' }}
-                        </span>
-                    </td>
-                </tr>
-                @empty
-                <tr>
-                    <td colspan="7" style="text-align:center; padding:48px; color:var(--jaced-muted);">
-                        No voucher types found.
-                    </td>
-                </tr>
-                @endforelse
-            </tbody>
-        </table>
+                        </td>
+                        <td>
+                            <span class="badge-status {{ $vt->is_active ? 'badge-active' : 'badge-inactive' }}" id="badge-{{ $vt->id }}">
+                                {{ $vt->is_active ? 'Active' : 'Inactive' }}
+                            </span>
+                        </td>
+                    </tr>
+                    @empty
+                    <tr>
+                        <td colspan="7" style="text-align:center; padding:48px; color:var(--jaced-muted);">
+                            No voucher types found.
+                        </td>
+                    </tr>
+                    @endforelse
+                </tbody>
+            </table>
+        </div>
 
         {{-- Pagination --}}
         <div class="pagination-wrap">
