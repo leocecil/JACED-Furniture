@@ -47,4 +47,7 @@ return [
     'origin_id' => env('RAJAONGKIR_ORIGIN_ID'),
     ],
 
+    'groq' => [
+        'key' => env('GROQ_API_KEY'),
+    ],
 ];
