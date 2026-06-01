@@ -109,6 +109,12 @@ class OrderManagementController extends Controller
                 'updated_at'      => now(),
             ]);
 
+            DB::table('orders')->where('id', $order->id)->update([
+                'status'     => 'arrived',
+                'arrived_at' => $order->arrived_at ?? now(),
+                'updated_at' => now(),
+            ]);
+
             return response()->json([
                 'success' => true,
                 'message' => 'Dispute rejected.',
@@ -134,6 +140,7 @@ class OrderManagementController extends Controller
                 'refund_status'  => 'completed',
                 'refund_type'    => $refundType,
                 'refund_amount'  => $refundAmount,
+                'revenue_deduction'  => $refundAmount,
                 'updated_at'     => now(),
             ]);
 
@@ -173,6 +180,9 @@ class OrderManagementController extends Controller
             return response()->json(['error' => 'Dispute not found.'], 404);
         }
 
+        $order = DB::table('orders')->where('id', $dispute->order_id)->first();
+        $itemSubtotal = $order->total_price - $order->delivery_fee - $order->service_tax + $order->discount_amount;
+
         DB::table('order_disputes')->where('id', $id)->update([
             'status'                  => 'resolved',
             'resolved_at'             => now(),
@@ -183,6 +193,7 @@ class OrderManagementController extends Controller
         DB::table('orders')->where('id', $dispute->order_id)->update([
             'status'     => 'arrived',
             'arrived_at' => now(),
+            'revenue_deduction' => $itemSubtotal,
             'updated_at' => now(),
         ]);
 
@@ -270,10 +281,11 @@ class OrderManagementController extends Controller
             'unpaid'          => DB::table('orders')->where('status', 'unpaid')->count(),
             'delivered'       => DB::table('orders')->where('status', 'delivered')->count(),
             'open_disputes'   => DB::table('order_disputes')->where('status', 'open')->count(),
-            'weekly_revenue'  => DB::table('orders')
-                ->whereNotIn('status', ['cancelled', 'unpaid'])
-                ->where('created_at', '>=', Carbon::now()->startOfWeek())
-                ->sum('total_price'),
+            'weekly_revenue' => DB::table('orders')
+            ->whereNotIn('status', ['cancelled', 'unpaid'])
+            ->where('created_at', '>=', Carbon::now()->startOfWeek())
+            ->selectRaw('SUM(total_price - revenue_deduction) as revenue')
+            ->value('revenue') ?? 0,
         ];
     }
 
