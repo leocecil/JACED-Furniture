@@ -90,8 +90,14 @@ class RewardController extends Controller
             ]);
 
         $redeemGoals = DB::table('voucher_types')
-            ->selectRaw('MIN(id) as id, name, description, used_for, point_cost, discount_percentage, max_discount, COUNT(*) as stock')
+            ->selectRaw('
+                MIN(id) as id, name, description, used_for, point_cost, discount_percentage, max_discount,
+                SUM(CASE WHEN id NOT IN (SELECT voucher_type_id FROM vouchers) THEN 1 ELSE 0 END) as stock
+            ')
+            ->whereNull('deleted_at')
+            ->where('is_active', true)
             ->groupBy('name', 'description', 'used_for', 'point_cost', 'discount_percentage', 'max_discount')
+            ->having('stock', '>', 0)
             ->limit(2)
             ->get();
 
@@ -119,13 +125,6 @@ class RewardController extends Controller
         }
 
         try {
-            $stockCount = DB::table('voucher_types')
-                ->where('name', $voucherType->name)
-                ->count();
-
-            if ($stockCount <= 0) {
-                return redirect()->back()->with('error', 'This voucher is out of stock.');
-            }
             DB::transaction(function () use ($user, $voucherType) {
                 $freshUser = DB::table('users')
                     ->where('id', $user->id)
@@ -136,12 +135,28 @@ class RewardController extends Controller
                     throw new \Exception('insufficient_points');
                 }
 
+                // Ambil 1 unit stok yang belum pernah di-assign ke siapapun
+                $availableUnit = DB::table('voucher_types')
+                    ->where('name', $voucherType->name)
+                    ->where('max_discount', $voucherType->max_discount)
+                    ->where('is_active', true)
+                    ->whereNull('deleted_at')
+                    ->whereNotIn('id', function ($q) {
+                        $q->select('voucher_type_id')->from('vouchers');
+                    })
+                    ->lockForUpdate()
+                    ->first();
+
+                if (!$availableUnit) {
+                    throw new \Exception('out_of_stock');
+                }
+
                 DB::table('users')
                     ->where('id', $user->id)
                     ->decrement('current_points', $voucherType->point_cost);
 
                 DB::table('vouchers')->insert([
-                    'voucher_type_id' => $voucherType->id,
+                    'voucher_type_id' => $availableUnit->id, // ✅ Unit unik yang belum dipakai
                     'user_id'         => $user->id,
                     'expiry_date'     => now()->addDays(30),
                     'is_active'       => true,
@@ -160,9 +175,11 @@ class RewardController extends Controller
                 ]);
             });
         } catch (\Exception $e) {
-            $msg = $e->getMessage() === 'insufficient_points'
-                ? 'Not enough points.'
-                : 'An error occurred, please try again.';
+            $msg = match($e->getMessage()) {
+                'insufficient_points' => 'Not enough points.',
+                'out_of_stock'        => 'This voucher is out of stock.',
+                default               => 'An error occurred, please try again.',
+            };
             return redirect()->back()->with('error', $msg);
         }
 
@@ -175,8 +192,14 @@ class RewardController extends Controller
         $user = Auth::user();
         $currentPoints = $user->current_points ?? 0;
         $redeemGoals = DB::table('voucher_types')
-            ->selectRaw('MIN(id) as id, name, description, used_for, point_cost, discount_percentage, max_discount, COUNT(*) as stock')
+            ->selectRaw('
+                MIN(id) as id, name, description, used_for, point_cost, discount_percentage, max_discount,
+                SUM(CASE WHEN id NOT IN (SELECT voucher_type_id FROM vouchers) THEN 1 ELSE 0 END) as stock
+            ')
+            ->whereNull('deleted_at')
+            ->where('is_active', true)
             ->groupBy('name', 'description', 'used_for', 'point_cost', 'discount_percentage', 'max_discount')
+            ->having('stock', '>', 0)
             ->get();
 
         return view('profile.reward-center.redeem-point', compact(
@@ -281,6 +304,7 @@ class RewardController extends Controller
             ->select('vouchers.*', 'voucher_types.name', 'voucher_types.used_for', 'voucher_types.discount_percentage', 'voucher_types.max_discount', 'voucher_types.description') 
             ->get();
 
+        $activeIds = $activeVouchers->pluck('id')->toArray();
         $historyVouchers = DB::table('vouchers')
             ->join('voucher_types', 'vouchers.voucher_type_id', '=', 'voucher_types.id')
             ->where('vouchers.user_id', $user->id)
@@ -289,7 +313,7 @@ class RewardController extends Controller
                 ->orWhereNotNull('vouchers.redeemed_at')
                 ->orWhere('vouchers.expiry_date', '<=', now());
             })
-            ->whereNotIn('vouchers.id', $activeVouchers->pluck('id'))
+            ->when(!empty($activeIds), fn($q) => $q->whereNotIn('vouchers.id', $activeIds))
             ->select('vouchers.*', 'voucher_types.name', 'voucher_types.used_for', 'voucher_types.discount_percentage', 'voucher_types.max_discount', 'voucher_types.description') // ← tambah description
             ->get();
 
