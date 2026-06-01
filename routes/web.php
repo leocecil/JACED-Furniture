@@ -108,6 +108,7 @@ Route::middleware(['role:customer'])->group(function() {
     Route::get('/orderhistory', [OrderHistoryController::class, 'index'])->name('store.orderhistory');
     Route::get('/orderhistory/{id}', [OrderHistoryController::class, 'show'])->name('store.orderhistory_detail.show');
     Route::get('/orderhistory/{id}/invoice', [OrderHistoryController::class, 'invoice'])->name('store.orderhistory.invoice');
+    Route::post('/orderhistory/{id}/invoice/send', [OrderHistoryController::class, 'sendInvoice'])->name('store.orderhistory.invoice.send');
 
     // Order actions - customer
     Route::patch('/orderhistory/{id}/received', [OrderHistoryController::class, 'markReceived'])->name('store.orderhistory.received');

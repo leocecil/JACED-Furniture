@@ -326,7 +326,7 @@
                 {{-- Ledger scroll --}}
                 <div class="ledger-scroll" id="ledgerList">
                     @forelse($histories as $history)
-                        <div class="ledger-row" data-type="{{ $history->type }}">
+                        <div class="ledger-row" data-type="{{ $history->type }}" id="row-{{ $history->id }}">
                             <div class="ledger-main-info" onclick="toggleRow(this)">
                                 <div class="icon-status-frame {{ in_array($history->type, ['redeemed','expired']) ? 'redeemed' : 'earned' }}">
                                     @if($history->type === 'earned')
@@ -408,8 +408,8 @@
                                 <circle cx="26" cy="26" r="5" fill="#EDE3D8"/>
                                 <path d="M22 22l8 8M30 22l-8 8" stroke="#C8BAA8" stroke-width="1.5" stroke-linecap="round"/>
                             </svg>
-                            <p class="empty-title">Tidak ada riwayat di {{ $selectedYear }}</p>
-                            <p class="empty-sub">Coba pilih tahun lain dari dropdown.</p>
+                            <p class="empty-title">There are no transactions in {{ $selectedYear }}</p>
+                            <p class="empty-sub">Try selecting a different year from the dropdown.</p>
                         </div>
                     @endforelse
 
@@ -421,8 +421,8 @@
                                 <circle cx="26" cy="26" r="5" fill="#EDE3D8"/>
                                 <path d="M22 22l8 8M30 22l-8 8" stroke="#C8BAA8" stroke-width="1.5" stroke-linecap="round"/>
                             </svg>
-                            <p class="empty-title">Tidak ada transaksi di kategori ini</p>
-                            <p class="empty-sub">Coba filter "All Activity".</p>
+                            <p class="empty-title">There are no transactions in this category</p>
+                            <p class="empty-sub">Try filtering "All Activity".</p>
                         </div>
                     </div>
                 </div>
@@ -443,13 +443,11 @@
 
 @push('scripts')
 <script>
-    /* progress bar */
     document.addEventListener('DOMContentLoaded', function () {
         const fill = document.getElementById('progressFill');
         if (fill) setTimeout(() => { fill.style.width = '{{ $pct }}%'; }, 300);
     });
 
-    /* accordion */
     function toggleRow(el) {
         const row   = el.parentElement;
         const panel = row.querySelector('.ledger-detail-panel');
@@ -507,7 +505,18 @@
 
         applyTypeFilter('all');
 
-        /* konfetti — hanya muncul kalau transaksi pertama adalah earned */
+        const openId = new URLSearchParams(window.location.search).get('open');
+        if (openId) {
+            const target = document.getElementById('row-' + openId);
+            if (target) {
+                setTimeout(() => {
+                    target.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    const mainInfo = target.querySelector('.ledger-main-info');
+                    if (mainInfo) toggleRow(mainInfo);
+                }, 400);
+            }
+        }
+
         @if($histories->isNotEmpty() && $histories->first()->type === 'earned')
         (function () {
             const canvas = document.createElement('canvas');

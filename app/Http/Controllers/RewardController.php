@@ -29,28 +29,30 @@ class RewardController extends Controller
             })
             ->get();
 
+        $totalToExpire = 0;
+        $insertRows = [];
         foreach ($expiredRows as $row) {
-            DB::transaction(function () use ($row, $user) {
-                $deduct = min($row->points, $user->current_points);
-                if ($deduct <= 0) return;
+            $deduct = min($row->points, $user->current_points - $totalToExpire);
+            if ($deduct <= 0) continue;
+            $totalToExpire += $deduct;
+            $insertRows[] = [
+                'user_id'    => $user->id,
+                'points'     => -$deduct,
+                'type'       => 'expired',
+                'source'     => 'expiry',
+                'order_id'   => $row->id,
+                'expired_at' => null,
+                'created_at' => now(),
+                'updated_at' => now(),
+            ];
+        }
 
+        if ($totalToExpire > 0) {
+            DB::transaction(function () use ($user, $totalToExpire, $insertRows) {
                 DB::table('users')
                     ->where('id', $user->id)
-                    ->decrement('current_points', $deduct);
-
-                DB::table('point_histories')->insert([
-                    'user_id'    => $user->id,
-                    'points'     => -$deduct,
-                    'type'       => 'expired',
-                    'source'     => 'expiry',
-                    'order_id'   => $row->id,
-                    'expired_at' => null,
-                    'created_at' => now(),
-                    'updated_at' => now(),
-                ]);
-
-                // refresh supaya decrement berikutnya akurat
-                $user->refresh();
+                    ->decrement('current_points', $totalToExpire);
+                DB::table('point_histories')->insert($insertRows);
             });
         }
     }
@@ -76,6 +78,7 @@ class RewardController extends Controller
             ->limit(5)
             ->get()
             ->map(fn($item) => [
+                'id'     => $item->id,
                 'source' => match($item->source) {
                     'purchase'       => 'Purchase Reward',
                     'redeem_voucher' => 'Voucher Redeemed',
@@ -114,38 +117,51 @@ class RewardController extends Controller
         $voucherType = DB::table('voucher_types')->find($voucherTypeId);
 
         if (!$voucherType) {
-            return redirect()->back()->with('error', 'Voucher tidak ditemukan.');
+            return redirect()->back()->with('error', 'Voucher not found.');
         }
 
-        if ($user->current_points < $voucherType->point_cost) {
-            return redirect()->back()->with('error', 'Poin kamu tidak mencukupi.');
+        try {
+            DB::transaction(function () use ($user, $voucherType) {
+                $freshUser = DB::table('users')
+                    ->where('id', $user->id)
+                    ->lockForUpdate()
+                    ->first();
+
+                if ($freshUser->current_points < $voucherType->point_cost) {
+                    throw new \Exception('insufficient_points');
+                }
+
+                DB::table('users')
+                    ->where('id', $user->id)
+                    ->decrement('current_points', $voucherType->point_cost);
+
+                DB::table('vouchers')->insert([
+                    'voucher_type_id' => $voucherType->id,
+                    'user_id'         => $user->id,
+                    'expiry_date'     => now()->addDays(30),
+                    'is_active'       => true,
+                    'created_at'      => now(),
+                    'updated_at'      => now(),
+                ]);
+
+                DB::table('point_histories')->insert([
+                    'user_id'    => $user->id,
+                    'points'     => -$voucherType->point_cost,
+                    'type'       => 'redeemed',
+                    'source'     => 'redeem_voucher',
+                    'order_id'   => null,
+                    'created_at' => now(),
+                    'updated_at' => now(),
+                ]);
+            });
+        } catch (\Exception $e) {
+            $msg = $e->getMessage() === 'insufficient_points'
+                ? 'Not enough points.'
+                : 'An error occurred, please try again.';
+            return redirect()->back()->with('error', $msg);
         }
 
-        // Kurangi poin, accumulated tidak berkurang
-        $user->decrement('current_points', $voucherType->point_cost);
-
-        // Buat voucher untuk user
-        DB::table('vouchers')->insert([
-            'voucher_type_id' => $voucherType->id,
-            'user_id'         => $user->id,
-            'expiry_date'     => now()->addDays(30),
-            'is_active'       => true,
-            'created_at'      => now(),
-            'updated_at'      => now(),
-        ]);
-
-        // Catat ke point_histories
-        DB::table('point_histories')->insert([
-            'user_id'    => $user->id,
-            'points'     => -$voucherType->point_cost, // negatif karena dipakai
-            'type'       => 'redeemed',
-            'source'     => 'redeem_voucher',
-            'order_id'   => null,
-            'created_at' => now(),
-            'updated_at' => now(),
-        ]);
-
-        return redirect()->back()->with('success', "Berhasil menukar {$voucherType->name}! Cek My Vouchers.");
+        return redirect()->back()->with('success', "Successfully redeemed {$voucherType->name}! Check My Vouchers.");
     }
 
 
@@ -222,10 +238,11 @@ class RewardController extends Controller
             ->where('user_id', Auth::id())
             ->where('is_active', true)
             ->whereNull('redeemed_at')
+            ->where('expiry_date', '>', now())
             ->first();
 
         if (!$voucher) {
-            return redirect()->back()->with('error', 'Voucher tidak valid.');
+            return redirect()->back()->with('error', 'Invalid Voucher.');
         }
 
         session(['pending_voucher_id' => $voucherId]);
@@ -237,7 +254,7 @@ class RewardController extends Controller
 
         if ($cartCount === 0) {
             return redirect()->route('shop')
-                ->with('info', 'Voucher berhasil dipilih! Silakan pilih produk terlebih dahulu.');
+                ->with('info', 'Voucher selected! Please choose a product first.');
         }
 
         return redirect()->route('checkout.index');
@@ -253,7 +270,7 @@ class RewardController extends Controller
             ->where('vouchers.is_active', true)
             ->whereNull('vouchers.redeemed_at')
             ->where('vouchers.expiry_date', '>', now())
-            ->select('vouchers.*', 'voucher_types.name', 'voucher_types.used_for', 'voucher_types.discount_percentage', 'voucher_types.max_discount')
+            ->select('vouchers.*', 'voucher_types.name', 'voucher_types.used_for', 'voucher_types.discount_percentage', 'voucher_types.max_discount', 'voucher_types.description') // ← tambah description
             ->get();
 
         $historyVouchers = DB::table('vouchers')
@@ -264,7 +281,8 @@ class RewardController extends Controller
                 ->orWhereNotNull('vouchers.redeemed_at')
                 ->orWhere('vouchers.expiry_date', '<=', now());
             })
-            ->select('vouchers.*', 'voucher_types.name', 'voucher_types.used_for', 'voucher_types.discount_percentage', 'voucher_types.max_discount')
+            ->whereNotIn('vouchers.id', $activeVouchers->pluck('id'))
+            ->select('vouchers.*', 'voucher_types.name', 'voucher_types.used_for', 'voucher_types.discount_percentage', 'voucher_types.max_discount', 'voucher_types.description') // ← tambah description
             ->get();
 
         return view('profile.reward-center.voucher', compact('activeVouchers', 'historyVouchers'));
