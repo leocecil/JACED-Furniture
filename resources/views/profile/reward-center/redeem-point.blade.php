@@ -397,6 +397,9 @@
 
                             <p class="reward-pts">
                                 <span class="reward-pts-val">{{ number_format($reward->point_cost) }}</span> Points
+                                <p style="font-size: 11px; color: var(--jaced-muted); margin-bottom: 4px;">
+                                    Available stock: {{ $reward->stock }} voucher{{ $reward->stock > 1 ? 's' : '' }}
+                                </p>
                             </p>
 
                             <p class="text-muted mb-3" style="font-size: 12px;">
@@ -405,20 +408,23 @@
                             </p>
 
                             <div class="reward-action-btn">
-                                <button class="btn-view-details"
-                                        onclick="openGoalDetail(
-                                            '{{ $reward->name }}',
-                                            '{{ $reward->used_for }}',
-                                            {{ $reward->discount_percentage }},
-                                            {{ $reward->max_discount }},
-                                            {{ $reward->point_cost }},
-                                            '{{ $reward->id }}',
-                                            '{{ asset('image/vouchers/' . $voucherImage) }}',
-                                            '{{ addslashes($reward->description) }}',
-                                            {{ $isEnough ? 'true' : 'false' }}
-                                        )">
-                                    View Details
-                                </button>
+                                @if($reward->stock > 0)
+                                    <button class="btn-view-details" onclick="openGoalDetail(
+                                        '{{ $reward->name }}',
+                                        '{{ $reward->used_for }}',
+                                        {{ $reward->discount_percentage }},
+                                        {{ $reward->max_discount }},
+                                        {{ $reward->point_cost }},
+                                        '{{ $reward->id }}',
+                                        '{{ asset('image/vouchers/' . $voucherImage) }}',
+                                        '{{ addslashes($reward->description) }}',
+                                        {{ $isEnough ? 'true' : 'false' }}
+                                    )">
+                                        View Details
+                                    </button>
+                                @else
+                                    <button class="btn-redeem-locked" disabled>Out of Stock</button>
+                                @endif
                             </div>
 
                         </div>

@@ -91,8 +91,11 @@ class RewardController extends Controller
                 'type'   => $item->type,
             ]);
 
-        // Redeem goals dari voucher_types
-        $redeemGoals = DB::table('voucher_types')->limit(2)->get();
+        $redeemGoals = DB::table('voucher_types')
+            ->selectRaw('MIN(id) as id, name, description, used_for, point_cost, discount_percentage, max_discount, COUNT(*) as stock')
+            ->groupBy('name', 'description', 'used_for', 'point_cost', 'discount_percentage', 'max_discount')
+            ->limit(2)
+            ->get();
 
         $stages = Stage::orderBy('min_points_accumulative', 'asc')->get();
 
@@ -121,6 +124,13 @@ class RewardController extends Controller
         }
 
         try {
+            $stockCount = DB::table('voucher_types')
+                ->where('name', $voucherType->name)
+                ->count();
+
+            if ($stockCount <= 0) {
+                return redirect()->back()->with('error', 'This voucher is out of stock.');
+            }
             DB::transaction(function () use ($user, $voucherType) {
                 $freshUser = DB::table('users')
                     ->where('id', $user->id)
@@ -169,7 +179,10 @@ class RewardController extends Controller
     {
         $user = Auth::user();
         $currentPoints = $user->current_points ?? 0;
-        $redeemGoals = DB::table('voucher_types')->get();
+        $redeemGoals = DB::table('voucher_types')
+            ->selectRaw('MIN(id) as id, name, description, used_for, point_cost, discount_percentage, max_discount, COUNT(*) as stock')
+            ->groupBy('name', 'description', 'used_for', 'point_cost', 'discount_percentage', 'max_discount')
+            ->get();
 
         return view('profile.reward-center.redeem-point', compact(
             'currentPoints', 'redeemGoals'

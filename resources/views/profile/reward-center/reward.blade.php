@@ -346,12 +346,12 @@
     <div style="max-width: 1100px; margin: 0 auto;">
         
         {{-- BACK BUTTON --}}
-        <a href="{{ route('profile') }}" class="back-link mb-4 d-inline-flex align-items-center gap-2 text-decoration-none text-jaced-muted small fw-semibold">
+        <a href="{{ route('home') }}" class="back-link mb-4 d-inline-flex align-items-center gap-2 text-decoration-none text-jaced-muted small fw-semibold">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
                 <line x1="19" y1="12" x2="5" y2="12"></line>
                 <polyline points="12 19 5 12 12 5"></polyline>
             </svg>
-            <span>Back to Profile</span>
+            <span>Back to Home</span>
         </a>
 
         {{-- PAGE HEADER TITLE --}}
@@ -509,6 +509,9 @@
                                             @endif
                                         </div>
                                         <h5 class="fw-bold mb-2 text-jaced-dark" style="font-size: 13px; min-height: 38px; line-height: 1.4;">{{ $goal->name }}</h5>
+                                        <p style="font-size: 11px; color: var(--jaced-muted); margin-bottom: 4px;">
+                                            Available stock: {{ $goal->stock }} voucher{{ $goal->stock > 1 ? 's' : '' }}
+                                        </p>
                                         <p class="mb-3 text-jaced-muted small">
                                             Cost: <span class="text-jaced-dark fw-bold" style="font-size: 15px;">{{ number_format($goal->point_cost) }}</span> Pts
                                         </p>
