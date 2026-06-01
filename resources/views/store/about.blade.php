@@ -197,6 +197,40 @@
         letter-spacing: 0.05em;
         text-transform: uppercase;
     }
+
+    .reveal {
+        opacity: 0;
+        transform: translateY(50px);
+        transition: all 0.8s ease;
+    }
+
+    .reveal.show {
+        opacity: 1;
+        transform: translateY(0);
+    }
+
+    /* Variasi */
+    .reveal-left {
+        opacity: 0;
+        transform: translateX(-50px);
+        transition: all 0.8s ease;
+    }
+
+    .reveal-left.show {
+        opacity: 1;
+        transform: translateX(0);
+    }
+
+    .reveal-right {
+        opacity: 0;
+        transform: translateX(50px);
+        transition: all 0.8s ease;
+    }
+
+    .reveal-right.show {
+        opacity: 1;
+        transform: translateX(0);
+    }
 </style>
 
 <main style="background-color: #fafaf9; color: var(--stone-900); font-family: 'Lexend', sans-serif; overflow-x: hidden;">
@@ -205,13 +239,13 @@
         <div class="container py-5" style="padding-left: 3rem; padding-right: 3rem;">
             <div class="row">
                 <div class="col-12 col-md-10 col-lg-7 text-white">
-                    <span class="text-uppercase small d-block mb-2 fw-bold tracking-widest" style="letter-spacing: 0.2em; color: #d6ccc2;">
+                    <span class="reveal  text-uppercase small d-block mb-2 fw-bold tracking-widest" style="letter-spacing: 0.2em; color: #d6ccc2;">
                         JACED Furniture
                     </span>
-                    <h1 class="display-4 fw-bold mb-4" style="font-family: Georgia, serif; line-height: 1.15;">
+                    <h1 class="reveal display-4 fw-bold mb-4" style="font-family: Georgia, serif; line-height: 1.15;">
                         Crafting Spaces, Defining Stories
                     </h1>
-                    <p class="lead mb-4" style="color: #e7e5e4; max-width: 520px; font-size: 1.1rem; line-height: 1.6;">
+                    <p class="reveal lead mb-4" style="color: #e7e5e4; max-width: 520px; font-size: 1.1rem; line-height: 1.6;">
                         At JACED Furniture, every piece is designed to bring warmth, character, and timeless elegance into modern living spaces. Built with passion by five creative minds, we craft furniture that feels personal, refined, and made to last.
                     </p>
                 </div>
@@ -223,7 +257,7 @@
     <div class="container py-4">
         <div class="row align-items-center g-5">
             
-            <div class="col-12 col-lg-6">
+            <div class="col-12 col-lg-6 reveal-left">
                 <span class="text-uppercase fw-bold small d-block mb-2" style="letter-spacing: 0.2em; color: var(--walnut-light);">
                     Our Heritage
                 </span>
@@ -238,7 +272,7 @@
                 </p>
             </div>
             
-            <div class="col-12 col-lg-6 position-relative">
+            <div class="col-12 col-lg-6 position-relative reveal-right">
                 <div class="rounded-4 overflow-hidden shadow-lg">
                     <img src="https://images.unsplash.com/photo-1540518614846-7eded433c457?auto=format&fit=crop&w=800&q=80" 
                         alt="Exquisite Walnut Joinery Detail" 
@@ -259,7 +293,7 @@
             
             <div class="row g-4">
                 <div class="col-12 col-md-4">
-                    <div class="card h-100 p-4 border-0 shadow-sm rounded-4 bg-white dynamic-card">
+                    <div class="card h-100 p-4 border-0 shadow-sm rounded-4 bg-white dynamic-card reveal">
                         <div class="d-flex align-items-center justify-content-center rounded-circle mb-4" style="width: 56px; height: 56px; background-color: #fafaf9; color: var(--stone-900);">
                             <i class="fa-solid fa-compass fs-4"></i>
                         </div>
@@ -269,7 +303,7 @@
                 </div>
 
                 <div class="col-12 col-md-4">
-                    <div class="card h-100 p-4 border-0 shadow-sm rounded-4 bg-white dynamic-card">
+                    <div class="card h-100 p-4 border-0 shadow-sm rounded-4 bg-white dynamic-card reveal">
                         <div class="d-flex align-items-center justify-content-center rounded-circle mb-4" style="width: 56px; height: 56px; background-color: #fafaf9; color: var(--stone-900);">
                             <i class="fa-solid fa-tree fs-4"></i>
                         </div>
@@ -279,7 +313,7 @@
                 </div>
 
                 <div class="col-12 col-md-4">
-                    <div class="card h-100 p-4 border-0 shadow-sm rounded-4 bg-white dynamic-card">
+                    <div class="card h-100 p-4 border-0 shadow-sm rounded-4 bg-white dynamic-card reveal">
                         <div class="d-flex align-items-center justify-content-center rounded-circle mb-4" style="width: 56px; height: 56px; background-color: #fafaf9; color: var(--stone-900);">
                             <i class="fa-solid fa-feather-pointed fs-4"></i>
                         </div>
@@ -398,4 +432,25 @@
     </section>
 </main>
 
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+    const reveals = document.querySelectorAll(
+        ".reveal, .reveal-left, .reveal-right"
+    );
+
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach((entry) => {
+            if (entry.isIntersecting) {
+                entry.target.classList.add("show");
+            }
+        });
+    }, {
+        threshold: 0.15
+    });
+
+    reveals.forEach((el) => observer.observe(el));
+});
+</script>
+
 @endsection
+
