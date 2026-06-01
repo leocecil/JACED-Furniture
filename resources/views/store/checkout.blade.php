@@ -962,7 +962,7 @@
                                     {{ number_format($shipping, 0, ',', '.') }}</span>
                             </div>
                             <div class="summary-row">
-                                <span class="label">Service Tax</span>
+                                <span class="label">Service Fee</span>
                                 <span class="value" id="summary-tax" data-raw="{{ $tax }}">Rp
                                     {{ number_format($tax, 0, ',', '.') }}</span>
                             </div>

@@ -395,12 +395,12 @@
 
                             <p class="reward-title">{{ $reward->name }}</p>
 
-                            <p class="reward-pts">
+                            <div class="reward-pts">
                                 <span class="reward-pts-val">{{ number_format($reward->point_cost) }}</span> Points
                                 <p style="font-size: 11px; color: var(--jaced-muted); margin-bottom: 4px;">
                                     Available stock: {{ $reward->stock }} voucher{{ $reward->stock > 1 ? 's' : '' }}
                                 </p>
-                            </p>
+                            </div>
 
                             <p class="text-muted mb-3" style="font-size: 12px;">
                                 {{ $reward->discount_percentage }}% off &bull;

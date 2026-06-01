@@ -60,6 +60,7 @@ Route::middleware(['role:customer'])->group(function() {
     Route::delete('/profile/addresses/{id}', [UserController::class, 'destroyAddress'])->name('profile.addresses.destroy');
     Route::patch('/profile/addresses/{id}/default', [UserController::class, 'setDefaultAddress'])->name('profile.addresses.default');
     Route::post('/profile/{id}/password', [UserController::class, 'update_password'])->name('profile.password.update');
+    Route::delete('/profile/{id}/delete', [UserController::class, 'delete_account'])->name('profile.delete');
 
     // Informational Static Pages
     Route::get('/terms-of-service', function () { return view('profile.tos'); })->name('tos');
