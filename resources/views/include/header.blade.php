@@ -23,7 +23,7 @@
                     <a class="nav-link text-uppercase tracking-widest fw-bold {{ request()->routeIs('shop') ? 'active' : '' }}" style="font-size: 14px; letter-spacing: 2px;" href="{{ route('shop') }}">Shop</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link text-uppercase tracking-widest fw-bold {{ request()->routeIs('about') ? 'active' : '' }}" style="font-size: 14px; letter-spacing: 2px;" href="{{ route('about') }}">About</a>
+                    <a class="nav-link text-uppercase tracking-widest fw-bold {{ request()->routeIs('about') ? 'active': '' }}" style="font-size: 14px; letter-spacing: 2px;" href="{{ route('about') }}">About</a>
                 </li>
                 @auth
                     <li class="nav-item">
@@ -56,7 +56,9 @@
                             <i class="fas fa-chevron-down ms-2 d-lg-none" style="font-size: 10px;"></i>
                         </button>
                         <div class="dropdown-menu shadow-lg border-0 mt-2 position-absolute rounded-3" id="customUserMenu" style="right: 0; left: auto; min-width: 180px; display: none; z-index: 1050; background: #fff;">
-                            <a href="{{ route('profile') }}" class="dropdown-item text-dark d-flex align-items-center py-2 px-3 fw-bold border-0 bg-transparent w-100" style="font-size: 12px;">
+                            <a href="{{ route('profile.edit', Auth::user()->id) }}" 
+                            class="dropdown-item text-dark d-flex align-items-center py-2 px-3 fw-bold border-0 bg-transparent w-100" 
+                            style="font-size: 12px;">
                                 <i class="fas fa-user me-2"></i> PROFILE
                             </a>
                             <a href="{{ route('wishlist') }}" class="dropdown-item text-dark d-flex align-items-center py-2 px-3 fw-bold border-0 bg-transparent w-100" style="font-size: 12px;">

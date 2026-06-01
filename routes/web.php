@@ -39,6 +39,8 @@ Route::get('/home', [ProductController::class, 'home'])->name('home');
 Route::get('/shop', [ProductController::class, 'shop'])->name('shop');
 Route::get('/about', [AboutController::class, 'index'])->name('about');
 Route::get('/product/{slug}', [ProductController::class, 'show'])->name('product.show');
+Route::get('/api/products/batch', [ProductController::class, 'batchProducts']);
+Route::get('/wishlist', function () { return view('store.wishlist'); })->name('wishlist');
 
 // ── MIDDLEWARE CUSTOMER ROLE ──
 Route::middleware(['role:customer'])->group(function() {
@@ -76,13 +78,12 @@ Route::middleware(['role:customer'])->group(function() {
     Route::patch('/cart/{id}/decrease', [CartController::class, 'decrease'])->name('cart.decrease');
     Route::delete('/cart/{id}', [CartController::class, 'delete'])->name('cart.delete');
 
-    // WISHLIST
+    // WISHLIST (DB-based via WishlistController)
     Route::get('/wishlist/items', [WishlistController::class, 'items']);
-    Route::get('/wishlist', [WishlistController::class, 'index'])->name('wishlist');
     Route::post('/wishlist/toggle', [WishlistController::class, 'toggle'])->name('wishlist.toggle');
     Route::delete('/wishlist/{id}', [WishlistController::class, 'remove'])->name('wishlist.remove');
     Route::delete('/wishlist-clear', [WishlistController::class, 'clear'])->name('wishlist.clear');
-    
+
     // Checkout & Courier Shipping API
     Route::get('/checkout', [OrderController::class, 'showCheckout'])->name('checkout.index');
     Route::post('/checkout', [OrderController::class, 'processCheckout'])->name('checkout.store');
@@ -96,19 +97,28 @@ Route::middleware(['role:customer'])->group(function() {
     Route::get('/payment/status/{order_id}', [OrderController::class, 'payment_status'])->name('payment_status');
     Route::get('/payment/return/{order_id}', [OrderController::class, 'payment_return'])->name('payment_return');
 
+    // Midtrans Webhook for Payment Notifications
+    Route::post('/midtrans/notification', [OrderController::class, 'handleNotification'])->name('midtrans.notification');
+
     // Customer Purchase History
     Route::get('/orderhistory', [OrderHistoryController::class, 'index'])->name('store.orderhistory');
     Route::get('/orderhistory/{id}', [OrderHistoryController::class, 'show'])->name('store.orderhistory_detail.show');
-
-    // Order History - Invoice
     Route::get('/orderhistory/{id}/invoice', [OrderHistoryController::class, 'invoice'])->name('store.orderhistory.invoice');
+
+    // Order actions - customer
+    Route::patch('/orderhistory/{id}/received', [OrderHistoryController::class, 'markReceived'])->name('store.orderhistory.received');
+    Route::post('/orderhistory/{id}/complaint', [OrderHistoryController::class, 'submitComplaint'])->name('store.orderhistory.complaint');
+    Route::patch('/orderhistory/{id}/cancel', [OrderHistoryController::class, 'cancelOrder'])->name('store.orderhistory.cancel');
+
+    // Transaction History alias
+    Route::get('/transaction-history', [OrderHistoryController::class, 'index'])->name('store.transactionhistory');
 });
 
-// ADMIN AUTHENTICATION
+// ADMIN LOGIN
 Route::get('/admin/login', [AuthController::class, 'show_login_admin_form'])->name('admin.login.show');
 Route::post('/admin/login_auth', [AuthController::class, 'login_admin_auth'])->name('admin.login.auth');
 Route::post('/admin/logout', [AuthController::class, 'logout_admin'])->name('admin.logout');
-    
+
 // ── MIDDLEWARE ADMIN ROLE ──
 Route::middleware(['role:admin'])->group(function() {
     // Admin Dashboard Summary
@@ -120,12 +130,19 @@ Route::middleware(['role:admin'])->group(function() {
     Route::get('/admin/order_management', [OrderManagementController::class, 'index'])->name('order_management');
     Route::get('/admin/order_management/search', [OrderManagementController::class, 'search'])->name('admin.order_management.search');
     Route::post('/admin/orders/{id}/status', [OrderManagementController::class, 'updateStatus'])->name('admin.orders.updateStatus');
+    Route::post('/admin/disputes/{id}/resolve',  [OrderManagementController::class, 'resolveDispute'])->name('admin.disputes.resolve');
+    Route::post('/admin/disputes/{id}/resolved', [OrderManagementController::class, 'markDisputeResolved'])->name('admin.disputes.resolved');
+    Route::post('/admin/disputes/{id}/tracking', [OrderManagementController::class, 'updateTracking'])->name('admin.disputes.tracking');
+
+    // Complaint management - admin
+    Route::get('/admin/complaints', [OrderManagementController::class, 'complaints'])->name('admin.complaints');
+    Route::post('/admin/complaints/{id}/resolve', [OrderManagementController::class, 'resolveComplaint'])->name('admin.complaints.resolve');
 
     // Core Customer Analytics Systems
     Route::get('/admin/analytics', [AnalyticsController::class, 'index'])->name('analytics.customers');
     Route::get('/admin/analytics/customers/all', [AnalyticsController::class, 'allCustomers'])->name('analytics.customers.all');
 
-    // Inventory Stock Control (Mendukung SoftDeletes & Restore)
+    // Inventory Stock Control
     Route::get('/admin/inventory', [InventoryController::class, 'index'])->name('inventory.index');
     Route::post('/admin/inventory', [InventoryController::class, 'store'])->name('inventory.store');
     Route::put('/admin/inventory/{inventory}', [InventoryController::class, 'update'])->name('inventory.update');

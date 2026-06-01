@@ -4,7 +4,7 @@
 <link rel="stylesheet" href="{{ asset('css/jaced.css') }}">
 <style>
     .voucher-page {
-        background-color: var(--jaced-cream);
+        background-color: var(--jaced-caramel-bg) !important;
         padding: 40px 24px;
         min-height: 100vh;
     }
@@ -181,9 +181,10 @@
                             <form action="{{ route('reward.use-voucher') }}" method="POST">
                                 @csrf
                                 <input type="hidden" name="voucher_id" value="{{ $vouch->id }}">
-                                <button type="button" class="copy-code-btn" 
-                                    style="border-color: var(--jaced-caramel); color: var(--jaced-caramel);"
-                                    onclick="useVoucher({{ $vouch->id }}, this)">
+                                <button type="button" 
+                                    onclick="useVoucher({{ $vouch->id }}, this)"
+                                    class="copy-code-btn" 
+                                    style="border-color: var(--jaced-caramel); color: var(--jaced-caramel);">
                                     Use Now →
                                 </button>
                             </form>
@@ -259,24 +260,25 @@
     function useVoucher(voucherId, btn) {
         btn.disabled = true;
         btn.innerText = 'Loading...';
-        
-        fetch('{{ route("reward.use-voucher") }}', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
-            },
-            body: JSON.stringify({ voucher_id: voucherId })
-        })
-        .then(res => {
-            if (res.redirected) {
-                window.location.href = res.url;
-            }
-        })
-        .catch(() => {
-            btn.disabled = false;
-            btn.innerText = 'Use Now →';
-        });
+
+        const form = document.createElement('form');
+        form.method = 'POST';
+        form.action = '{{ route("reward.use-voucher") }}';
+
+        const csrf = document.createElement('input');
+        csrf.type = 'hidden';
+        csrf.name = '_token';
+        csrf.value = document.querySelector('meta[name="csrf-token"]').content;
+
+        const input = document.createElement('input');
+        input.type = 'hidden';
+        input.name = 'voucher_id';
+        input.value = voucherId;
+
+        form.appendChild(csrf);
+        form.appendChild(input);
+        document.body.appendChild(form);
+        form.submit();
     }
 </script>
 @endpush

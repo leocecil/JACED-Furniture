@@ -301,6 +301,14 @@
         transition: background .15s;
     }
     .btn-set-target:hover { background: var(--accent-soft); }
+
+    .d-card.stat-card {
+    transition: transform .15s, box-shadow .15s;
+}
+    .d-card.stat-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 16px rgba(0,0,0,.09);
+    }
 </style>
 
 <div class="container-fluid">
@@ -319,7 +327,9 @@
     <div class="row g-3 mb-3">
 
         <div class="col-6 col-md-3">
-            <div class="d-card stat-card accent-border">
+            <div class="d-card stat-card accent-border"
+                style="cursor:pointer;"
+                onclick="window.location='{{ route('order_management') }}'">
                 <div class="top-row">
                     <div class="icon-wrap" style="background:var(--accent-soft); color:var(--accent);">
                         <i class="bi bi-receipt"></i>
@@ -332,7 +342,9 @@
         </div>
 
         <div class="col-6 col-md-3">
-            <div class="d-card stat-card">
+            <div class="d-card stat-card"
+                style="cursor:pointer;"
+                onclick="window.location='{{ route('order_management') }}'">
                 <div class="top-row">
                     <div class="icon-wrap" style="background:var(--blue-soft); color:var(--blue);">
                         <i class="bi bi-basket"></i>
@@ -345,7 +357,9 @@
         </div>
 
         <div class="col-6 col-md-3">
-            <div class="d-card stat-card">
+            <div class="d-card stat-card"
+                style="cursor:pointer;"
+                onclick="window.location='{{ route('order_management') }}?status=delivered'">
                 <div class="top-row">
                     <div class="icon-wrap" style="background:var(--teal-soft); color:var(--teal);">
                         <i class="bi bi-truck"></i>

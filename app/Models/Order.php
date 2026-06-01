@@ -18,7 +18,7 @@ class Order extends Model
 
     public function paymentMethod()
     {
-        return $this->belongsTo(PaymentMethod::class);
+        return $this->belongsTo(PaymentMethod::class, 'payment_id');
     }
 
     public function orderDetails()
@@ -31,9 +31,15 @@ class Order extends Model
         return $this->belongsTo(ShippingAddress::class);
     }
 
+    public function vaBank()
+    {
+        return $this->belongsTo(VaBank::class);
+    }
+
     protected $fillable = [
         'user_id',
         'payment_id',
+        'va_bank_id',
         'voucher_id',
         'shipping_address_id',
         'delivery_fee',
@@ -41,15 +47,29 @@ class Order extends Model
         'discount_amount',
         'total_price',
         'status',
-        // 'packed_at',
-        // 'delivered_at',
-        // 'arrived_at',
-        // 'cancelled_at',
+        'midtrans_order_id',
+        'cancellation_reason',
+        'on_process_at',
+        'packed_at',
+        'delivered_at',
+        'shipped_at',
+        'arrived_at',
+        'cancelled_at',
+        'disputed_at',
+        'refund_status',
+        'refund_type',
+        'refund_amount',
+        'tier_discount_amount',
+        'stage_id',
     ];
+
     protected $casts = [
-        'packed_at' => 'datetime',
-        'delivered_at' => 'datetime',
-        'arrived_at' => 'datetime',
-        'cancelled_at' => 'datetime',
+        'on_process_at' => 'datetime',
+        'packed_at'     => 'datetime',
+        'delivered_at'  => 'datetime',
+        'shipped_at'    => 'datetime',
+        'arrived_at'    => 'datetime',
+        'cancelled_at'  => 'datetime',
+        'disputed_at'   => 'datetime',
     ];
 }

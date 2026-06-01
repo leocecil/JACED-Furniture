@@ -106,12 +106,16 @@ class AnalyticsController extends Controller
                 $revenueTrend[$data->month_name]['order_count'] = (int)$data->total_transactions;
             }
         }
-
+    $allCustomers = User::where('is_admin', false)
+            ->withCount('orders')
+            ->orderBy('name', 'asc')
+            ->get(['id', 'name', 'email', 'avatar']);
         // Kirim seluruh variabel bersih ke file blade index
         return view('pages.analytics.index', [
             'orderCount' => $orderCount,
             'tiers' => $tiers,
             'spenders' => $spenders,
+            'allCustomers' => $allCustomers,
             'regionsLabels' => $regionsLabels,
             'regionsData' => $regionsData,
             'trendLabels' => array_keys($revenueTrend),

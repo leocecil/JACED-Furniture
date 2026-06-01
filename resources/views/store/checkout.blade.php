@@ -126,7 +126,12 @@
                                                    data-is-new="false"
                                                    data-city="{{ $addr->city_name }}"
                                                    data-village="{{ $addr->village_name }}"
-                                                   {{ (isset($defaultAddress) && $defaultAddress->id == $addr->id) || $loop->first ? 'checked' : '' }}>
+                                                   {{ 
+                                                        (isset($defaultAddress) 
+                                                            ? $defaultAddress->id == $addr->id 
+                                                            : $loop->first
+                                                        ) ? 'checked' : '' 
+                                                    }}>
                                         </div>
                                         
                                         {{-- Sisi Kiri: Informasi Alamat --}}
@@ -203,15 +208,28 @@
                         </div>
 
                         {{-- BARIS DISKON VOUCHER (ZONA POTONGAN) --}}
-                        <div class="d-flex justify-content-between text-danger d-none" id="row-discount-shipping">
+                        <div class="d-flex justify-content-between text-danger d-none" id="row-discount-delivery">
                             <span>Total Discount Shipping</span>
-                            <span class="fw-bold" id="summary-discount-shipping">-Rp 0</span>
+                            <span class="fw-bold" id="summary-discount-delivery">-Rp 0</span>
                         </div>
                         
                         <div class="d-flex justify-content-between text-danger d-none" id="row-discount-product">
                             <span>Discount Voucher</span>
                             <span class="fw-bold" id="summary-discount-product">-Rp 0</span>
                         </div>
+
+                        {{-- BARIS TIER DISCOUNT --}}
+                        @if($tierDiscountAmount > 0)
+                        <div class="d-flex justify-content-between mb-2" style="font-size: 13px;">
+                            <span class="text-jaced-muted">
+                                Member Discount
+                                @if($userStage)
+                                    <span style="font-size: 11px; color: var(--jaced-sage);">({{ $userStage->discount_percentage }}% · {{ $userStage->name }})</span>
+                                @endif
+                            </span>
+                            <span class="fw-medium" style="color: var(--jaced-sage);">- Rp {{ number_format($tierDiscountAmount, 0, ',', '.') }}</span>
+                        </div>
+                        @endif
 
                         {{-- COMPONENT PILIH VOUCHER ALA SHOPEE --}}
                         {{-- Perbaikan typo !important --}}
@@ -286,7 +304,7 @@
                                     <div class="d-flex flex-column gap-3">
                                         @foreach($myVouchers as $v)
                                             @php
-                                                $isShipping = $v->used_for === 'shipping';
+                                                $isShipping = $v->used_for === 'delivery';
                                                 $themeColor = $isShipping ? '#5c695d' : '#bd654e';
                                                 $themeBg = $isShipping ? '#f1f4f2' : '#fcf5f3';
                                             @endphp
@@ -318,6 +336,7 @@
                                                         data-name="{{ $v->name }}"
                                                         data-used-for="{{ $v->used_for }}"
                                                         data-discount="{{ $v->max_discount ?? 0 }}"
+                                                        data-discount-percentage="{{ $v->discount_percentage ?? 0 }}"
                                                         style="accent-color: {{ $themeColor }}; width: 18px; height: 18px;">
                                                 </div>
                                             </label>
@@ -443,7 +462,7 @@
                         const preview  = document.getElementById('voucherPreview');
                         const text     = document.getElementById('voucherPreviewText');
 
-                        if (usedFor === 'shipping') {
+                        if (usedFor === 'delivery') {
                             text.innerHTML = `✅ <strong>${name}</strong> — Gratis ongkir hingga Rp ${parseFloat(discount).toLocaleString('id-ID')}`;
                             preview.querySelector('div').style.backgroundColor = '#f1f4f2';
                             preview.querySelector('div').style.color = '#5c695d';
@@ -488,7 +507,7 @@
                         if (placeholderText) placeholderText.style.display = 'none';
 
                         let badgeHtml = '';
-                        if (usedFor === 'shipping') {
+                        if (usedFor === 'delivery') {
                             badgeHtml = `<span class="badge-voucher-active px-2 py-1 rounded text-white fw-bold" 
                                         style="background-color: #5c695d; font-size: 11px; border: 1px solid #4a544b;">
                                             Gratis Ongkir
@@ -506,10 +525,16 @@
 
             // Auto-apply pending voucher dari session
             @if(isset($pendingVoucher) && $pendingVoucher)
+                window.pendingVoucherData = {
+                    id: '{{ $pendingVoucher->id }}',
+                    usedFor: '{{ $pendingVoucher->used_for }}',
+                    maxDiscount: {{ (float) $pendingVoucher->max_discount }},
+                    discountPercentage: {{ (float) $pendingVoucher->discount_percentage }},
+                };
                 document.getElementById('applied-voucher-id').value = '{{ $pendingVoucher->id }}';
                 
                 const textDisplay = document.getElementById('selectedVoucherText');
-                @if($pendingVoucher->used_for === 'shipping')
+                @if($pendingVoucher->used_for === 'delivery')
                     textDisplay.innerHTML = `
                         <span class="px-2 py-1 rounded fw-bold" style="background-color: #f1f4f2; color: #5c695d; border: 1px solid #5c695d; font-size: 11px;">🚚 Gratis Ongkir</span>
                         <span class="ms-1" style="font-size: 13px;">{{ $pendingVoucher->name }}</span>
@@ -550,7 +575,7 @@
             const activeBadge = document.getElementById('voucherActiveBadge');
 
             // Warna badge sesuai jenis voucher
-            if (usedFor === 'shipping') {
+            if (usedFor === 'delivery') {
                 textDisplay.innerHTML = `
                     <span class="px-2 py-1 rounded fw-bold" 
                         style="background-color: #f1f4f2; color: #5c695d; border: 1px solid #5c695d; font-size: 11px;">
@@ -892,7 +917,7 @@
             if(checkedRadio) checkedRadio.checked = false;
 
             // Sembunyikan semua baris diskon saat voucher dihapus
-            document.querySelectorAll('#row-discount-shipping').forEach(el => el.classList.add('d-none'));
+            document.querySelectorAll('#row-discount-delivery').forEach(el => el.classList.add('d-none'));
             document.querySelectorAll('#row-discount-product').forEach(el => el.classList.add('d-none'));
 
             calculateGrandTotal();
@@ -901,38 +926,47 @@
         function calculateGrandTotal() {
             const subtotal = {{ $subtotal ?? 0 }};
             const tax = {{ $tax ?? 0 }};
+            const tierDiscount = {{ $tierDiscountAmount ?? 0 }};
             
             let discountValue = 0;
 
-            const rowShipping = document.getElementById('row-discount-shipping');
+            const rowDelivery = document.getElementById('row-discount-delivery');
             const rowProduct  = document.getElementById('row-discount-product');
-            if(rowShipping) rowShipping.classList.add('d-none');
+            if(rowDelivery) rowDelivery.classList.add('d-none');
             if(rowProduct)  rowProduct.classList.add('d-none');
             
-            // Hanya hitung diskon kalau user sudah klik Oke
             if (voucherApplied) {
+                // Prioritas: radio yang diceklis, fallback ke pendingVoucherData
                 const selectedVoucher = document.querySelector('.voucher-radio-input:checked');
-                if (selectedVoucher) {
-                    const usedFor     = selectedVoucher.getAttribute('data-used-for');
-                    const maxDiscount = parseFloat(selectedVoucher.getAttribute('data-discount')) || 0;
+                
+                let usedFor, maxDiscount, discountPercentage;
 
-                    if (usedFor === 'shipping') {
-                        discountValue = Math.min(currentDeliveryFee, maxDiscount);
-                        document.querySelectorAll('#row-discount-shipping').forEach(el => el.classList.remove('d-none'));
-                        document.querySelectorAll('#summary-discount-shipping').forEach(el => {
-                            el.innerText = '-Rp ' + discountValue.toLocaleString('id-ID');
-                        });
-                    } else {
-                        discountValue = Math.min(subtotal, maxDiscount);
-                        document.querySelectorAll('#row-discount-product').forEach(el => el.classList.remove('d-none'));
-                        document.querySelectorAll('#summary-discount-product').forEach(el => {
-                            el.innerText = '-Rp ' + discountValue.toLocaleString('id-ID');
-                        });
-                    }
+                if (selectedVoucher) {
+                    usedFor = selectedVoucher.getAttribute('data-used-for');
+                    maxDiscount = parseFloat(selectedVoucher.getAttribute('data-discount')) || 0;
+                    discountPercentage = parseFloat(selectedVoucher.getAttribute('data-discount-percentage')) || 0;
+                } else if (window.pendingVoucherData) {
+                    usedFor = window.pendingVoucherData.usedFor;
+                    maxDiscount = window.pendingVoucherData.maxDiscount;
+                    discountPercentage = window.pendingVoucherData.discountPercentage;
+                }
+
+                if (usedFor === 'delivery') {
+                    discountValue = Math.min(currentDeliveryFee, maxDiscount);
+                    if(rowDelivery) rowDelivery.classList.remove('d-none');
+                    document.querySelectorAll('#summary-discount-delivery').forEach(el => {
+                        el.innerText = '-Rp ' + discountValue.toLocaleString('id-ID');
+                    });
+                } else if (usedFor) {
+                    discountValue = Math.min(subtotal * (discountPercentage / 100), maxDiscount);
+                    if(rowProduct) rowProduct.classList.remove('d-none');
+                    document.querySelectorAll('#summary-discount-product').forEach(el => {
+                        el.innerText = '-Rp ' + discountValue.toLocaleString('id-ID');
+                    });
                 }
             }
 
-            const finalTotal = (subtotal + tax + currentDeliveryFee) - discountValue;
+            const finalTotal = (subtotal + tax + currentDeliveryFee) - discountValue - tierDiscount; // ✅ kurangkan di sini
             document.querySelectorAll('#totalDisplay').forEach(el => {
                 el.innerText = 'Rp ' + finalTotal.toLocaleString('id-ID');
             });

@@ -22,7 +22,7 @@
     /* MAIN IMAGE */
     .image-preview-wrapper{
         position: relative;
-        background: var(--jaced-card);
+        background: transparent;
         border-radius: 28px;
         overflow: hidden;
         height: 480px;
@@ -36,9 +36,11 @@
     }
 
     .main-product-image{
-        width: 82%;
-        height: 82%;
-        object-fit: contain;
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        cursor: zoom-in;
+        transition: transform 0.4s ease;
     }
 
     /* ARROWS */
@@ -71,17 +73,25 @@
         object-fit: cover;
         border-radius: 14px;
         cursor: pointer;
-        border: 3px solid transparent;
-        transition: 0.2s ease;
+        border: 2px solid transparent;
         background: var(--jaced-card);
         padding: 4px;
+
+        transition:
+            transform 0.4s cubic-bezier(0.22,1,0.36,1),
+            box-shadow 0.4s ease,
+            opacity 0.3s ease;
     }
 
-    .thumbnail-image:hover{ opacity: 0.9; }
+    .thumbnail-image:hover{
+        transform: translateY(-3px) scale(1.02);
+        box-shadow: 0 10px 24px rgba(39,46,29,0.12);
+    }
 
     .thumbnail-image.active-thumbnail{
         border: 2px solid var(--jaced-brown-dark);
-        transform: scale(0.97);
+        /* transform: scale(0.97); */
+        box-shadow: 0 8px 20px rgba(39,46,29,0.12);
     }
 
     /* PRODUCT INFO */
@@ -109,7 +119,7 @@
         font-size: 26px;
         font-weight: 700;
         margin: 0 0 30px;
-        color: var(--jaced-brown-dark);
+        color: var(--jaced-sage);
     }
 
     .product-description{
@@ -201,6 +211,11 @@
         background: var(--jaced-card);
         color: var(--jaced-brown-dark);
         box-shadow: none !important;
+        transition: 0.2s ease;
+    }
+
+    .accordion-button:hover{
+        background: rgba(0,0,0,0.02);
     }
 
     .accordion-button:not(.collapsed){
@@ -252,10 +267,74 @@
         color: var(--jaced-brown-dark)
     }
 
+    .sold-tag { font-size: 16px; color: #5d5d5d; display: flex; align-items: center; gap: 5px; margin-left: 8px; }
+
+    .stock-row { display: flex; align-items: center; gap: 8px; font-size: 16px; color: var(--jaced-muted); font-weight: 500; }
+    .stock-dot { width: 7px; height: 7px; border-radius: 50%; background: #4a7c59; flex-shrink: 0; }
+
+    /* Quantity */
+    .qty-row { display: flex; align-items: center; gap: 12px; }
+    .qty-label { font-size: 18px; color: #4a7c59; font-weight: 500; }
+    .qty-ctrl {
+        display: flex; align-items: center;
+        border: 1.5px solid var(--jaced-input);
+        border-radius: 999px; overflow: hidden;
+        background: var(--jaced-card);
+    }
+    .qty-btn-new {
+        width: 40px; height: 40px; border: none;
+        background: transparent; cursor: pointer;
+        font-size: 18px; font-weight: 500; transition: 0.2s ease;
+        color: var(--jaced-brown-dark);
+    }
+    .qty-btn-new:hover{
+        background: rgba(0,0,0,0.04);
+    }
+    .qty-num-input{
+        width: 54px;
+        height: 40px;
+        border: none;
+        border-left: 1px solid var(--jaced-input);
+        border-right: 1px solid var(--jaced-input);
+        background: transparent;
+        text-align: center;
+        font-size: 15px;
+        font-weight: 600;
+        color: var(--jaced-brown-dark);
+        outline: none;
+        appearance: textfield;
+        -moz-appearance: textfield;
+    }
+
+    .qty-num-input::-webkit-outer-spin-button,
+    .qty-num-input::-webkit-inner-spin-button{ -webkit-appearance: none; margin: 0; }
+
+    .qty-input-inline{
+        width: 52px;
+        height: 40px;
+        border: none;
+        outline: none;
+        text-align: center;
+        font-size: 15px;
+        font-weight: 600;
+        background: transparent;
+        color: var(--jaced-brown-dark);
+
+        border-left: 1px solid var(--jaced-input);
+        border-right: 1px solid var(--jaced-input);
+
+        -moz-appearance: textfield;
+    }
+
+    .qty-input-inline::-webkit-outer-spin-button,
+    .qty-input-inline::-webkit-inner-spin-button{
+        -webkit-appearance: none;
+        margin: 0;
+    }
     /* BUTTONS */
     .action-btn{
         height: 56px;
-        border-radius: 18px;
+        border-radius: 999px !important;
         font-size: 16px;
         font-weight: 600;
     }
@@ -283,21 +362,37 @@
     }
 
     /* WISHLIST */
-    .wishlist-btn{
+    .wishlist-btn {
         width: 42px;
         height: 42px;
         border-radius: 50%;
         border: 1px solid var(--jaced-input);
         background: var(--jaced-card);
         color: var(--jaced-brown-dark);
-        font-size: 22px;
-        transition: 0.2s ease;
+        font-size: 18px;
+        transition: all 0.25s ease;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
     }
-
-    .wishlist-btn:hover{
+    .wishlist-btn i { transition: all 0.25s ease; }
+    .wishlist-btn:hover {
         background: var(--jaced-brown-dark);
         color: white;
     }
+    .wishlist-btn.active {
+        background: var(--jaced-caramel);
+        color: white;
+        border-color: var(--jaced-caramel);
+    }
+    .wishlist-btn.active:hover {
+        background: rgba(156, 53, 53, 0.12);
+        color: #9c3535;
+        border-color: rgba(156, 53, 53, 0.3);
+    }
+    .wishlist-btn.active .fa-heart::before { content: "\f004"; }
+    .wishlist-btn.active:hover .fa-heart::before { content: "\f7a9"; }
 
     .wishlist-btn.active{
         background: var(--jaced-brown-dark);
@@ -332,6 +427,86 @@
         opacity: 1;
         transition: opacity 0.3s ease;
     }
+
+
+    .stock-badge{
+        position: absolute;
+        top: 16px;
+        left: 16px;
+
+        background: #d38a33;
+        color: white;
+
+        padding: 8px 14px;
+        border-radius: 999px;
+
+        font-size: 11px;
+        font-weight: 700;
+        letter-spacing: 1px;
+
+        z-index: 2;
+    }
+
+    .related-category{
+        font-size: 12px;
+        font-weight: 700;
+        letter-spacing: 2px;
+        color: #c89a61;
+        margin-bottom: 8px;
+    }
+
+    .wl-card {
+        background: var(--jaced-card); border-radius: 16px; overflow: hidden;
+        transition: transform 0.4s cubic-bezier(0.22,1,0.36,1), box-shadow 0.4s ease;
+        position: relative;
+    }
+    .wl-card:hover { transform: translateY(-4px); box-shadow: 0 12px 32px rgba(39,46,29,0.1); }
+    .wl-card-img-wrap { position: relative; aspect-ratio: 1; overflow: hidden; background: var(--jaced-input); }
+    .wl-card-img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.6s cubic-bezier(0.22,1,0.36,1); }
+    .wl-card:hover .wl-card-img { transform: scale(1.06); }
+
+    .wl-remove-btn i { transition: all 0.2s ease; }
+    .wl-remove-btn:hover i {
+        font-family: "Font Awesome 6 Free";
+        font-weight: 900;
+    }
+    .wl-remove-btn:hover { background: rgba(156, 53, 53, 0.1); color: #9c3535; }
+
+    .wl-card-body { padding: 16px; }
+    .wl-card-cat { font-size: 10px; text-transform: uppercase; letter-spacing: 0.2em; color: var(--jaced-caramel); font-weight: 600; margin-bottom: 4px; display: block; }
+    .wl-card-name { font-size: 16px; font-weight: 600; color: var(--jaced-brown-dark); margin-bottom: 4px; letter-spacing: -0.01em; line-height: 1.3; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; 
+        display: -webkit-box; -webkit-line-clamp: 1; -webkit-box-orient: vertical; }
+    .wl-card-price { font-size: 20px; font-weight: 700; color: var(--jaced-sage); margin-bottom: 6px; display: block; }
+    .wl-card-actions { display: flex; gap: 8px; }
+
+    .wl-atc-btn {
+        flex: 1; display: flex; align-items: center; justify-content: center;
+        background: var(--jaced-brown-dark); color: var(--jaced-cream);
+        padding: 10px 16px; border-radius: 999px; font-size: 12px; font-weight: 600;
+        border: none; cursor: pointer; transition: background 0.3s ease; gap: 6px; width: 100%;
+    }
+    .wl-atc-btn:hover { background: var(--jaced-caramel); color: var(--jaced-cream); }
+    .wl-atc-btn.added { background: #4a7c59; }
+    .wl-atc-btn:disabled { opacity: 0.7; cursor: not-allowed; }
+
+    .modal-backdrop.show{
+        opacity: 0.88;
+    }
+
+    #modalImage{
+        animation: fadeZoom 0.25s ease;
+    }
+
+    @keyframes fadeZoom{
+        from{
+            opacity: 0;
+            transform: scale(0.96);
+        }
+        to{
+            opacity: 1;
+            transform: scale(1);
+        }
+    }
     @keyframes toastIn{
         from{
             opacity:0;
@@ -350,7 +525,7 @@
         }
         .product-section{ padding: 20px 0 30px; }
         .product-title{ font-size: 30px; }
-        .product-price{ font-size: 22px; }
+        .product-price{ font-size: 22px; color: var(--jaced-sage); }
         .image-preview-wrapper{ height: 300px; }
         .main-product-image{
             width: 100%;
@@ -358,6 +533,18 @@
         }
         .thumbnail-image{ height: 70px; }
     }
+
+    .pd-confirm-backdrop {
+        position: fixed; inset: 0;
+        background: rgba(28,28,26,0.5);
+        backdrop-filter: blur(4px);
+        z-index: 1300;
+        display: flex; align-items: center; justify-content: center;
+        opacity: 0; visibility: hidden;
+        transition: opacity 0.3s ease, visibility 0.3s;
+    }
+    .pd-confirm-backdrop.show { opacity: 1; visibility: visible; }
+    .pd-confirm-backdrop.show #pdConfirmModal { transform: scale(1) translateY(0) !important; }
 </style>
 
 <div class="container-fluid px-5 product-section">
@@ -381,11 +568,9 @@
 
                     <!-- MAIN IMAGE -->
                     <img
-                        id="mainImage"
+                        id="mainImage" data-bs-toggle="modal" data-bs-target="#imageModal"
                         src="{{ asset($product->mainImage->image_path) }}"
-                        {{-- src="{{ $product->image_path ? asset('product_image/' . $product->image_path) : 'https://placehold.co/800x800' }}" --}}
                         class="main-product-image"
-                        {{-- alt="{{ $product->name }}" --}}
                         alt="{{ $product->mainImage->image_path }}"
                     >
 
@@ -413,20 +598,14 @@
         <!-- RIGHT SIDE -->
         <div class="col-lg-6">
 
-            <div class="d-flex align-items-center gap-3 mb-3">
-
-                <span class="premium-badge">
-                    {{ strtoupper($product->label) }}
-                </span>
-
-                <div class="fw-semibold text-secondary">
-                    <i class="fa-solid fa-bag-shopping me-2"></i>
+            <div class="d-flex align-items-center gap-2 mb-3">
+                <span class="premium-badge">{{ strtoupper($product->label) }}</span>
+                <div class="sold-tag">
+                    <i class="fa-solid fa-bag-shopping"></i>
                     {{ $totalSold }} people bought this
                 </div>
-                {{-- ★ --}}
-                <button
-                    class="wishlist-btn {{ $isWishlisted ? 'active' : '' }}"
-                    id="wishlistBtn" data-product="{{ $product->id }}">
+                <button class="wishlist-btn ms-auto {{ $isWishlisted ? 'active' : '' }}"
+                        id="wishlistBtn" data-product="{{ $product->id }}">
                     <i class="{{ $isWishlisted ? 'fa-solid' : 'fa-regular' }} fa-heart"></i>
                 </button>
             </div>
@@ -447,10 +626,6 @@
                             <div class="info-title mb-0">
                                 PRODUCT DIMENSIONS
                             </div>
-
-                            <i class="fa-solid fa-ruler-combined fs-5"
-                            style="color: var(--jaced-caramel);">
-                            </i>
                         </div>
 
                         <div class="dimension-grid">
@@ -475,30 +650,26 @@
             </div>
     
             <!-- QUANTITY -->
-            <div class="qty-wrapper ">
-                <label class="fw-bold fs-5 mb-0">
-                    Quantity:
-                </label>
-                
-                <button
-                    class="qty-btn" type="button" onclick="decreaseQty()" > -
-                </button>
-
-                <input
-                    type="number" id="quantity" value="1" min="1" max="{{ $product->stock }}"
-                    class="qty-input" oninput="handleQtyInput()">
-
-                <button
-                    class="qty-btn" type="button" onclick="increaseQty()" > +
-                </button>
+            <div class="qty-row mt-4 mb-3">
+                <span class="qty-label">Quantity</span>
+                <div class="qty-ctrl">
+                    <button class="qty-btn-new" type="button" onclick="decreaseQty()">−</button>
+                    <input type="number" id="quantity" class="qty-num-input" value="1"
+                        min="1" max="{{ $product->stock }}" oninput="handleQtyInput()" >
+                    <button class="qty-btn-new" type="button" onclick="increaseQty()">+</button>
+                </div>
+                {{-- <span class="stock-dot"></span>
+                In stock — {{ $product->stock }} units available --}}
             </div>
 
-            <div class="mt-2 text-muted fw-semibold">
-                Stock Available: {{ $product->stock }}
+            <div class="stock-row">
+                <span class="stock-dot"></span>
+                In stock — {{ $product->stock }} units available
             </div>
+
 
             <!-- ACTION BUTTONS -->
-            <div class="row g-3 mt-5">
+            <div class="row g-3 mt-2">
                 <form action="{{ route('cart.add') }}" method="POST">
                     @csrf
                     <input type="hidden" name="product_id" value="{{ $product->id }}">
@@ -524,7 +695,7 @@
 
                     <div
                         id="descriptionCollapse"
-                        class="accordion-collapse collapse show"
+                        class="accordion-collapse collapse"
                         data-bs-parent="#productAccordion">
                         <div class="accordion-body">
                             {{ $product->description }}
@@ -547,8 +718,103 @@
         </script>
         @endif
     </div>
+    @if($related->count())
+    <div class="mt-5">
+
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h3 class="fw-bold"
+            style="color: var(--jaced-brown-dark);">
+                You May Also Like
+            </h3>
+        </div>
+
+        <div class="row g-4">
+            @foreach($related as $relatedProduct)
+            <div class="col-6 col-md-4 col-lg-3">
+                <div class="wl-card">
+                    <a href="{{ route('product.show', $relatedProduct->slug) }}"
+                    style="text-decoration:none; color:inherit;">
+                        <div class="wl-card-img-wrap">
+                            @if($relatedProduct->stock <= 3)
+                                <div class="stock-badge">
+                                    ONLY {{ $relatedProduct->stock }} LEFT
+                                </div>
+                            @endif
+
+                            <img
+                                src="{{ asset($relatedProduct->mainImage->image_path) }}"
+                                alt="{{ $relatedProduct->name }}"
+                                class="wl-card-img"
+                            >
+                            {{-- OPTIONAL HEART BUTTON --}}
+                            <button class="wl-remove-btn"
+                                    data-id="{{ $relatedProduct->id }}"
+                                    title="Wishlist">
+                                <i class="fas fa-heart"></i>
+                            </button>
+                        </div>
+                        <div class="wl-card-body">
+                            <small class="wl-card-cat">
+                                {{ strtoupper($relatedProduct->category->name) }}
+                            </small>
+                            <h5 class="wl-card-name">
+                                {{ $relatedProduct->name }}
+                            </h5>
+                            <span class="wl-card-price">
+                                Rp {{ number_format($relatedProduct->price, 0, ',', '.') }}
+                            </span>
+                        </div>
+                    </a>
+                    <div class="wl-card-actions px-3 pb-3">
+                        <button class="wl-atc-btn"
+                                data-id="{{ $relatedProduct->id }}"
+                                data-name="{{ $relatedProduct->name }}">
+                            <i class="fas fa-shopping-bag"></i>
+                            Add to Collection
+                        </button>
+                    </div>
+                </div>
+            </div>
+            @endforeach    
+        </div>
+    </div>
+    @endif
 </div>
 
+<!-- IMAGE MODAL -->
+<!-- IMAGE MODAL -->
+<div class="modal fade" id="imageModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered modal-xl">
+        <div class="modal-content bg-transparent border-0 position-relative">
+
+            <!-- CLOSE -->
+            <button type="button"
+                    class="btn-close btn-close-white position-absolute top-0 end-0 m-4 z-3"
+                    data-bs-dismiss="modal">
+            </button>
+
+            <!-- PREV -->
+            <button
+                class="slider-arrow arrow-left z-3"
+                onclick="previousModalImage()">
+                ‹
+            </button>
+
+            <!-- IMAGE -->
+            <img
+                id="modalImage" src="" class="w-100"
+                style="object-fit: contain; max-height: 90vh; border-radius: 20px;" >
+
+            <!-- NEXT -->
+            <button
+                class="slider-arrow arrow-right z-3"
+                onclick="nextModalImage()">
+                ›
+            </button>
+
+        </div>
+    </div>
+</div>
 <script>
     const thumbnails = document.querySelectorAll('.thumbnail-image');
     const mainImage = document.getElementById('mainImage');
@@ -586,6 +852,37 @@
         thumbnails[currentIndex].classList.add('active-thumbnail');
     }
 
+    mainImage.addEventListener('click', () => {
+        updateModalImage();
+    });
+
+    function updateModalImage(){
+        document.getElementById('modalImage').src =
+            thumbnails[currentIndex].src;
+    }
+
+    function nextModalImage(){
+        currentIndex++;
+
+        if(currentIndex >= thumbnails.length){
+            currentIndex = 0;
+        }
+
+        updateSliderImage();
+        updateModalImage();
+    }
+
+    function previousModalImage(){
+        currentIndex--;
+
+        if(currentIndex < 0){
+            currentIndex = thumbnails.length - 1;
+        }
+
+        updateSliderImage();
+        updateModalImage();
+    }
+
     function selectColor(element){
         const colorName = element.getAttribute('data-color');
         document.getElementById('selectedColorName').innerText = colorName;
@@ -603,7 +900,7 @@
     }
 
     function increaseQty(){
-        let current = parseInt(qtyInput.value);
+        let current = parseInt(qtyInput.value) || 1;
 
         if(current < {{ $product->stock }}){
             qtyInput.value = current + 1;
@@ -612,8 +909,7 @@
     }
 
     function decreaseQty(){
-        let current = parseInt(qtyInput.value);
-
+        let current = parseInt(qtyInput.value) || 1;
         if(current > 1){
             qtyInput.value = current - 1;
             updateCartQty();
@@ -621,37 +917,31 @@
     }
 
     function handleQtyInput(){
-        let value = parseInt(qtyInput.value);
-
-        // if empty or invalid
-        if(isNaN(value) || value < 1){
+        let value = qtyInput.value;
+        // allow empty while typing
+        if(value === ''){
+            cartQtyInput.value = '';
+            return;
+        }
+        value = parseInt(value);
+        if(isNaN(value)){
+            qtyInput.value = 1;
             value = 1;
         }
-
-        // prevent exceeding stock
+        if(value < 1){
+            value = 1;
+        }
         if(value > {{ $product->stock }}){
             value = {{ $product->stock }};
         }
-
         qtyInput.value = value;
-
         updateCartQty();
     }
-
 
     const cartToast = document.getElementById('cartToast');
     const cartToastText = document.getElementById('cartToastText');
 
     let cartToastTimer = null;
-
-    // function showCartToast(message) {
-    //     cartToastText.textContent = message;
-    //     cartToast.classList.add('show');
-    //     clearTimeout(cartToastTimer);
-    //     cartToastTimer = setTimeout(() => {
-    //         cartToast.classList.remove('show');
-    //     }, 2500);
-    // }
 
     function showCartToast(message, type = 'success') {
         const toast = document.getElementById('cartToast');

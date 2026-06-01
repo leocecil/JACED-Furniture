@@ -12,13 +12,15 @@ use App\Services\RajaOngkirService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Str;
 use Laravolt\Indonesia\Models\City;
 use Laravolt\Indonesia\Models\District;
 use Laravolt\Indonesia\Models\Province;
 use Laravolt\Indonesia\Models\Village;
-use Midtrans\Snap;
 use Midtrans\Config;
+use Midtrans\Snap;
 
 class OrderController extends Controller
 {
@@ -67,8 +69,43 @@ class OrderController extends Controller
 
         $subtotal = $items->sum(fn($i) => $i['price'] * $i['qty']);
         $shipping = 0;
-        $tax      = $subtotal * 0.0836;
-        $total    = $subtotal + $shipping + $tax;
+        $tax = (int) round($subtotal * 0.05);
+
+        $pendingVoucherId = session('pending_voucher_id');
+        $pendingVoucher = null; 
+
+        if ($pendingVoucherId) {
+            $pendingVoucher = DB::table('vouchers')
+                ->join('voucher_types', 'vouchers.voucher_type_id', '=', 'voucher_types.id')
+                ->where('vouchers.id', $pendingVoucherId)
+                ->where('vouchers.user_id', Auth::id())
+                ->where('vouchers.is_active', true)
+                ->whereNull('vouchers.redeemed_at')
+                ->select('vouchers.*', 'voucher_types.name', 'voucher_types.used_for', 'voucher_types.max_discount', 'voucher_types.discount_percentage')
+                ->first();
+        }
+        $discountAmount = 0;
+        if ($pendingVoucher) {
+            $maxDiscount = (float) $pendingVoucher->max_discount;
+            if ($pendingVoucher->used_for === 'delivery') {
+                $discountAmount = min($shipping, $maxDiscount);
+            } else {
+                $calculatedDiscount = $subtotal * ($pendingVoucher->discount_percentage / 100);
+                $discountAmount = min($calculatedDiscount, $maxDiscount);
+            }
+        }
+        // Ambil tier user
+        $userStage = DB::table('stages')
+            ->where('min_points_accumulative', '<=', Auth::user()->accumulated_points ?? 0)
+            ->orderBy('min_points_accumulative', 'desc')
+            ->first();
+
+        $tierDiscountAmount = 0;
+        if ($userStage && $userStage->discount_percentage > 0) {
+            $tierDiscountAmount = round($subtotal * ($userStage->discount_percentage / 100));
+        }
+
+        $total = $subtotal + $shipping + $tax - $discountAmount - $tierDiscountAmount;
 
         $paymentMethods = PaymentMethod::all()
             ->map(fn($p) => [
@@ -89,23 +126,14 @@ class OrderController extends Controller
                 'name'  => strtoupper($b->name),
             ]);
 
-        $pendingVoucherId = session('pending_voucher_id');
-        $pendingVoucher = null;
-
-        if ($pendingVoucherId) {
-            $pendingVoucher = DB::table('vouchers')
-                ->join('voucher_types', 'vouchers.voucher_type_id', '=', 'voucher_types.id')
-                ->where('vouchers.id', $pendingVoucherId)
-                ->where('vouchers.user_id', Auth::id())
-                ->where('vouchers.is_active', true)
-                ->whereNull('vouchers.redeemed_at')
-                ->select('vouchers.*', 'voucher_types.name', 'voucher_types.used_for', 'voucher_types.max_discount', 'voucher_types.discount_percentage')
-                ->first();
-        }
+        $defaultAddress = DB::table('shipping_address')
+            ->where('user_id', Auth::id())
+            ->where('is_default', true)
+            ->first();
 
         return view('store.checkout', compact(
-            'items', 'paymentMethods', 'banks', 'pendingVoucher',
-            'provinces', 'savedAddresses', 'totalWeight', 'subtotal', 'shipping', 'myVouchers', 'tax', 'total'
+            'items', 'paymentMethods', 'banks', 'pendingVoucher', 'defaultAddress', 
+            'provinces', 'savedAddresses', 'totalWeight', 'subtotal', 'shipping', 'myVouchers', 'tax', 'total', 'discountAmount', 'userStage', 'tierDiscountAmount'
         ));
     }
 
@@ -187,12 +215,17 @@ class OrderController extends Controller
             }
             $totalWeight = max(1000, (int) $totalWeight);
 
-            $subtotalPrice = $cartItems->sum(fn($item) => $item->product->price * $item->quantity);
-            $serviceTax    = $subtotalPrice * 0.1;
+            $subtotalPrice  = $cartItems->sum(fn($item) => $item->product->price * $item->quantity);
+            $serviceTax     = (int) round($subtotalPrice * 0.05);
             $voucherId      = $request->input('applied_voucher_id');
             $discountAmount = 0;
             $appliedVoucher = null;
             $paymentId = PaymentMethod::where('name', $paymentMethod)->first()?->id ?? 1;
+
+            $vaBankId = null;
+            if ($paymentMethod === 'virtual_account' && !empty($chosenBank)) {
+                $vaBankId = DB::table('va_banks')->where('name', $chosenBank)->first()?->id;
+            }
 
             if ($voucherId) {
                 $appliedVoucher = DB::table('vouchers')
@@ -208,19 +241,35 @@ class OrderController extends Controller
                 if ($appliedVoucher) {
                     $maxDiscount = (float) $appliedVoucher->max_discount;
 
-                    if ($appliedVoucher->used_for === 'shipping') {
+                    if ($appliedVoucher->used_for === 'delivery') {
                         $discountAmount = min($deliveryFee, $maxDiscount);
                     } else {
-                        $discountAmount = min($subtotalPrice, $maxDiscount);
+                        $calculatedDiscount = $subtotalPrice * ($appliedVoucher->discount_percentage / 100);
+                        $discountAmount = min($calculatedDiscount, $maxDiscount);
                     }
                 }
             }
 
-            $totalPrice = $subtotalPrice + $deliveryFee + $serviceTax - $discountAmount;
+            // Setelah bagian voucher discount, tambah ini:
+            $tierDiscountAmount = 0;
+            $stageId = null;
+
+            $userStage = DB::table('stages')
+                ->where('min_points_accumulative', '<=', Auth::user()->accumulated_points ?? 0)
+                ->orderBy('min_points_accumulative', 'desc')
+                ->first();
+
+            if ($userStage && $userStage->discount_percentage > 0) {
+                $tierDiscountAmount = round($subtotalPrice * ($userStage->discount_percentage / 100));
+                $stageId = $userStage->id;
+            }
+
+            $totalPrice = $subtotalPrice + $deliveryFee + $serviceTax - $discountAmount - $tierDiscountAmount;
 
             $order = Order::create([
                 'user_id'             => Auth::id(),
                 'payment_id'          => $paymentId,
+                'va_bank_id'          => $vaBankId,
                 'voucher_id'          => $appliedVoucher?->id ?? null,
                 'shipping_address_id' => $shippingAddress->id,
                 'delivery_fee'        => $deliveryFee,
@@ -228,6 +277,8 @@ class OrderController extends Controller
                 'discount_amount'     => $discountAmount,
                 'total_price'         => $totalPrice,
                 'status'              => 'unpaid',
+                'tier_discount_amount'=> $tierDiscountAmount,
+                'stage_id'            => $stageId,
             ]);
 
             foreach ($cartItems as $cartItem) {
@@ -282,6 +333,15 @@ class OrderController extends Controller
                 ];
             }
 
+            if ($tierDiscountAmount > 0) {
+                $item_details[] = [
+                    'id'       => 'TIER_DISCOUNT',
+                    'price'    => -round($tierDiscountAmount),
+                    'quantity' => 1,
+                    'name'     => 'Member Tier Discount (' . $userStage->discount_percentage . '%)',
+                ];
+            }
+
             $enabledPayments = [];
             if ($paymentMethod === 'virtual_account' && $chosenBank !== 'all' && !empty($chosenBank)) {
                 if ($chosenBank === 'mandiri') {
@@ -299,10 +359,13 @@ class OrderController extends Controller
                 };
             }
 
+            $midtransOrderId = 'JACED-ORD-' . $order->id . '-' . time();
+            $order->update(['midtrans_order_id' => $midtransOrderId]);
+
             $params = [
                 'transaction_details' => [
-                    'order_id'     => 'JACED-ORD-' . $order->id . '-' . time(),
-                    'gross_amount' => $totalPrice,
+                    'order_id'     => $midtransOrderId,
+                    'gross_amount' => (int) round($totalPrice),
                 ],
                 'item_details' => $item_details,
                 'customer_details' => [
@@ -328,8 +391,7 @@ class OrderController extends Controller
             }
 
             $snapToken = Snap::getSnapToken($params);
-
-            DB::commit();
+ 
             if ($appliedVoucher) {
                 DB::table('vouchers')
                     ->where('id', $appliedVoucher->id)
@@ -338,6 +400,7 @@ class OrderController extends Controller
                         'is_active'   => false,
                     ]);
             }
+            DB::commit();
             DB::statement('SET FOREIGN_KEY_CHECKS=1;');
 
             $userId = Auth::id();
@@ -349,66 +412,86 @@ class OrderController extends Controller
         } catch (\Exception $e) {
             DB::statement('SET FOREIGN_KEY_CHECKS=1;');
             DB::rollBack();
-            dd($e->getMessage(), $e->getFile(), $e->getLine());
+            Log::error('Checkout error: ' . $e->getMessage(), [
+                'file' => $e->getFile(),
+                'line' => $e->getLine(),
+            ]);
             return redirect()->back()->with('error', 'Checkout failed: ' . $e->getMessage());
         }
     }
 
-    public function payment_status($order_id){
+    public function payment_status($order_id)
+    {
         $order = Order::findOrFail($order_id);
 
         \Midtrans\Config::$serverKey = config('midtrans.server_key');
         \Midtrans\Config::$isProduction = config('midtrans.is_production');
         
         try {
-            /** @var object $statusResponse */
-            // Menggunakan ID Order karena invoice_number tidak ada di database kalian
-            $statusResponse = \Midtrans\Transaction::status($order->id);
+            if (!$order->midtrans_order_id) {
+                return redirect()->route('store.orderhistory')->with('error', 'Data transaksi tidak ditemukan.');
+            }
+
+            $statusResponse    = \Midtrans\Transaction::status($order->midtrans_order_id);
             $transactionStatus = $statusResponse->transaction_status;
 
             if ($transactionStatus == 'capture' || $transactionStatus == 'settlement') {
-                $order->status = 'packed'; 
+                $order->status       = 'on_process';
+                $order->on_process_at = now();
             } elseif ($transactionStatus == 'pending') {
                 $order->status = 'unpaid';
             } elseif (in_array($transactionStatus, ['deny', 'expire', 'cancel'])) {
-                $order->status = 'cancelled';
+                $order->status       = 'cancelled';
+                $order->cancelled_at = now();
             }
             $order->save();
 
         } catch (\Exception $e) {
-            $order->save();
+            Log::error('Midtrans status error order #' . $order->id . ': ' . $e->getMessage());
+            return redirect()->route('store.orderhistory')->with('error', 'Fail to get Midtrans status.');
         }
 
-        if ($order->status == 'packed') {
-            $totalBelanja = $order->total_price; 
-            $poinBaru = floor($totalBelanja / 10000); 
-
-            if ($poinBaru > 0 && Auth::check()) {
-                $user = Auth::user();
-                
-                $user->increment('current_points', $poinBaru);
-                $user->increment('accumulated_points', $poinBaru);
-
-                DB::table('point_histories')->insert([
-                    'user_id'    => $user->id,
-                    'points'     => $poinBaru,
-                    'type'       => 'earned',
-                    'source'     => 'purchase',
-                    'order_id'   => $order->id,
-                    'created_at' => now(),
-                    'updated_at' => now(),
-                ]);
-            }
-
-            // Arahkan ke riwayat transaksi dengan flash message jumlah poin yang didapat
+        if ($order->status == 'on_process') {
+            Mail::to($order->user->email)->send(new \App\Mail\OrderConfirmationMail($order));
             return redirect()->route('store.orderhistory')
-                             ->with('success', 'Payment successful! You earned ' . $poinBaru . ' points.');
-                             
-        } elseif ($order->status == 'pending') {
+                ->with('success', 'Payment successful! Pesanan kamu sedang diproses.');
+        } elseif ($order->status == 'unpaid') {
             return redirect()->route('store.orderhistory')->with('error', 'Payment is pending. Please complete it.');
         } else {
             return redirect()->route('store.orderhistory')->with('error', 'Payment failed or expired.');
         }
+    }
+
+    public function handleNotification(Request $request)
+    {
+        \Midtrans\Config::$serverKey    = config('midtrans.server_key');
+        \Midtrans\Config::$isProduction = config('midtrans.is_production');
+
+        $notification      = new \Midtrans\Notification();
+        $transactionStatus = $notification->transaction_status;
+        $fraudStatus       = $notification->fraud_status;
+
+        $order = Order::where('midtrans_order_id', $notification->order_id)->firstOrFail();
+
+        if ($transactionStatus == 'capture') {
+            $order->status = $fraudStatus == 'accept' ? 'on_process' : 'cancelled';
+            if ($order->status == 'on_process') $order->on_process_at = now();
+            if ($order->status == 'cancelled')  $order->cancelled_at  = now();
+
+        } elseif ($transactionStatus == 'settlement') {
+            $order->status       = 'on_process';
+            $order->on_process_at = now();
+
+        } elseif (in_array($transactionStatus, ['cancel', 'deny', 'expire'])) {
+            $order->status      = 'cancelled';
+            $order->cancelled_at = now();
+
+        } elseif ($transactionStatus == 'pending') {
+            $order->status = 'unpaid';
+        }
+
+        $order->save();
+        return response()->json(['status' => 'ok']);
     }
 
     public function payment_return($order_id){
@@ -523,12 +606,13 @@ class OrderController extends Controller
 // ======================== TRANSACTION HISTORY & DETAIL ========================
     public function index(Request $request)
     {
-        $filters = ['All', 'Unpaid', 'Packed', 'Delivered', 'Arrived', 'Cancelled'];
+        $filters = ['All', 'On Process', 'Unpaid', 'Packed', 'Delivered', 'Arrived', 'Cancelled'];
         $activeFilter = $request->get('filter', 'All');
 
         // Mapping filter tab → status di DB
         $statusMap = [
             'Unpaid'     => 'unpaid',
+            'On Process' => 'on_process',
             'Packed'     => 'packed',
             'Delivered'  => 'delivered',
             'Arrived'    => 'arrived',

@@ -64,23 +64,6 @@ class Product extends Model
 
     // ─── ACCESSORS ────────────────────────────────────────────────────────────
 
-    /**
-     * mainImage: accessor buat view yang expect $product->mainImage->image_path
-     * Return image dengan is_main=true, fallback ke image pertama
-     */
-
-    /**
-     * main_image_url: URL lengkap buat tampil di shop/home card
-     */
-    // public function getMainImageUrlAttribute(): string
-    // {
-    //     $img = $this->mainImage;
-    //     if (!$img) {
-    //         return 'https://placehold.co/800x800/f2ede6/272e1d?text=' . urlencode($this->name);
-    //     }
-    //     $path = str_replace('image/products/', 'image/', $img->image_path);
-    //     return asset($path);
-    // }
     public function getMainImageUrlAttribute(): string
     {
         if (!$this->mainImage) {
@@ -88,7 +71,9 @@ class Product extends Model
         }
         return asset($this->mainImage->image_path);
     }
+
     protected $appends = ['slug'];
+
     public function getSlugAttribute(): string
     {
         return \Illuminate\Support\Str::slug($this->name);
