@@ -90,7 +90,6 @@
     @stack('styles')
 </head>
 <body>
-
 <div class="sidebar-overlay" id="sidebarOverlay" onclick="closeSidebar()"></div>
 
 <div class="app-shell">

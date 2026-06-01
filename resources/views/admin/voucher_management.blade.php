@@ -1,13 +1,10 @@
 @extends('layouts.app')
 
-@section('title', 'Voucher Management')
+@section('content')
 
 @push('styles')
-<link rel="stylesheet" href="{{ asset('css/jaced.css') }}">
 <link rel="stylesheet" href="{{ asset('css/admin/voucher-management.css') }}">
 @endpush
-
-@section('content')
 <div class="container-fluid">
 
     {{-- ── Page Header ── --}}
@@ -29,24 +26,18 @@
     <div style="display:flex; gap:16px; margin-bottom:8px; flex-wrap:wrap;">
 
         <div class="stat-card">
-            <div class="stat-label">
-                <i class="bi bi-ticket-perforated"></i> Total Voucher Types
-            </div>
+            <div class="stat-label"><i class="bi bi-ticket-perforated"></i> Total Voucher Types</div>
             <div class="stat-value" id="statTotalTypes">{{ number_format($totalTypes) }}</div>
         </div>
 
         <div class="stat-card">
-            <div class="stat-label">
-                <i class="bi bi-check-circle"></i> Active Types
-            </div>
+            <div class="stat-label"><i class="bi bi-check-circle"></i> Active Types</div>
             <div class="stat-value" id="statActiveTypes">{{ number_format($activeTypes) }}</div>
             <div class="stat-sub" id="statInactiveTypes">{{ $totalTypes - $activeTypes }} inactive</div>
         </div>
 
         <div class="stat-card">
-            <div class="stat-label">
-                <i class="bi bi-arrow-repeat"></i> Total Redeemed
-            </div>
+            <div class="stat-label"><i class="bi bi-arrow-repeat"></i> Total Redeemed</div>
             <div class="stat-value" id="statTotalRedeemed">{{ number_format($totalRedeemed) }}</div>
             <div class="stat-sub">
                 @if($totalTypes > 0)
@@ -58,9 +49,7 @@
         </div>
 
         <div class="stat-card">
-            <div class="stat-label">
-                <i class="bi bi-currency-dollar"></i> Total Discount Given
-            </div>
+            <div class="stat-label"><i class="bi bi-currency-dollar"></i> Total Discount Given</div>
             <div class="stat-value" id="statTotalDiscount">Rp {{ number_format($totalDiscount, 0, ',', '.') }}</div>
         </div>
 
@@ -109,83 +98,65 @@
         </div>
 
         {{-- Table --}}
-        <table class="jaced-table">
-            <thead>
-                <tr>
-                    <th>Voucher Name</th>
-                    <th>Type</th>
-                    <th>Discount</th>
-                    <th>Max Discount</th>
-                    <th>Point Cost</th>
-                    <th>Quantity</th>
-                    <th>Status</th>
-                    <th>Actions</th>
-                </tr>
-            </thead>
-            <tbody>
-                @forelse($paged as $vt)
-                @php
-                    $usedPct  = $vt->total_quantity > 0 ? round(($vt->redeemed_count / $vt->total_quantity) * 100) : 0;
-                    $fillClass = $usedPct >= 100 ? 'full' : ($usedPct >= 75 ? 'warn' : '');
-                @endphp
-                <tr id="row-{{ $vt->id }}">
-                    <td>
-                        <div class="voucher-name">{{ $vt->name }}</div>
-                        <div class="voucher-desc">{{ Str::limit($vt->description, 60) }}</div>
-                    </td>
-                    <td>
-                        <span style="text-transform:capitalize; font-size:13px;">
-                            {{ $vt->used_for === 'product' ? '🛍️ Product' : '🚚 Delivery' }}
-                        </span>
-                    </td>
-                    <td><strong>{{ $vt->discount_percentage }}%</strong></td>
-                    <td>Rp {{ number_format($vt->max_discount, 0, ',', '.') }}</td>
-                    <td>{{ number_format($vt->point_cost) }} pts</td>
-                    <td>
-                        <div class="usage-bar-wrap">
-                            <div class="usage-bar-top">
-                                <span>{{ $vt->redeemed_count }}/{{ $vt->total_quantity }}</span>
-                                <span>{{ $usedPct }}%</span>
+        <div class="table-responsive">
+            <table class="jaced-table">
+                <thead>
+                    <tr>
+                        <th>Voucher Name</th>
+                        <th>Type</th>
+                        <th>Discount</th>
+                        <th>Max Discount</th>
+                        <th>Point Cost</th>
+                        <th>Codes</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @forelse($voucherTypes as $vt)
+                    @php
+                        $usedPct  = $vt->total_quantity > 0 ? round(($vt->redeemed_count / $vt->total_quantity) * 100) : 0;
+                        $fillClass = $usedPct >= 100 ? 'full' : ($usedPct >= 75 ? 'warn' : '');
+                    @endphp
+                    <tr id="row-{{ $vt->id }}" class="clickable-row" onclick="openDetailPanel('{{ $vt->id }}')" title="Click to view details">
+                        <td>
+                            <div class="voucher-name">{{ $vt->name }}</div>
+                            <div class="voucher-desc">{{ Str::limit($vt->description, 65) }}</div>
+                        </td>
+                        <td>
+                            <span style="text-transform:capitalize; font-size:13px;">
+                                {{ $vt->used_for === 'product' ? '🛍️ Product' : '🚚 Delivery' }}
+                            </span>
+                        </td>
+                        <td><strong>{{ $vt->discount_percentage }}%</strong></td>
+                        <td>Rp {{ number_format($vt->max_discount, 0, ',', '.') }}</td>
+                        <td>{{ number_format($vt->point_cost) }} pts</td>
+                        <td>
+                            <div class="usage-bar-wrap">
+                                <div class="usage-bar-top">
+                                    <span>{{ $vt->redeemed_count }}/{{ $vt->total_quantity }}</span>
+                                    <span>{{ $usedPct }}%</span>
+                                </div>
+                                <div class="usage-bar">
+                                    <div class="usage-bar-fill {{ $fillClass }}" style="width:{{ $usedPct }}%;"></div>
+                                </div>
                             </div>
-                            <div class="usage-bar">
-                                <div class="usage-bar-fill {{ $fillClass }}" style="width:{{ $usedPct }}%;"></div>
-                            </div>
-                        </div>
-                    </td>
-                    <td>
-                        <span class="badge-status {{ $vt->is_active ? 'badge-active' : 'badge-inactive' }}" id="badge-{{ $vt->id }}">
-                            {{ $vt->is_active ? 'Active' : 'Inactive' }}
-                        </span>
-                    </td>
-                    <td>
-                        <button class="action-btn"
-                            title="View Used Orders"
-                            onclick="viewUsedOrders('{{ $vt->id }}', '{{ addslashes($vt->name) }}')">
-                            <i class="bi bi-eye"></i>
-                        </button>
-                            {{-- Toggle active/inactive --}}
-                            <button class="action-btn toggle-btn {{ !$vt->is_active ? 'is-inactive' : '' }}"
-                                title="{{ $vt->is_active ? 'Deactivate' : 'Activate' }}"
-                                onclick="toggleVoucher('{{ $vt->id }}', this)">
-                                <i class="bi {{ $vt->is_active ? 'bi-toggle-on' : 'bi-toggle-off' }}"></i>
-                            </button>
-                            {{-- Delete --}}
-                            <button class="action-btn danger" title="Delete"
-                                onclick="deleteVoucher('{{ $vt->id }}', '{{ addslashes($vt->name) }}')">
-                                <i class="bi bi-trash3"></i>
-                            </button>
-                        </div>
-                    </td>
-                </tr>
-                @empty
-                <tr>
-                    <td colspan="8" style="text-align:center; padding:48px; color:var(--jaced-muted);">
-                        No voucher types found.
-                    </td>
-                </tr>
-                @endforelse
-            </tbody>
-        </table>
+                        </td>
+                        <td>
+                            <span class="badge-status {{ $vt->is_active ? 'badge-active' : 'badge-inactive' }}" id="badge-{{ $vt->id }}">
+                                {{ $vt->is_active ? 'Active' : 'Inactive' }}
+                            </span>
+                        </td>
+                    </tr>
+                    @empty
+                    <tr>
+                        <td colspan="7" style="text-align:center; padding:48px; color:var(--jaced-muted);">
+                            No voucher types found.
+                        </td>
+                    </tr>
+                    @endforelse
+                </tbody>
+            </table>
+        </div>
 
         {{-- Pagination --}}
         <div class="pagination-wrap">
@@ -207,10 +178,57 @@
 
     </div>
 
-</div>
+</div>{{-- end container --}}
+
+<div class="detail-panel-overlay" id="detailPanelOverlay" onclick="closeDetailPanel()"></div>
+
+{{-- ── Detail Panel ── --}}
+<div class="detail-panel" id="detailPanel">
+
+    <div class="detail-panel-head">
+        <div class="detail-panel-head-top">
+            <span class="detail-panel-label">Voucher Details</span>
+            <button class="detail-panel-close" onclick="closeDetailPanel()">×</button>
+        </div>
+        <div class="detail-panel-name">—</div>
+        <div class="detail-meta-grid"></div>
+    </div>
+
+    {{-- Used banner --}}
+    <div class="detail-used-banner" style="margin:16px 24px;">
+        <div class="detail-used-left">
+            <div class="detail-used-count">0</div>
+            <div class="detail-used-label">times used</div>
+        </div>
+        <div class="detail-used-discount">
+            <div class="detail-used-discount-val">Rp 0</div>
+            <div class="detail-used-discount-label" style="color:rgba(255,255,255,.5); font-size:10px;">total discount given</div>
+        </div>
+    </div>
+
+    {{-- Tabs --}}
+    <div class="detail-tabs">
+        <div class="detail-tab active" data-tab="codes" onclick="switchDetailTab('codes')">Codes</div>
+        <div class="detail-tab" data-tab="orders" onclick="switchDetailTab('orders')">Recent Orders</div>
+    </div>
+
+    <div class="detail-body">
+        <div class="detail-tab-content active" id="detailTabCodes">
+            <div class="detail-loading">
+                <div class="skel" style="height:48px; margin:16px 24px;"></div>
+                <div class="skel" style="height:48px; margin:0 24px;"></div>
+            </div>
+        </div>
+        <div class="detail-tab-content" id="detailTabOrders">
+            <div class="detail-loading">
+                <div class="skel" style="height:60px; margin:16px 24px;"></div>
+            </div>
+        </div>
+    </div>
+
 </div>
 
-{{-- ── Slide-in Drawer ── --}}
+{{-- ── Create Drawer ── --}}
 <div class="drawer-overlay" id="drawerOverlay" onclick="closeDrawer()"></div>
 <div class="drawer" id="drawer">
     <div class="drawer-head">
@@ -220,61 +238,48 @@
 
     <div class="drawer-body">
 
-        {{-- Type selector --}}
         <div class="form-group">
             <label class="form-label">Voucher Type</label>
             <div class="type-selector">
                 <div class="type-option">
                     <input type="radio" name="used_for" id="typeProduct" value="product" checked>
-                    <label for="typeProduct">
-                        <i class="bi bi-bag-heart"></i>
-                        Product Discount
-                    </label>
+                    <label for="typeProduct"><i class="bi bi-bag-heart"></i> Product Discount</label>
                 </div>
                 <div class="type-option">
                     <input type="radio" name="used_for" id="typeDelivery" value="delivery">
-                    <label for="typeDelivery">
-                        <i class="bi bi-truck"></i>
-                        Free Delivery
-                    </label>
+                    <label for="typeDelivery"><i class="bi bi-truck"></i> Free Delivery</label>
                 </div>
             </div>
         </div>
 
-        {{-- Name --}}
         <div class="form-group">
             <label class="form-label" for="dName">Voucher Name</label>
             <input type="text" id="dName" class="form-input" placeholder="e.g. Diskon 15% - Produk s.d. Rp150.000">
             <p class="form-hint">Vouchers with the same name will be grouped together in the table.</p>
         </div>
 
-        {{-- Description --}}
         <div class="form-group">
             <label class="form-label" for="dDesc">Description</label>
             <textarea id="dDesc" class="form-textarea" placeholder="Describe what this voucher offers..."></textarea>
         </div>
 
-        {{-- Discount % --}}
         <div class="form-group">
             <label class="form-label" for="dDiscountPct">Discount Percentage (%)</label>
             <input type="number" id="dDiscountPct" class="form-input" placeholder="e.g. 15" min="1" max="100" oninput="updatePointPreview()">
         </div>
 
-        {{-- Max Discount --}}
         <div class="form-group">
             <label class="form-label" for="dMaxDiscount">Max Discount (Rp)</label>
-            <input type="text" id="dMaxDiscount" class="form-input" placeholder="e.g. 150000" min="1000" step="1000" oninput="formatRupiah(this); updatePointPreview()">
+            <input type="text" id="dMaxDiscount" class="form-input" placeholder="e.g. 150.000" oninput="formatRupiah(this); updatePointPreview()">
             <p class="form-hint">The maximum rupiah amount that will be discounted.</p>
         </div>
 
-        {{-- Quantity --}}
         <div class="form-group">
             <label class="form-label" for="dQuantity">Quantity</label>
             <input type="number" id="dQuantity" class="form-input" placeholder="e.g. 5" min="1" max="100" value="1">
             <p class="form-hint">How many individual voucher codes to generate.</p>
         </div>
 
-        {{-- Point cost preview --}}
         <div class="point-preview" id="pointPreview" style="display:none;">
             <span style="font-size:13px; color:var(--jaced-muted); font-weight:400;">Auto-calculated point cost</span>
             <span id="pointPreviewValue">0 pts</span>
@@ -293,18 +298,15 @@
 {{-- ── Toast ── --}}
 <div class="toast-msg" id="toastMsg"></div>
 
-{{-- Used Orders Modal --}}
-<div class="drawer-overlay" id="usedOrdersOverlay" onclick="closeUsedOrdersModal()"></div>
-
-<div class="drawer" id="usedOrdersDrawer">
-    <div class="drawer-head">
-        <h3 id="usedOrdersTitle">Used Orders</h3>
-        <button class="drawer-close" onclick="closeUsedOrdersModal()">×</button>
-    </div>
-
-    <div class="drawer-body">
-        <div id="usedOrdersContent">
-            <p style="color:var(--jaced-muted);">Loading...</p>
+{{-- ── Confirm Modal ── --}}
+<div class="confirm-modal-overlay" id="confirmModal">
+    <div class="confirm-modal">
+        <div class="confirm-modal-icon"><i class="bi bi-exclamation-triangle"></i></div>
+        <div class="confirm-modal-title" id="confirmTitle"></div>
+        <div class="confirm-modal-subtitle" id="confirmSubtitle"></div>
+        <div class="confirm-modal-actions">
+            <button class="btn-dark-jaced danger-btn" id="confirmOkBtn">Delete</button>
+            <button class="btn-outline-jaced" onclick="closeConfirm()">Cancel</button>
         </div>
     </div>
 </div>
@@ -312,13 +314,13 @@
 @push('scripts')
 <script>
     window.voucherConfig = {
-        csrf: "{{ csrf_token() }}",
+        csrf:     "{{ csrf_token() }}",
         storeUrl: "{{ route('admin.vouchers.store') }}",
         statsUrl: "{{ route('admin.vouchers.stats') }}",
-        baseUrl: "{{ url('admin/vouchers') }}"
+        baseUrl:  "{{ url('admin/vouchers') }}"
     };
 </script>
 <script src="{{ asset('js/admin/voucher-management.js') }}"></script>
 @endpush
 
-@endsection 
+@endsection

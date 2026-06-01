@@ -16,10 +16,18 @@
         </span>
     </div>
 
+    {{-- ── Stat Filter ── --}}
+    <div class="d-flex gap-2 mb-3 flex-wrap">
+        @foreach(['all' => 'All Time', 'week' => 'This Week', 'month' => 'This Month', '3m' => 'Last 3 Months', 'year' => 'This Year'] as $val => $label)
+            <button class="card-range-btn stat-filter-btn {{ $val === 'all' ? 'active' : '' }}"
+                    data-range="{{ $val }}">{{ $label }}</button>
+        @endforeach
+    </div>
+
     {{-- ── Row 1: Stat Cards ── --}}
     <div class="row g-3 mb-3">
 
-        <div class="col-6 col-md-3">
+        <div class="col-12 col-sm-6 col-md-3">
             <div class="d-card stat-card accent-border"
                 style="cursor:pointer;"
                 onclick="window.location='{{ route('order_management') }}'">
@@ -27,14 +35,14 @@
                     <div class="icon-wrap" style="background:var(--accent-soft); color:var(--accent);">
                         <i class="bi bi-receipt"></i>
                     </div>
-                    <span class="pill pill-amber">All Time</span>
+                    <span class="pill pill-amber" id="revenue-pill">All Time</span>
                 </div>
                 <p class="label">Total Revenue</p>
-                <p class="value">Rp {{ number_format($totalRevenue, 0, ',', '.') }}</p>
+                <p class="value" id="revenue-value">Rp {{ number_format($totalRevenue, 0, ',', '.') }}</p>
             </div>
         </div>
 
-        <div class="col-6 col-md-3">
+        <div class="col-12 col-sm-6 col-md-3">
             <div class="d-card stat-card"
                 style="cursor:pointer;"
                 onclick="window.location='{{ route('order_management') }}'">
@@ -42,14 +50,14 @@
                     <div class="icon-wrap" style="background:var(--blue-soft); color:var(--blue);">
                         <i class="bi bi-basket"></i>
                     </div>
-                    <span class="pill pill-blue">All Time</span>
+                    <span class="pill pill-blue" id="orders-pill">All Time</span>
                 </div>
                 <p class="label">Total Orders</p>
-                <p class="value">{{ number_format($totalOrders) }}</p>
+                <p class="value" id="orders-value">{{ number_format($totalOrders) }}</p>
             </div>
         </div>
 
-        <div class="col-6 col-md-3">
+        <div class="col-12 col-sm-6 col-md-3">
             <div class="d-card stat-card"
                 style="cursor:pointer;"
                 onclick="window.location='{{ route('order_management') }}?status=delivered'">
@@ -64,7 +72,7 @@
             </div>
         </div>
 
-        <div class="col-6 col-md-3">
+        <div class="col-12 col-sm-6 col-md-3">
             <div class="d-card stat-card">
                 <div class="top-row">
                     <div class="icon-wrap" style="background:var(--danger-soft); color:var(--danger);">
@@ -247,7 +255,8 @@
         salesLabels: @json($salesData['labels']),
         salesData: @json($salesData['data']),
         pct: {{ $pct }},
-        salesChartUrl: "{{ route('admin.dashboard.salesChart') }}"
+        salesChartUrl: "{{ route('admin.dashboard.salesChart') }}",
+        statFilterUrl: "{{ route('admin.dashboard.statCards') }}"
     };
 </script>
 

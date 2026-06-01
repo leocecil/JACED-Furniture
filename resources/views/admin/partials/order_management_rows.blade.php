@@ -77,17 +77,11 @@ $disputeTypeLabels = [
     <div class="d-none d-md-flex align-items-center px-4 py-3 order-row-trigger"
         style="cursor:pointer; transition:background .15s; gap:0;"
         onclick="togglePanel({{ $order->id }})">
-
-        <div style="width:40px; flex-shrink:0;">
-            <input type="checkbox" class="order-checkbox"
-                style="width:16px; height:16px; accent-color:var(--jaced-sage); cursor:pointer;"
-                onclick="event.stopPropagation()">
-        </div>
         <div style="flex:0 0 12%; font-size:13px; font-weight:600; color:var(--jaced-brown-dark);">
             #ORD-{{ str_pad($order->id, 4, '0', STR_PAD_LEFT) }}
-            @if($hasDispute)
+            {{-- @if($hasDispute)
                 <span style="display:inline-block; width:7px; height:7px; border-radius:50%; background:#E65100; margin-left:4px; vertical-align:middle;" title="Has active dispute"></span>
-            @endif
+            @endif --}}
         </div>
         <div style="flex:0 0 25%; display:flex; align-items:center; gap:10px;">
             <div style="width:34px; height:34px; border-radius:50%; background:{{ $avatarBg }};
@@ -133,7 +127,7 @@ $disputeTypeLabels = [
         <div class="flex-grow-1" style="min-width:0;">
             <p class="mb-0" style="font-size:13px; font-weight:600; color:var(--jaced-brown-dark);">
                 {{ $order->customer_name }}
-                @if($hasDispute)<span style="display:inline-block; width:6px; height:6px; border-radius:50%; background:#E65100; margin-left:4px; vertical-align:middle;"></span>@endif
+                {{-- @if($hasDispute)<span style="display:inline-block; width:6px; height:6px; border-radius:50%; background:#E65100; margin-left:4px; vertical-align:middle;"></span>@endif --}}
             </p>
             <p class="mb-0" style="font-size:11px; color:var(--jaced-muted);">#ORD-{{ str_pad($order->id, 4, '0', STR_PAD_LEFT) }} · {{ Carbon::parse($order->created_at)->format('d M Y') }}</p>
         </div>
@@ -310,7 +304,7 @@ $disputeTypeLabels = [
                                 Processing Complaint
                             </p>
                             <p style="font-size:11px; color:var(--jaced-muted); margin:0;">
-                                {{ $processingDone ? '—' : '—' }}
+                                {{ $order->dispute_created_at ? Carbon::parse($order->dispute_created_at)->format('d M Y, H:i') : '—' }}
                             </p>
                         </div>
 
@@ -411,16 +405,11 @@ $disputeTypeLabels = [
 
                         @if($order->dispute_photo)
                         <p class="panel-label">Photo Evidence</p>
-                        <a href="{{ asset('image/complaints/' . basename($order->dispute_photo)) }}" target="_blank">
-                            <img src="{{ asset('image/complaints/' . basename($order->dispute_photo)) }}"
+                        <a href="{{ asset('storage/complaints/' . basename($order->dispute_photo)) }}" target="_blank">
+                            <img src="{{ asset('storage/complaints/' . basename($order->dispute_photo)) }}"
                                 style="width:100%; max-width:200px; border-radius:8px; border:1px solid var(--jaced-input); cursor:pointer;"
                                 alt="Dispute photo">
                         </a>
-                        @endif
-
-                        @if($order->dispute_admin_note)
-                        <p class="panel-label mt-3">Admin Note</p>
-                        <p class="panel-value">{{ $order->dispute_admin_note }}</p>
                         @endif
 
                         {{-- Exchange tracking info --}}
@@ -446,16 +435,19 @@ $disputeTypeLabels = [
                         @if($order->dispute_status === 'open')
                         <p class="panel-section-title">Take Action</p>
                         <div style="display:flex; gap:8px; flex-wrap:wrap;">
+                            @if($order->dispute_reason === 'damaged')
                             <button onclick="openDisputeModal({{ $order->dispute_id }}, 'refund', {{ $order->total_price }}, {{ $order->delivery_fee }}, {{ $order->service_tax }}, {{ $order->discount_amount }})"
                                 style="flex:1; min-width:120px; background:#1A237E; color:white; border:none; border-radius:8px; padding:9px 12px; font-size:12px; font-weight:600; cursor:pointer;"
                                 onmouseover="this.style.background='#0D1257'" onmouseout="this.style.background='#1A237E'">
                                 <i class="bi bi-cash-stack"></i> Refund
                             </button>
+                            @elseif($order->dispute_reason === 'missing')
                             <button onclick="openDisputeModal({{ $order->dispute_id }}, 'exchange', {{ $order->total_price }}, {{ $order->delivery_fee }}, {{ $order->service_tax }}, {{ $order->discount_amount }})"
                                 style="flex:1; min-width:120px; background:#004D40; color:white; border:none; border-radius:8px; padding:9px 12px; font-size:12px; font-weight:600; cursor:pointer;"
                                 onmouseover="this.style.background='#00251A'" onmouseout="this.style.background='#004D40'">
                                 <i class="bi bi-arrow-repeat"></i> Send Replacement
                             </button>
+                            @endif
                             <button onclick="openDisputeModal({{ $order->dispute_id }}, 'reject', {{ $order->total_price }}, {{ $order->delivery_fee }}, {{ $order->service_tax }}, {{ $order->discount_amount }})"
                                 style="flex:1; min-width:120px; background:#B71C1C; color:white; border:none; border-radius:8px; padding:9px 12px; font-size:12px; font-weight:600; cursor:pointer;"
                                 onmouseover="this.style.background='#7F0000'" onmouseout="this.style.background='#B71C1C'">
@@ -463,35 +455,30 @@ $disputeTypeLabels = [
                             </button>
                         </div>
 
-                        @elseif($order->dispute_status === 'negotiating')
-                        {{-- Negotiating: show current resolution type, allow mark as resolved or update tracking --}}
-                        <p class="panel-section-title">In Progress</p>
+                        @elseif($order->dispute_status === 'shipping_replacement')
+                        <p class="panel-section-title">Replacement In Progress</p>
 
-                        @if($order->dispute_resolution_type === 'exchange' && !$order->dispute_replacement_tracking)
                         <div style="background:white; border:1px solid var(--jaced-input); border-radius:12px; padding:16px; margin-bottom:12px;">
                             <p style="font-size:13px; font-weight:600; color:var(--jaced-brown-dark); margin:0 0 10px;">
-                                <i class="bi bi-box-seam"></i> Add Replacement Tracking Number
+                                <i class="bi bi-box-seam"></i> Replacement Shipped
                             </p>
-                            <input type="text" id="tracking-update-{{ $order->dispute_id }}"
-                                style="width:100%; font-size:13px; border:1px solid var(--jaced-input); border-radius:8px; padding:9px 12px; outline:none; margin-bottom:10px;"
-                                placeholder="e.g. JNE123456789">
-                            <button onclick="updateTracking({{ $order->dispute_id }})"
-                                style="width:100%; background:var(--jaced-brown-dark); color:white; border:none; border-radius:8px; padding:9px; font-size:13px; font-weight:600; cursor:pointer;">
-                                Save Tracking Number
-                            </button>
+                            <p class="panel-label">Tracking No.</p>
+                            <p class="panel-value">{{ $order->dispute_replacement_tracking ?? '—' }}</p>
+                            <p class="panel-label">Shipped At</p>
+                            <p class="panel-value">
+                                {{ $order->dispute_replacement_shipped_at 
+                                    ? Carbon::parse($order->dispute_replacement_shipped_at)->format('d M Y, H:i') 
+                                    : '—' }}
+                            </p>
                         </div>
-                        @endif
 
-                        <button onclick="openResolveModal({{ $order->dispute_id }}, '{{ $order->dispute_resolution_type }}')"
-                            style="width:100%; background:#2E7D32; color:white; border:none; border-radius:10px; padding:11px 16px; font-size:13px; font-weight:600; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:8px;"
+                        <button onclick="openResolveModal({{ $order->dispute_id }}, 'exchange')"
+                            style="width:100%; background:#2E7D32; color:white; border:none; border-radius:10px; 
+                                padding:11px 16px; font-size:13px; font-weight:600; cursor:pointer; 
+                                display:flex; align-items:center; justify-content:center; gap:8px;"
                             onmouseover="this.style.background='#1B5E20'"
                             onmouseout="this.style.background='#2E7D32'">
-                            <i class="bi bi-check-circle"></i>
-                            @if($order->dispute_resolution_type === 'refund')
-                                Mark Refund as Done
-                            @else
-                                Mark Exchange as Completed
-                            @endif
+                            <i class="bi bi-check-circle"></i> Mark Replacement as Arrived
                         </button>
 
                         @elseif($order->dispute_status === 'resolved')
@@ -511,6 +498,14 @@ $disputeTypeLabels = [
                                     —
                                 @endif
                             </p>
+
+                            {{-- Refund amount (only for refund) --}}
+                            @if($order->dispute_resolution_type === 'refund' && $order->dispute_refund_amount)
+                            <p style="font-size:11px; color:var(--jaced-muted); margin:0 0 4px;">Refund Amount</p>
+                            <p style="font-size:13px; font-weight:600; color:#2E7D32; margin:0 0 10px;">
+                                Rp {{ number_format($order->dispute_refund_amount, 0, ',', '.') }}
+                            </p>
+                            @endif
 
                             {{-- Admin note --}}
                             @if($order->dispute_admin_note)
@@ -540,7 +535,7 @@ $disputeTypeLabels = [
 
                             @if($order->dispute_resolved_at)
                             <p style="font-size:11px; color:var(--jaced-muted); margin:0;">
-                                Rejected on {{ Carbon::parse($order->dispute_resolved_at)->format('d M Y, H:i') }}
+                                Rejec   ted on {{ Carbon::parse($order->dispute_resolved_at)->format('d M Y, H:i') }}
                             </p>
                             @endif
                         </div>

@@ -329,7 +329,7 @@
         if (refundAmount !== null) payload.refund_amount = refundAmount;
         if (tracking)              payload.replacement_tracking_number = tracking;
 
-        fetch(`${window.disputeBaseUrl}/${disputeModalId}/resolved`, {
+        fetch(`${window.disputeBaseUrl}/${disputeModalId}/resolve`, {
             method:  'POST',
             headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': window.csrfToken },
             body:    JSON.stringify(payload),

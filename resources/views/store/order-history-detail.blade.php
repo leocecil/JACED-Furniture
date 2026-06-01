@@ -318,6 +318,8 @@
         $firstDetail = $order->orderDetails->first();
         $productName = $firstDetail?->product?->name ?? 'Order #' . $order->id;
         $extraCount = $order->orderDetails->count() - 1;
+        $paymentExpiredAt = $order->created_at->addHours(24);
+        $isExpired = $order->status === 'unpaid' && now()->isAfter($paymentExpiredAt);
 
         $statusLabel = [
             'unpaid' => 'Unpaid',
@@ -467,17 +469,6 @@
         usort($updates, fn($a, $b) => $b['timestamp'] - $a['timestamp']);
     @endphp
 
-    @if(session('success'))
-        <div style="background:#e4f0e8; color:#2E7D32; padding:12px 16px; border-radius:10px; margin-bottom:16px; font-size:13px; font-weight:600;">
-            ✓ {{ session('success') }}
-        </div>
-    @endif
-    @if(session('error'))
-        <div style="background:#f5e4e4; color:#a33d3d; padding:12px 16px; border-radius:10px; margin-bottom:16px; font-size:13px; font-weight:600;">
-            {{ session('error') }}
-        </div>
-    @endif
-
     <div class="jaced-page">
         <div style="max-width: 1000px; margin: 0 auto;">
 
@@ -502,46 +493,97 @@
             </p>
 
             {{-- Status Info Banner --}}
-            @if ($order->status === 'disputed')
+            @if ($order->status === 'disputed' || $order->refund_status === 'completed')
                 @if($dispute?->resolution_type === 'refund' && $dispute?->status === 'resolved')
                     <div style="background:#E0F7FA; border-radius:10px; padding:14px 18px; margin-bottom:24px; display:flex; align-items:center; gap:12px;">
-                        <span style="font-size:22px;">💰</span>
+                        <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#006064" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/>
+                        </svg>
                         <div>
-                            <p style="font-size:13px; color:#006064; font-weight:600; margin:0 0 2px;">Refund Approved</p>
-                            <p style="font-size:12px; color:var(--jaced-muted); margin:0;">
-                                Refund sedang diproses. Estimasi 3-5 hari kerja.
+                            <p style="font-size:13px; color:#006064; font-weight:600; margin:0 0 4px;">Refund Approved</p>
+                            <p style="font-size:12px; color:var(--jaced-muted); margin:0 0 2px;">
+                                @if($dispute->refund_amount >= ($order->total_price - $order->delivery_fee - $order->service_tax + $order->discount_amount + $order->tier_discount_amount))
+                                    Full refund of
+                                @else
+                                    Partial refund of
+                                @endif
+                                <strong>Rp {{ number_format($dispute->refund_amount, 0, ',', '.') }}</strong>
+                                is being processed.
+                            </p>
+                            <p style="font-size:11px; color:var(--jaced-muted); margin:0;">
+                                Estimated 3–5 business days.
                             </p>
                         </div>
                     </div>
 
                 @elseif($dispute?->resolution_type === 'exchange' && $dispute?->status === 'resolved')
                     <div style="background:#F1F8E9; border-radius:10px; padding:14px 18px; margin-bottom:24px; display:flex; align-items:center; gap:12px;">
-                        <span style="font-size:22px;">📦</span>
+                        <span style="font-size:22px;">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#33691E" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/>
+                            </svg>
+                        </span>
                         <div>
                             <p style="font-size:13px; color:#33691E; font-weight:600; margin:0 0 2px;">Replacement Item Being Sent</p>
-                            <p style="font-size:12px; color:var(--jaced-muted); margin:0;">Barang pengganti sedang dalam proses pengiriman.</p>
+                            <p style="font-size:12px; color:var(--jaced-muted); margin:0;">Your replacement item is on its way.</p>
                         </div>
                     </div>
 
                 @elseif($dispute?->status === 'rejected')
                     <div style="background:#FFEBEE; border-radius:10px; padding:14px 18px; margin-bottom:24px; display:flex; align-items:center; gap:12px;">
-                        <span style="font-size:22px;">❌</span>
+                        <span style="font-size:22px;">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#C62828" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/>
+                            </svg>
+                        </span>
                         <div>
                             <p style="font-size:13px; color:#C62828; font-weight:600; margin:0 0 2px;">Complaint Rejected</p>
-                            <p style="font-size:12px; color:var(--jaced-muted); margin:0;">Komplain kamu tidak dapat diproses. Hubungi customer service untuk info lebih lanjut.</p>
+                            <p style="font-size:12px; color:var(--jaced-muted); margin:0;">Your complaint could not be processed. Please contact customer service for more information.</p>
                         </div>
                     </div>
 
                 @else
                     {{-- Masih under review --}}
                     <div style="background:#FFF8E1; border-radius:10px; padding:14px 18px; margin-bottom:24px; display:flex; align-items:center; gap:12px;">
-                        <span style="font-size:22px;">⏳</span>
+                        <span style="font-size:22px;">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#F57F17" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>
+                            </svg>
+                        </span>
                         <div>
                             <p style="font-size:13px; color:#F57F17; font-weight:600; margin:0 0 2px;">Complaint Under Review</p>
                             <p style="font-size:12px; color:var(--jaced-muted); margin:0;">Your complaint is being reviewed by our team. We'll notify you once a resolution has been made.</p>
                         </div>
                     </div>
                 @endif
+            @endif
+
+            @if ($order->status === 'unpaid')
+                <div id="payment-countdown-banner"
+                    style="background: rgba(230, 81, 0, 0.06); border: 1px solid #E65100; border-radius:10px; padding:14px 18px; margin-bottom:24px; display:flex; align-items:center; gap:12px;"
+                    <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24"
+                        fill="none" stroke="#F57F17" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>
+                    </svg>
+                    <div>
+                        @if ($isExpired)
+                            <p style="font-size:13px; color:#C62828; font-weight:600; margin:0 0 2px;">
+                                Payment Expired
+                            </p>
+                            <p style="font-size:12px; color:var(--jaced-muted); margin:0;">
+                                The payment window for this order has closed. This order will be automatically cancelled.
+                            </p>
+                        @else
+                            <p style="font-size:13px; color:#E65100; font-weight:600; margin:0 0 2px;">
+                                Complete payment before time runs out
+                            </p>
+                            <p style="font-size:12px; color:var(--jaced-muted); margin:0;">
+                                Time remaining:
+                                <strong id="payment-countdown" style="color:#E65100; font-size:13px;">--:--:--</strong>
+                            </p>
+                        @endif
+                    </div>
+                </div>
             @endif
 
             {{-- GRID --}}
@@ -593,28 +635,58 @@
                                 <div class="tracking-steps">
                                     @foreach ($steps as $index => $step)
                                         @if ($index > 0)
-                                            <div
-                                                class="step-connector {{ $step['state'] === 'done' || $steps[$index - 1]['state'] === 'done' ? 'done' : '' }}">
-                                            </div>
+                                            <div class="step-connector {{ $step['state'] === 'done' || $steps[$index - 1]['state'] === 'done' ? 'done' : '' }}"></div>
                                         @endif
                                         <div class="step">
                                             <div class="step-circle {{ $step['state'] }}">
                                                 @if ($step['state'] === 'done')
+                                                    {{-- Centang --}}
                                                     <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
-                                                        <polyline points="20 6 9 17 4 12" />
-                                                    </svg>
-                                                @elseif ($step['state'] === 'active')
-                                                    <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                                        <rect x="1" y="3" width="15" height="13" /><polygon points="16 8 20 8 23 11 23 16 16 16 16 8" /><circle cx="5.5" cy="18.5" r="2.5" /><circle cx="18.5" cy="18.5" r="2.5" />
+                                                        <polyline points="20 6 9 17 4 12"/>
                                                     </svg>
                                                 @elseif ($step['state'] === 'cancelled')
+                                                    {{-- X --}}
                                                     <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
                                                         <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
                                                     </svg>
                                                 @else
-                                                    <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                                        <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" /><polyline points="9 22 9 12 15 12 15 22" />
-                                                    </svg>
+                                                    {{-- Ikon unik per step (active & pending) --}}
+                                                    @if ($step['label'] === 'Unpaid')
+                                                        {{-- Kartu / invoice --}}
+                                                        <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                                            <rect x="1" y="4" width="22" height="16" rx="2" ry="2"/>
+                                                            <line x1="1" y1="10" x2="23" y2="10"/>
+                                                        </svg>
+                                                    @elseif ($step['label'] === 'On Process')
+                                                        {{-- Gear --}}
+                                                        <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                                            <circle cx="12" cy="12" r="3"/>
+                                                            <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/>
+                                                        </svg>
+                                                    @elseif ($step['label'] === 'Packed')
+                                                        {{-- Box --}}
+                                                        <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                                            <polyline points="21 8 21 21 3 21 3 8"/>
+                                                            <rect x="1" y="3" width="22" height="5"/>
+                                                            <line x1="10" y1="12" x2="14" y2="12"/>
+                                                        </svg>
+                                                    @elseif ($step['label'] === 'Delivered')
+                                                        {{-- Truk --}}
+                                                        <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                                            <rect x="1" y="3" width="15" height="13"/><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/>
+                                                        </svg>
+                                                    @elseif ($step['label'] === 'Shipped')
+                                                        {{-- Pin lokasi --}}
+                                                        <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                                            <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/>
+                                                            <circle cx="12" cy="10" r="3"/>
+                                                        </svg>
+                                                    @elseif ($step['label'] === 'Arrived')
+                                                        {{-- Rumah --}}
+                                                        <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                                            <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/>
+                                                        </svg>
+                                                    @endif
                                                 @endif
                                             </div>
                                             <span class="step-label">{{ $step['label'] }}</span>
@@ -640,7 +712,9 @@
                                             {{ $order->shippingAddress->receiver_name }}
                                         </p>
                                         <p class="text-jaced-muted mb-1" style="font-size: 12px;">
-                                            📞 {{ $order->shippingAddress->receiver_phone }}
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right:4px; vertical-align:middle;">
+                                                <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 13a19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 3.56 2h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/>
+                                            </svg>{{ $order->shippingAddress->receiver_phone }}
                                         </p>
                                         <p class="text-jaced-muted mb-0" style="font-size: 12px; line-height: 1.7;">
                                             {{ $order->shippingAddress->address_line1 }}<br>
@@ -731,7 +805,7 @@
                                     <button type="button" class="btn-return"
                                         style="margin-top: 0; background: var(--jaced-sage); color: white; border: none; width: 100%;"
                                         onclick="document.getElementById('modal-confirm-received').style.display='flex'">
-                                        ✓ Pesanan Diterima
+                                        Confirm Received
                                     </button>
 
                                     <form id="form-received-{{ $order->id }}"
@@ -750,8 +824,10 @@
                                         <div
                                             style="background:#FFF3E0; border-radius:10px; padding:12px 14px; margin-bottom:12px;">
                                             <p style="font-size:12px; color:#E65100; font-weight:600; margin:0;">
-                                                ⏰ Pesanan akan otomatis dikonfirmasi dalam {{ $daysLeft }} hari lagi.
-                                                Ajukan komplain sekarang jika ada masalah.
+                                                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#E65100" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0; margin-right:6px; vertical-align:middle;">
+                                                    <circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>
+                                                </svg> 
+                                                Your order will be automatically confirmed in {{ $daysLeft }} day(s). File a complaint now if there's an issue.
                                             </p>
                                         </div>
                                     @endif
@@ -766,11 +842,20 @@
                                 @endif
 
                                 @if ($order->status === 'unpaid')
-                                    <a href="{{ route('store.orderhistory.repay', $order->id) }}"
-                                    class="btn-invoice"
-                                    style="background: var(--jaced-sage); margin-top: 0;">
-                                        💳 Pay Now
-                                    </a>
+                                    @if ($isExpired)
+                                        <button disabled
+                                            style="width:100%; padding:13px; background:#e0e0e0; color:#9e9e9e;
+                                                border:none; border-radius:12px; font-size:14px; font-weight:600;
+                                                cursor:not-allowed; margin-top:0;">
+                                            Payment Expired
+                                        </button>
+                                    @else
+                                        <a href="{{ route('store.orderhistory.repay', $order->id) }}"
+                                            class="btn-invoice"
+                                            style="background: var(--jaced-sage); margin-top: 0;">
+                                            Pay Now
+                                        </a>
+                                    @endif
                                 @endif
 
                                 {{-- Cancel Order --}}
@@ -797,7 +882,7 @@
                         @if ($order->status === 'shipped')
                             <div id="complaint-form" class="d-none mt-3">
                                 <div class="jaced-card p-4">
-                                    <p class="section-label">Apply Complain</p>
+                                    <p class="section-label">Apply Complaint</p>
                                     <form action="{{ route('store.orderhistory.complaint', $order->id) }}" method="POST" enctype="multipart/form-data">
                                         @csrf
                                         <div class="mb-3">
@@ -805,7 +890,7 @@
                                             <select name="type" class="form-select mt-1" style="font-size: 13px;">
                                                 <option value="missing">Item Not Received / Lost</option>
                                                 <option value="damaged">Item Damaged</option>
-                                                <option value="wrong_item">Wrong Item Sent</option>
+                                            
                                             </select>
                                         </div>
                                         <div class="mb-3">
@@ -818,7 +903,7 @@
                                             <input type="file" name="photo" class="form-control mt-1" accept="image/*">
                                         </div>
                                         <button type="submit" class="btn-invoice" style="margin-top: 0;">
-                                            Submit Complain
+                                            Submit Complaint
                                         </button>
                                     </form>
                                 </div>
@@ -874,24 +959,23 @@
             {{-- Title --}}
             <h5
                 style="font-size:18px; font-weight:700; color:var(--jaced-brown-dark); text-align:center; margin-bottom:8px;">
-                Konfirmasi Pesanan Diterima
+                Confirm Order Received
             </h5>
             <p style="font-size:13px; color:var(--jaced-muted); text-align:center; line-height:1.6; margin-bottom:8px;">
-                Apakah kamu sudah menerima dan mengecek kondisi barang?
+                Have you received and checked the condition of your order?
             </p>
             <p style="font-size:12px; color:var(--jaced-muted); text-align:center; line-height:1.6; margin-bottom:24px;">
-                Jika ada masalah dengan barang, gunakan tombol <strong>"Ada Masalah?"</strong> sebagai gantinya. Setelah
-                konfirmasi, komplain tidak bisa diajukan.
+                If there's an issue with your order, use the <strong>"Report an Issue"</strong> button instead. Once confirmed, complaints can no longer be submitted.
             </p>
 
             {{-- Buttons --}}
             <button onclick="document.getElementById('form-received-{{ $order->id }}').submit()"
                 style="width:100%; padding:13px; background:var(--jaced-sage); color:white; border:none; border-radius:12px; font-size:14px; font-weight:700; cursor:pointer; margin-bottom:10px;">
-                ✓ Ya, Barang Sudah Diterima dengan Baik
+                Yes, I've Received My Order
             </button>
             <button onclick="document.getElementById('modal-confirm-received').style.display='none'"
                 style="width:100%; padding:11px; background:none; color:var(--jaced-muted); border:1px solid var(--jaced-input); border-radius:12px; font-size:13px; font-weight:500; cursor:pointer;">
-                Batal
+                Cancel
             </button>
 
         </div>
@@ -927,7 +1011,6 @@
                     <select name="type" class="form-select" style="font-size:13px;" onchange="togglePhotoRequired(this.value)">
                         <option value="missing">Item Not Received / Lost</option>
                         <option value="damaged">Item Damaged</option>
-                        <option value="wrong_item">Wrong Item Sent</option>
                     </select>
                 </div>
                 <div class="mb-3">
@@ -971,30 +1054,30 @@
             </div>
             <h5 style="font-size:18px; font-weight:700; color:var(--jaced-brown-dark); text-align:center; margin-bottom:8px;">Cancel Order?</h5>
             <p style="font-size:13px; color:var(--jaced-muted); text-align:center; line-height:1.6; margin-bottom:16px;">
-                Order kamu akan dibatalkan dan tidak bisa dikembalikan.
+                Your order will be cancelled and cannot be undone.
             </p>
 
             {{-- Reason --}}
             <div class="mb-3" style="text-align:left;">
-                <label style="font-size:13px; font-weight:600; display:block; margin-bottom:6px;">Alasan Pembatalan</label>
+                <label style="font-size:13px; font-weight:600; display:block; margin-bottom:6px;">Cancellation Reason</label>
                 <select id="cancel-reason-unpaid" class="form-select" style="font-size:13px;" onchange="toggleOtherReason('unpaid', this.value)">
-                    <option value="wrong_address">Salah alamat pengiriman</option>
-                    <option value="change_of_mind">Berubah pikiran</option>
-                    <option value="found_cheaper">Menemukan harga lebih murah</option>
-                    <option value="ordered_by_mistake">Pesanan tidak sengaja</option>
-                    <option value="others">Lainnya...</option>
+                    <option value="wrong_address">Wrong delivery address</option>
+                    <option value="change_of_mind">Changed of mind</option>
+                    <option value="found_cheaper">Found a cheaper price</option>
+                    <option value="ordered_by_mistake">Ordered by mistake</option>
+                    <option value="others">Others...</option>
                 </select>
                 <textarea id="other-reason-unpaid" class="form-control mt-2" rows="2"
-                    style="font-size:13px; display:none;" placeholder="Tulis alasan kamu..."></textarea>
+                    style="font-size:13px; display:none;" placeholder="Write your reason..."></textarea>
             </div>
 
             <button onclick="submitCancel('{{ $order->id }}', 'unpaid')"
                 style="width:100%; padding:13px; background:#C62828; color:white; border:none; border-radius:12px; font-size:14px; font-weight:700; cursor:pointer; margin-bottom:10px;">
-                Ya, Batalkan Order
+                Yes, Cancel Order
             </button>
             <button onclick="document.getElementById('modal-cancel-unpaid').style.display='none'"
                 style="width:100%; padding:11px; background:none; color:var(--jaced-muted); border:1px solid var(--jaced-input); border-radius:12px; font-size:13px; font-weight:500; cursor:pointer;">
-                Kembali
+                Back
             </button>
         </div>
     </div>
@@ -1014,33 +1097,33 @@
             </div>
             <h5 style="font-size:18px; font-weight:700; color:var(--jaced-brown-dark); text-align:center; margin-bottom:8px;">Cancel Order?</h5>
             <p style="font-size:13px; color:var(--jaced-muted); text-align:center; line-height:1.6; margin-bottom:8px;">
-                Kamu sudah melakukan pembayaran untuk order ini.
+                You have already made a payment for this order.
             </p>
             <p style="font-size:12px; color:var(--jaced-muted); text-align:center; line-height:1.6; margin-bottom:16px;">
-                Refund akan diproses secara manual oleh tim kami dalam <strong>3-5 hari kerja</strong>.
+                Refund will be processed manually by our team within <strong>3–5 business days</strong>.
             </p>
 
             {{-- Reason --}}
             <div class="mb-3" style="text-align:left;">
-                <label style="font-size:13px; font-weight:600; display:block; margin-bottom:6px;">Alasan Pembatalan</label>
+                <label style="font-size:13px; font-weight:600; display:block; margin-bottom:6px;">Cancel Reason</label>
                 <select id="cancel-reason-on_process" class="form-select" style="font-size:13px;" onchange="toggleOtherReason('on_process', this.value)">
-                    <option value="wrong_address">Salah alamat pengiriman</option>
-                    <option value="change_of_mind">Berubah pikiran</option>
-                    <option value="found_cheaper">Menemukan harga lebih murah</option>
-                    <option value="ordered_by_mistake">Pesanan tidak sengaja</option>
-                    <option value="others">Lainnya...</option>
+                    <option value="wrong_address">Wrong delivery address</option>
+                    <option value="change_of_mind">Changed of mind</option>
+                    <option value="found_cheaper">Found a cheaper price</option>
+                    <option value="ordered_by_mistake">Ordered by mistake</option>
+                    <option value="others">Others...</option>
                 </select>
                 <textarea id="other-reason-on_process" class="form-control mt-2" rows="2"
-                    style="font-size:13px; display:none;" placeholder="Tulis alasan kamu..."></textarea>
+                    style="font-size:13px; display:none;" placeholder="Write your reason..."></textarea>
             </div>
 
             <button onclick="submitCancel('{{ $order->id }}', 'on_process')"
                 style="width:100%; padding:13px; background:#C62828; color:white; border:none; border-radius:12px; font-size:14px; font-weight:700; cursor:pointer; margin-bottom:10px;">
-                Ya, Batalkan & Ajukan Refund
+                Yes, Cancel & Request Refund
             </button>
             <button onclick="document.getElementById('modal-cancel-on_process').style.display='none'"
                 style="width:100%; padding:11px; background:none; color:var(--jaced-muted); border:1px solid var(--jaced-input); border-radius:12px; font-size:13px; font-weight:500; cursor:pointer;">
-                Kembali
+                Back
             </button>
         </div>
     </div>
@@ -1084,5 +1167,34 @@
             
             document.getElementById('form-cancel-' + orderId).submit();
         }
+
+        // Payment countdown timer
+        @if ($order->status === 'unpaid' && !$isExpired)
+            (function () {
+                const expiredAt = new Date("{{ $paymentExpiredAt->toIso8601String() }}").getTime();
+
+                function updateCountdown() {
+                    const now = Date.now();
+                    const diff = expiredAt - now;
+
+                    if (diff <= 0) {
+                        // Expired — reload halaman supaya UI update (banner merah, tombol disabled)
+                        window.location.reload();
+                        return;
+                    }
+
+                    const h = Math.floor(diff / 3600000);
+                    const m = Math.floor((diff % 3600000) / 60000);
+                    const s = Math.floor((diff % 60000) / 1000);
+
+                    const pad = n => String(n).padStart(2, '0');
+                    const el = document.getElementById('payment-countdown');
+                    if (el) el.textContent = `${pad(h)}:${pad(m)}:${pad(s)}`;
+                }
+
+                updateCountdown();
+                setInterval(updateCountdown, 1000);
+            })();
+        @endif
     </script>
 @endpush

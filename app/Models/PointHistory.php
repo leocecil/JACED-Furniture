@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class PointHistory extends Model
 {
-    protected $fillable = ['user_id', 'points', 'type', 'source', 'order_id'];
+    protected $fillable = ['user_id', 'points', 'type', 'source', 'order_id', 'expired_at'];
 
     public function user()
     {

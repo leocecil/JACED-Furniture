@@ -20,55 +20,102 @@
 
 @push('styles')
 <style>
-    /* Filter bar */
-    .category-wrapper { mask-image: linear-gradient(to right, black 85%, transparent 100%); -webkit-mask-image: linear-gradient(to right, black 85%, transparent 100%); }
-    .category-scroll { scroll-behavior: smooth; -ms-overflow-style: none; scrollbar-width: none; }
-    .category-scroll::-webkit-scrollbar { display: none; }
-    .btn-category-inactive { color: #6b6860 !important; opacity: 0.7; transition: all 0.2s ease; background: transparent; }
+    :root {
+        --jaced-white: #F9F9F7;
+        --jaced-cream: #F2EDE6;
+        --jaced-card: #FAF7F2;
+        --jaced-brown-dark: #272E1D;
+        --jaced-dark: #1C1C1A;
+        --jaced-brown: #5A4D47;
+        --jaced-caramel: #C99A6B;
+        --jaced-sage: #5A6B5B;
+        --jaced-input: #DDD6CE;
+        --jaced-muted: #8A857D;
+        --jaced-caramel-bg: #F5EBE0;
+    }
+
+    body {
+        font-family: 'Lexend', sans-serif !important;
+        background-color: var(--jaced-caramel-bg) !important;
+        color: var(--jaced-brown-dark) !important;
+    }
+
+    body, h1, h2, h3, h4, h5, h6, p, a, span, div, 
+    input, button, select, textarea, label, td, th, li {
+        font-family: 'Lexend', sans-serif !important;
+    }
+
+    /* ══ PERBAIKAN: Penanda Horizontal Scrollable Area untuk Kategori ══ */
+    .category-wrapper { 
+        position: relative;
+        /* Efek Fade Out di sisi kanan sebagai isyarat bahwa teks masih berlanjut dan bisa digeser */
+        mask-image: linear-gradient(to right, black 85%, transparent 100%); 
+        -webkit-mask-image: linear-gradient(to right, black 85%, transparent 100%); 
+    }
+    
+    .category-scroll { 
+        scroll-behavior: smooth; 
+        -ms-overflow-style: auto; /* Memunculkan scroll bawaan IE jika dibutuhkan */
+        scrollbar-width: thin;    /* Track scroll tipis modern untuk Firefox */
+    }
+    
+    /* Optimasi Scrollbar Minimalis Khusus Browser Chrome, Safari, dan Edge */
+    .category-scroll::-webkit-scrollbar { 
+        height: 4px; /* Tinggi scrollbar horizontal yang tipis */
+    }
+    .category-scroll::-webkit-scrollbar-track {
+        background: transparent;
+    }
+    .category-scroll::-webkit-scrollbar-thumb {
+        background: var(--jaced-input);
+        border-radius: 10px;
+    }
+    
+    .btn-category-inactive { color: var(--jaced-muted) !important; opacity: 0.7; transition: all 0.2s ease; background: transparent; }
     .btn-category-inactive:hover { opacity: 1; background-color: rgba(0,0,0,0.05) !important; border-radius: 50px; }
-    .btn-add-category { color: #6b8f71 !important; font-weight: 600 !important; }
+    .btn-add-category { color: var(--jaced-sage) !important; font-weight: 600 !important; }
     .dropdown-item { transition: all 0.2s; }
     .dropdown-item:hover { background-color: #f0eeeb !important; }
-    .dropdown-item.active { background-color: #c4a882 !important; color: white !important; }
+    .dropdown-item.active { background-color: var(--jaced-caramel) !important; color: white !important; }
     .dropdown-toggle::after { display: none !important; }
     .btn-close:focus { box-shadow: none !important; }
 
     /* Modal */
     .modal-section-title {
         font-size: 11px; font-weight: 700; letter-spacing: 0.1em;
-        text-transform: uppercase; color: #9c9890;
+        text-transform: uppercase; color: var(--jaced-muted);
         margin: 20px 0 12px; padding-bottom: 6px;
         border-bottom: 1px solid #f0eeeb;
     }
     .modal-section-title:first-child { margin-top: 0; }
 
-    .form-label { font-size: 12px; font-weight: 600; color: #3a3a36; margin-bottom: 5px; }
+    .form-label { font-size: 12px; font-weight: 600; color: var(--jaced-brown-dark); margin-bottom: 5px; }
     .form-control, .form-select {
-        border: 1px solid #e2ddd8; border-radius: 8px;
-        font-size: 13px; background: #faf9f7; box-shadow: none !important;
+        border: 1px solid var(--jaced-input); border-radius: 8px;
+        font-size: 13px; background: var(--jaced-white); box-shadow: none !important;
     }
-    .form-control:focus, .form-select:focus { border-color: #c4a882; background: #fff; }
+    .form-control:focus, .form-select:focus { border-color: var(--jaced-caramel); background: #fff; }
     .input-group .form-control { border-radius: 0 8px 8px 0 !important; }
     .input-group-text {
-        background: #f0eeeb; border: 1px solid #e2ddd8;
+        background: #f0eeeb; border: 1px solid var(--jaced-input);
         border-right: none; border-radius: 8px 0 0 8px !important;
-        font-size: 12px; font-weight: 600; color: #6b6860;
+        font-size: 12px; font-weight: 600; color: var(--jaced-muted);
     }
 
     /* Switch */
-    .form-check-input:checked { background-color: #c4a882 !important; border-color: #c4a882 !important; }
-    .switch-row { display: flex; align-items: center; gap: 10px; padding: 10px 14px; background: #faf9f7; border-radius: 8px; border: 1px solid #e2ddd8; }
-    .switch-row label { font-size: 13px; font-weight: 600; color: #3a3a36; margin: 0; cursor: pointer; }
-    .switch-row small { font-size: 11px; color: #9c9890; }
+    .form-check-input:checked { background-color: var(--jaced-caramel) !important; border-color: var(--jaced-caramel) !important; }
+    .switch-row { display: flex; align-items: center; gap: 10px; padding: 10px 14px; background: var(--jaced-white); border-radius: 8px; border: 1px solid var(--jaced-input); }
+    .switch-row label { font-size: 13px; font-weight: 600; color: var(--jaced-brown-dark); margin: 0; cursor: pointer; }
+    .switch-row small { font-size: 11px; color: var(--jaced-muted); }
 
     /* Image upload */
     .image-upload-area {
-        border: 2px dashed #e2ddd8; border-radius: 10px;
-        padding: 20px; text-align: center; background: #faf9f7;
+        border: 2px dashed var(--jaced-input); border-radius: 10px;
+        padding: 20px; text-align: center; background: var(--jaced-white);
         cursor: pointer; transition: border-color 0.2s, background 0.2s;
         position: relative;
     }
-    .image-upload-area:hover { border-color: #c4a882; background: #fdf8f3; }
+    .image-upload-area:hover { border-color: var(--jaced-caramel); background: #fdf8f3; }
     .image-upload-area input[type="file"] {
         position: absolute; inset: 0; opacity: 0;
         cursor: pointer; width: 100%; height: 100%;
@@ -77,7 +124,7 @@
     .image-preview-item {
         position: relative; width: 72px; height: 72px;
         border-radius: 8px; overflow: hidden;
-        border: 1px solid #e2ddd8; flex-shrink: 0;
+        border: 1px solid var(--jaced-input); flex-shrink: 0;
     }
     .image-preview-item img { width: 100%; height: 100%; object-fit: cover; }
     .image-preview-item .remove-img {
@@ -93,54 +140,62 @@
     .cat-chip {
         display: inline-flex; align-items: center; gap: 6px;
         background: #f0eeeb; border-radius: 20px;
-        padding: 5px 12px; font-size: 12px; font-weight: 600; color: #3a3a36;
+        padding: 5px 12px; font-size: 12px; font-weight: 600; color: var(--jaced-brown-dark);
     }
     .cat-chip .remove-cat {
         background: none; border: none; cursor: pointer;
-        color: #9c9890; font-size: 15px; padding: 0; line-height: 1;
+        color: var(--jaced-muted); font-size: 15px; padding: 0; line-height: 1;
     }
     .cat-chip .remove-cat:hover { color: #c0392b; }
 
-    /* Customisasi Tampilan Tombol Pagination Jaced Premium (Override Bootstrap) */
     .pagination {
         margin: 0 !important;
-        gap: 4px;
+        gap: 4px !important;
     }
+    
     .pagination .page-item .page-link {
-        color: #6b6860 !important;
-        border: 1px solid #e2ddd8 !important;
-        background-color: #fff !important;
+        color: var(--jaced-muted) !important;
+        border: 1px solid var(--jaced-input) !important;
+        background-color: white !important;
         padding: 8px 16px !important;
-        font-size: 13px;
-        font-weight: 600;
+        font-size: 13px !important;
+        font-weight: 600 !important;
         border-radius: 8px !important;
         box-shadow: none !important;
-        transition: all 0.2s ease;
-    }
-    .pagination .page-item.active .page-link {
-        background-color: #c4a882 !important;
-        border-color: #c4a882 !important;
-        color: #fff !important;
-    }
-    .pagination .page-item.disabled .page-link {
-        opacity: 0.5;
-        background-color: #faf9f7 !important;
+        transition: all 0.2s ease !important;
     }
 
-    /* Mengubah Teks & Simbol Menjadi < dan > secara bersih */
+    .pagination .page-item .page-link:hover {
+        background-color: var(--jaced-white) !important;
+        color: var(--jaced-brown-dark) !important;
+        border-color: var(--jaced-sage) !important;
+    }
+
+    .pagination .page-item.active .page-link {
+        background-color: var(--jaced-caramel) !important;
+        border-color: var(--jaced-caramel) !important;
+        color: white !important;
+    }
+
+    .pagination .page-item.disabled .page-link {
+        opacity: 0.5 !important;
+        background-color: var(--jaced-cream) !important;
+        color: var(--jaced-muted) !important;
+    }
+
     .pagination .page-item:first-child .page-link,
     .pagination .page-item:last-child .page-link {
         font-size: 0px !important;
     }
     .pagination .page-item:first-child .page-link::before {
-        content: "<";
-        font-size: 14px;
-        font-weight: bold;
+        content: "<" !important;
+        font-size: 14px !important;
+        font-weight: bold !important;
     }
     .pagination .page-item:last-child .page-link::before {
-        content: ">";
-        font-size: 14px;
-        font-weight: bold;
+        content: ">" !important;
+        font-size: 14px !important;
+        font-weight: bold !important;
     }
 </style>
 @endpush
@@ -159,15 +214,16 @@
         <button type="button" class="btn-close shadow-none" data-bs-dismiss="alert" aria-label="Close" style="padding: 0.9rem 1rem;"></button>
     </div>
 @endif
+
 <div class="container-fluid">
      <div class="d-flex justify-content-between align-items-start mb-4">
-       <div>
+        <div>
             <h2 class="fw-bold mb-1">Inventory Ledger</h2>
             <p class="text-jaced-muted small">Manage your premium stock items, monitor material availability, and track upcoming shipments.</p>
         </div>
         <div class="d-flex gap-2">
             <button class="btn btn-jaced-primary px-4 py-2" data-bs-toggle="modal" data-bs-target="#addItemModal">
-            <i class="bi bi-plus-lg me-2"></i> Add New Item
+                <i class="bi bi-plus-lg me-2"></i> Add New Item
             </button>
         </div>
      </div>
@@ -175,8 +231,12 @@
     {{-- Filter Bar --}}
     <div class="d-flex justify-content-between align-items-center mb-2 pb-2 border-bottom">
         <div class="d-flex align-items-center gap-2" style="flex: 1; min-width: 0;">
+            
+            {{-- Wrapper dengan Isyarat Gradasi Geser --}}
             <div class="category-wrapper" style="max-width: 500px; overflow: hidden;">
-                <div class="d-flex gap-2 overflow-auto category-scroll flex-nowrap py-1" id="categoryFilterList">
+                
+                {{-- Ditambahkan teks bantuan 'Swipe' kecil yang hanya muncul di layar sentuh perangkat mobile --}}
+                <div class="d-flex gap-2 overflow-auto category-scroll flex-nowrap py-1" id="categoryFilterList" title="Swipe left/right to view more categories">
                     <button class="btn btn-sm rounded-pill px-4 py-2 fw-bold flex-shrink-0"
                             id="cat-all"
                             style="background: #c4a882; color: white;"
@@ -219,7 +279,6 @@
     {{-- Inventory Grid --}}
     @include('pages.inventory.item-grid')
 
-    {{-- PERBAIKAN: Kontainer navigasi halaman yang bersih sejajar tengah --}}
     <div class="d-flex flex-column align-items-left justify-content-center mt-5">
         <div class="jaced-pagination-wrap">
             {{ $products->links('pagination::bootstrap-5') }}
@@ -235,12 +294,10 @@
         const placeholder = document.getElementById('togglePlaceholder');
         if (toggleWrap && placeholder) placeholder.replaceWith(toggleWrap);
 
-        // ── AUTO SINKRONISASI FILTER WARNA CARAMEL BERDASARKAN URL SAAT PAGE LOAD ──
         const urlParams = new URLSearchParams(window.location.search);
         const currentSort = urlParams.get('sort');
         const currentCat  = urlParams.get('category_id');
 
-        // 1. Sinkronisasi Dropdown Sort
         if (currentSort) {
             const activeItem = document.querySelector(`.dropdown-menu .dropdown-item[onclick*="'${currentSort}'"]`);
             if (activeItem) {
@@ -255,7 +312,6 @@
             }
         }
 
-        // 2. Sinkronisasi Tombol Kategori Aktif (Memindahkan warna orange #c4a882)
         if (currentCat) {
             const activeCatBtn = document.querySelector(`#categoryFilterList button[data-cat-id="${currentCat}"]`);
             if (activeCatBtn) {
@@ -448,11 +504,11 @@
                     </div>
  
                     {{-- 5. PRODUCT IMAGES --}}
-                    <div class="modal-section-title">Product Images</div>
- 
+                    <div class="modal-section-title">Product Images <span class="text-danger">*</span></div>
+
                     <div class="image-upload-area">
                         <input type="file" name="images[]" id="imageInput"
-                               accept="image/*" multiple onchange="previewImages(this)">
+                               accept="image/*" multiple onchange="previewImages(this)" required>
                         <i class="bi bi-cloud-upload fs-3 text-muted d-block mb-2"></i>
                         <div style="font-size:13px; font-weight:600; color:#3a3a36;">
                             Click or drag & drop images here
@@ -466,7 +522,7 @@
                     </div>
                     <div class="image-preview-wrap" id="imagePreviewWrap"></div>
  
-                </div>{{-- end modal-body --}}
+                </div>
  
                 <div class="modal-footer border-0 pb-4 px-4 pt-3 d-flex gap-2">
                     <button type="button"
@@ -486,6 +542,7 @@
         </div>
     </div>
 </div>
+
 <div class="modal fade" id="addCategoryModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered" style="max-width: 420px;">
         <div class="modal-content border-0 shadow" style="border-radius: 16px;">
@@ -574,17 +631,40 @@ function saveCategory() {
 }
 
 function deleteCategory(id, btn) {
-    if (!confirm('Delete this category?')) return;
-    fetch(`/categories/${id}`, {
+    if (!confirm('Are you sure you want to delete this category?')) return;
+    
+    // Alamatkan endpoint ke rute admin yang baru kita daftarkan
+    fetch(`/admin/categories/${id}`, {
         method: 'DELETE',
-        headers: { 'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content },
+        headers: { 
+            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+            'Accept': 'application/json',
+            'Content-Type': 'application/json'
+        },
     })
-    .then(r => r.json())
-    .then(data => {
-        if (!data.success) { alert(data.message); return; }
+    .then(async response => {
+        const data = await response.json();
+        
+        // Jika server mengembalikan status error (seperti 422 karena kategori tidak kosong)
+        if (!response.ok || !data.success) {
+            alert('⚠ ' + (data.message || 'Failed to delete category.'));
+            return;
+        }
+        
+        // ── JIKA SUKSES (KATEGORI KOSONG MURNI) ──
+        
+        // 1. Hapus chip kategori di dalam boks modal manage categories
         btn.closest('.cat-chip').remove();
+        
+        // 2. Hapus tombol filter kategori di bar depan utama biar ga nge-bug
         document.querySelectorAll(`#categoryFilterList [data-cat-id="${id}"]`).forEach(el => el.remove());
+        
+        // 3. Hapus opsi kategori tersebut dari dropdown select input tambah barang baru
         document.querySelectorAll(`#categorySelect option[value="${id}"]`).forEach(el => el.remove());
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('⚠ System error. Could not complete the request.');
     });
 }
 </script>

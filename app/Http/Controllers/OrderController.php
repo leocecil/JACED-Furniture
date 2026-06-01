@@ -107,16 +107,12 @@ class OrderController extends Controller
 
         $total = $subtotal + $shipping + $tax - $discountAmount - $tierDiscountAmount;
 
-        $paymentMethods = PaymentMethod::all()
+        $paymentMethods = PaymentMethod::whereIn('name', ['qris', 'virtual_account'])->get()
             ->map(fn($p) => [
                 'value' => $p->name,
                 'label' => match($p->name) {
                     'qris'            => 'QRIS',
                     'virtual_account' => 'Virtual Account',
-                    'credit_card'     => 'Kartu Kredit / Debit',
-                    'ovo'             => 'OVO',
-                    'dana'            => 'DANA',
-                    default           => ucfirst($p->name),
                 }
             ]);
 
@@ -150,12 +146,21 @@ class OrderController extends Controller
         $paymentMethod = $request->input('payment_method');
         $chosenBank    = $request->input('bank');
 
+        $subtotalPrice = $cartItems->sum(fn($item) => $item->product->price * $item->quantity);
+        if ($paymentMethod === 'qris' && $subtotalPrice > 10000000) {
+            return redirect()->back()->with('error', 'QRIS tidak bisa digunakan untuk transaksi di atas Rp 10.000.000.');
+        }
+        if (empty($paymentMethod)) {
+            return redirect()->back()->with('error', 'Silakan pilih metode pembayaran.');
+        }
+
         DB::beginTransaction();
         try {
             DB::statement('SET FOREIGN_KEY_CHECKS=0;');
 
-            $deliveryFee = (float) $request->input('delivery_fee', 0);
-            $addressId   = $request->input('address_id');
+            $deliveryFee   = (float) $request->input('delivery_fee', 0);
+            $addressId     = $request->input('address_id');
+            $addressAction = $request->input('address_action');
 
             $firstName = '';
             $lastName  = '';
@@ -163,46 +168,86 @@ class OrderController extends Controller
             $cityName  = '';
             $zip       = '';
 
-            if ($addressId && $addressId !== 'new') {
-                $shippingAddress = ShippingAddress::find($addressId);
+            // ── CASE 1: User edit alamat lama via modal sebelum checkout ──
+            if ($addressAction === 'update' && $request->input('edit_address_id')) {
+                $editId = $request->input('edit_address_id');
+                $addr   = ShippingAddress::where('id', $editId)
+                            ->where('user_id', Auth::id())
+                            ->first();
 
-                if (!$shippingAddress || $shippingAddress->user_id !== Auth::id()) {
-                    return redirect()->back()->with('error', 'Alamat tidak valid.');
+                if ($addr) {
+                    $provinceCode = $request->input('province_code');
+                    $provinceName = DB::table('indonesia_provinces')
+                                        ->where('code', $provinceCode)->first()?->name ?? '';
+
+                    $addr->update([
+                        'receiver_name'  => $request->input('receiver_name'),
+                        'receiver_phone' => $request->input('receiver_phone'),
+                        'address_line1'  => $request->input('address_line1'),
+                        'province_code'  => $provinceCode,
+                        'province_name'  => $provinceName,
+                        'city_code'      => $request->input('city_code', ''),
+                        'city_name'      => $request->input('city_name'),
+                        'district_code'  => $request->input('district_code', ''),
+                        'district_name'  => $request->input('district_name', ''),
+                        'village_code'   => $request->input('village_code', ''),
+                        'village_name'   => $request->input('village_name'),
+                        'postal_code'    => $request->input('postal_code'),
+                    ]);
+
+                    $shippingAddress = $addr->fresh();
+                    $nameParts = explode(' ', $shippingAddress->receiver_name, 2);
+                    $firstName = $nameParts[0] ?? '';
+                    $lastName  = $nameParts[1] ?? '';
+                    $street    = $shippingAddress->address_line1;
+                    $cityName  = $shippingAddress->city_name;
+                    $zip       = $shippingAddress->postal_code;
                 }
+            }
 
-                $nameParts = explode(' ', $shippingAddress->receiver_name, 2);
-                $firstName = $nameParts[0] ?? '';
-                $lastName  = $nameParts[1] ?? '';
-                $street    = $shippingAddress->address_line1;
-                $cityName  = $shippingAddress->city_name;
-                $zip       = $shippingAddress->postal_code;
+            // ── CASE 2: Pakai alamat lama tanpa edit, atau buat alamat baru ──
+            if (!isset($shippingAddress)) {
+                if ($addressId && $addressId !== 'new') {
+                    $shippingAddress = ShippingAddress::find($addressId);
 
-            } else {
-                $receiverName = $request->input('receiver_name');
-                $nameParts    = explode(' ', $receiverName, 2);
-                $firstName    = $nameParts[0] ?? '';
-                $lastName     = $nameParts[1] ?? '';
-                $street       = $request->input('address_line1');
-                $cityName     = $request->input('city_name');
-                $zip          = $request->input('postal_code');
-                $provinceCode = $request->input('province_code');
-                $provinceName = DB::table('indonesia_provinces')->where('code', $provinceCode)->first()?->name ?? '';
+                    if (!$shippingAddress || $shippingAddress->user_id !== Auth::id()) {
+                        return redirect()->back()->with('error', 'Alamat tidak valid.');
+                    }
 
-                $shippingAddress = ShippingAddress::create([
-                    'user_id'        => Auth::id(),
-                    'receiver_name'  => $receiverName,
-                    'receiver_phone' => $request->input('receiver_phone'),
-                    'address_line1'  => $street,
-                    'province_code'  => $provinceCode,
-                    'province_name'  => $provinceName,
-                    'city_code'      => '',
-                    'city_name'      => $cityName,
-                    'district_code'  => '',
-                    'district_name'  => '',
-                    'village_code'   => '',
-                    'village_name'   => $request->input('village_name'),
-                    'postal_code'    => $zip,
-                ]);
+                    $nameParts = explode(' ', $shippingAddress->receiver_name, 2);
+                    $firstName = $nameParts[0] ?? '';
+                    $lastName  = $nameParts[1] ?? '';
+                    $street    = $shippingAddress->address_line1;
+                    $cityName  = $shippingAddress->city_name;
+                    $zip       = $shippingAddress->postal_code;
+
+                } else {
+                    $receiverName = $request->input('receiver_name');
+                    $nameParts    = explode(' ', $receiverName, 2);
+                    $firstName    = $nameParts[0] ?? '';
+                    $lastName     = $nameParts[1] ?? '';
+                    $street       = $request->input('address_line1');
+                    $cityName     = $request->input('city_name');
+                    $zip          = $request->input('postal_code');
+                    $provinceCode = $request->input('province_code');
+                    $provinceName = DB::table('indonesia_provinces')->where('code', $provinceCode)->first()?->name ?? '';
+
+                    $shippingAddress = ShippingAddress::create([
+                        'user_id'        => Auth::id(),
+                        'receiver_name'  => $receiverName,
+                        'receiver_phone' => $request->input('receiver_phone'),
+                        'address_line1'  => $street,
+                        'province_code'  => $provinceCode,
+                        'province_name'  => $provinceName,
+                        'city_code'      => $request->input('city_code', ''),
+                        'city_name'      => $cityName,
+                        'district_code'  => $request->input('district_code', ''),
+                        'district_name'  => $request->input('district_name', ''),
+                        'village_code'   => $request->input('village_code', ''),
+                        'village_name'   => $request->input('village_name'),
+                        'postal_code'    => $zip,
+                    ]);
+                }
             }
 
             $totalWeight = 0;
@@ -342,6 +387,8 @@ class OrderController extends Controller
                 ];
             }
 
+            // Hitung gross_amount dari item_details agar selalu balance ke Midtrans
+            $grossAmount = (int) collect($item_details)->sum(fn($i) => $i['price'] * $i['quantity']);
             $enabledPayments = [];
             if ($paymentMethod === 'virtual_account' && $chosenBank !== 'all' && !empty($chosenBank)) {
                 if ($chosenBank === 'mandiri') {
@@ -352,9 +399,6 @@ class OrderController extends Controller
             } elseif (!empty($paymentMethod)) {
                 $enabledPayments[] = match($paymentMethod) {
                     'qris'            => 'other_qris',
-                    'credit_card'     => 'credit_card',
-                    'ovo'             => 'ovo',
-                    'dana'            => 'dana',
                     default           => $paymentMethod,
                 };
             }
@@ -365,7 +409,7 @@ class OrderController extends Controller
             $params = [
                 'transaction_details' => [
                     'order_id'     => $midtransOrderId,
-                    'gross_amount' => (int) round($totalPrice),
+                    'gross_amount' => $grossAmount,
                 ],
                 'item_details' => $item_details,
                 'customer_details' => [
@@ -392,6 +436,7 @@ class OrderController extends Controller
 
             $snapToken = Snap::getSnapToken($params);
  
+            $order->update(['total_price' => $grossAmount]);
             if ($appliedVoucher) {
                 DB::table('vouchers')
                     ->where('id', $appliedVoucher->id)
@@ -410,13 +455,14 @@ class OrderController extends Controller
             return view('store.payment', compact('snapToken', 'order'));
 
         } catch (\Exception $e) {
-            DB::statement('SET FOREIGN_KEY_CHECKS=1;');
             DB::rollBack();
             Log::error('Checkout error: ' . $e->getMessage(), [
                 'file' => $e->getFile(),
                 'line' => $e->getLine(),
             ]);
             return redirect()->back()->with('error', 'Checkout failed: ' . $e->getMessage());
+        } finally {
+            DB::statement('SET FOREIGN_KEY_CHECKS=1;');
         }
     }
 
@@ -524,9 +570,18 @@ class OrderController extends Controller
         $villages = DB::table('indonesia_villages')
                         ->where('district_code', $request->district_code)
                         ->orderBy('name', 'asc')
-                        ->get(['code', 'name']);
+                        ->get(['id', 'code', 'name']);
 
         return response()->json($villages);
+    }
+
+    public function getPostalCode(Request $request)
+    {
+        $postalCodes = DB::table('postal_codes')
+                        ->where('village_id', $request->village_id)
+                        ->pluck('postal_code');
+
+        return response()->json($postalCodes);
     }
 
     public function getShippingCost(Request $request)
@@ -582,7 +637,7 @@ class OrderController extends Controller
             };
             $allCosts = array_merge($allCosts, array_values($filtered));
         }
-
+        usort($allCosts, fn($a, $b) => $a['cost'] <=> $b['cost']);
         return response()->json(array_values($allCosts));
     }
 

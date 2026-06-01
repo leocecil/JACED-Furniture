@@ -11,18 +11,11 @@ use Carbon\Carbon;
 
 class AnalyticsController extends Controller
 {
-    /**
-     * Menampilkan halaman Customer Analytics (Bebas Error & Sinkron dengan DB).
-     */
+    
     public function index()
     {
         // 0. Ambil angka riil pesanan masuk berstatus 'pending' untuk indikator badge sidebar
-        $orderCount = Order::where('status', 'pending')->count();
-
-        // ════════════════════════════════════════════════════════════════════
-        // 1. DISTRIBUSI MEMBER PER TIER (Dihitung dari accumulated_points)
-        // Batas poin: Bronze (<500), Silver (500-1499), Gold (1500-3499), Platinum (>=3500)
-        // ════════════════════════════════════════════════════════════════════
+        $orderCount = Order::where('status', ['pending','packed'])->count();
         $tiers = User::where('is_admin', false)
             ->select(DB::raw("
                 COUNT(CASE WHEN accumulated_points < 500 THEN 1 END) as bronze,
@@ -31,10 +24,6 @@ class AnalyticsController extends Controller
                 COUNT(CASE WHEN accumulated_points >= 3500 THEN 1 END) as platinum
             "))->first();
 
-
-        // ════════════════════════════════════════════════════════════════════
-        // 2. TOP 5 VIP SPENDERS (Menghitung total belanja pesanan sukses)
-        // ════════════════════════════════════════════════════════════════════
         $spenders = Order::whereIn('status', ['completed', 'arrived'])
             ->select('user_id', DB::raw('SUM(total_price) as total_spend'))
             ->groupBy('user_id')
@@ -42,18 +31,13 @@ class AnalyticsController extends Controller
             ->take(5)
             ->get()
             ->map(function ($order) {
-                // Ambil data user terkait secara aman menggunakan Lazy Loading / Find
-                $user = User::find($order->user_id);
                 
-                // Jika user tidak ditemukan atau ternyata admin, kita skip atau beri data default
+                $user = User::find($order->user_id);
                 if (!$user || $user->is_admin) {
                     return null;
                 }
-
-                // Masukkan properti spend ke dalam object user
                 $user->total_spend = $order->total_spend;
 
-                // Tentukan tingkatan lencana (tier badge) berdasarkan accumulated_points user
                 if ($user->accumulated_points < 500) {
                     $user->tier = 'BRONZE';
                     $user->badge = '#CD7F32';
@@ -69,13 +53,11 @@ class AnalyticsController extends Controller
                 }
                 return $user;
             })
-            ->filter() // Membersihkan data null jika ada admin yang tidak sengaja masuk daftar
+            ->filter() 
             ->values();
 
 
-        // ════════════════════════════════════════════════════════════════════
-        // 3. PROVINSI TERBANYAK BERBELANJA (Sinkronisasi dengan tabel tunggal: shipping_address)
-        // ════════════════════════════════════════════════════════════════════
+        
         $regionsQuery = Order::whereIn('orders.status', ['completed', 'arrived'])
             ->join('shipping_address', 'orders.shipping_address_id', '=', 'shipping_address.id')
             ->select('shipping_address.province_name', DB::raw('COUNT(orders.id) as total_orders'))
@@ -86,7 +68,6 @@ class AnalyticsController extends Controller
 
         $top3Provinces = $regionsQuery->pluck('province_name')->toArray();
         
-        // Ambil akumulasi data order di luar top 3 untuk boks kategori "Lainnya"
         $otherProvincesCount = Order::whereIn('orders.status', ['completed', 'arrived'])
             ->join('shipping_address', 'orders.shipping_address_id', '=', 'shipping_address.id')
             ->whereNotIn('shipping_address.province_name', $top3Provinces)
@@ -100,10 +81,6 @@ class AnalyticsController extends Controller
             $regionsData[] = $otherProvincesCount;
         }
 
-
-        // ════════════════════════════════════════════════════════════════════
-        // 4. MONTHLY REVENUE & TRANSACTIONS TREND (Garis Waktu 6 Bulan Terakhir)
-        // ════════════════════════════════════════════════════════════════════
         $revenueTrend = [];
         for ($i = 5; $i >= 0; $i--) {
             $month = Carbon::now()->subMonths($i);
@@ -113,7 +90,6 @@ class AnalyticsController extends Controller
             ];
         }
 
-        // PERBAIKAN: Memperbaiki tanda kurung penutup DB::raw dan merapikan rantai method Eloquent
         $monthlyData = Order::whereIn('status', ['completed', 'arrived'])
             ->where('created_at', '>=', Carbon::now()->subMonths(5)->startOfMonth())
             ->select(
@@ -130,12 +106,16 @@ class AnalyticsController extends Controller
                 $revenueTrend[$data->month_name]['order_count'] = (int)$data->total_transactions;
             }
         }
-
+    $allCustomers = User::where('is_admin', false)
+            ->withCount('orders')
+            ->orderBy('name', 'asc')
+            ->get(['id', 'name', 'email', 'avatar']);
         // Kirim seluruh variabel bersih ke file blade index
         return view('pages.analytics.index', [
             'orderCount' => $orderCount,
             'tiers' => $tiers,
             'spenders' => $spenders,
+            'allCustomers' => $allCustomers,
             'regionsLabels' => $regionsLabels,
             'regionsData' => $regionsData,
             'trendLabels' => array_keys($revenueTrend),

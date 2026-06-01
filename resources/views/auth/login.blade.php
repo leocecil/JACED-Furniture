@@ -133,7 +133,7 @@
                             @enderror
                         </div>
                         <div class="form-text text-end">
-                            <a href="#" class="text-decoration-none fw-medium" style="color: #1F2937;">Forgot password?</a>
+                            <a href="{{ route('password.request') }}" class="text-decoration-none fw-medium" style="color: #1F2937;">Forgot password?</a>
                         </div>
                     </div>
 

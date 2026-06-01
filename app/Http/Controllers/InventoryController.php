@@ -16,7 +16,7 @@ class InventoryController extends Controller
     // ── GET /admin/inventory
     public function index(Request $request)
     {
-         $orderCount = Order::where('status', 'pending')->count();
+        $orderCount = Order::where('status', ['pending','packed'])->count();
 
         // withTrashed() agar produk soft-deleted tetap ikut query filter & sort
         $query = Product::withTrashed()->with(['category', 'images']);

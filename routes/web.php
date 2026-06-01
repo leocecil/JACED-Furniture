@@ -1,11 +1,15 @@
 ﻿<?php
 
 use App\Http\Controllers\AboutController;
+use App\Http\Controllers\AdminProfileController;
 use App\Http\Controllers\AnalyticsController;
+use App\Http\Controllers\Auth\ForgotPasswordController;
 use App\Http\Controllers\Auth\GoogleController;
+use App\Http\Controllers\Auth\ResetPasswordController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\CartController;
 use App\Http\Controllers\CategoryController;
+use App\Http\Controllers\ChatbotController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\InventoryController;
 use App\Http\Controllers\OrderController;
@@ -42,6 +46,9 @@ Route::get('/product/{slug}', [ProductController::class, 'show'])->name('product
 Route::get('/api/products/batch', [ProductController::class, 'batchProducts']);
 Route::get('/wishlist', function () { return view('store.wishlist'); })->name('wishlist');
 
+// Chatbot
+Route::post('/chatbot/chat', [ChatbotController::class, 'chat'])->middleware('throttle:30,1');
+
 // ── MIDDLEWARE CUSTOMER ROLE ──
 Route::middleware(['role:customer'])->group(function() {
     // Profile Management
@@ -55,6 +62,7 @@ Route::middleware(['role:customer'])->group(function() {
     Route::delete('/profile/addresses/{id}', [UserController::class, 'destroyAddress'])->name('profile.addresses.destroy');
     Route::patch('/profile/addresses/{id}/default', [UserController::class, 'setDefaultAddress'])->name('profile.addresses.default');
     Route::post('/profile/{id}/password', [UserController::class, 'update_password'])->name('profile.password.update');
+    Route::delete('/profile/{id}/delete', [UserController::class, 'delete_account'])->name('profile.delete');
 
     // Informational Static Pages
     Route::get('/terms-of-service', function () { return view('profile.tos'); })->name('tos');
@@ -80,7 +88,7 @@ Route::middleware(['role:customer'])->group(function() {
     Route::delete('/cart/{id}', [CartController::class, 'delete'])->name('cart.delete');
     Route::get('/cart/sidebar', [CartController::class, 'sidebar'])->name('cart.sidebar');
 
-    // WISHLIST (DB-based via WishlistController)
+    // WISHLIST (DB-based)
     Route::get('/wishlist/items', [WishlistController::class, 'items']);
     Route::post('/wishlist/toggle', [WishlistController::class, 'toggle'])->name('wishlist.toggle');
     Route::delete('/wishlist/{id}', [WishlistController::class, 'remove'])->name('wishlist.remove');
@@ -93,6 +101,7 @@ Route::middleware(['role:customer'])->group(function() {
     Route::get('/api/cities', [OrderController::class, 'getCities'])->name('api.cities');
     Route::get('/api/districts', [OrderController::class, 'getDistricts'])->name('api.districts');
     Route::get('/api/villages', [OrderController::class, 'getVillages'])->name('api.villages');
+    Route::get('/api/postal-code', [OrderController::class, 'getPostalCode']);
     Route::get('/api/shipping-cost', [OrderController::class, 'getShippingCost']);
 
     // Payment Gateway Status Callback
@@ -106,6 +115,7 @@ Route::middleware(['role:customer'])->group(function() {
     Route::get('/orderhistory', [OrderHistoryController::class, 'index'])->name('store.orderhistory');
     Route::get('/orderhistory/{id}', [OrderHistoryController::class, 'show'])->name('store.orderhistory_detail.show');
     Route::get('/orderhistory/{id}/invoice', [OrderHistoryController::class, 'invoice'])->name('store.orderhistory.invoice');
+    Route::post('/orderhistory/{id}/invoice/send', [OrderHistoryController::class, 'sendInvoice'])->name('store.orderhistory.invoice.send');
 
     // Order actions - customer
     Route::patch('/orderhistory/{id}/received', [OrderHistoryController::class, 'markReceived'])->name('store.orderhistory.received');
@@ -124,10 +134,18 @@ Route::post('/admin/logout', [AuthController::class, 'logout_admin'])->name('adm
 
 // ── MIDDLEWARE ADMIN ROLE ──
 Route::middleware(['role:admin'])->group(function() {
+    // Admin Profile Management
+    Route::get('/admin/profile',            [AdminProfileController::class, 'index'])->name('admin.profile');
+    Route::put('/admin/profile/info',       [AdminProfileController::class, 'updateInfo'])->name('admin.profile.info');
+    Route::put('/admin/profile/password',   [AdminProfileController::class, 'updatePassword'])->name('admin.profile.password');
+    Route::post('/admin/profile/avatar',    [AdminProfileController::class, 'uploadAvatar'])->name('admin.profile.avatar');
+    Route::post('/profile/verify-password', [AdminProfileController::class, 'verifyPassword'])->name('admin.profile.verify-password');
+
     // Admin Dashboard Summary
     Route::get('/admin/dashboard', [DashboardController::class, 'index'])->name('admin.dashboard');
     Route::get('/admin/dashboard/sales-chart', [DashboardController::class, 'salesChart'])->name('admin.dashboard.salesChart');
     Route::post('/admin/dashboard/set-target', [DashboardController::class, 'setTarget'])->name('admin.dashboard.setTarget');
+    Route::get('/admin/dashboard/stat-cards', [DashboardController::class, 'statCards'])->name('admin.dashboard.statCards');
 
     // Order Overview & Operational Management
     Route::get('/admin/order_management', [OrderManagementController::class, 'index'])->name('order_management');
@@ -152,16 +170,25 @@ Route::middleware(['role:admin'])->group(function() {
     Route::delete('/admin/inventory/image/{image}', [InventoryController::class, 'destroyImage'])->name('inventory.image.destroy');
     Route::delete('/admin/inventory/{inventory}', [InventoryController::class, 'destroy'])->name('inventory.destroy');
     Route::post('/admin/inventory/{id}/restore', [InventoryController::class, 'restore'])->name('inventory.restore');
-
+    Route::post('/admin/categories', [CategoryController::class, 'store'])->name('categories.store');
+    Route::delete('/admin/categories/{category}', [CategoryController::class, 'destroy'])->name('categories.destroy');
     // Voucher Operational Management Systems
-    Route::get('/admin/vouchers', [VoucherManagementController::class, 'index'])->name('admin.vouchers');
-    Route::post('/admin/vouchers', [VoucherManagementController::class, 'store'])->name('admin.vouchers.store');
-    Route::post('/admin/vouchers/{id}/toggle', [VoucherManagementController::class, 'toggle'])->name('admin.vouchers.toggle');
-    Route::delete('/admin/vouchers/{id}', [VoucherManagementController::class, 'destroy'])->name('admin.vouchers.destroy');
-    Route::get('/admin/vouchers/stats', [VoucherManagementController::class, 'stats'])->name('admin.vouchers.stats');
-    Route::get('/admin/vouchers/{id}/used-orders',[VoucherManagementController::class, 'usedOrders'])->name('admin.vouchers.usedOrders');
+    Route::get('/admin/vouchers',[VoucherManagementController::class, 'index'])->name('admin.vouchers');
+    Route::post('/admin/vouchers',[VoucherManagementController::class, 'store'])->name('admin.vouchers.store');
+    Route::get('/admin/vouchers/stats',[VoucherManagementController::class, 'stats'])->name('admin.vouchers.stats');
+    Route::post('/admin/vouchers/group/toggle',[VoucherManagementController::class, 'toggleGroup'])->name('admin.vouchers.group.toggle');
+    // Per-voucher-type routes (by id)
+    Route::get('/admin/vouchers/{id}/detail',[VoucherManagementController::class, 'detail'])->name('admin.vouchers.detail');
+    Route::post('/admin/vouchers/{id}/toggle',[VoucherManagementController::class, 'toggle'])->name('admin.vouchers.toggle');       // single code toggle
+    Route::delete('/admin/vouchers/{id}',[VoucherManagementController::class, 'destroy'])->name('admin.vouchers.destroy');      // delete whole group
+    Route::delete('/admin/vouchers/{id}/code',[VoucherManagementController::class, 'destroyCode'])->name('admin.vouchers.code.destroy'); // delete single code
 
     // Product Category Manager
     Route::post('/admin/categories', [CategoryController::class, 'store'])->name('categories.store');
     Route::delete('/admin/categories/{category}', [CategoryController::class, 'destroy'])->name('categories.destroy');
 });
+
+Route::get('/forgot-password', [ForgotPasswordController::class, 'showForm'])->name('password.request');
+Route::post('/forgot-password', [ForgotPasswordController::class, 'sendLink'])->name('password.email');
+Route::get('/reset-password', [ResetPasswordController::class, 'showForm'])->name('password.reset');
+Route::post('/reset-password', [ResetPasswordController::class, 'resetPassword'])->name('password.update');
