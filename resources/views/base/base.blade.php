@@ -257,16 +257,25 @@
 
         // ===== STATE =====
         let isOpen = false;
-        let messages = [];
+        let messages = JSON.parse(sessionStorage.getItem('chatMessages') || '[]');
         let isTyping = false;
 
         // ===== INIT =====
         window.onload = () => {
-        addBotMessage({
-            message: "Hey there! 👋 Welcome to JACED Furniture! I'm here to help you find the perfect furniture for your home. You can tell me about your room size, style preferences, or what you're looking for!",
-            products: [],
-            quick_replies: ["I need a sofa for my living room", "Help me furnish my bedroom", "I have a small dining area"]
-        });
+            // restore previous messages if any
+            if (messages.length > 0) {
+                const saved = JSON.parse(sessionStorage.getItem('chatParsed') || '[]');
+                saved.forEach(m => {
+                    if (m.role === 'user') addUserMessage(m.text);
+                    else addBotMessage(m.parsed);
+                });
+            } else {
+                addBotMessage({
+                    message: "Hey there! 👋 Welcome to JACED Furniture! I'm here to help you find the perfect furniture for your home. You can tell me about your room size, style preferences, or what you're looking for!",
+                    products: [],
+                    quick_replies: ["I need a sofa for my living room", "Help me furnish my bedroom", "I have a small dining area"]
+                });
+            }
         };
 
         // ===== TOGGLE =====
@@ -289,146 +298,161 @@
 
         // ===== SEND =====
         async function sendMessage() {
-        const input = document.getElementById('chat-input');
-        const text = input.value.trim();
-        if (!text || isTyping) return;
+            const input = document.getElementById('chat-input');
+            const text = input.value.trim();
+            if (!text || isTyping) return;
 
-        input.value = '';
-        input.style.height = 'auto';
+            input.value = '';
+            input.style.height = 'auto';
 
-        addUserMessage(text);
-        messages.push({ role: 'user', content: text });
+            addUserMessage(text);
+            messages.push({ role: 'user', content: text });
 
-        showTyping();
-        isTyping = true;
+            showTyping();
+            isTyping = true;
 
-        try {
-            const response = await fetch('/chatbot/chat', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
-                },
-                body: JSON.stringify({
-                    messages: messages,
-                    budget: activeBudget < 10000000 ? activeBudget : null,
-                })
-            });
-
-            const data = await response.json();
-            const rawText = data.content.map(b => b.text || '').join('');
-
-            let parsed;
             try {
-            const clean = rawText.replace(/```json|```/g, '').trim();
-            parsed = JSON.parse(clean);
-            } catch {
-            parsed = { message: rawText, products: [], quick_replies: [] };
+                const response = await fetch('/chatbot/chat', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                    },
+                    body: JSON.stringify({
+                        messages: messages,
+                        budget: activeBudget < 10000000 ? activeBudget : null,
+                    })
+                });
+
+                const data = await response.json();
+                const rawText = data.content.map(b => b.text || '').join('');
+
+                let parsed;
+                try {
+                const clean = rawText.replace(/```json|```/g, '').trim();
+                parsed = JSON.parse(clean);
+                } catch {
+                parsed = { message: rawText, products: [], quick_replies: [] };
+                }
+
+                messages.push({ role: 'user', content: text });
+                sessionStorage.setItem('chatMessages', JSON.stringify(messages));
+
+                // and after assistant response:
+                messages.push({ role: 'assistant', content: rawText });
+                sessionStorage.setItem('chatMessages', JSON.stringify(messages));
+
+                hideTyping();
+                isTyping = false;
+                addBotMessage(parsed);
+
+            } catch (err) {
+                hideTyping();
+                isTyping = false;
+                addBotMessage({
+                message: "Sorry, I had trouble connecting. Please try again in a moment!",
+                products: [],
+                quick_replies: ["Try again", "Show all sofas", "Show all beds"]
+                });
             }
-
-            messages.push({ role: 'assistant', content: rawText });
-
-            hideTyping();
-            isTyping = false;
-            addBotMessage(parsed);
-
-        } catch (err) {
-            hideTyping();
-            isTyping = false;
-            addBotMessage({
-            message: "Sorry, I had trouble connecting. Please try again in a moment!",
-            products: [],
-            quick_replies: ["Try again", "Show all sofas", "Show all beds"]
-            });
-        }
         }
 
         // ===== RENDER MESSAGES =====
         function addUserMessage(text) {
-        const msgs = document.getElementById('chat-messages');
-        const row = document.createElement('div');
-        row.className = 'msg-row user';
-        row.innerHTML = `<div class="msg-bubble">${escapeHtml(text)}</div>`;
-        msgs.appendChild(row);
-        scrollToBottom();
+            const msgs = document.getElementById('chat-messages');
+            const row = document.createElement('div');
+            row.className = 'msg-row user';
+            row.innerHTML = `<div class="msg-bubble">${escapeHtml(text)}</div>`;
+            msgs.appendChild(row);
+            scrollToBottom();
+
+            // save to session
+            const saved = JSON.parse(sessionStorage.getItem('chatParsed') || '[]');
+            saved.push({ role: 'user', text });
+            sessionStorage.setItem('chatParsed', JSON.stringify(saved));
         }
 
         function addBotMessage(parsed) {
-        const msgs = document.getElementById('chat-messages');
+            const msgs = document.getElementById('chat-messages');
 
-        // Text bubble
-        const row = document.createElement('div');
-        row.className = 'msg-row bot';
+            // Text bubble
+            const row = document.createElement('div');
+            row.className = 'msg-row bot';
 
-        let inner = `<div class="msg-avatar"><img src="/image/jaced_logo1.png" style="width:20px;height:20px;object-fit:contain;border-radius:50%;"></div><div style="display:flex;flex-direction:column;gap:8px;max-width:82%">`;
-        inner += `<div class="msg-bubble">${escapeHtml(parsed.message)}</div>`;
+            let inner = `<div class="msg-avatar"><img src="/image/jaced_logo1.png" style="width:20px;height:20px;object-fit:contain;border-radius:50%;"></div><div style="display:flex;flex-direction:column;gap:8px;max-width:82%">`;
+            inner += `<div class="msg-bubble">${escapeHtml(parsed.message)}</div>`;
 
-        // Product cards — filter by active budget
-        if (parsed.products && parsed.products.length > 0) {
-            inner += `<div class="product-cards">`;
-            parsed.products.forEach(p => {
-                const imgHtml = p.image_url
-                    ? `<img src="${p.image_url}" style="width:100px;min-height:100px;object-fit:cover;flex-shrink:0;" alt="${p.name}">`
-                    : `<div class="product-card-img">🪑</div>`;
-
-                inner += `
-                <div class="product-card" onclick="window.location='/product/${p.slug}'">
-                    ${imgHtml}
-                    <div class="product-card-info">
-                        <div class="product-card-category">${p.category}</div>
-                        <div class="match-tag">✓ Good match</div>
-                        <div class="product-card-name">${p.name}</div>
-                        <div class="product-card-dim">📐 ${p.dimensions}</div>
-                        <div class="product-card-footer">
-                            <span class="product-card-price">${p.price}</span>
-                            <button class="product-card-btn" onclick="event.stopPropagation(); handleAddToCart('${p.slug}', '${p.name}')">Add to Cart</button>
+            // Product cards — filter by active budget
+            if (parsed.products && parsed.products.length > 0) {
+                inner += `<div class="product-cards">`;
+                parsed.products.forEach(p => {
+                    const imgHtml = p.image_url
+                        ? `<img src="${p.image_url}" style="width:100px;min-height:100px;object-fit:cover;flex-shrink:0;" alt="${p.name}">`
+                        : `<div class="product-card-img">🪑</div>`;
+                    const slug = p.slug || toSlug(p.name);
+                    inner += `
+                    <div class="product-card" onclick="window.location='/product/${slug}'">
+                        ${imgHtml}
+                        <div class="product-card-info">
+                            <div class="product-card-category">${p.category}</div>
+                            <div class="match-tag">✓ Good match</div>
+                            <div class="product-card-name">${p.name}</div>
+                            <div class="product-card-dim">📐 ${p.dimensions}</div>
+                            <div class="product-card-footer">
+                                <span class="product-card-price">${p.price}</span>
+                                <button class="product-card-btn" onclick="event.stopPropagation(); handleAddToCart('${slug}', '${p.name}')">Add to Collection</button>
+                            </div>
                         </div>
-                    </div>
-                </div>`;
-            });
-            inner += `</div>`;
-        }
+                    </div>`;
+                });
+                inner += `</div>`;
+            }
 
-        // Quick replies
-        if (parsed.quick_replies && parsed.quick_replies.length > 0) {
-            inner += `<div class="quick-replies">`;
-            parsed.quick_replies.forEach(qr => {
-            inner += `<button class="quick-reply-btn" onclick="sendQuickReply('${qr.replace(/'/g, "\\'")}')">${qr}</button>`;
-            });
-            inner += `</div>`;
-        }
+            // Quick replies
+            if (parsed.quick_replies && parsed.quick_replies.length > 0) {
+                inner += `<div class="quick-replies">`;
+                parsed.quick_replies.forEach(qr => {
+                inner += `<button class="quick-reply-btn" onclick="sendQuickReply('${qr.replace(/'/g, "\\'")}')">${qr}</button>`;
+                });
+                inner += `</div>`;
+            }
 
-        inner += `</div>`;
-        row.innerHTML = inner;
-        msgs.appendChild(row);
-        scrollToBottom();
+            inner += `</div>`;
+            row.innerHTML = inner;
+            msgs.appendChild(row);
+            scrollToBottom();
+
+            // save to session at the end
+            const saved = JSON.parse(sessionStorage.getItem('chatParsed') || '[]');
+            saved.push({ role: 'bot', parsed });
+            sessionStorage.setItem('chatParsed', JSON.stringify(saved));
         }
 
         // ===== TYPING =====
         let typingEl = null;
         function showTyping() {
-        const msgs = document.getElementById('chat-messages');
-        const row = document.createElement('div');
-        row.className = 'msg-row bot';
-        row.id = 'typing-row';
-        row.innerHTML = `<div class="msg-avatar"><img src="/image/jaced_logo1.png" style="width:20px;height:20px;object-fit:contain;border-radius:50%;"></div><div class="typing-indicator"><div class="typing-dot"></div><div class="typing-dot"></div><div class="typing-dot"></div></div>`;
-        msgs.appendChild(row);
-        scrollToBottom();
+            const msgs = document.getElementById('chat-messages');
+            const row = document.createElement('div');
+            row.className = 'msg-row bot';
+            row.id = 'typing-row';
+            row.innerHTML = `<div class="msg-avatar"><img src="/image/jaced_logo1.png" style="width:20px;height:20px;object-fit:contain;border-radius:50%;"></div><div class="typing-indicator"><div class="typing-dot"></div><div class="typing-dot"></div><div class="typing-dot"></div></div>`;
+            msgs.appendChild(row);
+            scrollToBottom();
         }
 
         function hideTyping() {
-        const el = document.getElementById('typing-row');
-        if (el) el.remove();
+            const el = document.getElementById('typing-row');
+            if (el) el.remove();
         }
 
         // ===== UTILS =====
         function scrollToBottom() {
-        const msgs = document.getElementById('chat-messages');
-        setTimeout(() => msgs.scrollTop = msgs.scrollHeight, 50);
+            const msgs = document.getElementById('chat-messages');
+            setTimeout(() => msgs.scrollTop = msgs.scrollHeight, 50);
         }
 
         function escapeHtml(text) {
-        return text.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+            return text.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
         }
 
         // Auto-resize textarea
@@ -463,6 +487,14 @@
             document.getElementById('chat-input').value = text;
             sendMessage();
         }
+
+        // add this helper function in your JS
+        function toSlug(name) {
+        return name.toLowerCase()
+            .replace(/\s*-\s*/g, '-')  // normalize " - " to "-" first
+            .replace(/[^a-z0-9\s-]/g, '')
+            .trim().replace(/\s+/g, '-');
+}
     </script>
     @stack('scripts')
 
