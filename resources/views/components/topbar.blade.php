@@ -220,7 +220,7 @@
 
                 {{-- Menu items --}}
                 <div style="padding: 6px 0;">
-                    <a href="#" class="profile-dropdown-item">
+                    <a href="{{ route('admin.profile') }}" class="profile-dropdown-item">
                         <i class="bi bi-person"></i> My Profile
                     </a>
                 </div>

@@ -66,6 +66,9 @@ $disputeTypeLabels = [
         ->get();
 
     $hasDispute = !empty($order->dispute_id);
+    if ($hasDispute) {
+        $currentIdx = array_search('shipped', $statusOrder);
+    }
 @endphp
 
 <div class="order-row" style="border-bottom:1px solid var(--jaced-input);">
@@ -74,17 +77,11 @@ $disputeTypeLabels = [
     <div class="d-none d-md-flex align-items-center px-4 py-3 order-row-trigger"
         style="cursor:pointer; transition:background .15s; gap:0;"
         onclick="togglePanel({{ $order->id }})">
-
-        <div style="width:40px; flex-shrink:0;">
-            <input type="checkbox" class="order-checkbox"
-                style="width:16px; height:16px; accent-color:var(--jaced-sage); cursor:pointer;"
-                onclick="event.stopPropagation()">
-        </div>
         <div style="flex:0 0 12%; font-size:13px; font-weight:600; color:var(--jaced-brown-dark);">
             #ORD-{{ str_pad($order->id, 4, '0', STR_PAD_LEFT) }}
-            @if($hasDispute)
+            {{-- @if($hasDispute)
                 <span style="display:inline-block; width:7px; height:7px; border-radius:50%; background:#E65100; margin-left:4px; vertical-align:middle;" title="Has active dispute"></span>
-            @endif
+            @endif --}}
         </div>
         <div style="flex:0 0 25%; display:flex; align-items:center; gap:10px;">
             <div style="width:34px; height:34px; border-radius:50%; background:{{ $avatarBg }};
@@ -130,7 +127,7 @@ $disputeTypeLabels = [
         <div class="flex-grow-1" style="min-width:0;">
             <p class="mb-0" style="font-size:13px; font-weight:600; color:var(--jaced-brown-dark);">
                 {{ $order->customer_name }}
-                @if($hasDispute)<span style="display:inline-block; width:6px; height:6px; border-radius:50%; background:#E65100; margin-left:4px; vertical-align:middle;"></span>@endif
+                {{-- @if($hasDispute)<span style="display:inline-block; width:6px; height:6px; border-radius:50%; background:#E65100; margin-left:4px; vertical-align:middle;"></span>@endif --}}
             </p>
             <p class="mb-0" style="font-size:11px; color:var(--jaced-muted);">#ORD-{{ str_pad($order->id, 4, '0', STR_PAD_LEFT) }} · {{ Carbon::parse($order->created_at)->format('d M Y') }}</p>
         </div>
@@ -241,7 +238,11 @@ $disputeTypeLabels = [
                             }
 
                             $dotColor  = $isDone ? '#B87333' : '#DDD8CF';
-                            $lineColor = $isDone ? '#B87333' : '#DDD8CF';
+                            if ($hasDispute && $step['key'] === 'arrived') {
+                                $lineColor = '#B87333';
+                            } else {
+                                $lineColor = $isDone ? '#B87333' : '#DDD8CF';
+                            }
                             $timeVal   = $order->{$step['col']} ?? null;
 
                             // When disputed, show '—' for arrived even if timestamp exists
@@ -284,10 +285,10 @@ $disputeTypeLabels = [
                             $processingCurrent   = in_array($disputeStatus, ['open', 'negotiating']);
                             $outcomeDone         = in_array($disputeStatus, ['resolved', 'rejected']);
 
-                            $processingDotColor  = $processingDone   ? '#E65100' : '#DDD8CF';
-                            $processingLineColor = $processingDone   ? '#E65100' : '#DDD8CF';
+                            $processingDotColor  = $processingDone   ? '#B87333' : '#DDD8CF';
+                            $processingLineColor = $processingDone   ? '#B87333' : '#DDD8CF';
 
-                            $outcomeColor        = $disputeStatus === 'resolved' ? '#2E7D32' : ($disputeStatus === 'rejected' ? '#C62828' : '#DDD8CF');
+                            $outcomeColor        = $disputeStatus === 'resolved' ? '#B87333' : ($disputeStatus === 'rejected' ? '#C62828' : '#DDD8CF');
                             $outcomeLabel        = $disputeStatus === 'resolved' ? 'Complaint Resolved' : ($disputeStatus === 'rejected' ? 'Complaint Rejected' : 'Outcome');
                             $outcomeTime         = $outcomeDone && $order->dispute_resolved_at
                                                     ? Carbon::parse($order->dispute_resolved_at)->format('d M Y, H:i')
@@ -299,11 +300,11 @@ $disputeTypeLabels = [
                             <div style="position:absolute; left:-12px; top:10px; width:2px; height:100%; background:{{ $processingLineColor }};"></div>
                             <div style="position:absolute; left:-16px; top:4px; width:8px; height:8px; border-radius:50%; background:{{ $processingDotColor }};
                                 {{ $processingCurrent ? 'box-shadow:0 0 0 3px rgba(230,81,0,0.2);' : '' }}"></div>
-                            <p style="font-size:12px; font-weight:{{ $processingDone ? '600' : '400' }}; color:{{ $processingDone ? '#E65100' : 'var(--jaced-muted)' }}; margin:0;">
+                            <p style="font-size:12px; font-weight:{{ $processingDone ? '600' : '400' }}; color:{{ $processingDone ? 'var(--jaced-brown-dark)' : 'var(--jaced-muted)' }}; margin:0;">
                                 Processing Complaint
                             </p>
                             <p style="font-size:11px; color:var(--jaced-muted); margin:0;">
-                                {{ $processingDone ? '—' : '—' }}
+                                {{ $order->dispute_created_at ? Carbon::parse($order->dispute_created_at)->format('d M Y, H:i') : '—' }}
                             </p>
                         </div>
 
@@ -311,7 +312,7 @@ $disputeTypeLabels = [
                         <div style="position:relative; padding-bottom:0;">
                             <div style="position:absolute; left:-16px; top:4px; width:8px; height:8px; border-radius:50%; background:{{ $outcomeColor }};
                                 {{ $outcomeDone ? '' : '' }}"></div>
-                            <p style="font-size:12px; font-weight:{{ $outcomeDone ? '600' : '400' }}; color:{{ $outcomeDone ? $outcomeColor : 'var(--jaced-muted)' }}; margin:0;">
+                            <p style="font-size:12px; font-weight:{{ $outcomeDone ? '600' : '400' }}; color:{{ $outcomeDone ? 'var(--jaced-brown-dark)' : 'var(--jaced-muted)' }}; margin:0;">
                                 {{ $outcomeLabel }}
                             </p>
                             <p style="font-size:11px; color:var(--jaced-muted); margin:0;">{{ $outcomeTime }}</p>
@@ -404,16 +405,11 @@ $disputeTypeLabels = [
 
                         @if($order->dispute_photo)
                         <p class="panel-label">Photo Evidence</p>
-                        <a href="{{ asset('image/complaints/' . basename($order->dispute_photo)) }}" target="_blank">
-                            <img src="{{ asset('image/complaints/' . basename($order->dispute_photo)) }}"
+                        <a href="{{ asset('storage/complaints/' . basename($order->dispute_photo)) }}" target="_blank">
+                            <img src="{{ asset('storage/complaints/' . basename($order->dispute_photo)) }}"
                                 style="width:100%; max-width:200px; border-radius:8px; border:1px solid var(--jaced-input); cursor:pointer;"
                                 alt="Dispute photo">
                         </a>
-                        @endif
-
-                        @if($order->dispute_admin_note)
-                        <p class="panel-label mt-3">Admin Note</p>
-                        <p class="panel-value">{{ $order->dispute_admin_note }}</p>
                         @endif
 
                         {{-- Exchange tracking info --}}
@@ -437,101 +433,110 @@ $disputeTypeLabels = [
                     {{-- Admin actions --}}
                     <div class="col-12 col-md-7">
                         @if($order->dispute_status === 'open')
-                        {{-- Open: admin can approve refund, approve exchange, or reject --}}
                         <p class="panel-section-title">Take Action</p>
-
-                        <div style="background:white; border:1px solid var(--jaced-input); border-radius:12px; padding:16px;">
-                            <div class="mb-3">
-                                <label style="font-size:11px; font-weight:600; letter-spacing:.07em; text-transform:uppercase; color:var(--jaced-muted); display:block; margin-bottom:6px;">
-                                    Admin Note / Explanation <span style="color:#C62828;">*</span>
-                                </label>
-                                <textarea id="dispute-note-{{ $order->dispute_id }}"
-                                    style="width:100%; font-size:13px; border:1px solid var(--jaced-input); border-radius:8px; padding:9px 12px; resize:none; height:80px; outline:none;"
-                                    placeholder="Write your explanation or note for the customer..."></textarea>
-                            </div>
-
-                            <div id="exchange-tracking-field-{{ $order->dispute_id }}" style="display:none; margin-bottom:12px;">
-                                <label style="font-size:11px; font-weight:600; letter-spacing:.07em; text-transform:uppercase; color:var(--jaced-muted); display:block; margin-bottom:6px;">
-                                    Replacement Tracking Number
-                                </label>
-                                <input type="text" id="tracking-input-{{ $order->dispute_id }}"
-                                    style="width:100%; font-size:13px; border:1px solid var(--jaced-input); border-radius:8px; padding:9px 12px; outline:none;"
-                                    placeholder="e.g. JNE123456789">
-                            </div>
-
-                            <div style="display:flex; gap:8px; flex-wrap:wrap;">
-                                <button onclick="resolveDispute({{ $order->dispute_id }}, 'refund')"
-                                    style="flex:1; min-width:120px; background:#1A237E; color:white; border:none; border-radius:8px; padding:9px 12px; font-size:12px; font-weight:600; cursor:pointer; transition:background .15s;"
-                                    onmouseover="this.style.background='#0D1257'"
-                                    onmouseout="this.style.background='#1A237E'">
-                                    <i class="bi bi-cash-stack"></i> Approve Refund
-                                </button>
-                                <button onclick="showExchangeTracking({{ $order->dispute_id }}); resolveDispute({{ $order->dispute_id }}, 'exchange')"
-                                    style="flex:1; min-width:120px; background:#004D40; color:white; border:none; border-radius:8px; padding:9px 12px; font-size:12px; font-weight:600; cursor:pointer; transition:background .15s;"
-                                    onmouseover="this.style.background='#00251A'"
-                                    onmouseout="this.style.background='#004D40'">
-                                    <i class="bi bi-arrow-repeat"></i> Approve Exchange
-                                </button>
-                                <button onclick="resolveDispute({{ $order->dispute_id }}, 'reject')"
-                                    style="flex:1; min-width:120px; background:#B71C1C; color:white; border:none; border-radius:8px; padding:9px 12px; font-size:12px; font-weight:600; cursor:pointer; transition:background .15s;"
-                                    onmouseover="this.style.background='#7F0000'"
-                                    onmouseout="this.style.background='#B71C1C'">
-                                    <i class="bi bi-x-circle"></i> Reject
-                                </button>
-                            </div>
-                        </div>
-
-                        @elseif($order->dispute_status === 'negotiating')
-                        {{-- Negotiating: show current resolution type, allow mark as resolved or update tracking --}}
-                        <p class="panel-section-title">In Progress</p>
-
-                        @if($order->dispute_resolution_type === 'exchange' && !$order->dispute_replacement_tracking)
-                        <div style="background:white; border:1px solid var(--jaced-input); border-radius:12px; padding:16px; margin-bottom:12px;">
-                            <p style="font-size:13px; font-weight:600; color:var(--jaced-brown-dark); margin:0 0 10px;">
-                                <i class="bi bi-box-seam"></i> Add Replacement Tracking Number
-                            </p>
-                            <input type="text" id="tracking-update-{{ $order->dispute_id }}"
-                                style="width:100%; font-size:13px; border:1px solid var(--jaced-input); border-radius:8px; padding:9px 12px; outline:none; margin-bottom:10px;"
-                                placeholder="e.g. JNE123456789">
-                            <button onclick="updateTracking({{ $order->dispute_id }})"
-                                style="width:100%; background:var(--jaced-brown-dark); color:white; border:none; border-radius:8px; padding:9px; font-size:13px; font-weight:600; cursor:pointer;">
-                                Save Tracking Number
+                        <div style="display:flex; gap:8px; flex-wrap:wrap;">
+                            @if($order->dispute_reason === 'damaged')
+                            <button onclick="openDisputeModal({{ $order->dispute_id }}, 'refund', {{ $order->total_price }}, {{ $order->delivery_fee }}, {{ $order->service_tax }}, {{ $order->discount_amount }})"
+                                style="flex:1; min-width:120px; background:#1A237E; color:white; border:none; border-radius:8px; padding:9px 12px; font-size:12px; font-weight:600; cursor:pointer;"
+                                onmouseover="this.style.background='#0D1257'" onmouseout="this.style.background='#1A237E'">
+                                <i class="bi bi-cash-stack"></i> Refund
+                            </button>
+                            @elseif($order->dispute_reason === 'missing')
+                            <button onclick="openDisputeModal({{ $order->dispute_id }}, 'exchange', {{ $order->total_price }}, {{ $order->delivery_fee }}, {{ $order->service_tax }}, {{ $order->discount_amount }})"
+                                style="flex:1; min-width:120px; background:#004D40; color:white; border:none; border-radius:8px; padding:9px 12px; font-size:12px; font-weight:600; cursor:pointer;"
+                                onmouseover="this.style.background='#00251A'" onmouseout="this.style.background='#004D40'">
+                                <i class="bi bi-arrow-repeat"></i> Send Replacement
+                            </button>
+                            @endif
+                            <button onclick="openDisputeModal({{ $order->dispute_id }}, 'reject', {{ $order->total_price }}, {{ $order->delivery_fee }}, {{ $order->service_tax }}, {{ $order->discount_amount }})"
+                                style="flex:1; min-width:120px; background:#B71C1C; color:white; border:none; border-radius:8px; padding:9px 12px; font-size:12px; font-weight:600; cursor:pointer;"
+                                onmouseover="this.style.background='#7F0000'" onmouseout="this.style.background='#B71C1C'">
+                                <i class="bi bi-x-circle"></i> Reject
                             </button>
                         </div>
-                        @endif
 
-                        <button onclick="openResolveModal({{ $order->dispute_id }}, '{{ $order->dispute_resolution_type }}')"
-                            style="width:100%; background:#2E7D32; color:white; border:none; border-radius:10px; padding:11px 16px; font-size:13px; font-weight:600; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:8px;"
+                        @elseif($order->dispute_status === 'shipping_replacement')
+                        <p class="panel-section-title">Replacement In Progress</p>
+
+                        <div style="background:white; border:1px solid var(--jaced-input); border-radius:12px; padding:16px; margin-bottom:12px;">
+                            <p style="font-size:13px; font-weight:600; color:var(--jaced-brown-dark); margin:0 0 10px;">
+                                <i class="bi bi-box-seam"></i> Replacement Shipped
+                            </p>
+                            <p class="panel-label">Tracking No.</p>
+                            <p class="panel-value">{{ $order->dispute_replacement_tracking ?? '—' }}</p>
+                            <p class="panel-label">Shipped At</p>
+                            <p class="panel-value">
+                                {{ $order->dispute_replacement_shipped_at 
+                                    ? Carbon::parse($order->dispute_replacement_shipped_at)->format('d M Y, H:i') 
+                                    : '—' }}
+                            </p>
+                        </div>
+
+                        <button onclick="openResolveModal({{ $order->dispute_id }}, 'exchange')"
+                            style="width:100%; background:#2E7D32; color:white; border:none; border-radius:10px; 
+                                padding:11px 16px; font-size:13px; font-weight:600; cursor:pointer; 
+                                display:flex; align-items:center; justify-content:center; gap:8px;"
                             onmouseover="this.style.background='#1B5E20'"
                             onmouseout="this.style.background='#2E7D32'">
-                            <i class="bi bi-check-circle"></i>
-                            @if($order->dispute_resolution_type === 'refund')
-                                Mark Refund as Done
-                            @else
-                                Mark Exchange as Completed
-                            @endif
+                            <i class="bi bi-check-circle"></i> Mark Replacement as Arrived
                         </button>
 
                         @elseif($order->dispute_status === 'resolved')
                         <div style="background:#E8F5E9; border-radius:10px; padding:14px;">
-                            <p style="font-size:13px; font-weight:700; color:#2E7D32; margin:0 0 4px;">
+                            <p style="font-size:13px; font-weight:700; color:#2E7D32; margin:0 0 8px;">
                                 <i class="bi bi-check-circle-fill"></i> Dispute Resolved
                             </p>
-                            <p style="font-size:12px; color:var(--jaced-muted); margin:0; text-transform:capitalize;">
-                                Resolution: {{ $order->dispute_resolution_type ?? '—' }}
-                                @if($order->dispute_resolved_at)
-                                    · {{ Carbon::parse($order->dispute_resolved_at)->format('d M Y, H:i') }}
+
+                            {{-- Resolution type --}}
+                            <p style="font-size:11px; color:var(--jaced-muted); margin:0 0 4px;">Resolution</p>
+                            <p style="font-size:13px; font-weight:600; color:var(--jaced-brown-dark); margin:0 0 10px; text-transform:capitalize;">
+                                @if($order->dispute_resolution_type === 'refund')
+                                    <i class="bi bi-cash-stack"></i> Refund
+                                @elseif($order->dispute_resolution_type === 'exchange')
+                                    <i class="bi bi-arrow-repeat"></i> Send Replacement
+                                @else
+                                    —
                                 @endif
                             </p>
+
+                            {{-- Refund amount (only for refund) --}}
+                            @if($order->dispute_resolution_type === 'refund' && $order->dispute_refund_amount)
+                            <p style="font-size:11px; color:var(--jaced-muted); margin:0 0 4px;">Refund Amount</p>
+                            <p style="font-size:13px; font-weight:600; color:#2E7D32; margin:0 0 10px;">
+                                Rp {{ number_format($order->dispute_refund_amount, 0, ',', '.') }}
+                            </p>
+                            @endif
+
+                            {{-- Admin note --}}
+                            @if($order->dispute_admin_note)
+                            <p style="font-size:11px; color:var(--jaced-muted); margin:0 0 4px;">Admin Note</p>
+                            <p style="font-size:12px; color:var(--jaced-brown-dark); margin:0 0 10px;">{{ $order->dispute_admin_note }}</p>
+                            @endif
+
+                            {{-- Resolved at --}}
+                            @if($order->dispute_resolved_at)
+                            <p style="font-size:11px; color:var(--jaced-muted); margin:0;">
+                                Resolved on {{ Carbon::parse($order->dispute_resolved_at)->format('d M Y, H:i') }}
+                            </p>
+                            @endif
                         </div>
 
                         @elseif($order->dispute_status === 'rejected')
                         <div style="background:#FFEBEE; border-radius:10px; padding:14px;">
-                            <p style="font-size:13px; font-weight:700; color:#C62828; margin:0 0 4px;">
+                            <p style="font-size:13px; font-weight:700; color:#C62828; margin:0 0 8px;">
                                 <i class="bi bi-x-circle-fill"></i> Dispute Rejected
                             </p>
+
+                            {{-- Admin note --}}
                             @if($order->dispute_admin_note)
-                            <p style="font-size:12px; color:var(--jaced-muted); margin:0;">{{ $order->dispute_admin_note }}</p>
+                            <p style="font-size:11px; color:var(--jaced-muted); margin:0 0 4px;">Admin Note</p>
+                            <p style="font-size:12px; color:var(--jaced-brown-dark); margin:0 0 10px;">{{ $order->dispute_admin_note }}</p>
+                            @endif
+
+                            @if($order->dispute_resolved_at)
+                            <p style="font-size:11px; color:var(--jaced-muted); margin:0;">
+                                Rejec   ted on {{ Carbon::parse($order->dispute_resolved_at)->format('d M Y, H:i') }}
+                            </p>
                             @endif
                         </div>
                         @endif
@@ -595,6 +600,75 @@ $disputeTypeLabels = [
             onmouseout="this.style.background='none'">
             Cancel
         </button>
+    </div>
+</div>
+
+{{-- Dispute Action Modal --}}
+<div id="disputeModalOverlay" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.45); z-index:1050; align-items:center; justify-content:center;">
+    <div style="background:white; border-radius:16px; padding:28px; width:100%; max-width:440px; margin:16px; box-shadow:0 8px 32px rgba(0,0,0,0.18); position:relative;">
+
+        {{-- Header --}}
+        <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:20px;">
+            <p id="disputeModalTitle" style="font-size:15px; font-weight:700; color:var(--jaced-brown-dark); margin:0;"></p>
+            <button onclick="closeDisputeModal()" style="background:none; border:none; cursor:pointer; color:var(--jaced-muted); font-size:18px; line-height:1; padding:0;">
+                <i class="bi bi-x-lg"></i>
+            </button>
+        </div>
+
+        {{-- Refund range (only for refund) --}}
+        <div id="disputeRefundSection" style="display:none; margin-bottom:16px;">
+            <label style="font-size:11px; font-weight:600; letter-spacing:.07em; text-transform:uppercase; color:var(--jaced-muted); display:block; margin-bottom:6px;">
+                Refund Amount <span style="color:#C62828;">*</span>
+            </label>
+            <div style="display:flex; align-items:center; gap:10px; margin-bottom:6px;">
+                <input type="range" id="disputeRefundRange"
+                    min="0" step="1000"
+                    style="flex:1; accent-color:#1A237E;"
+                    oninput="syncRefundInput(this.value)">
+                <span style="font-size:13px; font-weight:700; color:#1A237E; white-space:nowrap;" id="disputeRefundDisplay">Rp 0</span>
+            </div>
+            <input type="number" id="disputeRefundInput"
+                min="0" step="1000"
+                style="width:100%; font-size:13px; border:1px solid var(--jaced-input); border-radius:8px; padding:9px 12px; outline:none;"
+                placeholder="Or type amount manually"
+                oninput="syncRefundRange(this.value)">
+            <p id="disputeRefundErr" style="display:none; font-size:11px; color:#C62828; margin:4px 0 0; font-weight:600;">⚠ Please enter a refund amount.</p>
+        </div>
+
+        {{-- Tracking (only for exchange) --}}
+        <div id="disputeTrackingSection" style="display:none; margin-bottom:16px;">
+            <label style="font-size:11px; font-weight:600; letter-spacing:.07em; text-transform:uppercase; color:var(--jaced-muted); display:block; margin-bottom:6px;">
+                Replacement Tracking Number <span style="color:#C62828;">*</span>
+            </label>
+            <input type="text" id="disputeTrackingInput"
+                style="width:100%; font-size:13px; border:1px solid var(--jaced-input); border-radius:8px; padding:9px 12px; outline:none;"
+                placeholder="e.g. JNE123456789">
+            <p id="disputeTrackingErr" style="display:none; font-size:11px; color:#C62828; margin:4px 0 0; font-weight:600;">⚠ Tracking number is required.</p>
+        </div>
+
+        {{-- Admin note --}}
+        <div style="margin-bottom:20px;">
+            <label style="font-size:11px; font-weight:600; letter-spacing:.07em; text-transform:uppercase; color:var(--jaced-muted); display:block; margin-bottom:6px;">
+                Admin Note <span style="color:#C62828;">*</span>
+            </label>
+            <textarea id="disputeNoteInput"
+                style="width:100%; font-size:13px; border:1px solid var(--jaced-input); border-radius:8px; padding:9px 12px; resize:none; height:80px; outline:none;"
+                placeholder="Write your explanation or note for the customer..."></textarea>
+            <p id="disputeNoteErr" style="display:none; font-size:11px; color:#C62828; margin:4px 0 0; font-weight:600;">⚠ Admin note is required.</p>
+        </div>
+
+        {{-- Footer buttons --}}
+        <div style="display:flex; gap:8px;">
+            <button onclick="closeDisputeModal()"
+                style="flex:1; background:#F5F5F5; color:var(--jaced-brown-dark); border:none; border-radius:8px; padding:10px; font-size:13px; font-weight:600; cursor:pointer;">
+                Cancel
+            </button>
+            <button id="disputeModalConfirmBtn" onclick="submitDisputeAction()"
+                style="flex:2; color:white; border:none; border-radius:8px; padding:10px; font-size:13px; font-weight:600; cursor:pointer;">
+                Confirm
+            </button>
+        </div>
+
     </div>
 </div>
 

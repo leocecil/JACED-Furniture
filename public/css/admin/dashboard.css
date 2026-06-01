@@ -1,0 +1,483 @@
+    :root {
+        --cream:        #FAF8F4;
+        --cream-2:      #F3F0EA;
+        --cream-3:      #EAE5DB;
+        --ink:          #1A1714;
+        --ink-2:        #3D3830;
+        --ink-muted:    #7A7369;
+        --border:       #DDD8CF;
+        --accent:       #B87333;
+        --accent-soft:  #F5E6D3;
+        --blue:         #2667CC;
+        --blue-soft:    #DBE8FB;
+        --teal:         #007A7A;
+        --teal-soft:    #CCEAEA;
+        --amber:        #C47B00;
+        --amber-soft:   #FAF0D0;
+        --danger:       #A0320A;
+        --danger-soft:  #FAE0D3;
+        --purple:       #5E3FA3;
+        --purple-soft:  #E8E0F7;
+        --green:        #1E7D45;
+        --green-soft:   #D4EDDA;
+        --indigo: #6366F1;
+        --indigo-soft: #EEF2FF;
+        --rose: #EC4899;
+        --rose-soft: #FDF2F8;
+    }
+
+    body, .dashboard-wrap {
+        font-family: var(--bs-font-sans-serif);
+        color: var(--ink);
+    }
+
+    /* ── Cards ───────────────────────────────────────────────────── */
+    .d-card {
+        background: #FFFFFF;
+        border: 1px solid var(--border);
+        border-radius: 16px;
+        box-shadow: 0 1px 4px rgba(0,0,0,.04), 0 2px 12px rgba(0,0,0,.04);
+    }
+
+    /* ── Page header ─────────────────────────────────────────────── */
+    .dash-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-end;
+        margin-bottom: 1.5rem;
+    }
+    .dash-header .label {
+        font-size: 11px;
+        letter-spacing: .12em;
+        text-transform: uppercase;
+        color: var(--ink-muted);
+        font-weight: 500;
+    }
+    .dash-header h1 {
+        font-size: 1.75rem;
+        font-weight: 700;
+        letter-spacing: -.02em;
+        margin: 0;
+    }
+
+    /* ── Stat cards ──────────────────────────────────────────────── */
+    .stat-card {
+        padding: 20px;
+        height: 100%;
+    }
+    .stat-card .icon-wrap {
+        width: 44px; height: 44px;
+        border-radius: 12px;
+        display: flex; align-items: center; justify-content: center;
+        font-size: 20px;
+        flex-shrink: 0;
+    }
+    .stat-card .top-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        margin-bottom: 16px;
+    }
+    .stat-card .label {
+        font-size: 11px;
+        letter-spacing: .1em;
+        text-transform: uppercase;
+        color: var(--ink-muted);
+        font-weight: 500;
+        margin-bottom: 4px;
+    }
+    .stat-card .value {
+        font-size: 1.6rem;
+        font-weight: 700;
+        letter-spacing: -.03em;
+        line-height: 1;
+        color: var(--ink);
+    }
+    .stat-card.accent-border { border-left: 4px solid var(--accent); }
+
+    /* ── Pill badges ─────────────────────────────────────────────── */
+    .pill {
+        display: inline-block;
+        padding: 3px 10px;
+        border-radius: 99px;
+        font-size: 11px;
+        font-weight: 600;
+        letter-spacing: .04em;
+    }
+    .pill-amber  { background: var(--amber-soft);  color: var(--amber);  }
+    .pill-blue   { background: var(--blue-soft);   color: var(--blue);   }
+    .pill-teal   { background: var(--teal-soft);   color: var(--teal);   }
+    .pill-danger { background: var(--danger-soft); color: var(--danger); }
+    .pill-purple { background: var(--purple-soft); color: var(--purple); }
+
+    /* ── Section titles ──────────────────────────────────────────── */
+    .section-title {
+        font-size: 14px;
+        font-weight: 600;
+        color: var(--ink);
+        letter-spacing: -.01em;
+    }
+    .section-meta {
+        font-size: 12px;
+        color: var(--ink-muted);
+    }
+
+    /* ── Chart wrapper ───────────────────────────────────────────── */
+    .chart-outer { position: relative; height: 190px; }
+
+    /* ── Range selector ──────────────────────────────────────────── */
+    .range-btn {
+        background: none;
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        padding: 4px 10px;
+        font-size: 12px;
+        font-weight: 500;
+        color: var(--ink-muted);
+        cursor: pointer;
+        transition: all .15s;
+    }
+    .range-btn.active, .range-btn:hover{
+        background: var(--accent);
+        border-color: var(--accent);
+        color: #fff;
+    }
+
+    button.card-range-btn {
+        background: none;
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        padding: 4px 10px;
+        font-size: 12px;
+        font-weight: 500;
+        color: var(--ink-muted);
+        cursor: pointer;
+        transition: all .15s;
+    }
+
+    button.card-range-btn.active,
+    button.card-range-btn:hover {
+        background: var(--accent);
+        border-color: var(--accent);
+        color: #fff;
+    }
+
+    /* ── Monthly target donut ─────────────────────────────────────── */
+    .donut-wrap {
+        position: relative;
+        width: 140px; height: 140px;
+        margin: 0 auto 12px;
+    }
+    .donut-label {
+        position: absolute;
+        inset: 0;
+        display: flex; align-items: center; justify-content: center;
+        font-size: 1.4rem; font-weight: 700;
+        letter-spacing: -.03em;
+    }
+
+    #targetModal { z-index: 1055; }
+    .modal-backdrop { z-index: 1054; }
+    .modal-dialog { z-index: 1056; }
+
+    /* ── Best Selling Categories ──────────────────────────────────── */
+    .category-row {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 10px 0;
+        border-bottom: 1px solid var(--cream-2);
+    }
+    .category-row:last-child { border-bottom: none; }
+    .category-rank {
+        width: 24px; height: 24px;
+        border-radius: 50%;
+        background: var(--cream-2);
+        display: flex; align-items: center; justify-content: center;
+        font-size: 11px; font-weight: 700;
+        color: var(--ink-muted);
+        flex-shrink: 0;
+    }
+    .category-rank.top { background: var(--accent-soft); color: var(--accent); }
+    .category-name {
+        font-size: 13px; font-weight: 600;
+        color: var(--ink);
+        text-transform: capitalize;
+        flex: 1;
+    }
+    .category-units {
+        font-size: 12px;
+        color: var(--ink-muted);
+    }
+    .category-bar-track {
+        height: 6px;
+        border-radius: 99px;
+        background: var(--cream-3);
+        flex: 1;
+        overflow: hidden;
+    }
+    .category-bar-fill {
+        height: 100%;
+        border-radius: 99px;
+        background: var(--accent);
+        transition: width .6s ease;
+    }
+    .category-revenue {
+        font-size: 12px; font-weight: 600;
+        color: var(--ink);
+        min-width: 80px;
+        text-align: right;
+    }
+
+    /* ── Orders table ─────────────────────────────────────────────── */
+    .orders-table { width: 100%; border-collapse: collapse; }
+    .orders-table thead th {
+        font-size: 10px;
+        letter-spacing: .1em;
+        text-transform: uppercase;
+        color: var(--ink-muted);
+        font-weight: 500;
+        padding-bottom: 12px;
+        border-bottom: 1px solid var(--border);
+    }
+    .orders-table tbody td {
+        padding: 14px 0;
+        font-size: 13px;
+        border-bottom: 1px solid var(--cream-2);
+        vertical-align: middle;
+    }
+    .orders-table tbody tr:last-child td { border-bottom: none; }
+    .order-id { font-family: var(--bs-font-monospace); font-size: 12px; font-weight: 500; color: var(--accent); }
+    .order-amt { font-weight: 600; color: var(--ink); }
+
+    .status-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+        padding: 4px 12px;
+        border-radius: 6px;
+        font-size: 11px;
+        font-weight: 600;
+        letter-spacing: .04em;
+    }
+    .status-badge::before {
+        content: '';
+        width: 6px; height: 6px;
+        border-radius: 50%;
+        flex-shrink: 0;
+    }
+    .status-unpaid    { background: var(--amber-soft);  color: var(--amber);  }
+    .status-unpaid::before    { background: var(--amber);  }
+    .status-packed    { background: var(--blue-soft);   color: var(--blue);   }
+    .status-packed::before    { background: var(--blue);   }
+    .status-delivered { background: var(--purple-soft); color: var(--purple); }
+    .status-delivered::before { background: var(--purple); }
+    .status-arrived   { background: var(--teal-soft);   color: var(--teal);   }
+    .status-arrived::before   { background: var(--teal);   }
+    .status-cancelled { background: var(--danger-soft); color: var(--danger); }
+    .status-cancelled::before { background: var(--danger); }
+    .status-on_process  { background: var(--indigo-soft); color: var(--indigo); }
+    .status-on_process::before { background: var(--indigo); }
+    .status-disputed    { background: var(--rose-soft); color: var(--rose); }
+    .status-disputed::before { background: var(--rose); }   
+
+    .btn-dots {
+        background: none; border: none; padding: 4px 8px;
+        color: var(--ink-muted); cursor: pointer; border-radius: 6px;
+        transition: background .1s;
+    }
+    .btn-dots:hover { background: var(--cream-2); }
+
+    .view-all {
+        font-size: 12px; font-weight: 600;
+        color: var(--accent);
+        text-decoration: none;
+        letter-spacing: .02em;
+    }
+    .view-all:hover { text-decoration: underline; }
+
+    .btn-filter {
+        background: var(--cream-2);
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        padding: 6px 12px;
+        font-size: 12px; font-weight: 500;
+        color: var(--ink-2);
+        cursor: pointer;
+        display: inline-flex; align-items: center; gap: 6px;
+    }
+    .btn-filter:hover { background: var(--cream-3); }
+
+    /* ── Monthly target set button ───────────────────────────────── */
+    .btn-set-target {
+        font-size: 11px;
+        color: var(--accent);
+        background: none;
+        border: 1px dashed var(--accent);
+        border-radius: 6px;
+        padding: 3px 8px;
+        cursor: pointer;
+        font-weight: 500;
+        transition: background .15s;
+    }
+    .btn-set-target:hover { background: var(--accent-soft); }
+
+    .d-card.stat-card {
+        transition: transform .15s, box-shadow .15s;
+    }
+    .d-card.stat-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 16px rgba(0,0,0,.09);
+    }
+
+    /* ==========================================================
+    RESPONSIVE TABLET
+    ========================================================== */
+    @media (max-width: 992px){
+
+        .stat-card .value{
+            font-size: 1.35rem;
+        }
+
+        .category-revenue{
+            min-width: 65px;
+        }
+
+        .donut-wrap{
+            width: 120px;
+            height: 120px;
+        }
+
+    }
+
+    /* ==========================================================
+    RESPONSIVE MOBILE
+    ========================================================== */
+    @media (max-width: 768px){
+
+        /* Header */
+        .dash-header{
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 8px;
+            margin-bottom: 1rem;
+        }
+
+        .dash-header h1{
+            font-size: 1.5rem;
+        }
+
+        /* Stat Cards */
+        .stat-card{
+            padding: 14px;
+        }
+
+        .stat-card .icon-wrap{
+            width: 38px;
+            height: 38px;
+            font-size: 16px;
+        }
+
+        .stat-card .value{
+            font-size: 1.15rem;
+        }
+
+        .stat-card .top-row{
+            margin-bottom: 10px;
+        }
+
+        /* Filter buttons */
+        .card-range-btn{
+            font-size: 11px !important;
+            padding: 6px 10px !important;
+        }
+
+        .range-btn{
+            padding: 5px 8px;
+            font-size: 11px;
+        }
+
+        /* Sales Chart */
+        .chart-outer{
+            height: 240px;
+        }
+
+        /* Monthly Target */
+        .donut-wrap{
+            width: 110px;
+            height: 110px;
+        }
+
+        .donut-label{
+            font-size: 1.1rem;
+        }
+
+        /* Categories */
+        .category-row{
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .category-revenue{
+            width: 100%;
+            text-align: left;
+            margin-left: 36px;
+        }
+
+        /* Section title */
+        .section-title{
+            font-size: 13px;
+        }
+
+    }
+
+    /* ==========================================================
+    EXTRA SMALL MOBILE
+    ========================================================== */
+    @media (max-width: 576px){
+
+        .container-fluid{
+            padding-left: 12px;
+            padding-right: 12px;
+        }
+
+        .dash-header h1{
+            font-size: 1.3rem;
+        }
+
+        .stat-card{
+            padding: 12px;
+        }
+
+        .stat-card .label{
+            font-size: 10px;
+        }
+
+        .stat-card .value{
+            font-size: 1rem;
+            line-height: 1.2;
+        }
+
+        .pill{
+            font-size: 9px;
+            padding: 2px 8px;
+        }
+
+        .orders-table{
+            min-width: 650px;
+        }
+
+        .status-badge{
+            padding: 4px 8px;
+            font-size: 10px;
+        }
+
+        .order-id{
+            font-size: 11px;
+        }
+
+        .btn-set-target{
+            font-size: 10px;
+        }
+
+    }

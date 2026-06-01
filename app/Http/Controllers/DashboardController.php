@@ -16,7 +16,8 @@ class DashboardController extends Controller
         $orderCount = Order::where('status', ['pending','packed'])->count();        // ── Stat Cards ───────────────────────────────────────────────
         $totalRevenue = DB::table('orders')
             ->whereNotIn('status', ['cancelled', 'unpaid'])
-            ->sum('total_price');
+            ->selectRaw('SUM(total_price - revenue_deduction) as revenue')
+            ->value('revenue') ?? 0;
 
         $totalOrders = DB::table('orders')->count();
 
@@ -40,7 +41,8 @@ class DashboardController extends Controller
             ->whereNotIn('status', ['cancelled', 'unpaid'])
             ->whereYear('created_at', now()->year)
             ->whereMonth('created_at', now()->month)
-            ->sum('total_price');
+            ->selectRaw('SUM(total_price - revenue_deduction) as revenue')
+            ->value('revenue') ?? 0;
 
         $pct       = $monthlyTarget > 0 ? min(100, round(($currentRevenue / $monthlyTarget) * 100)) : 0;
         $remaining = max(0, $monthlyTarget - $currentRevenue);
@@ -123,20 +125,55 @@ class DashboardController extends Controller
         $labels = [];
         $data   = [];
 
+        $now = Carbon::now()->startOfMonth();
         for ($i = $months - 1; $i >= 0; $i--) {
-            $date  = Carbon::now()->subMonths($i);
+            $date  = $now->copy()->subMonths($i);
             $start = $date->copy()->startOfMonth();
             $end   = $date->copy()->endOfMonth();
 
-            $revenue = DB::table('orders')
-                ->whereNotIn('status', ['cancelled', 'unpaid'])
-                ->whereBetween('created_at', [$start, $end])
-                ->sum('total_price');
+        $revenue = DB::table('orders')
+            ->whereNotIn('status', ['cancelled', 'unpaid'])
+            ->whereBetween('created_at', [$start, $end])
+            ->selectRaw('SUM(total_price - revenue_deduction) as revenue')
+            ->value('revenue') ?? 0;
 
             $labels[] = $date->format('M Y');
             $data[]   = (float) $revenue;
         }
 
         return ['labels' => $labels, 'data' => $data];
+    }
+
+    public function statCards(Request $request)
+    {
+        $range = $request->get('range', 'all');
+
+        $query = DB::table('orders')->whereNotIn('status', ['cancelled', 'unpaid']);
+        $countQuery = DB::table('orders');
+
+        switch ($range) {
+            case 'week':
+                $query->whereBetween('created_at', [Carbon::now()->startOfWeek(), Carbon::now()->endOfWeek()]);
+                $countQuery->whereBetween('created_at', [Carbon::now()->startOfWeek(), Carbon::now()->endOfWeek()]);
+                break;
+            case 'month':
+                $query->whereYear('created_at', now()->year)->whereMonth('created_at', now()->month);
+                $countQuery->whereYear('created_at', now()->year)->whereMonth('created_at', now()->month);
+                break;
+            case '3m':
+                $query->where('created_at', '>=', Carbon::now()->subMonths(3)->startOfDay());
+                $countQuery->where('created_at', '>=', Carbon::now()->subMonths(3)->startOfDay());
+                break;
+            case 'year':
+                $query->whereYear('created_at', now()->year);
+                $countQuery->whereYear('created_at', now()->year);
+                break;
+            // 'all' — no filter
+        }
+
+        return response()->json([
+            'totalRevenue' => (float) $query->selectRaw('SUM(total_price - revenue_deduction) as revenue')->value('revenue') ?? 0,
+            'totalOrders'  => (int)   $countQuery->count(),
+        ]);
     }
 }

@@ -16,9 +16,6 @@ class PaymentMethodSeeder extends Seeder
         DB::table('payment_methods')->insert([
             ['name' => 'qris',            'created_at' => now(), 'updated_at' => now()],
             ['name' => 'virtual_account', 'created_at' => now(), 'updated_at' => now()],
-            ['name' => 'credit_card',     'created_at' => now(), 'updated_at' => now()],
-            ['name' => 'ovo',             'created_at' => now(), 'updated_at' => now()],
-            ['name' => 'dana',            'created_at' => now(), 'updated_at' => now()],
         ]);
     }
 }

@@ -104,8 +104,21 @@
         display: flex;
         flex-direction: column;
         transition: transform 0.2s;
+        animation: fadeSlideUp 0.35s ease both;
     }
-    .reward-grid-card:hover { transform: translateY(-2px); }
+    .reward-grid-card:hover { 
+        transform: translateY(-4px); 
+        box-shadow: 0 12px 28px rgba(0,0,0,0.07);
+    }
+
+    .reward-grid-card.is-locked {
+        opacity: 0.55;
+        pointer-events: none;
+    }
+    .reward-grid-card.is-locked img {
+        filter: grayscale(40%);
+    }
+
     .reward-body {
         padding: 16px;
         display: flex;
@@ -154,6 +167,33 @@
         width: 100%;
         cursor: not-allowed;
     }
+
+    .btn-redeem-now {
+        background: var(--jaced-sage);
+        color: white;
+        border: none;
+        border-radius: 8px;
+        padding: 11px 20px;
+        font-size: 13px;
+        font-weight: 600;
+        width: 100%;
+        cursor: pointer;
+        transition: background 0.2s;
+    }
+    .btn-redeem-now:hover { background: #4a5d4b; }
+
+    .btn-view-details {
+        background: transparent;
+        color: var(--jaced-sage);
+        border: 1px solid var(--jaced-sage);
+        border-radius: 8px;
+        padding: 8px 16px;
+        font-size: 13px;
+        font-weight: 600;
+        width: 100%;
+        transition: all 0.2s;
+    }
+    .btn-view-details:hover { background: var(--jaced-sage); color: white; }
 
     /* MODAL */
     .jaced-modal-overlay {
@@ -231,6 +271,18 @@
         transition: all 0.2s;
     }
     .btn-modal-secondary:hover { background: var(--jaced-cream); }
+
+    @keyframes fadeSlideUp {
+        from { opacity: 0; transform: translateY(14px); }
+        to   { opacity: 1; transform: translateY(0); }
+    }
+    
+    .reward-item-card:nth-child(1) .reward-grid-card { animation-delay: 0.05s; }
+    .reward-item-card:nth-child(2) .reward-grid-card { animation-delay: 0.10s; }
+    .reward-item-card:nth-child(3) .reward-grid-card { animation-delay: 0.15s; }
+    .reward-item-card:nth-child(4) .reward-grid-card { animation-delay: 0.20s; }
+    .reward-item-card:nth-child(5) .reward-grid-card { animation-delay: 0.25s; }
+    .reward-item-card:nth-child(6) .reward-grid-card { animation-delay: 0.30s; }
 </style>
 @endpush
 
@@ -252,7 +304,7 @@
         <div class="points-sticky-card">
             <div>
                 <h1 style="font-size: 1.5rem; font-weight: 700; color: var(--jaced-brown-dark); margin: 0;">Redeem Rewards</h1>
-                <p style="font-size: 12px; color: var(--jaced-muted); margin: 0;">Tukarkan poin kamu dengan voucher diskon eksklusif.</p>
+                <p style="font-size: 12px; color: var(--jaced-muted); margin: 0;">Exchange your points for exclusive discount vouchers.</p>
             </div>
             <div class="text-end">
                 <p style="font-size: 11px; font-weight: 600; color: var(--jaced-muted); text-transform: uppercase; margin: 0;">Your Balance</p>
@@ -275,8 +327,8 @@
         <div class="filter-wrapper">
             <div class="category-scroll">
                 <div class="filter-pill active" data-category="all">All Vouchers</div>
-                <div class="filter-pill" data-category="shipping">Gratis Ongkir</div>
-                <div class="filter-pill" data-category="product">Diskon Produk</div>
+                <div class="filter-pill" data-category="delivery">Free Shipping</div>
+                <div class="filter-pill" data-category="product">Product Discount</div>
             </div>
 
             <div class="utility-bar">
@@ -319,7 +371,7 @@
                      data-points="{{ $reward->point_cost }}"
                      data-affordable="{{ $isEnough ? 'true' : 'false' }}">
 
-                    <div class="reward-grid-card">
+                    <div class="reward-grid-card {{ $isEnough ? 'is-affordable' : 'is-locked' }}">
                         <img src="{{ asset('image/vouchers/' . $voucherImage) }}"
                             alt="{{ $reward->name }}"
                             style="width: 100%; height: 140px; object-fit: cover;">
@@ -328,35 +380,50 @@
 
                             {{-- Badge jenis voucher --}}
                             <div class="mb-2">
-                                @if($reward->used_for === 'shipping')
-                                    <span class="badge" style="background-color: #f1f4f2; color: #5c695d; font-size: 11px;">🚚 Gratis Ongkir</span>
+                                @if($reward->used_for === 'delivery')
+                                    <span class="badge" style="background-color: #f1f4f2; color: #5c695d; font-size: 11px; display:inline-flex; align-items:center; gap:3px;">
+                                        <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><rect x="1" y="3" width="15" height="13"/><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg>
+                                        Free Shipping
+                                    </span>
                                 @else
-                                    <span class="badge" style="background-color: #fcf5f3; color: #bd654e; font-size: 11px;">🏷️ Diskon Produk</span>
+                                    <span class="badge" style="background-color: #fcf5f3; color: #bd654e; font-size: 11px; display:inline-flex; align-items:center; gap:3px;">
+                                        <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>
+                                        Product Discount
+                                    </span>
                                 @endif
                             </div>
 
                             <p class="reward-title">{{ $reward->name }}</p>
-                            <p class="text-muted mb-2" style="font-size: 12px;">{{ $reward->description }}</p>
 
-                            <p class="reward-pts">
+                            <div class="reward-pts">
                                 <span class="reward-pts-val">{{ number_format($reward->point_cost) }}</span> Points
-                            </p>
+                                <p style="font-size: 11px; color: var(--jaced-muted); margin-bottom: 4px;">
+                                    Available stock: {{ $reward->stock }} voucher{{ $reward->stock > 1 ? 's' : '' }}
+                                </p>
+                            </div>
 
                             <p class="text-muted mb-3" style="font-size: 12px;">
-                                Diskon {{ $reward->discount_percentage }}% &bull;
+                                {{ $reward->discount_percentage }}% off &bull;
                                 Max Rp {{ number_format($reward->max_discount, 0, ',', '.') }}
                             </p>
 
                             <div class="reward-action-btn">
-                                @if ($isEnough)
-                                    <button class="btn-redeem-active"
-                                        onclick="confirmRedeem('{{ $reward->name }}', {{ $reward->point_cost }}, {{ $reward->id }})">
-                                        Redeem Now
+                                @if($reward->stock > 0)
+                                    <button class="btn-view-details" onclick="openGoalDetail(
+                                        '{{ $reward->name }}',
+                                        '{{ $reward->used_for }}',
+                                        {{ $reward->discount_percentage }},
+                                        {{ $reward->max_discount }},
+                                        {{ $reward->point_cost }},
+                                        '{{ $reward->id }}',
+                                        '{{ asset('image/vouchers/' . $voucherImage) }}',
+                                        '{{ addslashes($reward->description) }}',
+                                        {{ $isEnough ? 'true' : 'false' }}
+                                    )">
+                                        View Details
                                     </button>
                                 @else
-                                    <button class="btn-redeem-locked" disabled>
-                                        Need {{ number_format($reward->point_cost - $currentPoints) }} Pts
-                                    </button>
+                                    <button class="btn-redeem-locked" disabled>Out of Stock</button>
                                 @endif
                             </div>
 
@@ -367,7 +434,7 @@
             @empty
                 <div class="col-12">
                     <div class="text-center py-5">
-                        <p class="text-muted">Belum ada voucher yang tersedia untuk ditukar.</p>
+                        <p class="text-muted">There are no vouchers available to redeem.</p>
                     </div>
                 </div>
             @endforelse
@@ -376,42 +443,36 @@
     </div>
 </div>
 
-{{-- MODAL KONFIRMASI REDEEM --}}
-<div class="jaced-modal-overlay" id="redeemModal">
-    <div class="jaced-modal-box">
-
-        {{-- STATE 1: Konfirmasi --}}
-        <div id="modalConfirmState">
-            <div class="modal-icon-wrap confirmation">
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>
+{{-- Taruh sebelum @push('scripts'), hapus modal redeemModal yang lama --}}
+<div class="jaced-modal-overlay" id="goalDetailModal" style="display:none;">
+    <div class="jaced-modal-box" style="max-width: 380px; width: 90%; text-align: left; padding: 0; overflow: hidden;">
+        <img id="goalDetailImg" src="" alt="" style="width: 100%; height: 160px; object-fit: cover;">
+        <div style="padding: 24px;">
+            <div class="mb-2" id="goalDetailBadge"></div>
+            <h3 style="font-size: 16px; font-weight: 700; color: var(--jaced-dark); margin: 0 0 12px;" id="goalDetailName"></h3>
+            <div class="d-flex flex-column mb-3">
+                <span style="font-size: 12px; color: var(--jaced-muted);">Description</span>
+                <span id="goalDetailDesc" style="font-size: 13px; color: var(--jaced-dark);"></span>
             </div>
-            <h3 class="modal-title">Redeem Voucher?</h3>
-            <p class="modal-text">
-                Tukarkan <strong id="modalRewardName"></strong> seharga <strong id="modalRewardPoints"></strong> poin?
-            </p>
-            <p class="modal-text mt-1" style="color: #c5221f; font-size: 12px;">Poin kamu akan berkurang setelah konfirmasi.</p>
-        </div>
-
-        {{-- STATE 2: Sukses --}}
-        <div id="modalSuccessState" style="display: none;">
-            <div class="modal-icon-wrap success">
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
+            <div style="font-size: 13px; color: var(--jaced-muted); margin-bottom: 20px;">
+                <div class="d-flex justify-content-between mb-2">
+                    <span>Discount</span>
+                    <strong id="goalDetailPct" style="color: var(--jaced-dark);"></strong>
+                </div>
+                <div class="d-flex justify-content-between mb-2">
+                    <span>Max Discount</span>
+                    <strong id="goalDetailMax" style="color: var(--jaced-dark);"></strong>
+                </div>
+                <div class="d-flex justify-content-between">
+                    <span>Points Required</span>
+                    <strong id="goalDetailPts" style="color: var(--jaced-caramel);"></strong>
+                </div>
             </div>
-            <h3 class="modal-title">Voucher Berhasil!</h3>
-            <p class="modal-text">Voucher sudah tersimpan di My Vouchers kamu.</p>
+            <div class="d-flex gap-2">
+                <button onclick="closeGoalDetail()" style="background: transparent; border: 1px solid var(--jaced-input); border-radius: 8px; padding: 10px 16px; font-size: 13px; color: var(--jaced-brown-dark); cursor: pointer;">Close</button>
+                <div id="goalDetailAction" style="flex: 1;"></div>
+            </div>
         </div>
-
-        {{-- Form hidden submit ke controller --}}
-        <form id="redeemForm" action="{{ route('reward.redeem') }}" method="POST">
-            @csrf
-            <input type="hidden" name="voucher_type_id" id="modalVoucherTypeId">
-        </form>
-
-        <div class="d-flex gap-2 mt-4" id="modalButtons">
-            <button class="btn-modal-secondary" onclick="closeRedeemModal()">Batal</button>
-            <button class="btn-modal-primary" id="btnConfirmAction" onclick="processRedeem()">Ya, Tukar</button>
-        </div>
-
     </div>
 </div>
 
@@ -431,6 +492,7 @@
             pill.addEventListener('click', function () {
                 pills.forEach(p => p.classList.remove('active'));
                 this.classList.add('active');
+                sortSelect.value = 'default';
                 currentCategory = this.getAttribute('data-category');
                 applyFilters();
             });
@@ -466,49 +528,41 @@
         });
     });
 
-    // === MODAL ===
-    const modal = document.getElementById('redeemModal');
-    const confirmState = document.getElementById('modalConfirmState');
-    const successState = document.getElementById('modalSuccessState');
-    const btnConfirm = document.getElementById('btnConfirmAction');
+    const goalModal = document.getElementById('goalDetailModal');
+    function openGoalDetail(name, usedFor, pct, maxDiscount, pointCost, voucherTypeId, imgSrc, description, isEnough) {
+        document.getElementById('goalDetailImg').src = imgSrc;
+        document.getElementById('goalDetailName').innerText = name;
+        document.getElementById('goalDetailPct').innerText = pct + '%';
+        document.getElementById('goalDetailMax').innerText = 'Rp ' + maxDiscount.toLocaleString('id-ID');
+        document.getElementById('goalDetailPts').innerText = pointCost.toLocaleString('id-ID') + ' Points';
+        document.getElementById('goalDetailDesc').innerText = description || 'No description available.';
 
-    function confirmRedeem(name, points, voucherTypeId) {
-        document.getElementById('modalRewardName').innerText = name;
-        document.getElementById('modalRewardPoints').innerText = points.toLocaleString('id-ID');
-        document.getElementById('modalVoucherTypeId').value = voucherTypeId;
+        const badgeEl = document.getElementById('goalDetailBadge');
+        badgeEl.innerHTML = usedFor === 'delivery'
+            ? `<span class="badge" style="background-color: var(--jaced-caramel-bg); color: var(--jaced-sage); font-size: 11px; display:inline-flex; align-items:center; gap:3px;">
+                <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><rect x="1" y="3" width="15" height="13"/><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg>
+                Free Shipping</span>`
+            : `<span class="badge" style="background-color: #fcf5f3; color: #bd654e; font-size: 11px; display:inline-flex; align-items:center; gap:3px;">
+                <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>
+                Product Discount</span>`;
 
-        confirmState.style.display = 'block';
-        successState.style.display = 'none';
-        document.getElementById('modalButtons').innerHTML = `
-            <button class="btn-modal-secondary" onclick="closeRedeemModal()">Batal</button>
-            <button class="btn-modal-primary" id="btnConfirmAction" onclick="processRedeem()">Ya, Tukar</button>
-        `;
-        modal.classList.add('show');
+        const actionEl = document.getElementById('goalDetailAction');
+        actionEl.innerHTML = isEnough
+            ? `<form action="{{ route('reward.redeem') }}" method="POST">
+                @csrf
+                <input type="hidden" name="voucher_type_id" value="${voucherTypeId}">
+                <button type="submit" class="btn-redeem-now">Redeem Now</button>
+            </form>`
+            : '<button class="btn-redeem-locked" disabled>Points Insufficient</button>';
+
+        goalModal.style.display = 'flex';
+        setTimeout(() => goalModal.classList.add('show'), 10);
     }
 
-    function processRedeem() {
-        const btn = document.getElementById('btnConfirmAction');
-        btn.innerText = "Processing...";
-        btn.disabled = true;
-
-        setTimeout(() => {
-            confirmState.style.display = 'none';
-            successState.style.display = 'block';
-            document.getElementById('modalButtons').innerHTML = `
-                <button class="btn-modal-primary" onclick="document.getElementById('redeemForm').submit()">
-                    Lihat My Vouchers
-                </button>
-            `;
-        }, 1000);
+    function closeGoalDetail() {
+        goalModal.classList.remove('show');
+        setTimeout(() => { goalModal.style.display = 'none'; }, 300);
     }
-
-    function closeRedeemModal() {
-        modal.classList.remove('show');
-    }
-
-    modal.addEventListener('click', function (e) {
-        if (e.target === modal) closeRedeemModal();
-    });
 </script>
 @endpush
 

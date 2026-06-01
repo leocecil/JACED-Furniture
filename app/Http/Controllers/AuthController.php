@@ -23,6 +23,22 @@ class AuthController extends Controller
 
         if (Auth::attempt($credentials, $request->boolean('remember'))) {
             $request->session()->regenerate();
+
+            $user = Auth::user();
+            $noAddress = $user->shippingAddresses()->count() === 0;
+            $noAvatar  = !$user->avatar || str_contains($user->avatar, 'default_avatar');
+
+            if ($noAddress && $noAvatar) {
+                return redirect()->intended(route('home'))
+                    ->with('info', '📍 Welcome! Complete your profile with an address and profile photo to earn 80 bonus points!');
+            } elseif ($noAddress) {
+                return redirect()->intended(route('home'))
+                    ->with('info', '📍 Add your shipping address and earn 50 bonus points!');
+            } elseif ($noAvatar) {
+                return redirect()->intended(route('home'))
+                    ->with('info', '📸 Upload your profile photo and earn 30 bonus points!');
+            }
+
             return redirect()->intended(route('home'));
         }
 
@@ -89,7 +105,8 @@ class AuthController extends Controller
         $user->roles()->create(['role' => 'customer']);
 
         Auth::login($user);
-        return redirect()->route('home');
+        return redirect()->route('home')
+            ->with('info', '📍 Welcome! Complete your profile with an address and profile photo to earn 80 bonus points!');
     }
 
     public function logout(Request $request)

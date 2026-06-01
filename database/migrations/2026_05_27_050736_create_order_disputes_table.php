@@ -20,6 +20,9 @@ return new class extends Migration
             $table->text('admin_note')->nullable(); // Admin's note on the dispute      
             $table->string('resolution_type')->nullable(); // 'refund', 'exchange'
             $table->string('photo_path')->nullable();
+
+            // For handling the refund
+            $table->decimal('refund_amount', 12, 2)->nullable();
             
             // For handling the physical return of the bad item
             $table->string('return_tracking_number')->nullable();
