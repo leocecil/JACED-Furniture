@@ -41,7 +41,6 @@
     <div class="mb-4">
         <div class="d-flex justify-content-between align-items-center mb-2">
             <label for="password" class="form-label small fw-medium m-0">Password</label>
-            <a href="#" class="small text-decoration-none fw-medium" style="color: var(--jaced-caramel);">Forgot password?</a>
         </div>
         
         <div class="input-group has-validation" style="border-radius: 8px; overflow: hidden; background-color: var(--jaced-input);">
@@ -64,6 +63,8 @@
                 </div>
             @enderror
         </div>
+        
+        <a href="{{ route('password.request') }}" class="small text-decoration-none fw-medium" style="color: var(--jaced-caramel);">Forgot password?</a>
     </div>
 
     <div class="d-grid mb-3">

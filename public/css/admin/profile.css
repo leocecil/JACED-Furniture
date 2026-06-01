@@ -657,3 +657,14 @@
     @keyframes ap-spin {
         to { transform: rotate(360deg); }
     }
+
+    .ap-forgot-link {
+        display: inline-block;
+        margin-top: .35rem;
+        font-size: .8rem;
+        color: var(--ink-muted);        
+        text-decoration: none;
+    }
+    .ap-forgot-link:hover {
+        text-decoration: underline;
+    }

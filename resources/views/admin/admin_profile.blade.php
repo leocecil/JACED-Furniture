@@ -210,19 +210,6 @@
             </button>
         </div>
 
-        {{-- Step indicators --}}
-        <div class="ap-modal-steps">
-            <div class="ap-step ap-step-active" id="ap-step-1-indicator">
-                <span class="ap-step-num">1</span>
-                <span class="ap-step-label">Verify</span>
-            </div>
-            <div class="ap-step-line"></div>
-            <div class="ap-step" id="ap-step-2-indicator">
-                <span class="ap-step-num">2</span>
-                <span class="ap-step-label">New Password</span>
-            </div>
-        </div>
-
         {{-- ── Step 1: Verify current password ── --}}
         <div id="ap-modal-step-1">
             <p class="ap-modal-desc">Enter your current password to continue.</p>
@@ -247,6 +234,7 @@
                         </svg>
                     </button>
                 </div>
+                <a href="{{ route('password.request') }}" class="ap-forgot-link">Forgot password?</a>
             </div>
 
             <div class="ap-modal-footer">

@@ -112,10 +112,6 @@ function resetModal() {
 function showStep(n) {
     document.getElementById('ap-modal-step-1').style.display = n === 1 ? '' : 'none';
     document.getElementById('ap-modal-step-2').style.display = n === 2 ? '' : 'none';
-
-    // Step indicator
-    document.getElementById('ap-step-1-indicator').classList.toggle('ap-step-active', n >= 1);
-    document.getElementById('ap-step-2-indicator').classList.toggle('ap-step-active', n >= 2);
 }
 
 /* ═══════════════════════════════════════════════════════
