@@ -178,6 +178,8 @@
 
 </div>{{-- end container --}}
 
+<div class="detail-panel-overlay" id="detailPanelOverlay" onclick="closeDetailPanel()"></div>
+
 {{-- ── Detail Panel ── --}}
 <div class="detail-panel" id="detailPanel">
 
@@ -293,6 +295,19 @@
 
 {{-- ── Toast ── --}}
 <div class="toast-msg" id="toastMsg"></div>
+
+{{-- ── Confirm Modal ── --}}
+<div class="confirm-modal-overlay" id="confirmModal">
+    <div class="confirm-modal">
+        <div class="confirm-modal-icon"><i class="bi bi-exclamation-triangle"></i></div>
+        <div class="confirm-modal-title" id="confirmTitle"></div>
+        <div class="confirm-modal-subtitle" id="confirmSubtitle"></div>
+        <div class="confirm-modal-actions">
+            <button class="btn-dark-jaced danger-btn" id="confirmOkBtn">Delete</button>
+            <button class="btn-outline-jaced" onclick="closeConfirm()">Cancel</button>
+        </div>
+    </div>
+</div>
 
 @push('scripts')
 <script>

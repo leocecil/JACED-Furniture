@@ -176,8 +176,10 @@ class VoucherManagementController extends Controller
     }
 
     // ── Toggle GROUP active/inactive ──────────────────────────────────
-    public function toggleGroup(Request $request, string $name)
+    public function toggleGroup(Request $request)
     {
+        $name = $request->input('name');
+
         // Find any voucher in this name group to determine current state
         $voucher = DB::table('voucher_types')
             ->where('name', $name)
@@ -357,8 +359,7 @@ class VoucherManagementController extends Controller
                 'orders.total_price',
                 'orders.discount_amount',
                 'voucher_types.id as voucher_code',
-                'users.first_name',
-                'users.last_name'
+                'users.name'
             )
             ->latest('orders.created_at')
             ->limit(20)

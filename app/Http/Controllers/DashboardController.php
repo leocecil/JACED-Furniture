@@ -17,7 +17,8 @@ class DashboardController extends Controller
         // ── Stat Cards ───────────────────────────────────────────────
         $totalRevenue = DB::table('orders')
             ->whereNotIn('status', ['cancelled', 'unpaid'])
-            ->sum('total_price');
+            ->selectRaw('SUM(total_price - revenue_deduction) as revenue')
+            ->value('revenue') ?? 0;
 
         $totalOrders = DB::table('orders')->count();
 
@@ -41,7 +42,8 @@ class DashboardController extends Controller
             ->whereNotIn('status', ['cancelled', 'unpaid'])
             ->whereYear('created_at', now()->year)
             ->whereMonth('created_at', now()->month)
-            ->sum('total_price');
+            ->selectRaw('SUM(total_price - revenue_deduction) as revenue')
+            ->value('revenue') ?? 0;
 
         $pct       = $monthlyTarget > 0 ? min(100, round(($currentRevenue / $monthlyTarget) * 100)) : 0;
         $remaining = max(0, $monthlyTarget - $currentRevenue);
@@ -130,10 +132,11 @@ class DashboardController extends Controller
             $start = $date->copy()->startOfMonth();
             $end   = $date->copy()->endOfMonth();
 
-            $revenue = DB::table('orders')
-                ->whereNotIn('status', ['cancelled', 'unpaid'])
-                ->whereBetween('created_at', [$start, $end])
-                ->sum('total_price');
+        $revenue = DB::table('orders')
+            ->whereNotIn('status', ['cancelled', 'unpaid'])
+            ->whereBetween('created_at', [$start, $end])
+            ->selectRaw('SUM(total_price - revenue_deduction) as revenue')
+            ->value('revenue') ?? 0;
 
             $labels[] = $date->format('M Y');
             $data[]   = (float) $revenue;
@@ -170,7 +173,7 @@ class DashboardController extends Controller
         }
 
         return response()->json([
-            'totalRevenue' => (float) $query->sum('total_price'),
+            'totalRevenue' => (float) $query->selectRaw('SUM(total_price - revenue_deduction) as revenue')->value('revenue') ?? 0,
             'totalOrders'  => (int)   $countQuery->count(),
         ]);
     }

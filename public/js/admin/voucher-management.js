@@ -25,9 +25,11 @@ window.openDrawer = function () {
 window.closeDrawer = function () {
     document.getElementById('drawer').classList.remove('open');
     document.getElementById('drawerOverlay').classList.remove('open');
-    if (!document.getElementById('detailPanel').classList.contains('open')) {
-        document.body.style.overflow = '';
-    }
+    
+    // Close detail panel juga
+    closeDetailPanel();
+    
+    document.body.style.overflow = '';
 };
 
 // ── Point cost preview ────────────────────────────────────────────────
@@ -86,7 +88,6 @@ window.formatRupiah = function (input) {
 let currentDetailId = null;
 
 window.openDetailPanel = function (id) {
-    // Mark active row
     document.querySelectorAll('tr.clickable-row').forEach(r => r.classList.remove('active-row'));
     const row = document.getElementById('row-' + id);
     if (row) row.classList.add('active-row');
@@ -95,6 +96,9 @@ window.openDetailPanel = function (id) {
 
     const panel = document.getElementById('detailPanel');
     panel.classList.add('open');
+    
+    // Tambahkan ini:
+    document.getElementById('detailPanelOverlay').classList.add('open');
     document.body.style.overflow = 'hidden';
 
     loadDetailPanel(id);
@@ -102,6 +106,10 @@ window.openDetailPanel = function (id) {
 
 window.closeDetailPanel = function () {
     document.getElementById('detailPanel').classList.remove('open');
+    
+    // Tambahkan ini:
+    document.getElementById('detailPanelOverlay').classList.remove('open');
+    
     document.querySelectorAll('tr.clickable-row').forEach(r => r.classList.remove('active-row'));
     document.body.style.overflow = '';
     currentDetailId = null;
@@ -183,10 +191,10 @@ function renderCodesTab(codes, groupName, maxDiscount) {
 
     let html = `
         <div class="detail-group-actions">
-            <button class="btn-sm-outline" onclick="toggleGroup('${encodeURIComponent(groupName)}', '${encodeURIComponent(maxDiscount)}')">
+            <button class="btn-sm-outline" onclick="toggleGroup('${encodeURIComponent(groupName)}')">
                 <i class="bi bi-toggle-on"></i> Toggle All
             </button>
-            <button class="btn-sm-outline danger" onclick="deleteGroup('${currentDetailId}', '${encodeURIComponent(groupName)}')">
+            <button class="btn-sm-outline danger" onclick="showConfirm('Delete all vouchers?', 'All unused codes will be permanently deleted.', () => deleteGroup('${currentDetailId}', '${encodeURIComponent(groupName)}'))">
                 <i class="bi bi-trash3"></i> Delete All
             </button>
         </div>
@@ -203,7 +211,6 @@ function renderCodesTab(codes, groupName, maxDiscount) {
 
         const toggleIcon = code.is_active ? 'bi-toggle-on' : 'bi-toggle-off';
         const toggleClass = !code.is_active ? 'is-inactive' : '';
-        const toggleTitle = code.is_active ? 'Deactivate' : 'Activate';
 
         html += `
             <div class="code-item ${!code.is_active ? 'is-inactive' : ''}" id="code-item-${code.id}">
@@ -213,14 +220,14 @@ function renderCodesTab(codes, groupName, maxDiscount) {
                 </div>
                 <div class="code-actions">
                     ${statusBadge}
+                    ${!isRedeemed ? `
                     <button class="code-btn ${toggleClass}" id="code-toggle-${code.id}"
-                        title="${toggleTitle}"
+                        title="${code.is_active ? 'Deactivate' : 'Activate'}"
                         onclick="toggleCode('${code.id}', this)">
                         <i class="bi ${toggleIcon}"></i>
                     </button>
-                    ${!isRedeemed ? `
                     <button class="code-btn danger" title="Delete code"
-                        onclick="deleteCode('${code.id}', '${encodeURIComponent(groupName)}')">
+                        onclick="showConfirm('Delete code <b>${code.id}</b>?', 'This action cannot be undone.', () => deleteCode('${code.id}', '${encodeURIComponent(groupName)}'))">
                         <i class="bi bi-trash3"></i>
                     </button>` : ''}
                 </div>
@@ -248,7 +255,7 @@ function renderOrdersTab(orders) {
 
     let html = '<div class="orders-list">';
     orders.forEach(order => {
-        const customer = `${order.first_name ?? ''} ${order.last_name ?? ''}`.trim() || 'Unknown';
+        const customer = order.name || 'Unknown';
         const date = new Date(order.created_at).toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' });
         html += `
             <div class="order-item">
@@ -334,9 +341,6 @@ window.toggleGroup = function (encodedName) {
 
 // ── Delete single code ────────────────────────────────────────────────
 window.deleteCode = function (id, encodedName) {
-    const name = decodeURIComponent(encodedName);
-    if (!confirm(`Delete code "${id}"?\n\nThis cannot be undone.`)) return;
-
     fetch(`${config.baseUrl}/${id}/code`, {
         method: 'DELETE',
         headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': config.csrf },
@@ -345,7 +349,6 @@ window.deleteCode = function (id, encodedName) {
     .then(data => {
         if (data.success) {
             showToast('✓ ' + data.message);
-            // Remove from DOM
             const item = document.getElementById('code-item-' + id);
             if (item) item.remove();
             refreshStats();
@@ -357,9 +360,6 @@ window.deleteCode = function (id, encodedName) {
 
 // ── Delete group ──────────────────────────────────────────────────────
 window.deleteGroup = function (id, encodedName) {
-    const name = decodeURIComponent(encodedName);
-    if (!confirm(`Delete ALL "${name}" vouchers?\n\nThis cannot be undone.`)) return;
-
     fetch(`${config.baseUrl}/${id}`, {
         method: 'DELETE',
         headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': config.csrf },
@@ -396,4 +396,17 @@ window.showToast = function (msg) {
     t.textContent = msg;
     t.classList.add('show');
     setTimeout(() => t.classList.remove('show'), 3000);
+};
+
+window.showConfirm = function(title, subtitle, onConfirm) {
+    document.getElementById('confirmTitle').innerHTML = title;
+    document.getElementById('confirmSubtitle').textContent = subtitle;
+    document.getElementById('confirmModal').classList.add('open');
+    document.getElementById('confirmOkBtn').onclick = function() {
+        closeConfirm();
+        onConfirm();
+    };
+};
+window.closeConfirm = function() {
+    document.getElementById('confirmModal').classList.remove('open');
 };
