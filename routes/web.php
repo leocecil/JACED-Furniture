@@ -169,12 +169,15 @@ Route::middleware(['role:admin'])->group(function() {
     Route::post('/admin/inventory/{id}/restore', [InventoryController::class, 'restore'])->name('inventory.restore');
 
     // Voucher Operational Management Systems
-    Route::get('/admin/vouchers', [VoucherManagementController::class, 'index'])->name('admin.vouchers');
-    Route::post('/admin/vouchers', [VoucherManagementController::class, 'store'])->name('admin.vouchers.store');
-    Route::post('/admin/vouchers/{id}/toggle', [VoucherManagementController::class, 'toggle'])->name('admin.vouchers.toggle');
-    Route::delete('/admin/vouchers/{id}', [VoucherManagementController::class, 'destroy'])->name('admin.vouchers.destroy');
-    Route::get('/admin/vouchers/stats', [VoucherManagementController::class, 'stats'])->name('admin.vouchers.stats');
-    Route::get('/admin/vouchers/{id}/used-orders',[VoucherManagementController::class, 'usedOrders'])->name('admin.vouchers.usedOrders');
+    Route::get('/admin/vouchers',[VoucherManagementController::class, 'index'])->name('admin.vouchers');
+    Route::post('/admin/vouchers',[VoucherManagementController::class, 'store'])->name('admin.vouchers.store');
+    Route::get('/admin/vouchers/stats',[VoucherManagementController::class, 'stats'])->name('admin.vouchers.stats');
+    Route::post('/admin/vouchers/group/toggle',[VoucherManagementController::class, 'toggleGroup'])->name('admin.vouchers.group.toggle');
+    // Per-voucher-type routes (by id)
+    Route::get('/admin/vouchers/{id}/detail',[VoucherManagementController::class, 'detail'])->name('admin.vouchers.detail');
+    Route::post('/admin/vouchers/{id}/toggle',[VoucherManagementController::class, 'toggle'])->name('admin.vouchers.toggle');       // single code toggle
+    Route::delete('/admin/vouchers/{id}',[VoucherManagementController::class, 'destroy'])->name('admin.vouchers.destroy');      // delete whole group
+    Route::delete('/admin/vouchers/{id}/code',[VoucherManagementController::class, 'destroyCode'])->name('admin.vouchers.code.destroy'); // delete single code
 
     // Product Category Manager
     Route::post('/admin/categories', [CategoryController::class, 'store'])->name('categories.store');

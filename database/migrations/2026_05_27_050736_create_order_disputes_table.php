@@ -22,7 +22,7 @@ return new class extends Migration
             $table->string('photo_path')->nullable();
 
             // For handling the refund
-            $table->decimal('refund_amount', 8, 2)->nullable();
+            $table->decimal('refund_amount', 12, 2)->nullable();
             
             // For handling the physical return of the bad item
             $table->string('return_tracking_number')->nullable();

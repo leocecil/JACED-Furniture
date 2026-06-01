@@ -62,6 +62,7 @@ class OrderManagementController extends Controller
         }
 
         $update = ['status' => $nextStatus, 'updated_at' => now()];
+        
         if ($nextStatus === 'packed')    $update['packed_at']    = now();
         if ($nextStatus === 'delivered') $update['delivered_at'] = now();
         if ($nextStatus === 'shipped')   $update['shipped_at']   = now();
@@ -321,20 +322,25 @@ class OrderManagementController extends Controller
                 'order_disputes.replacement_tracking_number as dispute_replacement_tracking',
                 'order_disputes.replacement_shipped_at as dispute_replacement_shipped_at',
                 'order_disputes.replacement_arrived_at as dispute_replacement_arrived_at',
-                'order_disputes.resolved_at as dispute_resolved_at'
+                'order_disputes.resolved_at as dispute_resolved_at',
+                'order_disputes.refund_amount as dispute_refund_amount',
+                'order_disputes.created_at as dispute_created_at'
             );
 
         if ($request->filled('search')) {
             $s = $request->search;
             $query->where(function ($q) use ($s) {
                 $q->where('users.name', 'like', "%{$s}%")
-                  ->orWhereRaw("LPAD(orders.id, 4, '0') like ?", ["%{$s}%"]);
+                    ->orWhereRaw("LPAD(orders.id, 4, '0') like ?", ["%{$s}%"]);
             });
         }
 
         if ($request->filled('status') && $request->status !== 'all') {
             if ($request->status === 'disputed') {
-                $query->whereNotNull('order_disputes.id');
+                $query->whereIn('order_disputes.status', [
+                    'open',
+                    'shipping_replacement'
+                ]);
             } else {
                 $query->where('orders.status', $request->status);
             }
