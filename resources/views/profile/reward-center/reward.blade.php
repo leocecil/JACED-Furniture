@@ -128,9 +128,13 @@
         border: none;
         padding: 10px 22px;
         border-radius: 10px;
-        transition: all 0.2s;
+        transition: all 0.2s ease;
     }
-    .btn-banner-primary:hover { background: var(--jaced-white); transform: translateY(-1px); }
+    .btn-banner-primary:hover { 
+        background: var(--jaced-white); 
+        transform: translateY(-2px); 
+        box-shadow: 0 6px 16px rgba(0,0,0,0.12);
+    }
     
     .btn-banner-outline {
         background: rgba(255, 255, 255, 0.1);
@@ -140,9 +144,14 @@
         padding: 10px 22px;
         border-radius: 10px;
         backdrop-filter: blur(4px);
-        transition: all 0.2s;
+        transition: all 0.2s ease;
     }
-    .btn-banner-outline:hover { background: rgba(255, 255, 255, 0.2); color: white; }
+    .btn-banner-outline:hover { 
+        background: rgba(255,255,255,0.25);
+        transform: translateY(-2px);
+        box-shadow: 0 6px 16px rgba(0,0,0,0.15);
+        color: white;
+    }
 
     .btn-view-all-link {
         display: inline-flex;
@@ -151,22 +160,14 @@
         font-size: 13px;
         font-weight: 600;
         color: var(--jaced-brown-dark);
-        text-decoration: none;
+        text-decoration: none !important;
         padding: 6px 0;
-        border-bottom: none;
-        position: relative;
         transition: color 0.2s ease;
     }
-    .btn-view-all-link::after {
-        content: '';
-        position: absolute;
-        bottom: 0; left: 0;
-        width: 0; height: 1.5px;
-        background: var(--jaced-caramel);
-        transition: width 0.25s ease;
+    .btn-view-all-link:hover { 
+        color: var(--jaced-caramel) !important; 
+        text-decoration: none !important;
     }
-    .btn-view-all-link:hover { color: var(--jaced-caramel); }
-    .btn-view-all-link:hover::after { width: 100%; }
 
     /* STAGE TABS UNDER BANNER */
     .stage-tab-pill {
@@ -213,6 +214,14 @@
         justify-content: space-between;
         padding: 14px 0;
         border-bottom: 1px solid var(--jaced-card);
+        border-radius: 10px;
+        transition: background 0.15s ease;
+        padding: 14px 10px; /* kasih padding kiri kanan biar hover keliatan */
+        cursor: pointer;
+    }
+
+    .history-row:hover {
+        background: var(--jaced-caramel-bg);
     }
     .history-row:last-child { border-bottom: none; }
 
@@ -237,7 +246,7 @@
         font-size: 13px;
         font-weight: 600;
         width: 100%;
-        transition: all 0.2s;
+        transition: all 0.2s ease;
     }
     .btn-view-details:hover { background: var(--jaced-sage); color: white; }
 
@@ -420,7 +429,7 @@
         <div class="row g-4 align-items-start page-enter page-enter-delay-2">
             
             {{-- LAYOUT KIRI: POINT HISTORY --}}
-            <div class="col-12 col-lg-5">
+            <div class="col-12 col-lg-5" style="align-self:stretch;">
                 <div class="premium-box d-flex flex-column" style="height:100%;">
                     <div class="d-flex align-items-center justify-content-between mb-4">
                         <div class="d-flex align-items-center gap-2">
@@ -429,24 +438,26 @@
                         </div>
                     </div>
 
-                    <div class="history-list flex-grow-1" style="overflow-y:auto; max-height:320px;">
+                    <div class="history-list flex-grow-1" style="overflow-y:auto; overflow-x:hidden; max-height:320px;">
                         @forelse ($pointHistoryItems as $item)
-                            <div class="history-row">
-                                <div class="d-flex align-items-center gap-3">
-                                    <div class="point-history-icon" style="background: var(--jaced-cream); color: var(--jaced-brown-dark); width: 36px; height: 36px; border-radius: 10px; display: flex; align-items: center; justify-content: center;">
-                                        <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                            <a href="{{ route('point-history') }}?open={{ $item['id'] }}" class="text-decoration-none">
+                                <div class="history-row">
+                                    <div class="d-flex align-items-center gap-3">
+                                        <div class="point-history-icon" style="background: var(--jaced-cream); color: var(--jaced-brown-dark); width: 36px; height: 36px; border-radius: 10px; display: flex; align-items: center; justify-content: center;">
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                                        </div>
+                                        <div>
+                                            <p class="mb-0 fw-bold small text-jaced-dark">{{ $item['source'] }}</p>
+                                            <p class="mb-0 text-jaced-muted" style="font-size: 11px;">{{ $item['date'] }}</p>
+                                        </div>
                                     </div>
-                                    <div>
-                                        <p class="mb-0 fw-bold small text-jaced-dark">{{ $item['source'] }}</p>
-                                        <p class="mb-0 text-jaced-muted" style="font-size: 11px;">{{ $item['date'] }}</p>
+                                    <div class="text-end">
+                                        <span class="fw-bold {{ in_array(($item['type'] ?? 'earned'), ['redeemed', 'expired']) ? 'text-danger' : 'text-success' }}">
+                                            {{ in_array(($item['type'] ?? 'earned'), ['redeemed', 'expired']) ? '' : '+' }}{{ $item['points'] }}
+                                        </span>
                                     </div>
                                 </div>
-                                <div class="text-end">
-                                    <span class="fw-bold {{ in_array(($item['type'] ?? 'earned'), ['redeemed', 'expired']) ? 'text-danger' : 'text-success' }}">
-                                        {{ in_array(($item['type'] ?? 'earned'), ['redeemed', 'expired']) ? '' : '+' }}{{ $item['points'] }}
-                                    </span>
-                                </div>
-                            </div>
+                            </a>
                         @empty
                             <p class="text-jaced-muted text-center py-4 small">No point transaction recorded recently.</p>
                         @endforelse

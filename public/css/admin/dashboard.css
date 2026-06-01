@@ -20,6 +20,10 @@
         --purple-soft:  #E8E0F7;
         --green:        #1E7D45;
         --green-soft:   #D4EDDA;
+        --indigo: #6366F1;
+        --indigo-soft: #EEF2FF;
+        --rose: #EC4899;
+        --rose-soft: #FDF2F8;
     }
 
     body, .dashboard-wrap {
@@ -272,6 +276,10 @@
     .status-arrived::before   { background: var(--teal);   }
     .status-cancelled { background: var(--danger-soft); color: var(--danger); }
     .status-cancelled::before { background: var(--danger); }
+    .status-on_process  { background: var(--indigo-soft); color: var(--indigo); }
+    .status-on_process::before { background: var(--indigo); }
+    .status-disputed    { background: var(--rose-soft); color: var(--rose); }
+    .status-disputed::before { background: var(--rose); }   
 
     .btn-dots {
         background: none; border: none; padding: 4px 8px;
