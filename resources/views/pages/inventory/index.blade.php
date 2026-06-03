@@ -441,15 +441,24 @@
                     </div>
  
                     {{-- 3. PRICING & STOCK --}}
-                    <div class="modal-section-title">Pricing & Stock</div>
- 
                     <div class="row g-3 mb-3">
                         <div class="col-md-4">
                             <label class="form-label">Price <span class="text-danger">*</span></label>
                             <div class="input-group">
                                 <span class="input-group-text">Rp</span>
-                                <input type="number" class="form-control" name="price"
-                                       placeholder="0" min="0" required>
+                    
+                                <input type="text"
+                                    class="form-control"
+                                    id="priceDisplay"
+                                    placeholder="0"
+                                    inputmode="numeric"
+                                    autocomplete="off"
+                                    oninput="formatRupiah(this, 'priceRaw')"
+                                    required>
+                                <input type="hidden" name="price" id="priceRaw">
+                            </div>
+                            <div class="form-text" style="font-size:11px; color:#9c9890;">
+
                             </div>
                         </div>
                         <div class="col-md-4">
@@ -599,44 +608,59 @@ function saveCategory() {
     const val    = input.value.trim();
     errMsg.textContent = '';
     if (!val) return;
-    if (!/^[a-zA-Z\s\-]+$/.test(val)) { errMsg.style.color = '#c0392b'; errMsg.textContent = '⚠ Only letters, spaces, and hyphens are allowed.'; return; }
+    if (!/^[a-zA-Z\s\-]+$/.test(val)) {
+        errMsg.style.color = '#c0392b';
+        errMsg.textContent = '⚠ Only letters, spaces, and hyphens are allowed.';
+        return;
+    }
 
     fetch('{{ route('categories.store') }}', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content },
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+        },
         body: JSON.stringify({ name: val }),
     })
     .then(r => r.json())
     .then(data => {
-        if (!data.success) { errMsg.style.color = '#c0392b'; errMsg.textContent = '⚠ ' + (data.message ?? 'Error.'); return; }
-        const cat = data.category;
+        if (!data.success) {
+            errMsg.style.color = '#c0392b';
+            errMsg.textContent = '⚠ ' + (data.message ?? 'Error.');
+            return;
+        }
+        const cat   = data.category;
         const chips = document.getElementById('categoryChips');
         const span  = document.createElement('span');
-        span.className = 'cat-chip'; span.dataset.catId = cat.id;
-        span.innerHTML = `${cat.name} <button class="remove-cat" onclick="deleteCategory(${cat.id}, this)">×</button>`;
+        span.className     = 'cat-chip';
+        span.dataset.catId = cat.id;
+        span.innerHTML     = `${cat.name} <button class="remove-cat" onclick="deleteCategory(${cat.id}, this)">×</button>`;
         chips.appendChild(span);
 
         const filterList = document.getElementById('categoryFilterList');
-        const btn = document.createElement('button');
-        btn.className = 'btn btn-sm btn-category-inactive px-4 py-2 flex-shrink-0 border-0';
-        btn.dataset.catId = cat.id; btn.textContent = cat.name;
-        btn.onclick = function () { filterByCategory(cat.id, this); };
+        const btn        = document.createElement('button');
+        btn.className     = 'btn btn-sm btn-category-inactive px-4 py-2 flex-shrink-0 border-0';
+        btn.dataset.catId = cat.id;
+        btn.textContent   = cat.name;
+        btn.onclick       = function () { filterByCategory(cat.id, this); };
         filterList.appendChild(btn);
 
         const sel = document.getElementById('categorySelect');
         sel.appendChild(new Option(cat.name, cat.id));
-        input.value = ''; input.focus();
+        input.value = '';
+        input.focus();
     })
-    .catch(() => { errMsg.style.color = '#c0392b'; errMsg.textContent = '⚠ Something went wrong. Please try again.'; });
+    .catch(() => {
+        errMsg.style.color = '#c0392b';
+        errMsg.textContent = '⚠ Something went wrong. Please try again.';
+    });
 }
 
 function deleteCategory(id, btn) {
     if (!confirm('Are you sure you want to delete this category?')) return;
-    
-    // Alamatkan endpoint ke rute admin yang baru kita daftarkan
     fetch(`/admin/categories/${id}`, {
         method: 'DELETE',
-        headers: { 
+        headers: {
             'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
             'Accept': 'application/json',
             'Content-Type': 'application/json'
@@ -644,28 +668,46 @@ function deleteCategory(id, btn) {
     })
     .then(async response => {
         const data = await response.json();
-        
-        // Jika server mengembalikan status error (seperti 422 karena kategori tidak kosong)
         if (!response.ok || !data.success) {
             alert('⚠ ' + (data.message || 'Failed to delete category.'));
             return;
         }
-        
-        // ── JIKA SUKSES (KATEGORI KOSONG MURNI) ──
-        
-        // 1. Hapus chip kategori di dalam boks modal manage categories
         btn.closest('.cat-chip').remove();
-        
-        // 2. Hapus tombol filter kategori di bar depan utama biar ga nge-bug
         document.querySelectorAll(`#categoryFilterList [data-cat-id="${id}"]`).forEach(el => el.remove());
-        
-        // 3. Hapus opsi kategori tersebut dari dropdown select input tambah barang baru
         document.querySelectorAll(`#categorySelect option[value="${id}"]`).forEach(el => el.remove());
     })
     .catch(error => {
         console.error('Error:', error);
         alert('⚠ System error. Could not complete the request.');
     });
+}
+
+// ── FORMAT RUPIAH ──────────────────────────────────────────
+// Titik muncul otomatis saat mengetik, nilai bersih disimpan
+// di hidden input untuk dikirim ke server
+
+function formatRupiah(input, rawId) {
+    const cursorPos  = input.selectionStart;
+    const prevLength = input.value.length;
+
+    const raw       = input.value.replace(/\D/g, '');
+    const formatted = raw.replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+
+    input.value = formatted;
+
+    const diff      = input.value.length - prevLength;
+    const newCursor = Math.max(0, cursorPos + diff);
+    input.setSelectionRange(newCursor, newCursor);
+
+    const hiddenEl = document.getElementById(rawId);
+    if (hiddenEl) hiddenEl.value = raw;
+}
+
+function fillRupiahInput(displayId, rawId, rawValue) {
+    const clean     = rawValue ? rawValue.toString().replace(/\D/g, '') : '';
+    const formatted = clean.replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+    document.getElementById(displayId).value = formatted;
+    document.getElementById(rawId).value      = clean;
 }
 </script>
 @endpush
