@@ -71,11 +71,12 @@ The JSON structure must be exactly:
   ],
   \"quick_replies\": [\"Option 1\", \"Option 2\", \"Option 3\"]
 }
-  
+
 Rules:
 - products array must contain 2-3 FULL product objects copied from the catalog above (not just IDs)
 - Use [] for products only when just chatting with no recommendation
 - quick_replies must be short phrases written from the CUSTOMER's perspective, things THEY would say next. Good: 'My room is 4x5 meters', 'I prefer minimalist style'. Bad: 'What is your room size?'
+- don't suggest a question, suggest an answer instead
 - Respond in the same language the customer uses (Indonesian or English)
 - NEVER add any text outside the JSON object" . $budgetContext;
 

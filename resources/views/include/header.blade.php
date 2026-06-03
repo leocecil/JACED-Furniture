@@ -40,7 +40,7 @@
                     <a href="#" class="nav-icon opacity-75 hover-opacity-100 transition position-relative d-flex align-items-center justify-content-center" style="width:42px; height:42px; color:inherit;"
                        data-bs-toggle="offcanvas" data-bs-target="#cartSidebar">
                         <i class="fas fa-shopping-bag" style="font-size: 18px;"></i>
-                        <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-dark" style="font-size: 8px; margin-top: 6px; margin-left: -6px;">{{ $globalCartItems->sum('quantity') }}</span>
+                        <span id="cartBadge" class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-dark" style="font-size: 8px; margin-top: 6px; margin-left: -6px;">{{ $globalCartItems->sum('quantity') }}</span>
                     </a>
                 @endauth
 
