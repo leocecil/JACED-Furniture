@@ -47,6 +47,7 @@
                             'price_asc'  => 'Price: Low to High',
                             'price_desc' => 'Price: High to Low',
                             'bestseller' => 'Best Sellers',
+                            'limited'    => 'Limited Edition',
                         ];
                         $currentSort = request('sort', '');
                         $currentSortLabel = $sortLabels[$currentSort] ?? 'Recommended';
@@ -92,7 +93,7 @@
                         </div>
                     </div>
 
-                    {{-- MATERIAL --}}
+                    {{-- MATERIAL
                     @php $activeMats = (array) request('material', []); @endphp
                     <div class="shop-filter-pill-wrap" id="matWrap">
                         <button type="button" class="shop-filter-pill {{ count($activeMats) ? 'active-pill' : '' }}" id="matTrigger">
@@ -114,7 +115,7 @@
                                 </button>
                             @endforeach
                         </div>
-                    </div>
+                    </div> --}}
 
                     {{-- SIZE --}}
                     @php
@@ -200,11 +201,17 @@
 
                 {{-- ===== ACTIVE FILTER CHIPS ===== --}}
                 @php
-                    $hasActiveFilters = request('search') || request('category') || request('material') || request('room') || request('size') || request('min_price') || request('max_price') || request('sort');
+                    $hasActiveFilters = request('search') || request('category') || request('room') || request('size') || request('min_price') || request('max_price') || request('sort');
                 @endphp
                 @if($hasActiveFilters)
                     <div class="shop-active-filters">
                         <span class="shop-active-label">Active:</span>
+                        @if(request('sort'))
+                            @php $sortLabels = ['newest'=>'New Arrivals','price_asc'=>'Price: Low to High','price_desc'=>'Price: High to Low','bestseller'=>'Best Sellers']; @endphp
+                            <span class="shop-chip">{{ $sortLabels[request('sort')] ?? request('sort') }}
+                                <a href="{{ route('shop', array_merge(request()->except(['sort','page']))) }}"><i class="fas fa-times"></i></a>
+                            </span>
+                        @endif
                         @if(request('search'))
                             <span class="shop-chip">Search: "{{ request('search') }}"
                                 <a href="{{ route('shop', array_merge(request()->except(['search', 'page']))) }}"><i class="fas fa-times"></i></a>
@@ -218,14 +225,14 @@
                                 </span>
                             @endif
                         @endforeach
-                        @foreach((array) request('material', []) as $matSlug)
+                        {{-- @foreach((array) request('material', []) as $matSlug)
                             @php $matItem = $materials->firstWhere('slug', $matSlug); @endphp
                             @if($matItem)
                                 <span class="shop-chip">{{ $matItem->name }}
                                     <a href="{{ route('shop', array_merge(request()->except('page'), ['material' => array_values(array_diff((array) request('material', []), [$matSlug]))])) }}"><i class="fas fa-times"></i></a>
                                 </span>
                             @endif
-                        @endforeach
+                        @endforeach --}}
                         @foreach((array) request('size', []) as $sizeSlug)
                             <span class="shop-chip">Size: {{ ucfirst($sizeSlug) }}
                                 <a href="{{ route('shop', array_merge(request()->except('page'), ['size' => array_values(array_diff((array) request('size', []), [$sizeSlug]))])) }}"><i class="fas fa-times"></i></a>
@@ -270,14 +277,22 @@
                                data-product-url="{{ route('product.show', $product->slug) }}"
                                data-product-soldout="{{ $soldOut ? '1' : '0' }}">
                                 <div class="shop-product-img-wrap">
+                                    @php
+                                        $currentSort = request('sort', '');
+                                        $currentCollection = request('collection', '');
+                                    @endphp
                                     @if($soldOut)
                                         <span class="shop-product-badge badge-soldout">Sold Out</span>
-                                    @elseif($lowStock)
+                                    @elseif($currentSort === 'newest')
+                                        <span class="shop-product-badge badge-caramel">New</span>
+                                    @elseif($currentSort === 'bestseller')
+                                        <span class="shop-product-badge badge-dark">Bestseller</span>
+                                    @elseif($currentSort === 'limited')
                                         <span class="shop-product-badge badge-lowstock">Only {{ $product->stock }} left</span>
+                                    @elseif($product->badge === 'preorder')
+                                        <span class="shop-product-badge badge-dark">Preorder</span>
                                     @elseif($product->badge)
-                                        <span class="shop-product-badge {{ $product->badge === 'preorder' ? 'badge-dark' : 'badge-caramel' }}">
-                                            {{ ucfirst($product->badge) }}
-                                        </span>
+                                        <span class="shop-product-badge badge-caramel">{{ ucfirst($product->badge) }}</span>
                                     @endif
 
                                     <div class="shop-product-actions">
@@ -310,6 +325,11 @@
                                             alt="{{ $product->name }}"
                                             class="shop-product-img js-product-slider">
 
+                                    </div>
+
+                                    <div class="shop-see-details">
+                                        <span>See Details</span>
+                                        <i class="fas fa-arrow-right"></i>
                                     </div>
 
                                     @if($soldOut)
@@ -745,6 +765,67 @@
             .shop-result-bar { margin-bottom: 10px; }
             .shop-result-count { font-size: 11px; }
         }
+
+        /* SEE DETAILS BUTTON */
+
+        .shop-product-img-wrap{
+            position: relative;
+            overflow: hidden;
+        }
+
+        .shop-see-details{
+            position: absolute;
+            
+
+            left: 12px;
+            right: 12px;
+            bottom: 12px;
+
+            transform: translateY(120%);
+            opacity: 0;
+
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+
+            height: 48px;
+
+            background: var(--jaced-caramel);
+            color: var(--jaced-white);
+
+            border-radius: 12px;
+
+            font-size: 13px;
+            font-weight: 600;
+
+            z-index: 5;
+
+            transition:
+                transform .4s cubic-bezier(.22,1,.36,1),
+                opacity .3s ease,
+                background .25s ease,
+                color .25s ease;
+        }
+
+        .shop-product-card:hover .shop-see-details{
+            transform: translateY(0);
+            opacity: 1;
+        }
+
+        .shop-see-details:hover{
+            background: var(--jaced-white);
+            color: var(--jaced-caramel);
+        }
+
+        .shop-see-details i{
+            font-size: 11px;
+            transition: transform .25s ease;
+        }
+
+        .shop-see-details:hover i{
+            transform: translateX(4px);
+        }
     </style>
 
     <script>
@@ -978,35 +1059,73 @@
             });
         })();
 
-        function setFilter(name, values) {
+        function setFilter(name, value) {
             const form = document.getElementById('filter-form');
-            // Hapus semua input dengan nama itu dulu
-            form.querySelectorAll('input[name="' + name + '[]"], input[name="' + name + '"]').forEach(el => el.remove());
-            // Tambahin nilai baru
-            values.forEach(function(v) {
-                const input = document.createElement('input');
-                input.type = 'hidden';
-                input.name = name + '[]';
-                input.value = v;
-                form.appendChild(input);
+
+            const active = {
+                category: @json((array) request('category', [])),
+                material: @json((array) request('material', [])),
+                size:     @json((array) request('size', [])),
+            };
+
+            if (!value || (Array.isArray(value) && value.length === 0)) {
+                active[name] = [];
+            } else {
+                const v = Array.isArray(value) ? value[0] : value;
+                const idx = active[name].indexOf(v);
+                if (idx > -1) {
+                    active[name].splice(idx, 1);
+                } else {
+                    active[name].push(v);
+                }
+            }
+
+            // Build URL langsung, jangan pakai form submit
+            const params = new URLSearchParams();
+
+            // Preserve sort, search, price dari URL sekarang
+            const currentSort = document.getElementById('sort-input')?.value;
+            if (currentSort) params.set('sort', currentSort);
+
+            const search = document.querySelector('#shopSearchInput')?.value;
+            if (search) params.set('search', search);
+
+            const minPrice = '{{ request("min_price") }}';
+            const maxPrice = '{{ request("max_price") }}';
+            if (minPrice) params.set('min_price', minPrice);
+            if (maxPrice) params.set('max_price', maxPrice);
+
+            // Inject semua array filters
+            Object.keys(active).forEach(function(key) {
+                active[key].forEach(function(v) {
+                    params.append(key + '[]', v);
+                });
             });
-            form.submit();
+
+            window.location.href = '{{ route("shop") }}?' + params.toString();
         }
 
         function setPriceFilter(min, max) {
-            const form = document.getElementById('filter-form');
-            form.querySelectorAll('input[name="min_price"], input[name="max_price"]').forEach(el => el.remove());
-            if (min !== '') {
-                const i = document.createElement('input');
-                i.type = 'hidden'; i.name = 'min_price'; i.value = min;
-                form.appendChild(i);
-            }
-            if (max !== '') {
-                const i = document.createElement('input');
-                i.type = 'hidden'; i.name = 'max_price'; i.value = max;
-                form.appendChild(i);
-            }
-            form.submit();
+            const params = new URLSearchParams();
+
+            const currentSort = document.getElementById('sort-input')?.value;
+            if (currentSort) params.set('sort', currentSort);
+
+            const search = document.querySelector('#shopSearchInput')?.value;
+            if (search) params.set('search', search);
+
+            if (min !== '') params.set('min_price', min);
+            if (max !== '') params.set('max_price', max);
+
+            const cats = @json((array) request('category', []));
+            const mats = @json((array) request('material', []));
+            const sizes = @json((array) request('size', []));
+
+            cats.forEach(v => params.append('category[]', v));
+            mats.forEach(v => params.append('material[]', v));
+            sizes.forEach(v => params.append('size[]', v));
+
+            window.location.href = '{{ route("shop") }}?' + params.toString();
         }
 
         // ===== PRODUCT HOVER IMAGE SLIDESHOW =====
@@ -1020,6 +1139,9 @@
                     card.querySelector(
                         '.js-product-slider'
                     );
+                
+                const productCard =
+                    card.closest('.shop-product-card');
 
                 if(!img) return;
 
@@ -1058,7 +1180,7 @@
 
             }
 
-                card.addEventListener(
+                productCard.addEventListener(
                     'mouseenter',
                     function(){
 
@@ -1082,7 +1204,7 @@
                     }
                 );
 
-                card.addEventListener(
+                productCard.addEventListener(
                     'mouseleave',
                     function(){
 

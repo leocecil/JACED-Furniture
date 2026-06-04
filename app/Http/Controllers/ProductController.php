@@ -127,6 +127,11 @@ class ProductController extends Controller
             });
         }
 
+        if ($request->filled('material')) {
+            $mats = (array) $request->input('material');
+            // kemungkinan kosong atau belum ada
+        }
+
         if ($request->filled('min_price')) {
             $query->where('price', '>=', $request->input('min_price'));
         }
@@ -161,25 +166,35 @@ class ProductController extends Controller
             switch ($request->collection) {
 
                 case 'limited':
-                    $query->where('stock', '>', 0)
-                        ->where('stock', '<=', 3);
-                    break;
-
-                case 'new':
-                    $query->orderByDesc('created_at');
+                    $query->where('stock', '>', 0)->where('stock', '<=', 5);
                     break;
 
                 case 'bestseller':
                     $query->where('label', 'like', '%best%');
                     break;
+
+                case 'newest':
+                    $query->where('label', 'like', '%new%')->orderByDesc('created_at');
+                    break;
             }
         }
 
         switch ($request->input('sort')) {
-            case 'price_asc':  $query->orderBy('price', 'asc'); break;
-            case 'price_desc': $query->orderBy('price', 'desc'); break;
-            case 'bestseller': $query->where('label', 'like', '%best%')->orderByDesc('id'); break;
-            default:           $query->orderByDesc('id');
+            case 'price_asc':
+                $query->orderBy('price', 'asc');
+                break;
+            case 'price_desc':
+                $query->orderBy('price', 'desc');
+                break;
+            case 'bestseller':
+                $query->orderByRaw("CASE WHEN label LIKE '%best%' THEN 0 ELSE 1 END");
+                break;
+            case 'newest':
+                $query->orderByRaw("CASE WHEN label LIKE '%new%' THEN 0 ELSE 1 END")->orderByDesc('created_at');
+                break;
+            default:
+                $query->orderByDesc('id');
+                break;
         }
 
         $totalProducts = Product::count();
@@ -202,14 +217,6 @@ class ProductController extends Controller
                 'products_count' => $cat->products_count,
             ]);
 
-        $materials = collect([
-            (object) ['slug' => 'solid-wood', 'name' => 'Solid Wood', 'products_count' => $totalProducts],
-            (object) ['slug' => 'fabric',     'name' => 'Fabric',     'products_count' => 8],
-            (object) ['slug' => 'leather',    'name' => 'Leather',    'products_count' => 3],
-            (object) ['slug' => 'stone',      'name' => 'Stone',      'products_count' => 2],
-            (object) ['slug' => 'metal',      'name' => 'Metal',      'products_count' => 3],
-        ]);
-
         $rooms = collect([
             (object) ['slug' => 'living-room', 'name' => 'Living Room',  'products_count' => 8],
             (object) ['slug' => 'bedroom',     'name' => 'Bedroom',      'products_count' => 5],
@@ -217,7 +224,7 @@ class ProductController extends Controller
             (object) ['slug' => 'office',      'name' => 'Office',       'products_count' => 3],
         ]);
 
-        return view('store.shop', compact('products', 'categories', 'materials', 'rooms', 'totalProducts'));
+        return view('store.shop', compact('products', 'categories', 'rooms', 'totalProducts'));
     }
 
     // ─── SHOW by slug ─────────────────────────────────────────────────────────

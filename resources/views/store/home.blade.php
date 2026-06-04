@@ -90,7 +90,7 @@
                 </div>
                 <div class="col-md-4 stats-divider" data-reveal="slide-up" data-reveal-delay="150">
                     <i class="fas fa-truck fs-2 mb-3"></i>
-                    <h5 class="fw-semibold mb-2">Free Shipping Java & Bali</h5>
+                    <h5 class="fw-semibold mb-2">Fast Shipping in Java</h5>
                     <p class="text-jaced-muted mb-0 small">Secure premium delivery experience.</p>
                 </div>
                 <div class="col-md-4" data-reveal="slide-up" data-reveal-delay="300">
@@ -130,9 +130,7 @@
                 @endphp
                 @foreach($categories as $index => $cat)
                     <a href="{{ route('shop', ['category' => [$cat->slug]]) }}"
-                        class="category-slide-item text-decoration-none"
-                        data-reveal="slide-up"
-                        data-reveal-delay="{{ $index * 80 }}">
+                        class="category-slide-item text-decoration-none">
                             <div class="category-slide-img">
                                 <img src="{{ $catImages[$cat->slug] ?? 'https://images.unsplash.com/photo-1555041469-a586c61ea9bc?q=80&w=800&auto=format&fit=crop' }}"
                                     alt="{{ $cat->name }}">
@@ -164,7 +162,7 @@
 
                 <div class="bestseller-list">
                     @forelse($recommended as $index => $product)
-                        <a href="{{ route('product.show', $product->id) }}" class="bestseller-row text-decoration-none" data-reveal="slide-up" data-reveal-delay="{{ $index * 100 }}">
+                        <a href="{{ route('product.show', $product->slug) }}" class="bestseller-row text-decoration-none" data-reveal="slide-up" data-reveal-delay="{{ $index * 100 }}">
                             <div class="bestseller-name">
                                 <small class="text-uppercase bestseller-cat">{{ $product->category->name ?? 'Furniture' }}</small>
                                 <h5 class="mb-0 fw-semibold">{{ $product->name }}</h5>
@@ -178,7 +176,7 @@
                             <div class="bestseller-price-wrap">
                                 <span class="bestseller-price">Rp {{ number_format($product->price, 0, ',', '.') }}</span>
                                 <span class="btn-see-details rounded-pill px-3 py-2">
-                                    See details <i class="fas fa-arrow-right ms-1" style="font-size: 10px;"></i>
+                                     <span>See details</span> <i class="fas fa-arrow-right ms-1" style="font-size: 10px;"></i>
                                 </span>
                             </div>
                         </a>
@@ -486,9 +484,9 @@
         }
         .btn-browse:hover { background:var(--jaced-brown-dark); color:var(--jaced-cream); border-color:var(--jaced-brown-dark); }
 
-        .categories-section { padding: 32px 0 48px; overflow: hidden; }
+        .categories-section { padding: 32px 0 48px; overflow: visible; }
         .categories-section .container {
-            overflow: hidden;
+            overflow: visible;
             padding-right: 0;
         }
         .category-scroll-track {
@@ -503,6 +501,7 @@
             scrollbar-width: none;
             -ms-overflow-style: none;
             user-select: none;
+            padding-bottom: 24px;
         }
         .category-scroll-track::-webkit-scrollbar { display: none; }
         .category-scroll-track.is-dragging {
@@ -623,11 +622,28 @@
             background:var(--jaced-caramel); color:var(--jaced-cream);
             font-size:11px; font-weight:500; letter-spacing:0.05em;
             opacity:0; pointer-events:none; white-space:nowrap;
-            transition:opacity 0.35s ease, transform 0.35s ease, background 0.3s ease;
+            transition:opacity 0.35s ease, transform 0.35s ease, color 0.4s ease;
+            overflow:hidden;
+        }
+        .btn-see-details::before {
+            content:'';
+            position:absolute;
+            top:0; left:-100%; width:100%; height:100%;
+            background:var(--jaced-cream);
+            transition:left 0.4s cubic-bezier(0.22,1,0.36,1);
+            z-index:0;
+        }
+        .btn-see-details span, .btn-see-details i {
+            position:relative; z-index:1;
+        }
+        .bestseller-row:hover .btn-see-details {
+            opacity:1;
+            transform:translate(0,-50%);
+            pointer-events:auto;
         }
         .bestseller-row:hover .bestseller-price { opacity:0; transform:translateX(-8px); }
-        .bestseller-row:hover .btn-see-details { opacity:1; transform:translate(0,-50%); }
-        .bestseller-row:hover .btn-see-details:hover { background:var(--jaced-brown-dark); }
+        .bestseller-row:hover .btn-see-details:hover::before { left:0; }
+        .bestseller-row:hover .btn-see-details:hover { color:var(--jaced-caramel) !important; }
         @media (max-width: 768px) {
             .bestseller-row { grid-template-columns:1fr 80px; gap:12px; }
             .bestseller-desc, .bestseller-price-wrap { display:none; }
@@ -792,7 +808,7 @@
             .stats-section .small { font-size: 12px; }
             .stats-divider { border: none; border-top: 1px solid var(--jaced-input); border-bottom: 1px solid var(--jaced-input); padding: 24px 0; margin: 8px 0; }
 
-            .categories-section { padding: 24px 0 36px; }
+            .categories-section { padding: 24px 0 36px; padding-top: 16px; padding-top: 16px; margin-top: -16px;}
             .category-slide-item { flex: 0 0 220px; }
             .category-scroll-track { padding: 8px 16px 12px; padding-right: 60px; }
 
@@ -1003,12 +1019,12 @@
                 track.scrollLeft = scrollLeft - walk;
             });
 
-            // Scroll wheel horizontal
-            track.addEventListener('wheel', (e) => {
-                if (Math.abs(e.deltaX) > Math.abs(e.deltaY)) return;
-                e.preventDefault();
-                track.scrollLeft += e.deltaY * 1.2;
-            }, { passive: false });
+            // // Scroll wheel horizontal
+            // track.addEventListener('wheel', (e) => {
+            //     if (Math.abs(e.deltaX) > Math.abs(e.deltaY)) return;
+            //     e.preventDefault();
+            //     track.scrollLeft += e.deltaY * 1.2;
+            // }, { passive: false });
 
             // Touch support
             let touchStartX = 0;

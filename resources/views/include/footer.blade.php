@@ -54,26 +54,9 @@
             <div>
                 <h3 style="color: white; font-size: 16px; font-weight: 700; margin-bottom: 28px; margin-top: 0;">Collection</h3>
                 <ul style="list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 20px;">
-                    <li>
-                        <a href="{{ route('shop', ['collection' => 'new']) }}"
-                        style="color:#9ca3af; text-decoration:none; font-size:15px;">
-                            New Arrivals
-                        </a>
-                    </li>
-
-                    <li>
-                        <a href="{{ route('shop', ['collection' => 'bestseller']) }}"
-                        style="color:#9ca3af; text-decoration:none; font-size:15px;">
-                            Best Sellers
-                        </a>
-                    </li>
-
-                    <li>
-                        <a href="{{ route('shop', ['collection' => 'limited']) }}"
-                        style="color:#9ca3af; text-decoration:none; font-size:15px;">
-                            Limited Edition
-                        </a>
-                    </li>
+                    <li><a href="{{ route('shop', ['sort' => 'newest']) }}" style="color:#9ca3af;text-decoration:none;font-size:15px;">New Arrivals</a></li>
+                    <li><a href="{{ route('shop', ['sort' => 'bestseller']) }}" style="color:#9ca3af;text-decoration:none;font-size:15px;">Best Sellers</a></li>
+                    <li><a href="{{ route('shop', ['sort' => 'limited']) }}" style="color:#9ca3af;text-decoration:none;font-size:15px;">Limited Edition</a></li>
                     {{-- <li><a href="#" style="color: #9ca3af; text-decoration: none; font-size: 15px;">Architect Series</a></li> --}}
                 </ul>
             </div>
