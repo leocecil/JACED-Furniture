@@ -398,14 +398,14 @@
                 <div class="col-12 col-md-5 text-md-end border-start-md border-white-opacity-25 ps-md-5">
                     <p class="text-white-75 small text-uppercase tracking-wider mb-1" style="font-size: 11px; font-weight: 600;">Available Points</p>
                     <div class="d-flex align-items-baseline justify-content-md-end gap-2 mb-1">
-                        <h1 class="display-4 fw-bold mb-0 text-white" style="line-height: 1;">{{ number_format($currentPoints) }}</h1>
+                        <h1 class="display-4 fw-bold mb-0 text-white" style="line-height: 1;">{{ number_format($currentPoints, 0, ',', '.') }}</h1>
                         <span class="h5 mb-0 text-white-75">Pts</span>
                     </div>
                     <div id="tierBenefitBadge" class="mb-3">
                         <span style="background:rgba(255,255,255,0.15); border:1px solid rgba(255,255,255,0.25); padding:5px 12px; border-radius:8px; font-size:11px; font-weight:700; color:white; letter-spacing:0.03em;"></span>
                     </div>
                     <p class="text-white-50 small mb-4">
-                        Lifetime Accumulation: <strong>{{ number_format($accumulatedPoints) }} Pts</strong>
+                        Lifetime Accumulation: <strong>{{ number_format($accumulatedPoints, 0, ',', '.') }} Pts</strong>
                     </p>
 
                     {{-- Actions Button --}}
