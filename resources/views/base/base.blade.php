@@ -71,6 +71,9 @@
         .budget-active-pill.visible { display: flex; }
         .budget-active-pill .clear-x { font-size: 13px; line-height: 1; margin-left: 2px; opacity: 0.7; }
 
+        #budget-collapsible { overflow: hidden; transition: max-height 0.3s ease, opacity 0.3s ease; max-height: 100px; opacity: 1; margin-top: 8px; }
+        #budget-collapsible.collapsed { max-height: 0; opacity: 0; margin-top: 0; }
+
         .chat-messages { flex: 1; overflow-y: auto; padding: 1.25rem; display: flex; flex-direction: column; gap: 14px; background: var(--beige-50); scroll-behavior: smooth; }
         .chat-messages::-webkit-scrollbar { width: 4px; }
         .chat-messages::-webkit-scrollbar-track { background: transparent; }
@@ -157,7 +160,7 @@
     </div>
 
     <!-- Budget filter bar -->
-    <div class="budget-bar" id="budget-bar">
+    {{-- <div class="budget-bar" id="budget-bar">
         <div class="budget-bar-top">
         <span class="budget-label">Budget filter</span>
         <span class="budget-value" id="budget-display">All prices</span>
@@ -176,6 +179,33 @@
             <span id="budget-pill-text"></span>
             <span class="clear-x">×</span>
         </button>
+        </div>
+    </div> --}}
+
+    <div class="budget-bar" id="budget-bar">
+        <div class="budget-bar-top" onclick="toggleBudgetBar()" style="cursor:pointer;">
+            <span class="budget-label">Budget filter</span>
+            <div style="display:flex;align-items:center;gap:8px;">
+                <span class="budget-value" id="budget-display">All prices</span>
+                <svg id="budget-chevron" style="width:14px;height:14px;fill:var(--text-muted);transition:transform 0.2s;" viewBox="0 0 24 24"><path d="M7 10l5 5 5-5z"/></svg>
+            </div>
+        </div>
+        <div id="budget-collapsible">
+            <input type="range" class="budget-slider" id="budget-slider"
+                min="1000000" max="30000000" step="500000" value="30000000"
+                oninput="onBudgetSlide(this.value)">
+            <div style="display:flex;align-items:center;justify-content:space-between;gap:6px;">
+                <div class="budget-presets" id="budget-presets">
+                    <button class="budget-preset" onclick="setBudgetPreset(3000000, this)">Under 3mil</button>
+                    <button class="budget-preset" onclick="setBudgetPreset(5000000, this)">Under 5mil</button>
+                    <button class="budget-preset" onclick="setBudgetPreset(10000000, this)">Under 10mil</button>
+                    <button class="budget-preset active" onclick="setBudgetPreset(30000000, this)">Any Price</button>
+                </div>
+                <button class="budget-active-pill" id="budget-pill" onclick="clearBudget()">
+                    <span id="budget-pill-text"></span>
+                    <span class="clear-x">×</span>
+                </button>
+            </div>
         </div>
     </div>
 
@@ -211,35 +241,42 @@
             cartSidebar.addEventListener('hidden.bs.offcanvas', () => {
                 localStorage.setItem('cartOpen', 'false');
             });
-        }
+            }
+        });
 
         // ===== BUDGET STATE =====
-        let activeBudget = 10000000; // default = no filter (show all)
+        let activeBudget = 30000000; // default = no filter (show all)
+        let budgetBarOpen = true;
 
+        function toggleBudgetBar() {
+            budgetBarOpen = !budgetBarOpen;
+            document.getElementById('budget-collapsible').classList.toggle('collapsed', !budgetBarOpen);
+            document.getElementById('budget-chevron').style.transform = budgetBarOpen ? 'rotate(0deg)' : 'rotate(-90deg)';
+        }
         function formatRupiah(val) {
-        if (val >= 1000000) return 'Rp ' + (val / 1000000).toFixed(1).replace('.0','') + 'jt';
+        if (val >= 1000000) return 'Rp ' + (val / 1000000).toFixed(1).replace('.0','') + 'mil';
         return 'Rp ' + val.toLocaleString('id-ID');
         }
 
         function onBudgetSlide(val) {
-        activeBudget = parseInt(val);
-        const display = document.getElementById('budget-display');
-        const pill = document.getElementById('budget-pill');
-        const pillText = document.getElementById('budget-pill-text');
+            activeBudget = parseInt(val);
+            const display = document.getElementById('budget-display');
+            const pill = document.getElementById('budget-pill');
+            const pillText = document.getElementById('budget-pill-text');
 
-        // Clear active preset buttons
-        document.querySelectorAll('.budget-preset').forEach(b => b.classList.remove('active'));
+            // Clear active preset buttons
+            document.querySelectorAll('.budget-preset').forEach(b => b.classList.remove('active'));
 
-        if (activeBudget >= 10000000) {
-            display.textContent = 'All prices';
-            pill.classList.remove('visible');
-            // Mark "Any Price" as active
-            document.querySelectorAll('.budget-preset')[3].classList.add('active');
-        } else {
-            display.textContent = 'Under ' + formatRupiah(activeBudget);
-            pillText.textContent = '≤ ' + formatRupiah(activeBudget);
-            pill.classList.add('visible');
-        }
+            if (activeBudget >= 30000000) {
+                display.textContent = 'All prices';
+                pill.classList.remove('visible');
+                // Mark "Any Price" as active
+                document.querySelectorAll('.budget-preset')[3].classList.add('active');
+            } else {
+                display.textContent = 'Under ' + formatRupiah(activeBudget);
+                pillText.textContent = '≤ ' + formatRupiah(activeBudget);
+                pill.classList.add('visible');
+            }
         }
 
         function setBudgetPreset(val, btn) {
@@ -252,7 +289,7 @@
         const pill = document.getElementById('budget-pill');
         const pillText = document.getElementById('budget-pill-text');
 
-        if (val >= 10000000) {
+        if (val >= 30000000) {
             display.textContent = 'All prices';
             pill.classList.remove('visible');
         } else {
@@ -263,8 +300,8 @@
         }
 
         function clearBudget() {
-        setBudgetPreset(10000000, document.querySelectorAll('.budget-preset')[3]);
-        document.getElementById('budget-slider').value = 10000000;
+        setBudgetPreset(30000000, document.querySelectorAll('.budget-preset')[3]);
+        document.getElementById('budget-slider').value = 30000000;
         }
 
         // ===== STATE =====
@@ -332,7 +369,7 @@
                     },
                     body: JSON.stringify({
                         messages: messages,
-                        budget: activeBudget < 10000000 ? activeBudget : null,
+                        budget: activeBudget < 30000000 ? activeBudget : null,
                     })
                 });
 
@@ -506,7 +543,7 @@
             .replace(/\s*-\s*/g, '-')  // normalize " - " to "-" first
             .replace(/[^a-z0-9\s-]/g, '')
             .trim().replace(/\s+/g, '-');
-}
+        }   
     </script>
     
     @stack('scripts')

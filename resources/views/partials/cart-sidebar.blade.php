@@ -38,7 +38,7 @@
         height: 100%;
     }
     .offcanvas-backdrop.show {
-        opacity: 0.08;
+        opacity: 0.38;
         backdrop-filter: blur(2px);
     }
     .cart-items-wrapper {
@@ -554,7 +554,15 @@
             }, 2500);
             return;
         }
-        window.location.href = this.dataset.url;
+
+        // ← close the sidebar first, then redirect
+        const offcanvas = bootstrap.Offcanvas.getInstance(document.getElementById('cartSidebar'));
+        if(offcanvas) offcanvas.hide();
+
+        setTimeout(() => {
+            window.location.href = this.dataset.url;
+        }, 300);        
+        // window.location.href = this.dataset.url;
     });
 
     attachCartListeners();

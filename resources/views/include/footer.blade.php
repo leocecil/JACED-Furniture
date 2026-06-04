@@ -14,16 +14,39 @@
                     Redefining architectural spaces through precision-engineered furniture and immersive 3D technology.
                 </p>
                 <div style="display: flex; gap: 12px; margin-bottom: 20px;">
-                    @foreach([
-                        'IG' => 'https://www.instagram.com', 
-                        'TW' => 'https://www.twitter.com', 
-                        'FB' => 'https://www.facebook.com', 
-                        'LI' => 'https://www.linkedin.com'
-                    ] as $social => $url)
-                     <a href="{{ $url }}" target="_blank" rel="noopener noreferrer" class="footer-social-link">
-                        {{ $social }}
-                     </a>
-                    @endforeach
+    
+                    {{-- Instagram --}}
+                    <a href="https://www.instagram.com" target="_blank" rel="noopener noreferrer"
+       class="footer-social-link" title="Instagram"
+       style="display: flex; align-items: center; justify-content: center; width: 46px; height: 46px; border-radius: 50%; border: 1.5px solid #4b5563; overflow: hidden; text-decoration: none;">
+        <img src="{{ asset('image/LogoSos/IG.png') }}" alt="Instagram" 
+             style="width: 100%; height: 100%; object-fit: cover;">
+    </a>
+
+    {{-- X / Twitter --}}
+    <a href="https://www.twitter.com" target="_blank" rel="noopener noreferrer"
+       class="footer-social-link" title="X (Twitter)"
+       style="display: flex; align-items: center; justify-content: center; width: 46px; height: 46px; border-radius: 50%; border: 1.5px solid #4b5563; overflow: hidden; text-decoration: none;">
+        <img src="{{ asset('image/LogoSos/X.png') }}" alt="X" 
+             style="width: 100%; height: 100%; object-fit: cover; padding: 13px;">
+    </a>
+
+    {{-- Facebook --}}
+    <a href="https://www.facebook.com" target="_blank" rel="noopener noreferrer"
+       class="footer-social-link" title="Facebook"
+       style="display: flex; align-items: center; justify-content: center; width: 46px; height: 46px; border-radius: 50%; border: 1.5px solid #4b5563; overflow: hidden; text-decoration: none;">
+        <img src="{{ asset('image/LogoSos/Fb.png') }}" alt="Facebook" 
+             style="width: 100%; height: 100%; object-fit: cover; padding: 10px;">
+    </a>
+
+    {{-- LinkedIn --}}
+    <a href="https://www.linkedin.com" target="_blank" rel="noopener noreferrer"
+       class="footer-social-link" title="LinkedIn"
+       style="display: flex; align-items: center; justify-content: center; width: 46px; height: 46px; border-radius: 50%; border: 1.5px solid #4b5563; overflow: hidden; text-decoration: none;">
+        <img src="{{ asset('image/LogoSos/linkedin.png') }}" alt="LinkedIn" 
+             style="width: 100%; height: 100%; object-fit: cover; padding: 13px;">
+    </a>
+
                 </div>
             </div>
 

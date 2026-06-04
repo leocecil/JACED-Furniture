@@ -15,7 +15,7 @@ class AnalyticsController extends Controller
     public function index()
     {
         // 0. Ambil angka riil pesanan masuk berstatus 'pending' untuk indikator badge sidebar
-        $orderCount = Order::where('status', ['pending','packed'])->count();
+        $orderCount = Order::whereIn('status', ['on_process','packed'])->count();
         $tiers = User::where('is_admin', false)
             ->select(DB::raw("
                 COUNT(CASE WHEN accumulated_points < 500 THEN 1 END) as bronze,
