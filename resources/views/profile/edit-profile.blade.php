@@ -1636,11 +1636,13 @@
         return true;
     }
 
-    @if(session('open_panel'))
-        document.addEventListener('DOMContentLoaded', function() {
+    document.addEventListener('DOMContentLoaded', function() {
+        @if(session('open_panel'))
             showPanel('{{ session('open_panel') }}', null);
-        });
-    @endif
+        @elseif(request()->query('panel'))
+            showPanel('{{ request()->query('panel') }}', null);
+        @endif
+    });
 
     @if($errors->has('current_password') || $errors->has('password'))
         document.addEventListener('DOMContentLoaded', function() {

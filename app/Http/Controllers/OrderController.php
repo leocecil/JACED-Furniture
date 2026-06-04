@@ -6,6 +6,7 @@ use App\Models\Cart;
 use App\Models\Order;
 use App\Models\OrderDetail;
 use App\Models\PaymentMethod;
+use App\Models\PointHistory;
 use App\Models\ShippingAddress;
 use App\Models\VaBank;
 use App\Services\RajaOngkirService;
@@ -247,6 +248,24 @@ class OrderController extends Controller
                         'village_name'   => $request->input('village_name'),
                         'postal_code'    => $zip,
                     ]);
+
+                    $user = Auth::user();
+                    $isFirstAddress = ShippingAddress::where('user_id', Auth::id())->count() === 1;
+                    
+                    if ($isFirstAddress && !$user->address_rewarded) {
+                        $user->current_points     += 50;
+                        $user->accumulated_points += 50;
+                        $user->address_rewarded    = true;
+                        $user->save();
+
+                        PointHistory::create([
+                            'user_id'    => $user->id,
+                            'points'     => 50,
+                            'type'       => 'earned',
+                            'source'     => 'Profile Completion - Address',
+                            'expired_at' => now()->addYear(),
+                        ]);
+                    }
                 }
             }
 

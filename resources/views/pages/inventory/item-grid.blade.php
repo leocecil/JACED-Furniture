@@ -51,6 +51,14 @@
     .action-btn.delete:hover { background: #fdecea; }
 
     .price-old { font-size: 12px; color: #9c9890; text-decoration: line-through; margin-right: 4px; }
+    
+    /* Image Uploader Style Inside Modal */
+    .image-preview-item { position: relative; width: 80px; height: 80px; border-radius: 8px; overflow: hidden; border: 1px solid #e2ddd8; }
+    .image-preview-item img { width: 100%; height: 100%; object-fit: cover; }
+    .image-preview-item .remove-img { position: absolute; top: 2px; right: 2px; background: rgba(192, 57, 43, 0.85); color: white; border: none; border-radius: 50%; width: 18px; height: 18px; font-size: 11px; display: flex; align-items: center; justify-content: center; cursor: pointer; }
+    .image-upload-area { border: 2px dashed #e2ddd8; padding: 20px; text-align: center; border-radius: 10px; background: #faf9f7; position: relative; cursor: pointer; }
+    .image-upload-area input[type="file"] { position: absolute; top:0; left:0; width:100%; height:100%; opacity:0; cursor:pointer; }
+    .modal-section-title { font-size: 12px; font-weight: 700; text-transform: uppercase; color: #5a4d47; letter-spacing: 0.05em; margin: 20px 0 10px; padding-bottom: 4px; border-bottom: 1px solid #f0eeeb; }
 </style>
 
 {{-- Toggle Buttons View Layout --}}
@@ -68,13 +76,13 @@
 
     @forelse($products as $product)
         @php
-            // ── PERBAIKAN UTAMA: Penyesuaian ke folder public/image/ sesuai struktur proyek ──
+            // ── PERBAIKAN MEMBACA GAMBAR MURNI DARI FOLDER PUBLIC/IMAGE ──
             if ($product->main_image) {
-                $imagePath = str_starts_with($product->main_image, 'image/') ? $product->main_image : 'image/' . $product->main_image;
-                $thumb = asset($imagePath);
+                $cleanPath = str_starts_with($product->main_image, 'image/') ? $product->main_image : 'image/' . $product->main_image;
+                $thumb = asset($cleanPath);
             } elseif ($product->images->first()?->image_path) {
-                $imagePath = str_starts_with($product->images->first()->image_path, 'image/') ? $product->images->first()->image_path : 'image/' . $product->images->first()->image_path;
-                $thumb = asset($imagePath);
+                $cleanPath = str_starts_with($product->images->first()->image_path, 'image/') ? $product->images->first()->image_path : 'image/' . $product->images->first()->image_path;
+                $thumb = asset($cleanPath);
             } else {
                 $thumb = 'https://placehold.co/400x300/e8e4df/6b6860?text=No+Image';
             }
@@ -86,7 +94,6 @@
             elseif ($product->stock <= 5) { $badgeClass = 'badge-lowstock'; $badgeText = 'Low Stock (' . $product->stock . ')'; }
             else                           { $badgeClass = 'badge-instock';  $badgeText = $product->stock . ' units'; }
 
-            // Siapkan paket payload JSON untuk modal edit
             $productPayload = [
                 'id'          => $product->id,
                 'name'        => $product->name,
@@ -252,48 +259,38 @@
 
                 <div class="modal-body px-4 pb-2" style="max-height: 70vh; overflow-y: auto;">
 
-                    {{-- 1. BASIC INFORMATION --}}
                     <div class="modal-section-title">Basic Information</div>
-
                     <div class="mb-3">
                         <label class="form-label">Product Name <span class="text-danger">*</span></label>
-                        <input type="text" class="form-control" name="name" id="edit_name"
-                               placeholder="e.g., Sculptural Lounge Chair" required>
+                        <input type="text" class="form-control" name="name" id="edit_name" placeholder="e.g., Sculptural Lounge Chair" required>
                     </div>
 
                     <div class="mb-3">
                         <label class="form-label">Description</label>
-                        <textarea class="form-control" name="description" id="edit_description"
-                                  rows="3" placeholder="Describe the product..."
-                                  style="resize: none;"></textarea>
+                        <textarea class="form-control" name="description" id="edit_description" rows="3" placeholder="Describe the product..." style="resize: none;"></textarea>
                     </div>
 
-                    {{-- 2. DIMENSIONS --}}
                     <div class="modal-section-title">Dimensions</div>
-
                     <div class="row g-3 mb-3">
                         <div class="col-4">
                             <label class="form-label">Length <span class="text-danger">*</span></label>
                             <div class="input-group">
                                 <span class="input-group-text">L</span>
-                                <input type="number" class="form-control" name="length" id="edit_length"
-                                       placeholder="0" min="0" step="0.1" required>
+                                <input type="number" class="form-control" name="length" id="edit_length" placeholder="0" min="0" step="0.1" required>
                             </div>
                         </div>
                         <div class="col-4">
                             <label class="form-label">Width <span class="text-danger">*</span></label>
                             <div class="input-group">
                                 <span class="input-group-text">W</span>
-                                <input type="number" class="form-control" name="width" id="edit_width"
-                                       placeholder="0" min="0" step="0.1" required>
+                                <input type="number" class="form-control" name="width" id="edit_width" placeholder="0" min="0" step="0.1" required>
                             </div>
                         </div>
                         <div class="col-4">
                             <label class="form-label">Height <span class="text-danger">*</span></label>
                             <div class="input-group">
                                 <span class="input-group-text">H</span>
-                                <input type="number" class="form-control" name="height" id="edit_height"
-                                       placeholder="0" min="0" step="0.1" required>
+                                <input type="number" class="form-control" name="height" id="edit_height" placeholder="0" min="0" step="0.1" required>
                             </div>
                         </div>
                     </div>
@@ -307,46 +304,32 @@
                         </select>
                     </div>
 
-                    {{-- 3. PRICING & STOCK --}}
                     <div class="modal-section-title">Pricing & Stock</div>
-
                     <div class="row g-3 mb-3">
                         <div class="col-md-4">
                             <label class="form-label">Price <span class="text-danger">*</span></label>
                             <div class="input-group">
                                 <span class="input-group-text">Rp</span>
-                                <input type="number" class="form-control" name="price" id="edit_price"
-                                       placeholder="0" min="0" required>
+                                <input type="number" class="form-control" name="price" id="edit_price" placeholder="0" min="0" required>
                             </div>
                         </div>
                         <div class="col-md-4">
                             <label class="form-label">Stock <span class="text-danger">*</span></label>
                             <div class="input-group">
-                                <span class="input-group-text">
-                                    <i class="bi bi-box-seam" style="font-size:12px;"></i>
-                                </span>
-                                <input type="number" class="form-control" name="stock" id="edit_stock"
-                                       placeholder="0" min="0" required>
+                                <span class="input-group-text"><i class="bi bi-box-seam" style="font-size:12px;"></i></span>
+                                <input type="number" class="form-control" name="stock" id="edit_stock" placeholder="0" min="0" required>
                             </div>
                         </div>
                         <div class="col-md-4">
-                            <label class="form-label">
-                                Low Stock Alert
-                                <span class="text-muted fw-normal">(threshold)</span>
-                            </label>
+                            <label class="form-label">Low Stock Alert <span class="text-muted fw-normal">(threshold)</span></label>
                             <div class="input-group">
-                                <span class="input-group-text">
-                                    <i class="bi bi-exclamation-triangle" style="font-size:12px;"></i>
-                                </span>
-                                <input type="number" class="form-control" name="low_stock" id="edit_low_stock"
-                                       placeholder="5" min="0">
+                                <span class="input-group-text"><i class="bi bi-exclamation-triangle" style="font-size:12px;"></i></span>
+                                <input type="number" class="form-control" name="low_stock" id="edit_low_stock" placeholder="5" min="0">
                             </div>
                         </div>
                     </div>
 
-                    {{-- 4. CATEGORY & LABEL --}}
                     <div class="modal-section-title">Category & Label</div>
-
                     <div class="row g-3 mb-3">
                         <div class="col-md-6">
                             <label class="form-label">Category <span class="text-danger">*</span></label>
@@ -358,50 +341,28 @@
                             </select>
                         </div>
                         <div class="col-md-6">
-                            <label class="form-label">
-                                Label
-                                <span class="text-muted fw-normal">(tag produk)</span>
-                            </label>
-                            <input type="text" class="form-control" name="label" id="edit_label"
-                                   placeholder="e.g., Bestseller, New Arrival">
+                            <label class="form-label">Label <span class="text-muted fw-normal">(tag produk)</span></label>
+                            <input type="text" class="form-control" name="label" id="edit_label" placeholder="e.g., Bestseller, New Arrival">
                         </div>
                     </div>
 
-                    {{-- 5. EXISTING IMAGES --}}
                     <div class="modal-section-title">Current Images</div>
-                    <div class="d-flex flex-wrap gap-2 mb-3" id="editExistingImages">
-                        {{-- Diisi dinamis via JS --}}
-                    </div>
+                    <div class="d-flex flex-wrap gap-2 mb-3" id="editExistingImages"></div>
 
-                    {{-- 6. ADD NEW IMAGES --}}
                     <div class="modal-section-title">Add New Images</div>
                     <div class="image-upload-area">
-                        <input type="file" name="images[]" id="editImageInput"
-                               accept="image/*" multiple onchange="previewEditImages(this)">
+                        <input type="file" name="images[]" id="editImageInput" accept="image/*" multiple onchange="previewEditImages(this)">
                         <i class="bi bi-cloud-upload fs-3 text-muted d-block mb-2"></i>
-                        <div style="font-size:13px; font-weight:600; color:#3a3a36;">
-                            Click or drag & drop to add more images
-                        </div>
-                        <div style="font-size:11px; color:#9c9890; margin-top:4px;">
-                            JPG, PNG, WEBP — max 2MB each
-                        </div>
+                        <div style="font-size:13px; font-weight:600; color:#3a3a36;">Click or drag & drop to add more images</div>
+                        <div style="font-size:11px; color:#9c9890; margin-top:4px;">JPG, PNG, WEBP — max 2MB each</div>
                     </div>
                     <div class="image-preview-wrap" id="editImagePreviewWrap"></div>
 
                 </div>
 
                 <div class="modal-footer border-0 pb-4 px-4 pt-3 d-flex gap-2">
-                    <button type="button"
-                            class="btn btn-sm flex-grow-1 py-2 rounded-3"
-                            data-bs-dismiss="modal"
-                            style="background:#f0eeeb; color:#1a1a18; border:none;">
-                        Cancel
-                    </button>
-                    <button type="submit"
-                            class="btn btn-sm flex-grow-1 py-2 rounded-3 fw-bold"
-                            style="background:#c4a882; color:white; border:none;">
-                        <i class="bi bi-check-lg me-1"></i> Update Product
-                    </button>
+                    <button type="button" class="btn btn-sm flex-grow-1 py-2 rounded-3" data-bs-dismiss="modal" style="background:#f0eeeb; color:#1a1a18; border:none;">Cancel</button>
+                    <button type="submit" class="btn btn-sm flex-grow-1 py-2 rounded-3 fw-bold" style="background:#c4a882; color:white; border:none;"><i class="bi bi-check-lg me-1"></i> Update Product</button>
                 </div>
             </form>
 
@@ -437,7 +398,7 @@ function openEditModal(product) {
 
     if (product.images && product.images.length > 0) {
         product.images.forEach(function (img) {
-            // ── PERBAIKAN: Menyesuaikan jalur render gambar kustom ke folder /image/ ──
+            // ── PERBAIKAN JS: Mengarahkan path pratinjau foto lama langsung ke /image/ ──
             const cleanPath = img.image_path.startsWith('image/') ? img.image_path : 'image/' + img.image_path;
             const imgUrl = '/' + cleanPath;
             
