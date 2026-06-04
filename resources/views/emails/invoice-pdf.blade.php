@@ -46,7 +46,7 @@
 {{-- HEADER --}}
 <div class="inv-header">
     <div class="inv-header-left">
-        <img src="{{ $logoPath }}" style="width:50px; height:50px; object-fit:contain; display:block; margin-bottom:6px;">
+        {{-- Hapus tag img, ganti jadi text aja --}}
         <div class="inv-brand">Jaced Furniture</div>
         <div class="inv-brand-sub">Artisan Furniture</div>
     </div>
