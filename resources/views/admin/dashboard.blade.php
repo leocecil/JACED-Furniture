@@ -26,7 +26,6 @@
 
     {{-- ── Row 1: Stat Cards ── --}}
     <div class="row g-3 mb-3">
-
         <div class="col-12 col-sm-6 col-md-3">
             <div class="d-card stat-card accent-border"
                 style="cursor:pointer;"
@@ -73,7 +72,7 @@
         </div>
 
         <div class="col-12 col-sm-6 col-md-3">
-            <div class="d-card stat-card">
+            <div class="d-card stat-card" style="cursor:pointer;" onclick="window.location='{{ route('inventory.index') }}?sort=stock_low'">
                 <div class="top-row">
                     <div class="icon-wrap" style="background:var(--danger-soft); color:var(--danger);">
                         <i class="bi bi-exclamation-triangle"></i>
