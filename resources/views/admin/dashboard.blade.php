@@ -16,71 +16,101 @@
         </span>
     </div>
 
-    {{-- ── Stat Filter ── --}}
-    <div class="d-flex gap-2 mb-3 flex-wrap">
-        @foreach(['all' => 'All Time', 'week' => 'This Week', 'month' => 'This Month', '3m' => 'Last 3 Months', 'year' => 'This Year'] as $val => $label)
-            <button class="card-range-btn stat-filter-btn {{ $val === 'all' ? 'active' : '' }}"
-                    data-range="{{ $val }}">{{ $label }}</button>
-        @endforeach
-    </div>
-
     {{-- ── Row 1: Stat Cards ── --}}
-    <div class="row g-3 mb-3">
-        <div class="col-12 col-sm-6 col-md-3">
-            <div class="d-card stat-card accent-border"
-                style="cursor:pointer;"
-                onclick="window.location='{{ route('order_management') }}'">
-                <div class="top-row">
-                    <div class="icon-wrap" style="background:var(--accent-soft); color:var(--accent);">
-                        <i class="bi bi-receipt"></i>
-                    </div>
-                    <span class="pill pill-amber" id="revenue-pill">All Time</span>
+    <div class="row g-3 mb-3 align-items-stretch">
+
+        {{-- Kolom Kiri --}}
+        <div class="col-12 col-md-6">
+            <div class="d-card p-3 h-100 d-flex flex-column gap-3">
+
+                {{-- Filter --}}
+                <div class="stat-filter-wrap">
+                    @foreach(['all' => 'All Time', 'week' => 'This Week', 'month' => 'This Month', '3m' => 'Last 3 Months', 'year' => 'This Year'] as $val => $label)
+                        <button class="card-range-btn stat-filter-btn {{ $val === 'all' ? 'active' : '' }}"
+                                data-range="{{ $val }}">{{ $label }}</button>
+                    @endforeach
                 </div>
-                <p class="label">Total Revenue</p>
-                <p class="value" id="revenue-value">Rp {{ number_format($totalRevenue, 0, ',', '.') }}</p>
+
+                {{-- Revenue + Orders --}}
+                <div class="d-flex gap-3 flex-grow-1 align-items-stretch" style="min-height: 0;">
+
+                    {{-- Revenue Card --}}
+                    <div class="d-card stat-card accent-border flex-fill"
+                        style="cursor:pointer; min-width: 0; overflow:hidden;"
+                        onclick="window.location='{{ route('order_management') }}'">
+                        <div class="top-row">
+                            <div class="icon-wrap" style="background:var(--accent-soft); color:var(--accent);">
+                                <i class="bi bi-receipt"></i>
+                            </div>
+                            <span class="pill pill-amber" id="revenue-pill">All Time</span>
+                        </div>
+                        <p class="label">Total Revenue</p>
+                        <p class="value" id="revenue-value">Rp {{ number_format($totalRevenue, 0, ',', '.') }}</p>
+                    </div>
+
+                    {{-- Orders Card --}}
+                    <div class="d-card stat-card flex-fill"
+                        style="cursor:pointer; min-width: 0; overflow:hidden;"
+                        onclick="window.location='{{ route('order_management') }}'">
+                        <div class="top-row">
+                            <div class="icon-wrap" style="background:var(--blue-soft); color:var(--blue);">
+                                <i class="bi bi-basket"></i>
+                            </div>
+                            <span class="pill pill-blue" id="orders-pill">All Time</span>
+                        </div>
+                        <p class="label">Total Orders</p>
+                        <p class="value" id="orders-value">{{ number_format($totalOrders) }}</p>
+                    </div>
+
+                </div>
+
             </div>
         </div>
 
-        <div class="col-12 col-sm-6 col-md-3">
-            <div class="d-card stat-card"
-                style="cursor:pointer;"
-                onclick="window.location='{{ route('order_management') }}'">
-                <div class="top-row">
-                    <div class="icon-wrap" style="background:var(--blue-soft); color:var(--blue);">
-                        <i class="bi bi-basket"></i>
-                    </div>
-                    <span class="pill pill-blue" id="orders-pill">All Time</span>
-                </div>
-                <p class="label">Total Orders</p>
-                <p class="value" id="orders-value">{{ number_format($totalOrders) }}</p>
-            </div>
-        </div>
+        {{-- Kolom Kanan --}}
+        <div class="col-12 col-md-6">
+            <div class="row g-3 h-100 align-items-stretch">
 
-        <div class="col-12 col-sm-6 col-md-3">
-            <div class="d-card stat-card"
-                style="cursor:pointer;"
-                onclick="window.location='{{ route('order_management') }}?status=delivered'">
-                <div class="top-row">
-                    <div class="icon-wrap" style="background:var(--teal-soft); color:var(--teal);">
-                        <i class="bi bi-truck"></i>
+                {{-- In Delivery Card --}}
+                <div class="col-12 col-sm-6 col-md-12">
+                    <div class="d-card stat-card h-100 d-flex flex-row align-items-center gap-3 px-3"
+                        style="cursor:pointer;"
+                        onclick="window.location='{{ route('order_management') }}?status=delivered'">
+                        {{-- Kiri: icon + pill --}}
+                        <div class="d-flex flex-column align-items-start gap-2">
+                            <span class="pill pill-teal">In Transit</span>
+                            <div class="icon-wrap" style="background:var(--teal-soft); color:var(--teal);">
+                                <i class="bi bi-truck"></i>
+                            </div>
+                        </div>
+                        {{-- Kanan: nilai --}}
+                        <div class="ms-auto d-flex flex-column align-items-end justify-content-center">
+                            <p class="value mb-0">{{ $inDelivery }}</p>
+                            <p class="label mb-0">In Delivery</p>
+                        </div>
                     </div>
-                    <span class="pill pill-teal">In Transit</span>
                 </div>
-                <p class="label">In Delivery</p>
-                <p class="value">{{ $inDelivery }}</p>
-            </div>
-        </div>
 
-        <div class="col-12 col-sm-6 col-md-3">
-            <div class="d-card stat-card" style="cursor:pointer;" onclick="window.location='{{ route('inventory.index') }}?sort=stock_low'">
-                <div class="top-row">
-                    <div class="icon-wrap" style="background:var(--danger-soft); color:var(--danger);">
-                        <i class="bi bi-exclamation-triangle"></i>
+                {{-- Low Stock Card --}}
+                <div class="col-12 col-sm-6 col-md-12">
+                    <div class="d-card stat-card h-100 d-flex flex-row align-items-center gap-3 px-3"
+                        style="cursor:pointer;"
+                        onclick="window.location='{{ route('inventory.index') }}?sort=stock_low'">
+                        {{-- Kiri: icon + pill --}}
+                        <div class="d-flex flex-column align-items-start gap-2">
+                            <span class="pill pill-danger">Urgent</span>
+                            <div class="icon-wrap" style="background:var(--danger-soft); color:var(--danger);">
+                                <i class="bi bi-exclamation-triangle"></i>
+                            </div>
+                        </div>
+                        {{-- Kanan: nilai --}}
+                        <div class="ms-auto d-flex flex-column align-items-end justify-content-center">
+                            <p class="value mb-0">{{ $lowStockCount }} items</p>
+                            <p class="label mb-0">Low Stock</p>
+                        </div>
                     </div>
-                    <span class="pill pill-danger">Urgent</span>
                 </div>
-                <p class="label">Low Stock</p>
-                <p class="value">{{ $lowStockCount }} items</p>
+
             </div>
         </div>
 
@@ -108,7 +138,7 @@
         </div>
 
         {{-- Monthly Target --}}
-        <div class="col-12 col-md-3">
+        <div class="col-12 col-sm-6 col-md-3">
             <div class="d-card p-3 h-100 text-center">
                 <div class="d-flex justify-content-between align-items-center mb-3">
                     <p class="section-title mb-0">Monthly Target</p>
@@ -135,7 +165,7 @@
         </div>
 
         {{-- Best Selling Categories --}}
-        <div class="col-12 col-md-4">
+        <div class="col-12 col-sm-6 col-md-4">
             <div class="d-card p-3 h-100">
                 <p class="section-title mb-3">Best Selling Categories</p>
 
@@ -246,9 +276,7 @@
 </div>
 
 @push('scripts')
-
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4"></script>
-
 <script>
     window.dashboardData = {
         salesLabels: @json($salesData['labels']),
@@ -258,9 +286,7 @@
         statFilterUrl: "{{ route('admin.dashboard.statCards') }}"
     };
 </script>
-
 <script src="{{ asset('js/admin/dashboard.js') }}"></script>
-
 @endpush
 
 @endsection
