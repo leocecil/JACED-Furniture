@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>JACED Furniture</title>
@@ -120,6 +120,7 @@
         .send-btn svg { width: 16px; height: 16px; fill: var(--white); }
         .notif-badge { position: absolute; top: -3px; right: -3px; width: 16px; height: 16px; background: #D85A30; border-radius: 50%; font-size: 10px; color: white; display: flex; align-items: center; justify-content: center; font-weight: 500; }
 
+        #chat-close-btn { display: none !important; }
         @media (max-width: 520px) {
             #chat-widget {
                 width: 100vw !important;
@@ -137,6 +138,17 @@
             .product-card-img { width: 72px; min-height: 72px; font-size: 1.6rem; }
             .product-card-name, .product-card-price { font-size: 12px; }
             body.chat-open { overflow: hidden; }
+            
+            /* prevent send button overlap */
+            .chat-input-area { padding: 10px 12px; padding-bottom: max(10px, env(safe-area-inset-bottom)); }
+            .send-btn { width: 34px; height: 34px; flex-shrink: 0; }
+            .chat-input { font-size: 16px; }
+
+            /* make messages area shrink properly when keyboard opens */
+            .chat-messages { flex: 1; min-height: 0; }
+
+            body.chat-open #chat-launcher { display: none !important; }
+            #chat-close-btn { display: flex !important; }
         }
     </style>
 </head>
@@ -173,9 +185,15 @@
     <div class="chat-header">
         <div class="chat-avatar"><img src="{{ asset('image/jaced_logo1.png') }}" style="width:24px;height:24px;object-fit:contain;border-radius:50%;"></div>
         <div class="chat-header-info">
-        <div class="chat-header-name">JACED Furniture Assistant</div>
-        <div class="chat-header-status"><span class="status-dot"></span>Online now</div>
+            <div class="chat-header-name">JACED Furniture Assistant</div>
+            <div class="chat-header-status"><span class="status-dot"></span>Online now</div>
         </div>
+        <button id="chat-close-btn" onclick="toggleChat()" aria-label="Close chat"
+            style="background:none;border:none;cursor:pointer;padding:4px;display:flex;align-items:center;justify-content:center;border-radius:50%;transition:background 0.15s;">
+            <svg style="width:18px;height:18px;fill:var(--beige-300);" viewBox="0 0 24 24">
+                <path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/>
+            </svg>
+        </button>
     </div>
 
     <!-- Budget filter bar -->
@@ -485,7 +503,7 @@
                             <div class="product-card-dim">📐 ${p.dimensions}</div>
                             <div class="product-card-footer">
                                 <span class="product-card-price">${p.price}</span>
-                                <button class="product-card-btn" onclick="event.stopPropagation(); handleAddToCart('${slug}', '${p.name}')">Add to Collection</button>
+                                <button class="product-card-btn" onclick="event.stopPropagation(); handleAddToCart('${slug}', '${p.name}')">View Product Detail</button>
                             </div>
                         </div>
                     </div>`;
