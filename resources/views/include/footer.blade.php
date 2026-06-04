@@ -83,7 +83,7 @@
                 <h3 class="footer-heading">Company</h3>
                 <ul class="footer-links-list">
                     <li><a href="{{ route('about') }}" class="{{ request()->routeIs('about') ? 'active' : '' }}">Our Story</a></li>
-                    <li><a href="#">Sustainability</a></li>
+                    {{-- <li><a href="#">Sustainability</a></li> --}}
                 </ul>
             </div>
 
@@ -95,8 +95,8 @@
                 © 2026 JACED FURNITURE. ALL RIGHTS RESERVED.
             </p>
             <div class="footer-legal-links">
-                <a href="#">Privacy Policy</a>
-                <a href="#">Terms of Service</a>
+                <a href="{{ auth()->check() ? route('profile.edit', auth()->id()).'?panel=privacy' : '#' }}">Privacy Policy</a>
+                <a href="{{ auth()->check() ? route('profile.edit', auth()->id()).'?panel=tos' : '#' }}">Terms of Service</a>
             </div>
         </div>
     </div>

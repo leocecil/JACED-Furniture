@@ -195,7 +195,7 @@
 
                 <p class="stat-label">Total Active Balance</p>
                 <div class="stat-balance">
-                    <span class="pts-number">{{ number_format($currentPoints) }}</span>
+                    <span class="pts-number">{{ number_format($currentPoints, 0, ',', '.') }}</span>
                     <small>Points</small>
                 </div>
                 <div class="balance-badge">
@@ -208,11 +208,11 @@
                 <div class="stat-mini-grid">
                     <div>
                         <p class="stat-label">Earned in {{ $selectedYear }}</p>
-                        <p class="stat-val earned">+{{ number_format($earnedThisYear) }} Pts</p>
+                        <p class="stat-val earned">+{{ number_format($earnedThisYear, 0, ',', '.') }} Pts</p>
                     </div>
                     <div>
                         <p class="stat-label">Used in {{ $selectedYear }}</p>
-                        <p class="stat-val redeemed">{{ number_format(abs($totalRedeemed)) }} Pts</p>
+                        <p class="stat-val redeemed">{{ number_format(abs($totalRedeemed), 0, ',', '.') }} Pts</p>
                     </div>
                 </div>
 
@@ -230,8 +230,8 @@
                     <div id="progressFill" style="height:100%;border-radius:999px;background:linear-gradient(90deg,#C17F4A,#D4956A);width:0%;transition:width 1.1s cubic-bezier(.4,0,.2,1);"></div>
                 </div>
                 <div style="display:flex;justify-content:space-between;font-size:10px;color:#B8A898;">
-                    <span>{{ number_format(abs($totalRedeemed)) }} redeemed</span>
-                    <span>{{ number_format(abs($totalRedeemed)) }} / {{ number_format($earnedThisYear) }} earned</span>
+                    <span>{{ number_format(abs($totalRedeemed), 0, ',', '.') }} redeemed</span>
+                    <span>{{ number_format(abs($totalRedeemed), 0, ',', '.') }} / {{ number_format($earnedThisYear, 0, ',', '.') }} earned</span>
                 </div>
 
                 {{-- Mini bar chart --}}
