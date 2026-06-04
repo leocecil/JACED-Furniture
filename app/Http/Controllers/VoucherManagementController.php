@@ -18,7 +18,7 @@ class VoucherManagementController extends Controller
         $totalTypes    = DB::table('voucher_types')->whereNull('deleted_at')->count();
         $activeTypes   = DB::table('voucher_types')->where('is_active', true)->whereNull('deleted_at')->count();
         $totalRedeemed = DB::table('vouchers')->whereNotNull('redeemed_at')->count();
-        $orderCount = Order::where('status', ['pending','packed'])->count();
+        $orderCount = Order::whereIn('status', ['on_process', 'packed'])->count();
         $totalDiscount = DB::table('vouchers')
             ->join('voucher_types', 'vouchers.voucher_type_id', '=', 'voucher_types.id')
             ->whereNotNull('vouchers.redeemed_at')

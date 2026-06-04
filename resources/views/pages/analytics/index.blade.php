@@ -20,7 +20,7 @@
 
     body {
         font-family: 'Lexend', sans-serif !important;
-        background-color: var(--jaced-caramel-bg) !important;
+        /* background-color: var(--jaced-caramel-bg) !important; */
         color: var(--jaced-brown-dark) !important;
     }
 
