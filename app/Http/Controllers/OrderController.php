@@ -136,6 +136,7 @@ class OrderController extends Controller
 
     public function processCheckout(Request $request)
     {
+        
         $cartItems = \App\Models\Cart::with('product')
                         ->where('user_id', Auth::id())
                         ->get();
@@ -146,13 +147,15 @@ class OrderController extends Controller
 
         $paymentMethod = $request->input('payment_method');
         $chosenBank    = $request->input('bank');
+        
+        
 
         $subtotalPrice = $cartItems->sum(fn($item) => $item->product->price * $item->quantity);
         
         if (empty($paymentMethod)) {
             return redirect()->back()->with('error', 'Silakan pilih metode pembayaran.');
         }
-
+       
         DB::beginTransaction();
         try {
             DB::statement('SET FOREIGN_KEY_CHECKS=0;');
@@ -166,7 +169,7 @@ class OrderController extends Controller
             $street    = '';
             $cityName  = '';
             $zip       = '';
-
+            
             // ── CASE 1: User edit alamat lama via modal sebelum checkout ──
             if ($addressAction === 'update' && $request->input('edit_address_id')) {
                 $editId = $request->input('edit_address_id');
@@ -203,22 +206,25 @@ class OrderController extends Controller
                     $zip       = $shippingAddress->postal_code;
                 }
             }
-
+            
             // ── CASE 2: Pakai alamat lama tanpa edit, atau buat alamat baru ──
             if (!isset($shippingAddress)) {
                 if ($addressId && $addressId !== 'new') {
                     $shippingAddress = ShippingAddress::find($addressId);
 
-                    if (!$shippingAddress || $shippingAddress->user_id !== Auth::id()) {
+                    if (!$shippingAddress || (int)$shippingAddress->user_id !== (int)Auth::id()) {
                         return redirect()->back()->with('error', 'Alamat tidak valid.');
                     }
-
+                    
+                    
                     $nameParts = explode(' ', $shippingAddress->receiver_name, 2);
                     $firstName = $nameParts[0] ?? '';
                     $lastName  = $nameParts[1] ?? '';
                     $street    = $shippingAddress->address_line1;
                     $cityName  = $shippingAddress->city_name;
                     $zip       = $shippingAddress->postal_code;
+                    
+                    
 
                 } else {
                     $receiverName = $request->input('receiver_name');
@@ -266,7 +272,7 @@ class OrderController extends Controller
                     }
                 }
             }
-
+            
             $totalWeight = 0;
             foreach ($cartItems as $cartItem) {
                 $product = $cartItem->product;
@@ -352,7 +358,6 @@ class OrderController extends Controller
                 ]);
             }
 
-            dd('SEBELUM MIDTRANS');
             // Midtrans
             \Midtrans\Config::$serverKey    = config('midtrans.server_key');
             \Midtrans\Config::$isProduction = config('midtrans.is_production');
@@ -451,7 +456,7 @@ class OrderController extends Controller
             if (!empty($enabledPayments)) {
                 $params['enabled_payments'] = $enabledPayments;
             }
-
+            
             $snapToken = Snap::getSnapToken($params);
  
             $order->update(['total_price' => $grossAmount]);
@@ -474,6 +479,7 @@ class OrderController extends Controller
 
         } catch (\Exception $e) {
             DB::rollBack();
+            dd('Ini yang bikin gagal bro: ', $e->getMessage(), 'Di Baris: ' . $e->getLine());
             Log::error('Checkout error: ' . $e->getMessage(), [
                 'file' => $e->getFile(),
                 'line' => $e->getLine(),
