@@ -1007,6 +1007,11 @@
 
     const addToCartBtn = document.getElementById('addToCartBtn');
     addToCartBtn.addEventListener('click', function() {
+        @guest
+        window.location.href = '{{ route("login") }}';
+        return;
+        @endguest
+
         const productId = '{{ $product->id }}';
         const quantity = parseInt(document.getElementById('cartQuantity').value) || 1;
 
@@ -1047,6 +1052,12 @@
         btn.addEventListener('click', function(e) {
             e.preventDefault();
             e.stopPropagation();
+
+            @guest
+            window.location.href = '{{ route("login") }}';
+            return;
+            @endguest
+
             const id = this.dataset.id;
             const name = this.dataset.name;
 
