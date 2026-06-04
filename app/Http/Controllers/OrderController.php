@@ -148,9 +148,7 @@ class OrderController extends Controller
         $chosenBank    = $request->input('bank');
 
         $subtotalPrice = $cartItems->sum(fn($item) => $item->product->price * $item->quantity);
-        if ($paymentMethod === 'qris' && $subtotalPrice > 10000000) {
-            return redirect()->back()->with('error', 'QRIS tidak bisa digunakan untuk transaksi di atas Rp 10.000.000.');
-        }
+        
         if (empty($paymentMethod)) {
             return redirect()->back()->with('error', 'Silakan pilih metode pembayaran.');
         }
@@ -658,6 +656,53 @@ class OrderController extends Controller
         }
         usort($allCosts, fn($a, $b) => $a['cost'] <=> $b['cost']);
         return response()->json(array_values($allCosts));
+    }
+
+    public function saveAddressFromCheckout(Request $request)
+    {
+        $user    = Auth::user();
+        $isFirst = \App\Models\ShippingAddress::where('user_id', $user->id)->count() === 0;
+
+        $address = \App\Models\ShippingAddress::create([
+            'user_id'        => $user->id,
+            'receiver_name'  => $request->receiver_name,
+            'receiver_phone' => $request->receiver_phone,
+            'address_line1'  => $request->address_line1,
+            'province_code'  => $request->province_code,
+            'province_name'  => $request->province_name,
+            'city_code'      => $request->city_code,
+            'city_name'      => $request->city_name,
+            'district_code'  => $request->district_code ?? '',
+            'district_name'  => $request->district_name ?? '',
+            'village_code'   => $request->village_code ?? '',
+            'village_name'   => $request->village_name,
+            'postal_code'    => $request->postal_code,
+            'is_default'     => $isFirst,
+        ]);
+
+        $pointsEarned = 0;
+        if ($isFirst && !$user->address_rewarded) {
+            $user->current_points     += 50;
+            $user->accumulated_points += 50;
+            $user->address_rewarded    = true;
+            $user->save();
+
+            \App\Models\PointHistory::create([
+                'user_id'    => $user->id,
+                'points'     => 50,
+                'type'       => 'earned',
+                'source'     => 'Profile Completion - Address',
+                'expired_at' => now()->addYear(),
+            ]);
+
+            $pointsEarned = 50;
+        }
+
+        return response()->json([
+            'success'       => true,
+            'address_id'    => $address->id,
+            'points_earned' => $pointsEarned,
+        ]);
     }
 
 
