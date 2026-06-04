@@ -136,6 +136,7 @@ class OrderController extends Controller
 
     public function processCheckout(Request $request)
     {
+        dd('masuk');
         $cartItems = \App\Models\Cart::with('product')
                         ->where('user_id', Auth::id())
                         ->get();
