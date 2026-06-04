@@ -352,6 +352,7 @@ class OrderController extends Controller
                 ]);
             }
 
+            dd('SEBELUM MIDTRANS');
             // Midtrans
             \Midtrans\Config::$serverKey    = config('midtrans.server_key');
             \Midtrans\Config::$isProduction = config('midtrans.is_production');
