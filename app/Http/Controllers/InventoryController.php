@@ -8,25 +8,22 @@ use App\Models\Product;
 use App\Models\ProductCategory;
 use App\Models\ProductImage;
 use Illuminate\Http\Request;
+use Illuminate\Support\Str;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Storage;
 
 class InventoryController extends Controller
 {
     // ── GET /admin/inventory
     public function index(Request $request)
     {
-        $orderCount = Order::where('status', ['pending','packed'])->count();
+        $orderCount = Order::whereIn('status', ['pending', 'packed'])->count();
 
-        // withTrashed() agar produk soft-deleted tetap ikut query filter & sort
         $query = Product::withTrashed()->with(['category', 'images']);
 
-        // Filter by category
         if ($request->filled('category_id')) {
             $query->where('category_id', (int) $request->category_id);
         }
 
-        // Sort
         match ($request->get('sort', 'newest')) {
             'oldest'     => $query->oldest(),
             'price_high' => $query->orderByDesc('price'),
@@ -35,20 +32,31 @@ class InventoryController extends Controller
             default      => $query->latest(),
         };
 
-        // withQueryString() agar parameter ?category_id=X&sort=Y tetap terbawa saat paginasi
         $products   = $query->paginate(6)->withQueryString();
         $categories = ProductCategory::orderBy('name')->get();
 
         return view('pages.inventory.index', compact('orderCount', 'products', 'categories'));
     }
 
-    // ── POST /admin/inventory
-    public function store(StoreProductRequest $request)
+    // ── POST /admin/inventory (Mendukung upload langsung ke public/image/nama-produk/)
+   public function store(StoreProductRequest $request)
     {
-        DB::transaction(function () use ($request) {
+        // ── PENCEGAHAN DUPLIKASI BARANG ──
+        // Cek apakah ada produk dengan nama yang sama (termasuk yang ada di dalam trash/soft-deleted)
+        $namaSama = Product::withTrashed()
+            ->where('name', trim($request->name))
+            ->exists();
 
+        if ($namaSama) {
+            return redirect()
+                ->back()
+                ->withInput() // Mempertahankan isi form yang sudah diketik admin agar tidak hilang
+                ->with('error', 'Gagal menambahkan! Produk dengan nama "' . $request->name . '" sudah terdaftar di dalam sistem Jaced Furniture. Gunakan nama lain atau edit produk yang sudah ada.');
+        }
+
+        DB::transaction(function () use ($request) {
             $product = Product::create([
-                'name'        => $request->name,
+                'name'        => trim($request->name),
                 'description' => $request->description,
                 'length'      => $request->length,
                 'width'       => $request->width,
@@ -61,14 +69,20 @@ class InventoryController extends Controller
                 'category_id' => $request->category_id,
             ]);
 
-            // Upload images[] → ProductImage
             if ($request->hasFile('images')) {
+                $folderName = Str::slug($product->name); 
+                
                 foreach ($request->file('images') as $index => $image) {
-                    $path = $image->store('products', 'public');
+                    $increment = $index + 1;
+                    $extension = $image->getClientOriginalExtension();
+                    $fileName  = "{$increment}.{$extension}";
+
+                    $image->move(public_path("image/{$folderName}"), $fileName);
+
                     ProductImage::create([
                         'product_id' => $product->id,
-                        'image_path' => $path,
-                        'is_main'    => $index === 0, // gambar pertama jadi main
+                        'image_path' => "image/{$folderName}/{$fileName}",
+                        'is_main'    => $index === 0,
                         'sort_order' => $index,
                     ]);
                 }
@@ -84,7 +98,6 @@ class InventoryController extends Controller
     public function update(StoreProductRequest $request, Product $inventory)
     {
         DB::transaction(function () use ($request, $inventory) {
-
             $inventory->update([
                 'name'        => $request->name,
                 'description' => $request->description,
@@ -99,14 +112,20 @@ class InventoryController extends Controller
                 'category_id' => $request->category_id,
             ]);
 
-            // Tambah gambar baru jika ada
             if ($request->hasFile('images')) {
-                $lastOrder = $inventory->images()->max('sort_order') ?? -1;
+                $folderName = Str::slug($inventory->name);
+                $lastOrder  = $inventory->images()->max('sort_order') ?? -1;
+
                 foreach ($request->file('images') as $index => $image) {
-                    $path = $image->store('products', 'public');
+                    $increment = $lastOrder + $index + 2; // Melanjutkan penomoran angka berkas gambar terakhir
+                    $extension = $image->getClientOriginalExtension();
+                    $fileName  = "{$increment}.{$extension}";
+
+                    $image->move(public_path("image/{$folderName}"), $fileName);
+
                     ProductImage::create([
                         'product_id' => $inventory->id,
-                        'image_path' => $path,
+                        'image_path' => "image/{$folderName}/{$fileName}",
                         'is_main'    => false,
                         'sort_order' => $lastOrder + $index + 1,
                     ]);
@@ -119,13 +138,10 @@ class InventoryController extends Controller
             ->with('success', 'Product "' . $request->name . '" updated.');
     }
 
-    // ── DELETE /admin/inventory/{inventory} — soft delete
+    // ── DELETE /admin/inventory/{inventory}
     public function destroy(Product $inventory)
     {
-        // Paksa tipe data stock menjadi integer agar akurat
         $stokAktif = (int) $inventory->stock;
-
-        // Aturan bisnis: tidak bisa hapus jika stok masih ada
         if ($stokAktif > 0) {
             return redirect()
                 ->back()
@@ -133,29 +149,33 @@ class InventoryController extends Controller
         }
 
         $name = $inventory->name;
-        $inventory->delete(); // soft delete → deleted_at terisi otomatis
+        $inventory->delete();
 
         return redirect()
             ->route('inventory.index')
             ->with('success', 'Product "' . $name . '" berhasil dinonaktifkan.');
     }
 
-    // ── POST /admin/inventory/{id}/restore — kembalikan soft-deleted product
+    // ── POST /admin/inventory/{id}/restore
     public function restore($id)
     {
-        // withTrashed() wajib karena data soft-deleted disembunyikan oleh default query
         $product = Product::withTrashed()->findOrFail($id);
-        $product->restore(); // deleted_at → NULL
+        $product->restore();
 
         return redirect()
             ->route('inventory.index')
             ->with('success', 'Product "' . $product->name . '" berhasil dikembalikan ke katalog.');
     }
 
-    // ── DELETE /admin/inventory/image/{image} — hapus 1 gambar (AJAX)
+    // ── DELETE /admin/inventory/image/{image}
     public function destroyImage(ProductImage $image)
     {
-        Storage::disk('public')->delete($image->image_path);
+        // Hapus file fisik langsung dari folder public/image/
+        $absolutePath = public_path($image->image_path);
+        if (file_exists($absolutePath)) {
+            @unlink($absolutePath);
+        }
+        
         $image->delete();
         return response()->json(['success' => true]);
     }
