@@ -119,6 +119,25 @@
         .send-btn:active { transform: scale(0.94); }
         .send-btn svg { width: 16px; height: 16px; fill: var(--white); }
         .notif-badge { position: absolute; top: -3px; right: -3px; width: 16px; height: 16px; background: #D85A30; border-radius: 50%; font-size: 10px; color: white; display: flex; align-items: center; justify-content: center; font-weight: 500; }
+
+        @media (max-width: 520px) {
+            #chat-widget {
+                width: 100vw !important;
+                height: 85dvh !important;
+                bottom: 0 !important;
+                right: 0 !important;
+                border-radius: 20px 20px 0 0 !important;
+            }
+            #chat-launcher {
+                bottom: 16px;
+                right: 16px;
+                width: 50px;
+                height: 50px;
+            }
+            .product-card-img { width: 72px; min-height: 72px; font-size: 1.6rem; }
+            .product-card-name, .product-card-price { font-size: 12px; }
+            body.chat-open { overflow: hidden; }
+        }
     </style>
 </head>
 <body>
@@ -329,22 +348,40 @@
 
         // ===== TOGGLE =====
         function toggleChat() {
-        isOpen = !isOpen;
-        const widget = document.getElementById('chat-widget');
-        const launcher = document.getElementById('chat-launcher');
-        const badge = document.getElementById('notif-badge');
+            isOpen = !isOpen;
+            const widget = document.getElementById('chat-widget');
+            const launcher = document.getElementById('chat-launcher');
+            const badge = document.getElementById('notif-badge');
 
-        widget.classList.toggle('open', isOpen);
-        launcher.querySelector('.icon-chat').style.display = isOpen ? 'none' : 'block';
-        launcher.querySelector('.icon-close').style.display = isOpen ? 'block' : 'none';
-        if (badge) badge.style.display = 'none';
+            widget.classList.toggle('open', isOpen);
+            launcher.querySelector('.icon-chat').style.display = isOpen ? 'none' : 'block';
+            launcher.querySelector('.icon-close').style.display = isOpen ? 'block' : 'none';
+            document.body.classList.toggle('chat-open', isOpen);
+            if (badge) badge.style.display = 'none';
 
+            if (isOpen) {
+                history.pushState({ chatOpen: true }, '');
+                setTimeout(() => document.getElementById('chat-input').focus(), 300);
+                scrollToBottom();
+            }
+        }
+
+        // Close on back button
+        window.addEventListener('popstate', (e) => {
         if (isOpen) {
-            setTimeout(() => document.getElementById('chat-input').focus(), 300);
-            scrollToBottom();
+            isOpen = false;
+            document.getElementById('chat-widget')
+            .classList.remove('open');
+            document.querySelector('.icon-chat')
+            .style.display = 'block';
+            document.querySelector('.icon-close')
+            .style.display = 'none';
         }
-        }
+        });
 
+        // window.addEventListener('popstate', () => {
+        //     if (isOpen) toggleChat();
+        // });
         // ===== SEND =====
         async function sendMessage() {
             const input = document.getElementById('chat-input');
@@ -394,7 +431,6 @@
                 hideTyping();
                 isTyping = false;
                 addBotMessage(parsed);
-
             } catch (err) {
                 hideTyping();
                 isTyping = false;
