@@ -435,7 +435,7 @@
         /* ===== HERO ===== */
         .shop-hero {
             position: relative; padding: 180px 24px 80px;
-            background-image: url('https://images.unsplash.com/photo-1556228720-195a672e8a03?q=80&w=1600&auto=format&fit=crop');
+            background-image: url('https://images.unsplash.com/photo-1555041469-a586c61ea9bc?q=80&w=1600&auto=format&fit=crop');
             background-size: cover; background-position: center; overflow: hidden;
         }
         .shop-hero-overlay { position: absolute; inset: 0; background: linear-gradient(180deg, rgba(39,46,29,0.7) 0%, rgba(39,46,29,0.55) 100%); z-index: 1; }
@@ -500,7 +500,7 @@
             transition: opacity 0.25s ease, transform 0.25s ease, visibility 0.25s;
             z-index: 200;
         }
-        .shop-filter-pill-wrap.open .shop-filter-dropdown { opacity: 1; visibility: visible; transform: translateY(0); }
+        .shop-filter-pill-wrap.open .shop-filter-dropdown {position: fixed; opacity: 1; visibility: visible; transform: translateY(0); z-index: 9999;}
         .shop-dd-option {
             display: flex; align-items: center; justify-content: space-between;
             width: 100%; background: transparent; border: none; text-align: left;
@@ -847,12 +847,22 @@
                 trigger.addEventListener('click', function(e) {
                     e.stopPropagation();
                     const isOpen = wrap.classList.contains('open');
-                    // close all
                     pills.forEach(function(x) {
                         const w = document.getElementById(x.wrap);
                         if (w) w.classList.remove('open');
                     });
-                    if (!isOpen) wrap.classList.add('open');
+                    if (!isOpen) {
+                        wrap.classList.add('open');
+                        // Posisiin dropdown relative ke button
+                        const menu = document.getElementById(p.menu);
+                        const rect = wrap.getBoundingClientRect();
+                        if (menu) {
+                            menu.style.position = 'fixed';
+                            menu.style.top = (rect.bottom + 8) + 'px';
+                            menu.style.left = rect.left + 'px';
+                            menu.style.zIndex = '9999';
+                        }
+                    }
                 });
             });
 

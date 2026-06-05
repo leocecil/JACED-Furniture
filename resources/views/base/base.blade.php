@@ -16,6 +16,53 @@
     @stack('styles') 
     
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" integrity="sha512-DTOQO9RWCH3ppGqcWaEA1BIZOC6xxalwEsw9c2QQeAIftl+Vegovlnee1c9QX4TctnWMn13TZye+giMm8e2LwA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+
+    <div class="custom-cursor" id="customCursor"></div>
+
+    <script>
+    const cursor = document.getElementById('customCursor');
+
+    document.addEventListener('mousemove', function(e) {
+        cursor.style.left = e.clientX + 'px';
+        cursor.style.top = e.clientY + 'px';
+        createSparkle(e.clientX, e.clientY);
+    });
+
+    document.addEventListener('mouseover', function(e) {
+        const el = e.target;
+        const isClickable = el.closest('a, button, [role="button"], input, select, textarea, label, .shop-filter-pill, .category-slide-item, .shop-product-card');
+        cursor.classList.toggle('hovering', !!isClickable);
+    });
+
+    let sparkleThrottle = 0;
+
+    function createSparkle(x, y) {
+        const now = Date.now();
+        if (now - sparkleThrottle < 40) return;
+        sparkleThrottle = now;
+
+        const sparkle = document.createElement('div');
+        sparkle.className = 'cursor-sparkle';
+
+        const size = Math.random() * 6 + 3;
+        const angle = Math.random() * 360;
+        const distance = Math.random() * 24 + 8;
+        const duration = Math.random() * 400 + 300;
+
+        sparkle.style.cssText = `
+            left: ${x}px;
+            top: ${y}px;
+            width: ${size}px;
+            height: ${size}px;
+            --angle: ${angle}deg;
+            --distance: ${distance}px;
+            --duration: ${duration}ms;
+        `;
+
+        document.body.appendChild(sparkle);
+        setTimeout(() => sparkle.remove(), duration);
+    }
+    </script>
     
     <style>
         body {
@@ -119,6 +166,51 @@
         .send-btn:active { transform: scale(0.94); }
         .send-btn svg { width: 16px; height: 16px; fill: var(--white); }
         .notif-badge { position: absolute; top: -3px; right: -3px; width: 16px; height: 16px; background: #D85A30; border-radius: 50%; font-size: 10px; color: white; display: flex; align-items: center; justify-content: center; font-weight: 500; }
+
+        *, *::before, *::after {
+            cursor: none !important;
+        }
+
+        .custom-cursor {
+            position: fixed;
+            width: 10px;
+            height: 10px;
+            background: var(--jaced-caramel);
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: 99999;
+            transform: translate(-50%, -50%);
+            transition: transform 0.15s ease, width 0.2s ease, height 0.2s ease, background 0.2s ease;
+        }
+
+        .custom-cursor.hovering {
+            width: 28px;
+            height: 28px;
+            background: transparent;
+            border: 2px solid var(--jaced-caramel);
+        }
+
+        .cursor-sparkle {
+            position: fixed;
+            border-radius: 50%;
+            background: var(--jaced-caramel);
+            pointer-events: none;
+            z-index: 99998;
+            transform: translate(-50%, -50%);
+            animation: sparkle-out var(--duration) ease-out forwards;
+            opacity: 0.7;
+        }
+
+        @keyframes sparkle-out {
+            0% {
+                opacity: 0.7;
+                transform: translate(-50%, -50%) rotate(var(--angle)) translateY(0);
+            }
+            100% {
+                opacity: 0;
+                transform: translate(-50%, -50%) rotate(var(--angle)) translateY(calc(var(--distance) * -1));
+            }
+        }
     </style>
 </head>
 <body>

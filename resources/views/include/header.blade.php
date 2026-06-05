@@ -116,6 +116,7 @@
     @keyframes navbarReveal { to { opacity: 1; transform: translateY(0); } }
 
     @media (max-width: 991.98px) {
+        
         .navbar-collapse { background: #ffffff; padding: 24px; border-radius: 12px; margin-top: 14px; box-shadow: 0 12px 36px rgba(0,0,0,0.1); }
         .navbar-collapse .nav-link, .navbar-collapse .user-btn { color: #1c1c1a !important; text-shadow: none !important; padding: 10px 0; }
         .mobile-nav-spacing { margin-bottom: 20px !important; }
@@ -123,6 +124,13 @@
         .w-mobile-100 { width: 100% !important; justify-content: center; }
         #customUserMenu { position: static !important; width: 100%; box-shadow: none !important; background: #faf9f6; }
         .branding-title { font-size: 1.15rem !important; }
+        .transition-navbar.home-navbar:not(.scrolled) .navbar-collapse .nav-link {
+            color: #1c1c1a !important;
+        }
+        .transition-navbar.home-navbar:not(.scrolled) .nav-link {
+            color: #1c1c1a !important;
+        }
+        
     }
 </style>
 
