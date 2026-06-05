@@ -133,6 +133,18 @@
         .transition-navbar.home-navbar:not(.scrolled) .nav-link {
             color: #1c1c1a !important;
         }
+
+        .navbar-collapse .user-btn,
+        .navbar-collapse .user-btn span,
+        .navbar-collapse .user-btn i {
+            color: #1c1c1a !important;
+            opacity: 1 !important;
+        }
+s
+        .navbar-collapse .fa-user-circle,
+        .navbar-collapse .fa-chevron-down {
+            color: #1c1c1a !important;
+        }
         
     }
 </style>

@@ -14,7 +14,7 @@
                 <button type="button" data-bs-target="#heroCarousel" data-bs-slide-to="2"></button>
             </div>
 
-            <div class="caro    usel-inner" style="height: 100svh; overflow: hidden;">
+            <div class="carousel-inner" style="height: 100svh; overflow: hidden;">
                 <div class="carousel-item active">
                     <div class="hero-slide" style="background-image: url('https://images.unsplash.com/photo-1505693416388-ac5ce068fe85?q=80&w=1600&auto=format&fit=crop');">
                         <div class="hero-overlay"></div>
@@ -357,34 +357,20 @@
         }
 
         @media (max-width: 768px) {
-            .hero-carousel-block .carousel-inner {
-                display: block !important;
+            .hero-section,
+            #heroCarousel,
+            .hero-carousel-block,
+            .hero-carousel-block .carousel-inner,
+            .hero-carousel-block .carousel-item,
+            .hero-slide {
+                height: 66vw !important;   /* portrait 4:5 */
+                min-height: unset !important;
+                max-height: 88svh !important;
                 overflow: hidden !important;
-                height: 100svh !important;
             }
-            #heroCarousel .carousel-item {
-                display: none !important;
-            }
-            #heroCarousel .carousel-item.active {
-                display: block !important;
-                height: 100svh !important;
-            }
-            #heroCarousel .carousel-indicators,
             #heroCarousel .carousel-control-prev,
             #heroCarousel .carousel-control-next {
                 display: none !important;
-            }
-            .hero-section {
-                height: 100svh !important;
-                min-height: unset !important;
-                overflow: hidden !important;
-            }
-            .hero-carousel-block {
-                height: 100svh !important;
-            }
-            .hero-slide {
-                height: 100svh !important;
-                min-height: unset !important;
             }
         }
         /* ===== KEN BURNS HERO ===== */
@@ -728,17 +714,17 @@
             }
 
             .hero-title{
-                font-size:clamp(2rem,10vw,3.5rem);
+                font-size:clamp(1.6rem,8vw,2.8rem);
                 line-height:1;
             }
 
             .hero-subtitle{
-                font-size:10px;
+                font-size:8px;
                 letter-spacing:.2em;
             }
 
             .hero-desc{
-                font-size:15px;
+                font-size:13px;
             }
 
             .stats-section{
@@ -784,8 +770,8 @@
 
         @media (max-width:576px){
 
-            .hero-title { font-size: clamp(1.6rem, 7vw, 2.2rem); line-height: 1.1; }
-            .hero-desc { font-size: 13px; margin-bottom: 12px !important; }
+            .hero-title { font-size: clamp(1.4rem, 6vw, 2rem); line-height: 1.1; }
+            .hero-desc { font-size: 11px; margin-bottom: 11px !important; }
             .hero-subtitle { font-size: 9px; letter-spacing: 0.2em; }
             .hero-content { padding: 0 20px; }
 
@@ -799,8 +785,8 @@
 
             .hero-content .btn{
                 width: auto !important;
-                padding: 8px 16px !important;
-                font-size: 12px !important;
+                padding: 6px 12px !important;
+                font-size: 11px !important;
                 justify-content: center;
             }
 
@@ -974,31 +960,6 @@
     </style>
 
     <script>
-        // Fix carousel mobile - jalanin SEBELUM Bootstrap init
-        (function() {
-            if (window.innerWidth > 768) return;
-            
-            const style = document.createElement('style');
-            style.textContent = `
-                #heroCarousel .carousel-inner { display: block !important; }
-                #heroCarousel .carousel-item { display: none !important; height: 0 !important; }
-                #heroCarousel .carousel-item.active { display: block !important; height: 100svh !important; }
-            `;
-            document.head.appendChild(style);
-
-            document.addEventListener('DOMContentLoaded', function() {
-                const carousel = document.getElementById('heroCarousel');
-                if (!carousel) return;
-                
-                // Override Bootstrap setelah dia init
-                const observer = new MutationObserver(function() {
-                    const inner = carousel.querySelector('.carousel-inner');
-                    if (inner) inner.style.removeProperty('display');
-                });
-                
-                observer.observe(carousel, { attributes: true, subtree: true, attributeFilter: ['style'] });
-            });
-        })();
         if (history.scrollRestoration) {
             history.scrollRestoration = 'manual';
         }
