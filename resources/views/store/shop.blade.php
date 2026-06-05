@@ -501,7 +501,7 @@
             transition: opacity 0.25s ease, transform 0.25s ease, visibility 0.25s;
             z-index: 200;
         }
-        .shop-filter-pill-wrap.open .shop-filter-dropdown {position: fixed; opacity: 1; visibility: visible; transform: translateY(0); z-index: 9999;}
+        .shop-filter-pill-wrap.open .shop-filter-dropdown { opacity: 1; visibility: visible; transform: translateY(0); }        
         .shop-dd-option {
             display: flex; align-items: center; justify-content: space-between;
             width: 100%; background: transparent; border: none; text-align: left;
