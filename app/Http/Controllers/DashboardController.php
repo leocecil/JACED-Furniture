@@ -18,7 +18,6 @@ class DashboardController extends Controller
             ->whereNotIn('status', ['cancelled', 'unpaid'])
             ->selectRaw('SUM(total_price - revenue_deduction) as revenue')
             ->value('revenue') ?? 0;
-
         $totalOrders = DB::table('orders')->count();
 
         $inDelivery = DB::table('orders')
