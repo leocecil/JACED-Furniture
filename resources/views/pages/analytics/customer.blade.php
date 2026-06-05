@@ -112,47 +112,39 @@
     </div>
 
     {{-- ── 3. MASTER TABLE LIST CUSTOMER ── --}}
-    <div class="row">
-        <div class="col-12">
+    <div class="row flex-grow-1 min-height-0 h-100">
+        <div class="col-12 h-100 d-flex flex-column">
             <div class="sticky-ledger-card shadow-sm">
+                
+                {{-- Bagian Header Controls (Stay Terkunci di Atas) --}}
                 <div class="ledger-sticky-header">
                     <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3">
                         <div>
                             <div class="d-flex align-items-center">
                                 <h5 class="fw-bold m-0 mb-1" style="color: var(--jaced-brown-dark);">Customer Database Master</h5>
-                                <span class="badge bg-light text-dark ms-2 border" style="font-size: 11px;" id="visibleCountBadge">{{ count($allCustomers ?? []) }} users</span>
+                                @php
+                                    $onlyCustomers = collect($allCustomers ?? [])->filter(fn($c) => !($c->is_admin ?? false));
+                                @endphp
+                                <span class="badge bg-light text-dark ms-2 border" style="font-size: 11px;" id="visibleCountBadge">{{ $onlyCustomers->count() }} customers</span>
                             </div>
                             <p class="text-muted m-0 small">Kelola, filter, dan telusuri profil seluruh member Jaced Furniture terdaftar.</p>
                         </div>
                         
-                        {{-- Container Grup Filter & Search --}}
-                        <div class="d-flex flex-column flex-sm-row align-items-sm-center gap-2" style="max-width: 550px; width: 100%;">
-                            
-                            {{-- Filter Dropdown Role --}}
-                            <div class="position-relative flex-shrink-0">
-                                <select class="form-select filter-select shadow-none" id="roleFilterInput" onchange="executeCombinedFilter()">
-                                    <option value="all">All Roles</option>
-                                    <option value="customer">Customer</option>
-                                    <option value="admin">Admin</option>
-                                </select>
-                            </div>
-
-                            {{-- Live Search Box --}}
-                            <div class="position-relative flex-grow-1">
-                                <i class="bi bi-search position-absolute" style="left: 14px; top: 50%; transform: translateY(-50%); color: #9c9890; font-size: 13px;"></i>
-                                <input type="text" 
-                                       class="form-control" 
-                                       id="mainCustomerSearchInput" 
-                                       placeholder="Cari nama atau email member..." 
-                                       oninput="executeCombinedFilter()"
-                                       style="padding-left: 38px; border-radius: 10px; font-size: 13px; background: #faf9f7;"
-                                       autocomplete="off">
-                            </div>
+                        {{-- Container Grup Search --}}
+                        <div class="position-relative" style="max-width: 360px; width: 100%;">
+                            <i class="bi bi-search position-absolute" style="left: 14px; top: 50%; transform: translateY(-50%); color: #9c9890; font-size: 13px;"></i>
+                            <input type="text" 
+                                   class="form-control" 
+                                   id="mainCustomerSearchInput" 
+                                   placeholder="Cari nama atau email member..." 
+                                   oninput="filterMasterCustomers(this.value)"
+                                   style="padding-left: 38px; border-radius: 10px; font-size: 13px; background: #faf9f7;"
+                                   autocomplete="off">
                         </div>
                     </div>
                 </div>
 
-                {{-- 🌟 FIX: Area Konten Data yang dapat di-scroll --}}
+                {{-- Area Konten Data yang Dapat Di-scroll Secara Internal --}}
                 <div class="ledger-scrollable-body">
                     <div class="table-responsive rounded-3 border mt-3" style="border-color: #e2ddd8 !important;">
                         <table class="table table-custom align-middle m-0" style="--bs-table-bg: transparent; font-size: 13px;">
@@ -167,7 +159,7 @@
                             </thead>
                             <tbody id="masterCustomerTableBody">
                                 @php
-                                    $sortedCustomers = collect($allCustomers ?? [])->sortBy(fn($c) => strtolower($c->name));
+                                    $sortedCustomers = $onlyCustomers->sortBy(fn($c) => strtolower($c->name));
                                 @endphp
 
                                 @forelse($sortedCustomers as $customer)
@@ -179,13 +171,11 @@
                                         else                  { $t = 'PLATINUM'; $b = '#708090'; }
 
                                         $totalSpendFormatted = 'Rp ' . number_format($customer->total_spend ?? 0, 0, ',', '.');
-                                        $isAdminFlag = isset($customer->is_admin) && $customer->is_admin ? '1' : '0';
                                     @endphp
                                     
                                     <tr class="master-customer-row" 
                                         data-name="{{ strtolower($customer->name) }}" 
-                                        data-email="{{ strtolower($customer->email) }}"
-                                        data-is-admin="{{ $isAdminFlag }}">
+                                        data-email="{{ strtolower($customer->email) }}">
                                         
                                         <td class="py-3 ps-3">
                                             <div class="d-flex align-items-center">
@@ -200,9 +190,6 @@
                                                 <div class="ps-1">
                                                     <div class="fw-bold text-dark d-flex align-items-center gap-2">
                                                         {{ $customer->name }}
-                                                        @if($isAdminFlag === '1')
-                                                            <span class="badge bg-dark-subtle text-dark border px-1.5 py-0.5" style="font-size: 9px; font-weight: 700;">ADMIN</span>
-                                                        @endif
                                                     </div>
                                                     <div class="text-muted" style="font-size: 11px; margin-top: 1px;">{{ $customer->email }}</div>
                                                 </div>
@@ -212,22 +199,14 @@
                                         <td class="fw-semibold text-muted small">JCF-{{ $customer->id }}</td>
                                         
                                         <td class="text-center">
-                                            @if($isAdminFlag === '1')
-                                                <span class="text-muted small fw-medium">—</span>
-                                            @else
-                                                <span class="badge rounded-pill px-3 py-1.5 fw-bold"
-                                                      style="background-color: {{ $b }}20; color: {{ $b }}; font-size: 9px; letter-spacing: 0.03em;">
-                                                    {{ $t }}
-                                                </span>
-                                            @endif
+                                            <span class="badge rounded-pill px-3 py-1.5 fw-bold"
+                                                  style="background-color: {{ $b }}20; color: {{ $b }}; font-size: 9px; letter-spacing: 0.03em;">
+                                                {{ $t }}
+                                            </span>
                                         </td>
                                         
                                         <td class="fw-bold small text-end text-dark">
-                                            @if($isAdminFlag === '1')
-                                                <span class="text-muted small fw-medium">—</span>
-                                            @else
-                                                {{ $totalSpendFormatted }}
-                                            @endif
+                                            {{ $totalSpendFormatted }}
                                         </td>
                                         
                                         <td class="text-center pe-3">
@@ -239,9 +218,9 @@
                                                         '{{ addslashes($customer->name) }}',
                                                         '{{ $customer->email }}',
                                                         '{{ $customer->avatar ? asset($customer->avatar) : '' }}',
-                                                        '{{ $isAdminFlag === '1' ? '—' : number_format($pts) . ' pts' }}',
-                                                        '{{ $isAdminFlag === '1' ? 'ADMIN' : $t . ' TIER' }}',
-                                                        '{{ $isAdminFlag === '1' ? '#1c1c1a' : $b }}'
+                                                        '{{ number_format($pts) . ' pts' }}',
+                                                        '{{ $t . ' TIER' }}',
+                                                        '{{ $b }}'
                                                     )">
                                                 <i class="bi bi-eye"></i>
                                             </button>
@@ -259,7 +238,7 @@
                                 <tr id="masterCustomerEmptyRow" style="display: none;">
                                     <td colspan="5" class="text-center py-5 text-muted">
                                         <i class="bi bi-search d-block fs-3 opacity-25 mb-2"></i>
-                                        Tidak ada kustomer atau pengelola yang cocok dengan kriteria filter.
+                                        Tidak ada kustomer yang cocok dengan kriteria pencarian.
                                     </td>
                                 </tr>
                             </tbody>
@@ -314,10 +293,8 @@
 @push('scripts')
 <script>
 // Filter Gabungan Real-time (Teks Pencarian + Opsi Dropdown Peran)
-function executeCombinedFilter() {
-    const searchQuery = document.getElementById('mainCustomerSearchInput').value.trim().toLowerCase();
-    const selectedRole = document.getElementById('roleFilterInput').value;
-    
+function filterMasterCustomers(query) {
+    const q = query.trim().toLowerCase();
     const rows = document.querySelectorAll('#masterCustomerTableBody .master-customer-row');
     const emptyRow = document.getElementById('masterCustomerEmptyRow');
     const countBadge = document.getElementById('visibleCountBadge');
@@ -327,20 +304,11 @@ function executeCombinedFilter() {
     rows.forEach(row => {
         const name = row.getAttribute('data-name') || '';
         const email = row.getAttribute('data-email') || '';
-        const isAdmin = row.getAttribute('data-is-admin') || '0';
+        
+        // Memeriksa kecocokan nama atau email kustomer dengan kata kunci
+        const match = !q || name.includes(q) || email.includes(q);
 
-        const matchesSearch = !searchQuery || name.includes(searchQuery) || email.includes(searchQuery);
-
-        let matchesRole = false;
-        if (selectedRole === 'all') {
-            matchesRole = true;
-        } else if (selectedRole === 'admin') {
-            matchesRole = (isAdmin === '1');
-        } else if (selectedRole === 'customer') {
-            matchesRole = (isAdmin === '0');
-        }
-
-        if (matchesSearch && matchesRole) {
+        if (match) {
             row.style.display = '';
             totalVisible++;
         } else {
@@ -349,10 +317,10 @@ function executeCombinedFilter() {
     });
 
     if (emptyRow) emptyRow.style.display = totalVisible === 0 ? 'table-row' : 'none';
-    if (countBadge) countBadge.textContent = totalVisible + (selectedRole === 'all' ? ' users' : (selectedRole === 'admin' ? ' admins' : ' customers'));
+    if (countBadge) countBadge.textContent = totalVisible + ' customers';
 }
 
-// Trigger modal detail customer/admin
+// Trigger modal detail customer
 function triggerCustomerModal(name, email, avatarUrl, points, tier, badgeColor) {
     document.getElementById('modalCustName').textContent   = name;
     document.getElementById('modalCustEmail').textContent  = email;
