@@ -718,7 +718,7 @@
         
         /* MOBILE (max 768px) */
         @media (max-width: 768px) {
-            .shop-hero { padding: 120px 16px 48px; }
+            .shop-hero { padding: 75px; }
             .shop-hero-title { font-size: clamp(2rem, 8vw, 3rem); }
         
             .shop-search-input { font-size: 13px; padding: 12px 40px 12px 44px; }

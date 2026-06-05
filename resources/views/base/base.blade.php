@@ -198,7 +198,7 @@
             #chat-close-btn { display: flex !important; }
         }
 
-            *, *::before, *::after {
+        *, *::before, *::after {
             cursor: none !important;
         }
 
@@ -206,7 +206,7 @@
             position: fixed;
             width: 10px;
             height: 10px;
-            background: var(--jaced-caramel);
+            background-color: gold;
             border-radius: 50%;
             pointer-events: none;
             z-index: 99999;
@@ -218,13 +218,13 @@
             width: 28px;
             height: 28px;
             background: transparent;
-            border: 2px solid var(--jaced-caramel);
+            border: 2px solid gold;
         }
 
         .cursor-sparkle {
             position: fixed;
             border-radius: 50%;
-            background: var(--jaced-caramel);
+            background-color: gold;
             pointer-events: none;
             z-index: 99998;
             transform: translate(-50%, -50%);
@@ -242,6 +242,7 @@
                 transform: translate(-50%, -50%) rotate(var(--angle)) translateY(calc(var(--distance) * -1));
             }
         }
+
     </style>
 </head>
 <body>
