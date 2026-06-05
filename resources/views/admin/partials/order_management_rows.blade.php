@@ -352,14 +352,35 @@ $disputeTypeLabels = [
                         </div>
 
                         @elseif($order->status === 'cancelled')
-                        <div style="background:#FFEBEE; border-radius:10px; padding:12px 14px;">
-                            <p style="font-size:12px; color:#C62828; font-weight:600; margin:0 0 4px;">
-                                <i class="bi bi-x-circle"></i> Order Cancelled
-                            </p>
-                            @if($order->cancellation_reason)
-                            <p style="font-size:11px; color:var(--jaced-muted); margin:0;">{{ $order->cancellation_reason }}</p>
+                            @php
+                                $isRefundRequested = $order->cancellation_reason && str_contains($order->cancellation_reason, '[Refund Requested]');
+                                $isRefundDone      = $order->refund_status === 'completed';
+                            @endphp
+                            <div style="background:#FFEBEE; border-radius:10px; padding:12px 14px;">
+                                <p style="font-size:12px; color:#C62828; font-weight:600; margin:0 0 4px;">
+                                    @if($isRefundRequested && $isRefundDone)
+                                        <i class="bi bi-check-circle"></i> Refund Confirmed
+                                    @else
+                                        <i class="bi bi-x-circle"></i> Order Cancelled
+                                    @endif
+                                </p>
+                                @if($order->cancellation_reason)
+                                <p style="font-size:11px; color:var(--jaced-muted); margin:0;">{{ $order->cancellation_reason }}</p>
+                                @endif
+                            </div>
+
+                            @if($isRefundRequested && !$isRefundDone)
+                            <button
+                                onclick="confirmCancellationRefund({{ $order->id }})"
+                                id="refund-btn-{{ $order->id }}"
+                                style="width:100%; margin-top:10px; background:#1A237E; color:white; border:none;
+                                    border-radius:10px; padding:11px 16px; font-size:13px; font-weight:600;
+                                    cursor:pointer; transition:background .15s; display:flex; align-items:center; justify-content:center; gap:8px;"
+                                onmouseover="this.style.background='#0D1257'"
+                                onmouseout="this.style.background='#1A237E'">
+                                <i class="bi bi-cash-stack"></i> Confirm Refund
+                            </button>
                             @endif
-                        </div>
                         @endif
                     </div>
                 </div>
@@ -795,6 +816,32 @@ function updateTracking(disputeId) {
         } else {
             showToast('⚠ ' + (data.error || 'Something went wrong.'));
         }
+    });
+}
+
+function confirmCancellationRefund(orderId) {
+    if (!confirm('Confirm refund for this order? This cannot be undone.')) return;
+
+    const btn = document.getElementById('refund-btn-' + orderId);
+    if (btn) { btn.disabled = true; btn.innerHTML = '<i class="bi bi-hourglass-split"></i> Processing...'; }
+
+    fetch(`{{ url('admin/orders') }}/${orderId}/confirm-refund`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': '{{ csrf_token() }}' },
+    })
+    .then(r => r.json())
+    .then(data => {
+        if (data.success) {
+            showToast('✓ ' + data.message);
+            fetchOrders(1);
+        } else {
+            showToast('⚠ ' + (data.error || 'Something went wrong.'));
+            if (btn) { btn.disabled = false; btn.innerHTML = '<i class="bi bi-cash-stack"></i> Confirm Refund'; }
+        }
+    })
+    .catch(() => {
+        showToast('Network error. Please try again.');
+        if (btn) { btn.disabled = false; btn.innerHTML = '<i class="bi bi-cash-stack"></i> Confirm Refund'; }
     });
 }
 </script>

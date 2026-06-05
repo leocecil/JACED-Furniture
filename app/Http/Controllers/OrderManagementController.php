@@ -371,4 +371,35 @@ class OrderManagementController extends Controller
 
         return $query->orderByDesc('orders.created_at')->paginate(10);
     }
+
+    public function confirmCancellationRefund(Request $request, int $id)
+    {
+        $order = DB::table('orders')->where('id', $id)->first();
+
+        if (!$order) {
+            return response()->json(['error' => 'Order not found.'], 404);
+        }
+
+        if ($order->status !== 'cancelled') {
+            return response()->json(['error' => 'Order is not cancelled.'], 422);
+        }
+
+        if ($order->refund_status === 'completed') {
+            return response()->json(['error' => 'Refund already confirmed.'], 422);
+        }
+
+        $subtotal = $order->total_price - $order->delivery_fee - $order->service_tax + $order->discount_amount;
+
+        DB::table('orders')->where('id', $id)->update([
+            'refund_status'     => 'completed',
+            'refund_amount'     => $subtotal,
+            'revenue_deduction' => $subtotal,
+            'updated_at'        => now(),
+        ]);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Refund confirmed for Order #' . str_pad($id, 4, '0', STR_PAD_LEFT) . '.',
+        ]);
+    }
 }
