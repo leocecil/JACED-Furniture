@@ -18,7 +18,9 @@ class InventoryController extends Controller
     {
         $orderCount = Order::whereIn('status', ['on_process', 'packed'])->count();
 
-        $query = Product::withTrashed()->with(['category', 'images']);
+        $query = Product::withTrashed()
+            ->with(['category', 'images'])
+            ->orderByRaw('CASE WHEN deleted_at IS NULL THEN 0 ELSE 1 END');
 
         if ($request->filled('category_id')) {
             $query->where('category_id', (int) $request->category_id);
@@ -29,6 +31,7 @@ class InventoryController extends Controller
             'price_high' => $query->orderByDesc('price'),
             'price_low'  => $query->orderBy('price'),
             'stock_low'  => $query->orderBy('stock'),
+            'inactive'   => $query->onlyTrashed(),
             default      => $query->latest(),
         };
 
@@ -38,11 +41,11 @@ class InventoryController extends Controller
         return view('pages.inventory.index', compact('orderCount', 'products', 'categories'));
     }
 
-    // ── POST /admin/inventory (Mendukung upload langsung ke public/image/nama-produk/)
-   public function store(StoreProductRequest $request)
+    // ── POST /admin/inventory (Mendukung pencegahan duplikasi barang & penamaan file otomatis)
+    public function store(StoreProductRequest $request)
     {
         // ── PENCEGAHAN DUPLIKASI BARANG ──
-        // Cek apakah ada produk dengan nama yang sama (termasuk yang ada di dalam trash/soft-deleted)
+        // Cek apakah ada produk dengan nama yang sama (termasuk di dalam trash/soft-deleted)
         $namaSama = Product::withTrashed()
             ->where('name', trim($request->name))
             ->exists();
@@ -50,7 +53,7 @@ class InventoryController extends Controller
         if ($namaSama) {
             return redirect()
                 ->back()
-                ->withInput() // Mempertahankan isi form yang sudah diketik admin agar tidak hilang
+                ->withInput() // Mempertahankan isi form lama agar admin tidak lelah mengetik ulang
                 ->with('error', 'Gagal menambahkan! Produk dengan nama "' . $request->name . '" sudah terdaftar di dalam sistem Jaced Furniture. Gunakan nama lain atau edit produk yang sudah ada.');
         }
 
@@ -77,12 +80,14 @@ class InventoryController extends Controller
                     $extension = $image->getClientOriginalExtension();
                     $fileName  = "{$increment}.{$extension}";
 
+                    // Pindahkan file gambar murni langsung ke root publik proyek (public/image/nama-produk/)
                     $image->move(public_path("image/{$folderName}"), $fileName);
 
                     ProductImage::create([
                         'product_id' => $product->id,
                         'image_path' => "image/{$folderName}/{$fileName}",
-                        'is_main'    => $index === 0,
+                        // ── LOGIKA UTAMA: Gambar pertama (index 0) jadi Utama (1), berikutnya jadi Pendukung (0) ──
+                        'is_main'    => $index === 0, 
                         'sort_order' => $index,
                     ]);
                 }
@@ -110,6 +115,7 @@ class InventoryController extends Controller
                 'low_stock'   => $request->low_stock ?? $inventory->low_stock,
                 'label'       => $request->label,
                 'category_id' => $request->category_id,
+                'is_active'   => $request->input('is_active', 0),
             ]);
 
             if ($request->hasFile('images')) {
@@ -117,7 +123,7 @@ class InventoryController extends Controller
                 $lastOrder  = $inventory->images()->max('sort_order') ?? -1;
 
                 foreach ($request->file('images') as $index => $image) {
-                    $increment = $lastOrder + $index + 2; // Melanjutkan penomoran angka berkas gambar terakhir
+                    $increment = $lastOrder + $index + 2; 
                     $extension = $image->getClientOriginalExtension();
                     $fileName  = "{$increment}.{$extension}";
 
@@ -126,7 +132,8 @@ class InventoryController extends Controller
                     ProductImage::create([
                         'product_id' => $inventory->id,
                         'image_path' => "image/{$folderName}/{$fileName}",
-                        'is_main'    => false,
+                        // ── LOGIKA EDIT: Semua foto tambahan otomatis diset menjadi Gambar Pendukung (0) ──
+                        'is_main'    => false, 
                         'sort_order' => $lastOrder + $index + 1,
                     ]);
                 }
@@ -170,7 +177,6 @@ class InventoryController extends Controller
     // ── DELETE /admin/inventory/image/{image}
     public function destroyImage(ProductImage $image)
     {
-        // Hapus file fisik langsung dari folder public/image/
         $absolutePath = public_path($image->image_path);
         if (file_exists($absolutePath)) {
             @unlink($absolutePath);

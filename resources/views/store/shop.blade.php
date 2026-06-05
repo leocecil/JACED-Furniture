@@ -371,6 +371,7 @@
                     </div>
                 @endif
 
+                <div id="filterBackdrop" style="display:none; position:fixed; inset:0; z-index:1049; background:rgba(28,28,26,0.4); backdrop-filter:blur(2px);"></div>
             </form>
         </div>
     </section>
@@ -518,6 +519,7 @@
             font-size: 13px; font-weight: 500; color: var(--jaced-muted);
             text-decoration: none; border: 1px solid var(--jaced-input);
             transition: all 0.2s ease;
+            white-space: nowrap;
         }
         .shop-clear-btn:hover { background: #9c3535; border-color: #9c3535; color: white; }
 
@@ -729,15 +731,42 @@
                 padding-bottom: 4px;
                 scrollbar-width: none;
                 -ms-overflow-style: none;
+                overflow-y: visible;
             }
             .shop-filters-row::-webkit-scrollbar { display: none; }
         
             .shop-filter-pill { padding: 8px 12px; font-size: 12px; }
             .pill-value { max-width: 80px; }
         
-            .shop-filter-dropdown { min-width: 180px; }
+            .shop-filter-pill-wrap.open .shop-filter-dropdown {
+                transform: translateY(0) !important;
+            }
+
+            .shop-filter-dropdown { 
+                /* min-width: 180px;  */
+                position: fixed !important;
+                top: auto !important;
+                bottom: 0 !important;
+                left: 0 !important;
+                right: 0 !important;
+                min-width: unset !important;
+                width: 100% !important;
+                border-radius: 20px 20px 0 0 !important;
+                border-bottom: none !important;
+                padding: 20px 16px 32px !important;
+                box-shadow: 0 -8px 32px rgba(39,46,29,0.15) !important;
+                max-height: 70vh;
+                overflow-y: auto;
+                z-index: 1050 !important;
+                transform: translateY(20px) !important;
+            }
         
-            /* 2 kolom di mobile */
+            .shop-dd-option {
+                padding: 14px 16px;
+                font-size: 14px;
+                border-radius: 12px;
+            }
+
             .col-6.col-md-4.col-lg-3 { width: 50%; }
         
             .shop-product-name { font-size: 14px; }
@@ -851,19 +880,35 @@
                         const w = document.getElementById(x.wrap);
                         if (w) w.classList.remove('open');
                     });
+                    // if (!isOpen) wrap.classList.add('open');
+                    const backdrop = document.getElementById('filterBackdrop');
                     if (!isOpen) {
                         wrap.classList.add('open');
-                        // Posisiin dropdown relative ke button
-                        const menu = document.getElementById(p.menu);
-                        const rect = wrap.getBoundingClientRect();
-                        if (menu) {
-                            menu.style.position = 'fixed';
-                            menu.style.top = (rect.bottom + 8) + 'px';
-                            menu.style.left = rect.left + 'px';
-                            menu.style.zIndex = '9999';
-                        }
+                        if (window.innerWidth <= 768 && backdrop) backdrop.style.display = 'block';
+                    } else {
+                        if (backdrop) backdrop.style.display = 'none';
                     }
                 });
+            });
+
+            const filterBackdrop = document.getElementById('filterBackdrop');
+            if (filterBackdrop) {
+                filterBackdrop.addEventListener('click', function() {
+                    pills.forEach(function(p) {
+                        const w = document.getElementById(p.wrap);
+                        if (w) w.classList.remove('open');
+                    });
+                    filterBackdrop.style.display = 'none';
+                });
+            }
+
+            // Also hide backdrop on outside click
+            document.addEventListener('click', function() {
+                pills.forEach(function(p) {
+                    const w = document.getElementById(p.wrap);
+                    if (w) w.classList.remove('open');
+                });
+                if (filterBackdrop) filterBackdrop.style.display = 'none';
             });
 
             // Sort: click option → submit

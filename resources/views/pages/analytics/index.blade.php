@@ -157,9 +157,11 @@
             <h2 class="fw-bold mb-1" style="color: var(--jaced-brown-dark);">Customer Analytics</h2>
             <p class="text-jaced-muted small">Monitor member distribution, regional performance, and value tiers.</p>
         </div>
-        <button class="btn-jaced-export">
-            <i class="bi bi-download me-2"></i> Export Report
-        </button>
+        <a href="{{ route('analytics.export') }}"
+   class="btn-jaced-export d-inline-flex align-items-center gap-2"
+   style="text-decoration: none;">
+    <i class="bi bi-download"></i> Export Report
+</a>
     </div>
 
     {{-- Tier Cards --}}
@@ -239,11 +241,9 @@
             <div class="jaced-card shadow-sm p-4" style="background-color: white;">
                 <div class="d-flex justify-content-between align-items-center mb-3">
                     <h5 class="fw-bold m-0" style="color: var(--jaced-brown-dark);">Top 5 VIP Spenders</h5>
-                    <a href="#"
-                       class="text-decoration-none small fw-bold"
-                       style="color: var(--jaced-caramel);"
-                       data-bs-toggle="modal"
-                       data-bs-target="#allCustomersModal">
+                    <a href="{{ route('customer.analytics.page') }}"
+                    class="text-decoration-none small fw-bold"
+                    style="color: var(--jaced-caramel);">
                         View All Customers
                     </a>
                 </div>
@@ -367,154 +367,5 @@
             }
         });
     });
-</script>
-@endpush
-
-{{-- MODAL ALL CUSTOMERS --}}
-@push('modals')
-<div class="modal fade" id="allCustomersModal" tabindex="-1" aria-labelledby="allCustomersModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered" style="max-width: 480px;">
-        <div class="modal-content border-0 shadow" style="border-radius: 16px;">
-
-            <div class="modal-header border-0 pt-4 px-4 pb-2">
-                <div>
-                    <h5 class="modal-title fw-bold mb-0" id="allCustomersModalLabel">
-                        All Customers
-                        <span class="customer-count-badge" id="customerCountBadge">
-                            {{ count($allCustomers ?? []) }}
-                        </span>
-                    </h5>
-                    <div style="font-size:11px; color:#9c9890; margin-top:2px;">Sorted A–Z</div>
-                </div>
-                <button type="button" class="btn-close shadow-none" data-bs-dismiss="modal"></button>
-            </div>
-
-            <div class="customer-search-wrap">
-                <i class="bi bi-search customer-search-icon"></i>
-                <input type="text"
-                       class="customer-search-input"
-                       id="customerSearchInput"
-                       placeholder="Search by name or email..."
-                       oninput="filterCustomers(this.value)"
-                       autocomplete="off">
-            </div>
-
-           <div class="customer-list" id="customerList">
-                @php
-                    $sortedCustomers = collect($allCustomers ?? [])->sortBy(fn($c) => strtolower($c->name));
-                @endphp
-
-                @forelse($sortedCustomers as $customer)
-                    {{-- Pastikan semua atribut data- di bawah ini tertulis lengkap & lowercase --}}
-                    <div class="customer-item"
-                         data-name="{{ strtolower($customer->name) }}"
-                         data-original-name="{{ $customer->name }}"
-                         data-email="{{ strtolower($customer->email) }}">
-
-                        <div class="customer-avatar">
-                            @if(!empty($customer->avatar))
-                                <img src="{{ asset($customer->avatar) }}" alt="">
-                            @else
-                                {{ strtoupper(substr($customer->name, 0, 2)) }}
-                            @endif
-                        </div>
-
-                        <div class="customer-info">
-                            <div class="customer-name">{{ $customer->name }}</div>
-                            <div class="customer-email">{{ $customer->email }}</div>
-                        </div>
-
-                        @if(isset($customer->orders_count))
-                            <div class="customer-orders">
-                                {{ $customer->orders_count }}
-                                <div style="font-size:10px; font-weight:400;">orders</div>
-                            </div>
-                        @endif
-
-                    </div>
-                @empty
-                    <div class="customer-empty" style="display:block;">
-                        <i class="bi bi-people"></i>
-                        No customers found.
-                    </div>
-                @endforelse
-
-                {{-- Empty search state --}}
-                <div class="customer-empty" id="customerEmptySearch">
-                    <i class="bi bi-search"></i>
-                    No customers match your search.
-                </div>
-            </div>
-
-            <div class="modal-footer border-0 pb-4 px-4 pt-2">
-                <button type="button"
-                        class="btn btn-sm w-100 py-2 rounded-3 fw-bold"
-                        data-bs-dismiss="modal"
-                        style="background:#272E1D; color:#f5f2ee; border:none;">
-                    Close
-                </button>
-            </div>
-
-        </div>
-    </div>
-</div>
-
-<script>
-function filterCustomers(query) {
-    // 1. Ambil query, hapus spasi kosong, dan ubah ke huruf kecil
-    const q = query.trim().toLowerCase();
-    const items = document.querySelectorAll('#customerList .customer-item');
-    const emptyEl = document.getElementById('customerEmptySearch');
-    const badge = document.getElementById('customerCountBadge');
-
-    let visibleCount = 0;
-
-    items.forEach(item => {
-        // 2. Ambil data pencarian dari atribut HTML
-        const nameLowerCase = (item.dataset.name ?? '').trim();
-        const emailLowerCase = (item.dataset.email ?? '').trim();
-        const originalName = item.dataset.originalName ?? ''; 
-
-        // 3. Cek kecocokan secara sensitif
-        const match = !q || nameLowerCase.includes(q) || emailLowerCase.includes(q);
-
-        if (match) {
-            // Paksa tampilkan menggunakan properti CSS display flex bawaan layout item
-            item.setProperty ? item.style.setProperty('display', 'flex', 'important') : item.style.display = 'flex';
-            visibleCount++;
-            
-            const nameEl = item.querySelector('.customer-name');
-            if (q && nameLowerCase.includes(q)) {
-                const escapedQuery = q.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-                const regex = new RegExp(`(${escapQuery})`, 'gi');
-                nameEl.innerHTML = originalName.replace(regex, '<mark>$1</mark>');
-            } else {
-                nameEl.textContent = originalName; 
-            }
-        } else {
-            // Paksa sembunyikan nama yang tidak mengandung kata kunci "dimas"
-            item.setProperty ? item.style.setProperty('display', 'none', 'important') : item.style.display = 'none';
-        }
-    });
-
-    // 4. Update counter jumlah customer yang lolos filter pencarian
-    if (badge) badge.textContent = visibleCount;
-    if (emptyEl) emptyEl.style.display = visibleCount === 0 ? 'block' : 'none';
-}
-
-// Reset pencarian secara total saat modal ditutup kembali oleh admin
-document.getElementById('allCustomersModal').addEventListener('hidden.bs.modal', function () {
-    const searchInput = document.getElementById('customerSearchInput');
-    if (searchInput) {
-        searchInput.value = '';
-        filterCustomers('');
-    }
-});
-
-// Auto-focus langsung ke kolom input ketika modal ditekan terbuka
-document.getElementById('allCustomersModal').addEventListener('shown.bs.modal', function () {
-    const searchInput = document.getElementById('customerSearchInput');
-    if (searchInput) searchInput.focus();
-});
 </script>
 @endpush

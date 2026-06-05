@@ -136,6 +136,7 @@ class OrderController extends Controller
 
     public function processCheckout(Request $request)
     {
+        
         $cartItems = \App\Models\Cart::with('product')
                         ->where('user_id', Auth::id())
                         ->get();
@@ -146,15 +147,15 @@ class OrderController extends Controller
 
         $paymentMethod = $request->input('payment_method');
         $chosenBank    = $request->input('bank');
+        
+        
 
         $subtotalPrice = $cartItems->sum(fn($item) => $item->product->price * $item->quantity);
-        if ($paymentMethod === 'qris' && $subtotalPrice > 10000000) {
-            return redirect()->back()->with('error', 'QRIS tidak bisa digunakan untuk transaksi di atas Rp 10.000.000.');
-        }
+        
         if (empty($paymentMethod)) {
             return redirect()->back()->with('error', 'Silakan pilih metode pembayaran.');
         }
-
+       
         DB::beginTransaction();
         try {
             DB::statement('SET FOREIGN_KEY_CHECKS=0;');
@@ -168,7 +169,7 @@ class OrderController extends Controller
             $street    = '';
             $cityName  = '';
             $zip       = '';
-
+            
             // ── CASE 1: User edit alamat lama via modal sebelum checkout ──
             if ($addressAction === 'update' && $request->input('edit_address_id')) {
                 $editId = $request->input('edit_address_id');
@@ -205,22 +206,25 @@ class OrderController extends Controller
                     $zip       = $shippingAddress->postal_code;
                 }
             }
-
+            
             // ── CASE 2: Pakai alamat lama tanpa edit, atau buat alamat baru ──
             if (!isset($shippingAddress)) {
                 if ($addressId && $addressId !== 'new') {
                     $shippingAddress = ShippingAddress::find($addressId);
 
-                    if (!$shippingAddress || $shippingAddress->user_id !== Auth::id()) {
+                    if (!$shippingAddress || (int)$shippingAddress->user_id !== (int)Auth::id()) {
                         return redirect()->back()->with('error', 'Alamat tidak valid.');
                     }
-
+                    
+                    
                     $nameParts = explode(' ', $shippingAddress->receiver_name, 2);
                     $firstName = $nameParts[0] ?? '';
                     $lastName  = $nameParts[1] ?? '';
                     $street    = $shippingAddress->address_line1;
                     $cityName  = $shippingAddress->city_name;
                     $zip       = $shippingAddress->postal_code;
+                    
+                    
 
                 } else {
                     $receiverName = $request->input('receiver_name');
@@ -268,7 +272,7 @@ class OrderController extends Controller
                     }
                 }
             }
-
+            
             $totalWeight = 0;
             foreach ($cartItems as $cartItem) {
                 $product = $cartItem->product;
@@ -452,7 +456,7 @@ class OrderController extends Controller
             if (!empty($enabledPayments)) {
                 $params['enabled_payments'] = $enabledPayments;
             }
-
+            
             $snapToken = Snap::getSnapToken($params);
  
             $order->update(['total_price' => $grossAmount]);
@@ -475,6 +479,7 @@ class OrderController extends Controller
 
         } catch (\Exception $e) {
             DB::rollBack();
+            dd('Ini yang bikin gagal bro: ', $e->getMessage(), 'Di Baris: ' . $e->getLine());
             Log::error('Checkout error: ' . $e->getMessage(), [
                 'file' => $e->getFile(),
                 'line' => $e->getLine(),
@@ -658,6 +663,53 @@ class OrderController extends Controller
         }
         usort($allCosts, fn($a, $b) => $a['cost'] <=> $b['cost']);
         return response()->json(array_values($allCosts));
+    }
+
+    public function saveAddressFromCheckout(Request $request)
+    {
+        $user    = Auth::user();
+        $isFirst = \App\Models\ShippingAddress::where('user_id', $user->id)->count() === 0;
+
+        $address = \App\Models\ShippingAddress::create([
+            'user_id'        => $user->id,
+            'receiver_name'  => $request->receiver_name,
+            'receiver_phone' => $request->receiver_phone,
+            'address_line1'  => $request->address_line1,
+            'province_code'  => $request->province_code,
+            'province_name'  => $request->province_name,
+            'city_code'      => $request->city_code,
+            'city_name'      => $request->city_name,
+            'district_code'  => $request->district_code ?? '',
+            'district_name'  => $request->district_name ?? '',
+            'village_code'   => $request->village_code ?? '',
+            'village_name'   => $request->village_name,
+            'postal_code'    => $request->postal_code,
+            'is_default'     => $isFirst,
+        ]);
+
+        $pointsEarned = 0;
+        if ($isFirst && !$user->address_rewarded) {
+            $user->current_points     += 50;
+            $user->accumulated_points += 50;
+            $user->address_rewarded    = true;
+            $user->save();
+
+            \App\Models\PointHistory::create([
+                'user_id'    => $user->id,
+                'points'     => 50,
+                'type'       => 'earned',
+                'source'     => 'Profile Completion - Address',
+                'expired_at' => now()->addYear(),
+            ]);
+
+            $pointsEarned = 50;
+        }
+
+        return response()->json([
+            'success'       => true,
+            'address_id'    => $address->id,
+            'points_earned' => $pointsEarned,
+        ]);
     }
 
 

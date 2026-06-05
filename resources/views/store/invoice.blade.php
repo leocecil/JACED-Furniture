@@ -171,8 +171,8 @@
             @if ($order->shippingAddress)
                 <p class="name">{{ $order->shippingAddress->receiver_name }}</p>
                 <p>{{ $order->shippingAddress->address_line1 }}</p>
-                <p>{{ $order->shippingAddress->district_name }}, {{ $order->shippingAddress->city_name }}</p>
-                <p>{{ $order->shippingAddress->province_name }} {{ $order->shippingAddress->postal_code }}</p>
+                <p>{{ $order->shippingAddress->village_name }}, {{ $order->shippingAddress->district_name }}</p>
+                <p>{{ $order->shippingAddress->city_name }}, {{ $order->shippingAddress->province_name }} {{ $order->shippingAddress->postal_code }}</p>
             @else
                 <p style="color: #999;">—</p>
             @endif
@@ -239,7 +239,7 @@
             For any questions, contact us at <a href="mailto:ptdiahloka2006@gmail.com" style="color: #2a2318; text-decoration: none; font-weight: 500;">ptdiahloka2006@gmail.com</a>
         </div>
         <div class="inv-footer-note" style="text-align:right;">
-            <strong>Jaced Artisan Furniture</strong><br>
+            <strong>Jaced Furniture</strong><br>
             <span style="color: #888;">Surabaya, Indonesia</span>
         </div>
     </div>

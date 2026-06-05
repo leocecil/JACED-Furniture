@@ -32,7 +32,8 @@
                 @endauth
             </ul>
 
-            <div class="d-flex align-items-center gap-4 ms-lg-4 mobile-action-wrap">
+            {{-- <div class="d-flex align-items-center gap-4 ms-lg-4 mobile-action-wrap"> --}}
+            <div class="mobile-icon-group">
                 @auth
                     <a href="{{ route('wishlist') }}" class="header-wishlist">
                         <i class="fas fa-heart"></i>
@@ -113,6 +114,8 @@
     .nav-link:hover::after, .nav-link.active::after { width: 100%; } .nav-link.active { opacity: 1 !important; }
     .tracking-widest { letter-spacing: 0.2em; } .tracking-tighter { letter-spacing: -0.05em; }
     .transition-navbar.preload { opacity: 0; transform: translateY(-24px); animation: navbarReveal 0.8s ease forwards; animation-delay: 0.25s; }
+
+    .mobile-icon-group { display: flex; flex-direction: row; align-items: center; gap: 8px; }
     @keyframes navbarReveal { to { opacity: 1; transform: translateY(0); } }
 
     @media (max-width: 991.98px) {

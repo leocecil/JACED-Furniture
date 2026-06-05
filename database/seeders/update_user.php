@@ -15,6 +15,7 @@ class update_user extends Seeder
     {
         //
         $userTotals = DB::table('orders')
+        ->where('status', 'arrived')
         ->select('user_id', DB::raw('SUM(total_price) as total_spending'))
         ->groupBy('user_id')
         ->get();
