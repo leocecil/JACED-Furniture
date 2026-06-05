@@ -150,6 +150,46 @@
         60% { transform: translateX(-4px); }
         80% { transform: translateX(4px); }
     }
+
+    @keyframes floatBag {
+        0%, 100% { transform: translateY(0px); }
+        50%       { transform: translateY(-10px); }
+    }
+    @keyframes cartEmptyFadeUp {
+        from { opacity: 0; transform: translateY(14px); }
+        to   { opacity: 1; transform: translateY(0); }
+    }
+    #cartEmptyState {
+        display: flex; flex-direction: column;
+        align-items: center; justify-content: center;
+        height: 100%; min-height: 300px;
+        animation: cartEmptyFadeUp 0.4s ease forwards;
+    }
+    .cart-empty-icon-wrap {
+        width: 72px; height: 72px; border-radius: 22px;
+        background: #F2EDE3;
+        display: flex; align-items: center; justify-content: center;
+        margin-bottom: 20px;
+        animation: floatBag 3s ease-in-out infinite;
+    }
+    .cart-empty-icon-wrap svg { width: 32px; height: 32px; }
+    .cart-empty-title {
+        font-size: 17px; font-weight: 700; color: #111827;
+        margin-bottom: 6px; letter-spacing: -0.2px;
+    }
+    .cart-empty-sub {
+        font-size: 13px; color: #A8896A; margin-bottom: 24px;
+        text-align: center; line-height: 1.5; max-width: 200px;
+    }
+    .cart-empty-browse {
+        display: inline-flex; align-items: center; gap: 8px;
+        background: #111827; color: #FAF7F2;
+        padding: 12px 26px; border-radius: 999px;
+        font-size: 13px; font-weight: 600; text-decoration: none;
+        transition: background 0.2s ease, transform 0.15s ease;
+    }
+    .cart-empty-browse:hover { background: #2E2218; color: #FAF7F2; transform: translateY(-1px); }
+
     .cart-items-wrapper::-webkit-scrollbar { width: 5px; }
     .cart-items-wrapper::-webkit-scrollbar-thumb { background: #999; border-radius: 20px; }
     .cart-qty-wrapper {
@@ -243,6 +283,19 @@
         align-items: center;
         gap: 10px;
         z-index: 9999;
+    }
+    .cart-toast.warning {
+        background: #7a5f00;
+        color: #fff8dc;
+    }
+
+    #cartEmptyState {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        height: 100%;
+        min-height: 300px;
     }
     /* RESPONSIVE */
     @media(max-width: 768px){
@@ -366,8 +419,20 @@
                     </div>
                 </div>
             @empty
-                <div class="text-center py-5 text-secondary" id="cartEmptyState">
-                    Your collection is empty
+                <div id="cartEmptyState">
+                    <div class="cart-empty-icon-wrap">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="#8B6E50" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/>
+                            <line x1="3" y1="6" x2="21" y2="6"/>
+                            <path d="M16 10a4 4 0 01-8 0"/>
+                        </svg>
+                    </div>
+                    <p class="cart-empty-title">Your collection is empty</p>
+                    <p class="cart-empty-sub">Looks like you haven't added any pieces yet.</p>
+                    <a href="{{ route('shop') }}" class="cart-empty-browse" onclick="event.preventDefault(); bootstrap.Offcanvas.getOrCreateInstance(document.getElementById('cartSidebar')).hide(); setTimeout(() => window.location.href=this.href, 300);">
+                        Browse the collection
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:13px;height:13px;"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+                    </a>
                 </div>
             @endforelse
         </div>
@@ -402,6 +467,10 @@
     let cartToastTimer = null;
     function showCartToast(message, type = 'success') {
         const icon = cartToast.querySelector('i');
+
+        // toggle warning class
+        cartToast.classList.toggle('warning', type === 'warning');
+
         if(type === 'delete'){ icon.className = 'fas fa-trash'; }
         else if(type === 'update'){ icon.className = 'fas fa-pen';}
         else if(type === 'warning') icon.className = 'fas fa-circle-exclamation';
@@ -520,13 +589,30 @@
                 .then(res => res.json())
                 .then(data => {
                     cartItem.remove();
-                    // localStorage.setItem('cartOpen', 'true');
-                    // document.querySelector(`.delete-btn[data-id="${id}"]`).closest('.cart-item').remove();
                     document.getElementById('cartTotalPrice').innerText =
                         'Rp ' + Number(data.total).toLocaleString('id-ID');
                     updateCartBadge(data.count);
                     showCartToast('Product deleted from cart', 'delete');
-                    // updateCartUI(data);
+
+                    const remaining = document.querySelectorAll('.cart-item');
+                    if (remaining.length === 0) {
+                        document.getElementById('cartItemsWrapper').innerHTML = `
+                            <div id="cartEmptyState">
+                                <div class="cart-empty-icon-wrap">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="#8B6E50" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                                        <path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/>
+                                        <line x1="3" y1="6" x2="21" y2="6"/>
+                                        <path d="M16 10a4 4 0 01-8 0"/>
+                                    </svg>
+                                </div>
+                                <p class="cart-empty-title">Your collection is empty</p>
+                                <p class="cart-empty-sub">Looks like you haven't added any pieces yet.</p>
+                                <a href="/shop" class="cart-empty-browse" onclick="event.preventDefault(); bootstrap.Offcanvas.getOrCreateInstance(document.getElementById('cartSidebar')).hide(); setTimeout(() => window.location.href=this.href, 300);">
+                                    Browse the collection
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:13px;height:13px;"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+                                </a>
+                            </div>`;
+                    }
                 });
             });
         });
