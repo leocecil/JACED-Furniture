@@ -97,6 +97,7 @@ Route::middleware(['role:customer'])->group(function() {
     // Checkout & Courier Shipping API
     Route::get('/checkout', [OrderController::class, 'showCheckout'])->name('checkout.index');
     Route::post('/checkout', [OrderController::class, 'processCheckout'])->name('checkout.store');
+    Route::post('/checkout/save-address', [OrderController::class, 'saveAddressFromCheckout'])->name('checkout.save-address');
 
     Route::get('/api/cities', [OrderController::class, 'getCities'])->name('api.cities');
     Route::get('/api/districts', [OrderController::class, 'getDistricts'])->name('api.districts');

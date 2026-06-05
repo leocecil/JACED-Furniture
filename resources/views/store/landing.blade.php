@@ -216,6 +216,50 @@
         .jf-7 { width: 110px; height: 85px; }
         .jf-8 { width: 110px; height: 140px; }
     }
+
+    @media (max-width: 992px) {
+        .jf-1 { width: 140px; height: 170px; }
+        .jf-2 { width: 100px; height: 125px; left: 10%; }
+        .jf-3 { width: 150px; height: 115px; right: 4%; }
+        .jf-4 { width: 110px; height: 140px; }
+        .jf-5 { width: 120px; height: 90px; }
+        .jf-6 { width: 130px; height: 100px; }
+        .jf-7 { width: 140px; height: 105px; }
+        .jf-8 { width: 140px; height: 170px; }
+
+        .jaced-brand-title { font-size: clamp(4rem, 12vw, 8rem); }
+        .jaced-logo-wrap { width: 120px; height: 120px; }
+    }
+
+    @media (max-width: 768px) {
+        /* Sembunyikan beberapa floating image biar ga penuh */
+        .jf-2, .jf-5, .jf-6 { display: none; }
+
+        .jf-1 { width: 110px; height: 140px; top: 6%; left: 2%; }
+        .jf-3 { width: 120px; height: 90px; top: 4%; right: 2%; }
+        .jf-4 { width: 90px; height: 115px; top: 18%; right: 2%; }
+        .jf-7 { width: 110px; height: 85px; bottom: 8%; left: 2%; }
+        .jf-8 { width: 110px; height: 140px; bottom: 6%; right: 2%; }
+
+        .jaced-brand-title { font-size: clamp(3.5rem, 14vw, 6rem); }
+        .jaced-brand-sub { font-size: clamp(0.75rem, 2.5vw, 1rem); letter-spacing: 0.4em; }
+        .jaced-logo-wrap { width: 90px; height: 90px; margin-bottom: 12px; }
+        .jaced-cta-btn { padding: 12px 24px; font-size: 13px; }
+    }
+
+    @media (max-width: 480px) {
+        .jf-1 { width: 90px; height: 115px; }
+        .jf-3 { width: 95px; height: 70px; }
+        .jf-4 { width: 75px; height: 95px; }
+        .jf-7 { width: 90px; height: 70px; }
+        .jf-8 { width: 90px; height: 115px; }
+
+        .jaced-brand-title { font-size: clamp(3rem, 16vw, 5rem); }
+        .jaced-logo-wrap { width: 75px; height: 75px; }
+        .jaced-cta-btn { padding: 11px 20px; font-size: 12px; gap: 8px; }
+        .jaced-center { gap: 0; }
+        .jaced-brand-sub { margin: 6px 0 28px; }
+    }
 </style>
 
 <script>
@@ -263,14 +307,70 @@
     if (cta) {
         cta.addEventListener('click', (e) => {
             e.preventDefault();
+
+            const target = cta.href;
+
+            // bikin redirect disiapkan SEKARANG
+            const nextPage = document.createElement('link');
+            nextPage.rel = 'prefetch';
+            nextPage.href = target;
+            document.head.appendChild(nextPage);
+
+            const clouds = [
+                { size: 1000, top: '20%',  left: '-50%', delay: 0,   duration: 2.8 },
+                { size: 700,  top: '55%',  left: '-45%', delay: 80,  duration: 3.0 },
+                { size: 1200, top: '-10%', left: '-55%', delay: 150, duration: 2.6 },
+                { size: 500,  top: '70%',  left: '-40%', delay: 50,  duration: 3.2 },
+                { size: 850,  top: '40%',  left: '-48%', delay: 200, duration: 3.1 },
+                { size: 650,  top: '10%',  left: '-38%', delay: 280, duration: 3.3 },
+                { size: 900,  top: '60%',  left: '-52%', delay: 100, duration: 2.9 },
+            ];
+
+            clouds.forEach((c) => {
+                const cloud = document.createElement('div');
+                const s = c.size;
+                cloud.style.cssText = `
+                    position: fixed;
+                    top: ${c.top};
+                    left: ${c.left};
+                    width: ${s}px;
+                    height: ${s}px;
+                    border-radius: 50%;
+                    z-index: 99999;
+                    pointer-events: none;
+                    background: radial-gradient(circle at center,
+                        rgba(242,237,230,0.96) 0%,
+                        rgba(230,222,210,0.85) 30%,
+                        rgba(215,205,190,0.6) 55%,
+                        rgba(200,188,172,0.3) 75%,
+                        transparent 90%
+                    );
+                    filter: blur(${s * 0.09}px);
+                    opacity: 0;
+                    transform: translateX(0px);
+                    transition: transform ${c.duration}s cubic-bezier(0.16, 1, 0.3, 1) ${c.delay}ms,
+                                opacity 0.5s ease ${c.delay}ms;
+                `;
+                document.body.appendChild(cloud);
+
+                requestAnimationFrame(() => {
+                    requestAnimationFrame(() => {
+                        cloud.style.opacity = '1';
+                        cloud.style.transform = `translateX(${window.innerWidth * 2.2}px)`;
+                    });
+                });
+            });
+
             const landing = document.querySelector('.jaced-landing');
-            landing.style.transition = 'transform 0.6s cubic-bezier(0.22, 1, 0.36, 1), filter 0.6s ease, opacity 0.5s ease';
-            landing.style.transform = 'scale(1.15)';
-            landing.style.filter = 'blur(18px)';
-            landing.style.opacity = '0';
             setTimeout(() => {
-                window.location.replace(cta.getAttribute('href')); // pakai replace bukan href
-            }, 500);
+                landing.style.transition = 'opacity 0.7s ease';
+                landing.style.opacity = '0';
+            }, 250);
+
+            setTimeout(() => {
+                window.location.href = cta.href;
+
+            },1600);
         });
     }
 })();

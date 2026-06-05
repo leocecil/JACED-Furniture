@@ -46,7 +46,7 @@
 {{-- HEADER --}}
 <div class="inv-header">
     <div class="inv-header-left">
-        <img src="{{ $logoPath }}" style="width:50px; height:50px; object-fit:contain; display:block; margin-bottom:6px;">
+        {{-- Hapus tag img, ganti jadi text aja --}}
         <div class="inv-brand">Jaced Furniture</div>
         <div class="inv-brand-sub">Artisan Furniture</div>
     </div>
@@ -70,10 +70,10 @@
     <div class="inv-grid-cell">
         <div class="inv-section-label">Ship To</div>
         @if($order->shippingAddress)
-            <div class="name">{{ $order->shippingAddress->receiver_name }}</div>
-            <div>{{ $order->shippingAddress->address_line1 }}</div>
-            <div>{{ $order->shippingAddress->district_name }}, {{ $order->shippingAddress->city_name }}</div>
-            <div>{{ $order->shippingAddress->province_name }} {{ $order->shippingAddress->postal_code }}</div>
+            <p class="name">{{ $order->shippingAddress->receiver_name }}</p>
+            <p>{{ $order->shippingAddress->address_line1 }}</p>
+            <p>{{ $order->shippingAddress->village_name }}, {{ $order->shippingAddress->district_name }}</p>
+            <p>{{ $order->shippingAddress->city_name }}, {{ $order->shippingAddress->province_name }} {{ $order->shippingAddress->postal_code }}</p>
         @else
             <div style="color:#999;">—</div>
         @endif

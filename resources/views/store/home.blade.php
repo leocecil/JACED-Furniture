@@ -14,8 +14,8 @@
                 <button type="button" data-bs-target="#heroCarousel" data-bs-slide-to="2"></button>
             </div>
 
-            <div class="carousel-inner h-100">
-                <div class="carousel-item active h-100">
+            <div class="carousel-inner">
+                <div class="carousel-item active">
                     <div class="hero-slide" style="background-image: url('https://images.unsplash.com/photo-1505693416388-ac5ce068fe85?q=80&w=1600&auto=format&fit=crop');">
                         <div class="hero-overlay"></div>
                         <div class="hero-content">
@@ -29,7 +29,7 @@
                         </div>
                     </div>
                 </div>
-                <div class="carousel-item h-100">
+                <div class="carousel-item">
                     <div class="hero-slide" style="background-image: url('https://images.unsplash.com/photo-1493663284031-b7e3aefcae8e?q=80&w=1600&auto=format&fit=crop');">
                         <div class="hero-overlay"></div>
                         <div class="hero-content">
@@ -43,7 +43,7 @@
                         </div>
                     </div>
                 </div>
-                <div class="carousel-item h-100">
+                <div class="carousel-item">
                     <div class="hero-slide" style="background-image: url('https://images.unsplash.com/photo-1484101403633-562f891dc89a?q=80&w=1600&auto=format&fit=crop');">
                         <div class="hero-overlay"></div>
                         <div class="hero-content">
@@ -90,7 +90,7 @@
                 </div>
                 <div class="col-md-4 stats-divider" data-reveal="slide-up" data-reveal-delay="150">
                     <i class="fas fa-truck fs-2 mb-3"></i>
-                    <h5 class="fw-semibold mb-2">Free Shipping Java & Bali</h5>
+                    <h5 class="fw-semibold mb-2">Fast Shipping in Java</h5>
                     <p class="text-jaced-muted mb-0 small">Secure premium delivery experience.</p>
                 </div>
                 <div class="col-md-4" data-reveal="slide-up" data-reveal-delay="300">
@@ -130,9 +130,7 @@
                 @endphp
                 @foreach($categories as $index => $cat)
                     <a href="{{ route('shop', ['category' => [$cat->slug]]) }}"
-                        class="category-slide-item text-decoration-none"
-                        data-reveal="slide-up"
-                        data-reveal-delay="{{ $index * 80 }}">
+                        class="category-slide-item text-decoration-none">
                             <div class="category-slide-img">
                                 <img src="{{ $catImages[$cat->slug] ?? 'https://images.unsplash.com/photo-1555041469-a586c61ea9bc?q=80&w=800&auto=format&fit=crop' }}"
                                     alt="{{ $cat->name }}">
@@ -164,7 +162,7 @@
 
                 <div class="bestseller-list">
                     @forelse($recommended as $index => $product)
-                        <a href="{{ route('product.show', $product->id) }}" class="bestseller-row text-decoration-none" data-reveal="slide-up" data-reveal-delay="{{ $index * 100 }}">
+                        <a href="{{ route('product.show', $product->slug) }}" class="bestseller-row text-decoration-none" data-reveal="slide-up" data-reveal-delay="{{ $index * 100 }}">
                             <div class="bestseller-name">
                                 <small class="text-uppercase bestseller-cat">{{ $product->category->name ?? 'Furniture' }}</small>
                                 <h5 class="mb-0 fw-semibold">{{ $product->name }}</h5>
@@ -178,7 +176,7 @@
                             <div class="bestseller-price-wrap">
                                 <span class="bestseller-price">Rp {{ number_format($product->price, 0, ',', '.') }}</span>
                                 <span class="btn-see-details rounded-pill px-3 py-2">
-                                    See details <i class="fas fa-arrow-right ms-1" style="font-size: 10px;"></i>
+                                     <span>See details</span> <i class="fas fa-arrow-right ms-1" style="font-size: 10px;"></i>
                                 </span>
                             </div>
                         </a>
@@ -328,16 +326,37 @@
             opacity: 0.4;
             border-radius: 999px;
         }
-        .hero-section { padding: 0; margin: 0; position: relative; }
+        .hero-section { 
+            padding: 0; margin: 0; position: relative;
+            overflow: hidden;
+            height: 100vh;
+            min-height: 700px;
+        }
         .hero-carousel-block {
-            position: relative; border-radius: 0; overflow: hidden;
-            height: 100vh; min-height: 700px; box-shadow: none;
+            position: relative; border-radius: 0; box-shadow: none;
+            height: 100%;
+        }
+        .hero-carousel-block .carousel-inner {
+            height: 100%;
+            overflow: hidden;
+            position: relative;
+        }
+        .hero-carousel-block .carousel-item {
+            height: 100%;
         }
         .hero-slide {
-            width: 100%; height: 100vh; min-height: 700px;
+            width: 100%;
+            height: 100%;
+            min-height: 700px;
             background-size: cover; background-position: center;
             position: relative; display: flex; align-items: center;
-            overflow: hidden;
+        }
+
+        @media (max-width: 768px) {
+            .hero-slide {
+                min-height: unset;
+                height: 100svh;
+            }
         }
         /* ===== KEN BURNS HERO ===== */
         .carousel-item.active .hero-slide {
@@ -465,9 +484,9 @@
         }
         .btn-browse:hover { background:var(--jaced-brown-dark); color:var(--jaced-cream); border-color:var(--jaced-brown-dark); }
 
-        .categories-section { padding: 32px 0 48px; overflow: hidden; }
+        .categories-section { padding: 32px 0 48px; overflow: visible; }
         .categories-section .container {
-            overflow: hidden;
+            overflow: visible;
             padding-right: 0;
         }
         .category-scroll-track {
@@ -478,9 +497,11 @@
             scroll-behavior: smooth;
             cursor: grab;
             padding: 8px 24px 16px;
+            padding-right: 80px;
             scrollbar-width: none;
             -ms-overflow-style: none;
             user-select: none;
+            padding-bottom: 24px;
         }
         .category-scroll-track::-webkit-scrollbar { display: none; }
         .category-scroll-track.is-dragging {
@@ -488,7 +509,7 @@
             scroll-behavior: auto;
         }
         .category-slide-item {
-            flex: 0 0 300px;
+            flex: 0 0 340px;
             position: relative;
             border-radius: 18px;
             overflow: hidden;
@@ -601,11 +622,28 @@
             background:var(--jaced-caramel); color:var(--jaced-cream);
             font-size:11px; font-weight:500; letter-spacing:0.05em;
             opacity:0; pointer-events:none; white-space:nowrap;
-            transition:opacity 0.35s ease, transform 0.35s ease, background 0.3s ease;
+            transition:opacity 0.35s ease, transform 0.35s ease, color 0.4s ease;
+            overflow:hidden;
+        }
+        .btn-see-details::before {
+            content:'';
+            position:absolute;
+            top:0; left:-100%; width:100%; height:100%;
+            background:var(--jaced-cream);
+            transition:left 0.4s cubic-bezier(0.22,1,0.36,1);
+            z-index:0;
+        }
+        .btn-see-details span, .btn-see-details i {
+            position:relative; z-index:1;
+        }
+        .bestseller-row:hover .btn-see-details {
+            opacity:1;
+            transform:translate(0,-50%);
+            pointer-events:auto;
         }
         .bestseller-row:hover .bestseller-price { opacity:0; transform:translateX(-8px); }
-        .bestseller-row:hover .btn-see-details { opacity:1; transform:translate(0,-50%); }
-        .bestseller-row:hover .btn-see-details:hover { background:var(--jaced-brown-dark); }
+        .bestseller-row:hover .btn-see-details:hover::before { left:0; }
+        .bestseller-row:hover .btn-see-details:hover { color:var(--jaced-caramel) !important; }
         @media (max-width: 768px) {
             .bestseller-row { grid-template-columns:1fr 80px; gap:12px; }
             .bestseller-desc, .bestseller-price-wrap { display:none; }
@@ -650,11 +688,7 @@
 
         @media (max-width:768px){
 
-            .hero-carousel-block,
-            .hero-slide{
-                min-height:580px;
-                height:90vh;
-            }
+            .hero-carousel-block{overflow:hidden;}
 
             .hero-content{
                 padding:0 24px;
@@ -707,6 +741,12 @@
                 font-size:18px;
             }
 
+            .hero-section {
+                height: 100svh;
+                min-height: 560px;
+                overflow: hidden;
+            }
+
         }
 
         @media (max-width:576px){
@@ -743,6 +783,72 @@
             }
 
         }
+
+        @media (max-width: 992px) {
+            .bestseller-row {
+                grid-template-columns: 1fr 80px;
+                gap: 12px;
+            }
+            .bestseller-desc { display: none; }
+            .bestseller-price-wrap { display: none; }
+
+            .feature-promo-full {
+                background-attachment: scroll;
+                height: auto;
+                min-height: 360px;
+                padding: 60px 24px;
+            }
+            .feature-promo-title { font-size: clamp(1.8rem, 5vw, 2.8rem); }
+            .feature-promo-desc { font-size: 16px; }
+        }
+
+        @media (max-width: 768px) {
+            .stats-section { margin: 0 12px; padding: 32px 16px; }
+            .stats-section h5 { font-size: 14px; }
+            .stats-section .small { font-size: 12px; }
+            .stats-divider { border: none; border-top: 1px solid var(--jaced-input); border-bottom: 1px solid var(--jaced-input); padding: 24px 0; margin: 8px 0; }
+
+            .categories-section { padding: 24px 0 36px; padding-top: 16px; padding-top: 16px; margin-top: -16px;}
+            .category-slide-item { flex: 0 0 220px; }
+            .category-scroll-track { padding: 8px 16px 12px; padding-right: 60px; }
+
+            .bestseller-section { padding: 24px 16px 36px; }
+            .bestseller-card { padding: 24px 16px; }
+            .bestseller-row { grid-template-columns: 1fr 70px; gap: 8px; padding: 14px 4px; }
+            .bestseller-name h5 { font-size: 14px; }
+            .bestseller-cat { font-size: 9px; }
+            .bestseller-img-wrap { width: 70px; height: 56px; }
+
+            .rooms-section { padding: 24px 16px 36px; }
+            .room-card { height: 220px; }
+            .room-label { font-size: 16px; left: 16px; bottom: 16px; }
+
+            .feature-promo-full {
+                background-attachment: scroll;
+                height: auto;
+                min-height: 320px;
+                padding: 48px 20px;
+            }
+            .feature-promo-title { font-size: clamp(1.6rem, 6vw, 2.4rem); margin-bottom: 14px; }
+            .feature-promo-desc { font-size: 15px; margin-bottom: 20px; }
+
+            .intro-section { padding: 36px 16px 20px; }
+            .intro-text { font-size: 15px; }
+
+            .section-header { flex-direction: column; align-items: flex-start !important; gap: 12px; }
+            .btn-browse { align-self: flex-start; }
+        }
+
+        @media (max-width: 480px) {
+            .category-slide-item { flex: 0 0 180px; }
+            .category-slide-name { font-size: 14px; }
+            .room-card { height: 180px; }
+            .feature-promo-full { padding: 40px 16px; min-height: 280px; }
+            .feature-promo-title { font-size: clamp(1.4rem, 7vw, 2rem); }
+            .feature-promo-desc { font-size: 14px; }
+        }
+
+
         /* ===== FEATURE PROMO UPDATES (SHADOW ATAS & TEKS TENGAH) ===== */
         .feature-promo-section {
             padding: 0;
@@ -771,10 +877,9 @@
             top: 0;
             left: 0;
             width: 100%;
-            height: 30%; /* Ketinggian gradasi gelap dari atas */
-            /* Menggradasi dari warna gelap (menyesuaikan section atas) ke transparan */
-            background: linear-gradient(to bottom, rgba(39, 46, 29, 0.9) 0%, rgba(39, 46, 29, 0) 100%);
-            z-index: 1; /* Di bawah teks, di atas gambar */
+            height: 180px;
+            background: linear-gradient(to bottom, var(--jaced-caramel-bg) 0%, rgba(39,46,29,0) 100%);
+            z-index: 2;
         }
 
         .feature-promo-overlay {
@@ -823,6 +928,17 @@
         .feature-promo-link:hover {
             color: var(--jaced-white);
             transform: translateY(-3px); /* Hover effect ke atas */
+        }
+
+        @media (max-width: 768px) {
+            #heroCarousel .carousel-item {
+                display: none !important;
+            }
+            #heroCarousel .carousel-item.active,
+            #heroCarousel .carousel-item.carousel-item-next,
+            #heroCarousel .carousel-item.carousel-item-prev {
+                display: block !important;
+            }
         }
     </style>
 
@@ -903,12 +1019,12 @@
                 track.scrollLeft = scrollLeft - walk;
             });
 
-            // Scroll wheel horizontal
-            track.addEventListener('wheel', (e) => {
-                if (Math.abs(e.deltaX) > Math.abs(e.deltaY)) return;
-                e.preventDefault();
-                track.scrollLeft += e.deltaY * 1.2;
-            }, { passive: false });
+            // // Scroll wheel horizontal
+            // track.addEventListener('wheel', (e) => {
+            //     if (Math.abs(e.deltaX) > Math.abs(e.deltaY)) return;
+            //     e.preventDefault();
+            //     track.scrollLeft += e.deltaY * 1.2;
+            // }, { passive: false });
 
             // Touch support
             let touchStartX = 0;

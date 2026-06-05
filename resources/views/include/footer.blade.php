@@ -54,26 +54,9 @@
             <div>
                 <h3 style="color: white; font-size: 16px; font-weight: 700; margin-bottom: 28px; margin-top: 0;">Collection</h3>
                 <ul style="list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 20px;">
-                    <li>
-                        <a href="{{ route('shop', ['collection' => 'new']) }}"
-                        style="color:#9ca3af; text-decoration:none; font-size:15px;">
-                            New Arrivals
-                        </a>
-                    </li>
-
-                    <li>
-                        <a href="{{ route('shop', ['collection' => 'bestseller']) }}"
-                        style="color:#9ca3af; text-decoration:none; font-size:15px;">
-                            Best Sellers
-                        </a>
-                    </li>
-
-                    <li>
-                        <a href="{{ route('shop', ['collection' => 'limited']) }}"
-                        style="color:#9ca3af; text-decoration:none; font-size:15px;">
-                            Limited Edition
-                        </a>
-                    </li>
+                    <li><a href="{{ route('shop', ['sort' => 'newest']) }}" style="color:#9ca3af;text-decoration:none;font-size:15px;">New Arrivals</a></li>
+                    <li><a href="{{ route('shop', ['sort' => 'bestseller']) }}" style="color:#9ca3af;text-decoration:none;font-size:15px;">Best Sellers</a></li>
+                    <li><a href="{{ route('shop', ['sort' => 'limited']) }}" style="color:#9ca3af;text-decoration:none;font-size:15px;">Limited Edition</a></li>
                     {{-- <li><a href="#" style="color: #9ca3af; text-decoration: none; font-size: 15px;">Architect Series</a></li> --}}
                 </ul>
             </div>
@@ -83,6 +66,7 @@
                 <h3 class="footer-heading">Company</h3>
                 <ul class="footer-links-list">
                     <li><a href="{{ route('about') }}" class="{{ request()->routeIs('about') ? 'active' : '' }}">Our Story</a></li>
+                    {{-- <li><a href="#">Sustainability</a></li> --}}
                 </ul>
             </div>
 
@@ -94,8 +78,8 @@
                 © 2026 JACED FURNITURE. ALL RIGHTS RESERVED.
             </p>
             <div class="footer-legal-links">
-                <a href="#">Privacy Policy</a>
-                <a href="#">Terms of Service</a>
+                <a href="{{ auth()->check() ? route('profile.edit', auth()->id()).'?panel=privacy' : '#' }}">Privacy Policy</a>
+                <a href="{{ auth()->check() ? route('profile.edit', auth()->id()).'?panel=tos' : '#' }}">Terms of Service</a>
             </div>
         </div>
     </div>

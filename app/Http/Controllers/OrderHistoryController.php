@@ -111,7 +111,12 @@ class OrderHistoryController extends Controller
         $request->validate([
             'type'        => 'required|in:missing,damaged',
             'description' => 'required|string|max:1000',
-            'photo'       => $request->input('type') === Rule::requiredIf($request->input('type') === 'damaged'), 'nullable', 'image', 'max:2048',
+            'photo'       => [
+                Rule::requiredIf($request->input('type') === 'damaged'),
+                'nullable',
+                'image',
+                'max:2048',
+            ],
         ]);
 
         $order = Auth::user()->orders()->findOrFail($id);

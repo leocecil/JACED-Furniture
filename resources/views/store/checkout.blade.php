@@ -531,11 +531,12 @@
 
         /* Address card hover polish */
         .shopee-address-item {
-            transition: background-color 0.2s ease, transform 0.15s ease;
+            transition: background-color 0.25s ease, box-shadow 0.25s ease;
         }
 
         .shopee-address-item:hover {
-            transform: translateX(2px);
+            background-color: #f8f6f2;
+            box-shadow: 0 2px 12px rgba(42, 35, 24, 0.06);
         }
 
         .shopee-address-item:has(.address-selector-radio:checked) {
@@ -843,7 +844,7 @@
                                                     {{ $item['name'] }}</div>
                                                 <div class="text-jaced-muted small">
                                                     @if(!empty(trim($item['variant'] ?? '')) && trim($item['variant']) !== '-')
-                                                        {{ trim($item['variant']) }} &bull; 
+                                                        <span style="text-transform: capitalize;">{{ trim($item['variant']) }}</span> &bull; 
                                                     @endif
                                                     Qty: {{ $item['qty'] }}
                                                 </div>
@@ -920,7 +921,8 @@
                                     Add New Address
                                 </button>
                             @else
-                                <div class="p-4 text-center border rounded bg-light">
+                                <div class="shopee-address-wrapper mb-3"></div>
+                                <div class="p-4 text-center border rounded bg-light" id="no-address-msg">
                                     <p class="text-jaced-muted small">You haven't saved any addresses yet.</p>
                                     <button type="button" class="btn btn-sm btn-outline-secondary"
                                         onclick="openAddAddressModal()">
@@ -2082,9 +2084,48 @@
                 }
             }
 
+            if (actionMode === 'add') {
+                fetch('/checkout/save-address', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                    },
+                    body: JSON.stringify({
+                        receiver_name:  receiverName,
+                        receiver_phone: receiverPhone,
+                        address_line1:  addressLine,
+                        province_code:  pSel.value,
+                        province_name:  provinceName,
+                        city_code:      cSel.value,
+                        city_name:      cityName,
+                        district_code:  dSel.value,
+                        district_name:  districtName,
+                        village_code:   vSel.value,
+                        village_name:   villageName,
+                        postal_code:    postalCode,
+                    })
+                })
+                .then(r => r.json())
+                .then(data => {
+                    // Update value radio dari 'new' ke ID asli
+                    const newRadio = document.querySelector('#temp_lbl .address-selector-radio');
+                    if (newRadio && data.address_id) newRadio.value = data.address_id;
+
+                    // Tampil toast kalau dapat poin
+                    if (data.points_earned > 0) {
+                        showPointToast(`🎉 You earned ${data.points_earned} bonus points for adding your first address!`);
+                    }
+
+                    const noAddressMsg = document.getElementById('no-address-msg');
+                    if (noAddressMsg) noAddressMsg.style.display = 'none';
+                });
+            }
+
             bsModal.hide();
             fetchShippingCost(cityName, villageName);
         }
+    
 
         function fetchShippingCost(cityName, villageName) {
             const shippingSection = document.getElementById('shippingOptions');
@@ -2135,6 +2176,37 @@
                 .catch(() => {
                     shippingSection.innerHTML = '<p class="text-danger small">Failed to calculate shipping cost.</p>';
                 });
+        }
+
+        function showPointToast(message) {
+            const old = document.getElementById('toast-notif');
+            if (old) old.remove();
+
+            const toast = document.createElement('div');
+            toast.id = 'toast-notif';
+            toast.style.cssText = 'position:fixed; top:24px; right:24px; z-index:99999; animation:slideInToast .3s ease; min-width:300px; max-width:400px;';
+            toast.innerHTML = `
+                <div style="background:white; border-radius:16px; box-shadow:0 8px 32px rgba(0,0,0,.12); display:flex; align-items:center; gap:14px; padding:16px 20px;">
+                    <div style="width:38px; height:38px; border-radius:50%; flex-shrink:0; display:flex; align-items:center; justify-content:center; background:#e8f5e9;">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#2e7d32" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+                    </div>
+                    <div style="flex:1;">
+                        <p style="margin:0; font-size:13px; font-weight:600; color:#1a1714;">${message}</p>
+                    </div>
+                    <button onclick="document.getElementById('toast-notif').remove()" 
+                        style="background:none; border:none; color:#aaa; font-size:20px; cursor:pointer; padding:0; line-height:1; flex-shrink:0;">×</button>
+                </div>
+            `;
+            document.body.appendChild(toast);
+
+            setTimeout(() => {
+                if (toast) {
+                    toast.style.transition = 'opacity .3s, transform .3s';
+                    toast.style.opacity = '0';
+                    toast.style.transform = 'translateY(8px)';
+                    setTimeout(() => toast.remove(), 300);
+                }
+            }, 4000);
         }
 
         function updateDeliveryFee(cost) {
@@ -2269,23 +2341,30 @@
         });
 
         function checkQrisLimit() {
-            const paymentMethod = document.getElementById('paymentMethod').value;
-            const warning = document.getElementById('qris-warning');
-            const submitBtn = document.querySelector('#checkoutForm button[type="submit"]');
             const subtotal = {{ $subtotal ?? 0 }};
             const tax = {{ $tax ?? 0 }};
             const tierDiscount = {{ $tierDiscountAmount ?? 0 }};
-
             const voucherDiscount = parseFloat(document.getElementById('applied-discount-amount').value) || 0;
             const currentTotal = subtotal + tax + currentDeliveryFee - tierDiscount - voucherDiscount;
 
-            if (paymentMethod === 'qris' && currentTotal > 10000000) {
-                if (warning) warning.classList.remove('d-none');
-                if (submitBtn) submitBtn.disabled = true;
+            const qrisOption = document.querySelector('#paymentMethod option[value="qris"]');
+            const paymentSelect = document.getElementById('paymentMethod');
+            const warning = document.getElementById('qris-warning');
+            const submitBtn = document.querySelector('#checkoutForm button[type="submit"]');
+
+            if (currentTotal > 10000000) {
+                if (qrisOption) qrisOption.style.display = 'none';
+
+                if (paymentSelect.value === 'qris' || paymentSelect.value === '') {
+                    paymentSelect.value = 'virtual_account';
+                    handlePaymentChange('virtual_account');
+                }
             } else {
-                if (warning) warning.classList.add('d-none');
-                if (submitBtn) submitBtn.disabled = false;
+                if (qrisOption) qrisOption.style.display = '';
             }
+
+            if (warning) warning.classList.add('d-none');
+            if (submitBtn) submitBtn.disabled = false;
         }
 
         document.getElementById('paymentMethod').addEventListener('change', function() {
