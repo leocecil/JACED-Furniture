@@ -83,7 +83,6 @@
                 <h3 class="footer-heading">Company</h3>
                 <ul class="footer-links-list">
                     <li><a href="{{ route('about') }}" class="{{ request()->routeIs('about') ? 'active' : '' }}">Our Story</a></li>
-                    <li><a href="#">Sustainability</a></li>
                 </ul>
             </div>
 

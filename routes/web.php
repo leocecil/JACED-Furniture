@@ -162,6 +162,8 @@ Route::middleware(['role:admin'])->group(function() {
     // Core Customer Analytics Systems
     Route::get('/admin/analytics', [AnalyticsController::class, 'index'])->name('analytics.customers');
     Route::get('/admin/analytics/customers/all', [AnalyticsController::class, 'allCustomers'])->name('analytics.customers.all');
+    Route::get('/admin/customer-analytics', [AnalyticsController::class, 'customerAnalyticsPage'])->name('customer.analytics.page');
+    Route::get('/admin/analytics/export', [AnalyticsController::class, 'export'])->name('analytics.export');
 
     // Inventory Stock Control
     Route::get('/admin/inventory', [InventoryController::class, 'index'])->name('inventory.index');
@@ -172,7 +174,9 @@ Route::middleware(['role:admin'])->group(function() {
     Route::post('/admin/inventory/{id}/restore', [InventoryController::class, 'restore'])->name('inventory.restore');
     Route::post('/admin/categories', [CategoryController::class, 'store'])->name('categories.store');
     Route::delete('/admin/categories/{category}', [CategoryController::class, 'destroy'])->name('categories.destroy');
-    // Voucher Operational Management Systems
+
+    
+     // Voucher Operational Management Systems
     Route::get('/admin/vouchers',[VoucherManagementController::class, 'index'])->name('admin.vouchers');
     Route::post('/admin/vouchers',[VoucherManagementController::class, 'store'])->name('admin.vouchers.store');
     Route::get('/admin/vouchers/stats',[VoucherManagementController::class, 'stats'])->name('admin.vouchers.stats');

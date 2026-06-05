@@ -229,52 +229,68 @@
      </div>
 
     {{-- Filter Bar --}}
-    <div class="d-flex justify-content-between align-items-center mb-2 pb-2 border-bottom">
-        <div class="d-flex align-items-center gap-2" style="flex: 1; min-width: 0;">
+<div class="d-flex flex-column flex-md-row justify-content-md-between align-items-md-center gap-3 mb-3 pb-2 border-bottom">
+    
+    {{-- SISI KIRI: Slider Kategori & Tombol Add Category --}}
+    <div class="d-flex align-items-center justify-content-between justify-content-md-start gap-2" style="flex: 1; min-width: 0;">
+        
+        {{-- Wrapper dengan Isyarat Gradasi Geser --}}
+        {{-- Di layar mobile max-width dibatasi agar tombol Add tidak terdorong, di desktop kembali normal --}}
+        <div class="category-wrapper" style="max-width: calc(100% - 130px); overflow: hidden;">
+            <style>
+                @media (min-width: 768px) {
+                    .category-wrapper { max-width: 500px !important; }
+                }
+            </style>
             
-            {{-- Wrapper dengan Isyarat Gradasi Geser --}}
-            <div class="category-wrapper" style="max-width: 500px; overflow: hidden;">
-                
-                {{-- Ditambahkan teks bantuan 'Swipe' kecil yang hanya muncul di layar sentuh perangkat mobile --}}
-                <div class="d-flex gap-2 overflow-auto category-scroll flex-nowrap py-1" id="categoryFilterList" title="Swipe left/right to view more categories">
-                    <button class="btn btn-sm rounded-pill px-4 py-2 fw-bold flex-shrink-0"
-                            id="cat-all"
-                            style="background: #c4a882; color: white;"
-                            onclick="filterByCategory(null, this)">All Collections</button>
-                    @foreach($categories as $cat)
-                        <button class="btn btn-sm btn-category-inactive px-4 py-2 flex-shrink-0 border-0"
-                                data-cat-id="{{ $cat->id }}"
-                                onclick="filterByCategory({{ $cat->id }}, this)">
-                            {{ $cat->name }}
-                        </button>
-                    @endforeach
-                </div>
+            {{-- Ditambahkan teks bantuan 'Swipe' kecil yang hanya muncul di layar sentuh perangkat mobile --}}
+            <div class="d-flex gap-2 overflow-auto category-scroll flex-nowrap py-1" id="categoryFilterList" title="Swipe left/right to view more categories">
+                <button class="btn btn-sm rounded-pill px-3 px-md-4 py-1.5 py-md-2 fw-bold flex-shrink-0"
+                        id="cat-all"
+                        style="background: #c4a882; color: white;"
+                        onclick="filterByCategory(null, this)">All Collections</button>
+                @foreach($categories as $cat)
+                    <button class="btn btn-sm btn-category-inactive px-3 px-md-4 py-1.5 py-md-2 flex-shrink-0 border-0"
+                            data-cat-id="{{ $cat->id }}"
+                            onclick="filterByCategory({{ $cat->id }}, this)">
+                        {{ $cat->name }}
+                    </button>
+                @endforeach
             </div>
-            <button class="btn btn-sm btn-add-category flex-shrink-0 border-0 bg-transparent ms-2"
-                    data-bs-toggle="modal" data-bs-target="#addCategoryModal">
-                <i class="bi bi-plus-circle-fill me-1"></i> Add Category
-            </button>
         </div>
 
-        <div class="d-flex align-items-center gap-3 ms-3">
-            <div class="dropdown">
-                <button class="btn btn-sm border-0 p-0 dropdown-toggle fw-bold d-flex align-items-center text-muted"
-                        type="button" data-bs-toggle="dropdown" style="font-size: 0.85rem;">
-                    <i class="bi bi-filter-left fs-5 me-1"></i>
-                    SORT BY: <span class="ms-1 text-dark" id="sortLabel">NEWEST</span>
-                </button>
-                <ul class="dropdown-menu dropdown-menu-end shadow-sm border-0 p-2"
-                    style="background:#fff; border-radius:12px; min-width:160px;">
-                    <li><a class="dropdown-item rounded-2 small py-2 fw-medium active" href="#" onclick="sortBy('newest','NEWEST',this)">Newest</a></li>
-                    <li><a class="dropdown-item rounded-2 small py-2 fw-medium" href="#" onclick="sortBy('oldest','OLDEST',this)">Oldest</a></li>
-                    <li><a class="dropdown-item rounded-2 small py-2 fw-medium" href="#" onclick="sortBy('price_high','PRICE ↓',this)">Price: High to Low</a></li>
-                    <li><a class="dropdown-item rounded-2 small py-2 fw-medium" href="#" onclick="sortBy('price_low','PRICE ↑',this)">Price: Low to High</a></li>
-                    <li><a class="dropdown-item rounded-2 small py-2 fw-medium" href="#" onclick="sortBy('stock_low','STOCK ↑',this)">Stock: Low to High</a></li>
-                </ul>
-            </div>
-            <div id="togglePlaceholder"></div>
-        </div>
+        {{-- Tombol Add Category --}}
+        <button class="btn btn-sm btn-add-category flex-shrink-0 border-0 bg-transparent ms-md-2"
+                data-bs-toggle="modal" data-bs-target="#addCategoryModal">
+            <i class="bi bi-plus-circle-fill me-1"></i> Add Category
+        </button>
     </div>
+
+    {{-- SISI KANAN: Opsi Pengurutan (SORT BY) & Toggle Layout View --}}
+    <div class="d-flex align-items-center justify-content-between justify-content-md-end gap-3 ms-md-3">
+        <div class="dropdown">
+            <button class="btn btn-sm border-0 p-0 dropdown-toggle fw-bold d-flex align-items-center text-muted"
+                    type="button" data-bs-toggle="dropdown" style="font-size: 0.85rem;">
+                <i class="bi bi-filter-left fs-5 me-1"></i>
+                SORT BY: <span class="ms-1 text-dark" id="sortLabel">NEWEST</span>
+            </button>
+            <ul class="dropdown-menu dropdown-menu-end shadow-sm border-0 p-2"
+                style="background:#fff; border-radius:12px; min-width:180px; z-index: 1050;">
+                <li><a class="dropdown-item rounded-2 small py-2 fw-medium active" href="#" onclick="sortBy('newest','NEWEST',this)">Newest</a></li>
+                <li><a class="dropdown-item rounded-2 small py-2 fw-medium" href="#" onclick="sortBy('oldest','OLDEST',this)">Oldest</a></li>
+                <li><a class="dropdown-item rounded-2 small py-2 fw-medium" href="#" onclick="sortBy('price_high','PRICE ↓',this)">Price: High to Low</a></li>
+                <li><a class="dropdown-item rounded-2 small py-2 fw-medium" href="#" onclick="sortBy('price_low','PRICE ↑',this)">Price: Low to High</a></li>
+                <li><a class="dropdown-item rounded-2 small py-2 fw-medium" href="#" onclick="sortBy('stock_low','STOCK ↑',this)">Stock: Low to High</a></li>
+                <li><hr class="dropdown-divider my-1" style="border-color: #f0eeeb;"></li>
+                <li><a class="dropdown-item rounded-2 small py-2 fw-medium text-danger" href="#" onclick="sortBy('inactive','INACTIVE 🚫',this)">Inactive Items</a></li>
+            </ul>
+        </div>
+
+        {{-- Penampung Sakelar Grid/List Tombol --}}
+        <div id="togglePlaceholder" class="flex-shrink-0"></div>
+    </div>
+
+</div>
 
     {{-- Inventory Grid --}}
     @include('pages.inventory.item-grid')
