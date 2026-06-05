@@ -15,6 +15,7 @@ return new class extends Migration
         Schema::table('orders', function (Blueprint $table) {
             //update delivery_fee
             $table->decimal('delivery_fee', 12, 2)->change();
+            $table->decimal('total_price', 12, 2)->change();
         });
         
     }
@@ -27,6 +28,7 @@ return new class extends Migration
         //
         Schema::table('orders', function (Blueprint $table) {
             $table->decimal('delivery_fee', 10, 2)->change();
+            $table->decimal('total_price', 10, 2)->change();
         });
     }
 };
