@@ -36,7 +36,6 @@
 
     body {
         font-family: 'Lexend', sans-serif !important;
-        /* background-color: var(--jaced-caramel-bg) !important; */
         color: var(--jaced-brown-dark) !important;
     }
 
@@ -55,24 +54,32 @@
     
     .category-scroll { 
         scroll-behavior: smooth; 
-        -ms-overflow-style: auto; /* Memunculkan scroll bawaan IE jika dibutuhkan */
-        scrollbar-width: thin;    /* Track scroll tipis modern untuk Firefox */
+        -ms-overflow-style: none;  /* 🌟 FIX: Hilangkan scrollbar di Internet Explorer & Edge lama */
+        scrollbar-width: none;     /* 🌟 FIX: Hilangkan scrollbar di Firefox */
     }
     
-    /* Optimasi Scrollbar Minimalis Khusus Browser Chrome, Safari, dan Edge */
+    /* 🌟 FIX: Hilangkan scrollbar horizontal di Chrome, Safari, Opera, dan Edge Chromium */
     .category-scroll::-webkit-scrollbar { 
-        height: 4px; /* Tinggi scrollbar horizontal yang tipis */
-    }
-    .category-scroll::-webkit-scrollbar-track {
-        background: transparent;
-    }
-    .category-scroll::-webkit-scrollbar-thumb {
-        background: var(--jaced-input);
-        border-radius: 10px;
+        display: none !important;
+        height: 0px !important; 
     }
     
-    .btn-category-inactive { color: var(--jaced-muted) !important; opacity: 0.7; transition: all 0.2s ease; background: transparent; }
-    .btn-category-inactive:hover { opacity: 1; background-color: rgba(0,0,0,0.05) !important; border-radius: 50px; }
+    /* 🌟 FIX: Mengubah tampilan kategori yang tidak aktif agar background lingkaran bulatnya tetap terlihat */
+    .btn-category-inactive { 
+        color: #c4a882 !important; 
+        background-color: #ffffff !important; /* Warna abu-cream lembut agar bentuk rounded tetap terlihat kontras */
+        opacity: 0.65; 
+        border-radius: 50px !important;
+        font-weight: 500 !important;
+        transition: all 0.2s ease; 
+    }
+    
+    /* Efek hover saat kursor mendekati tombol kategori */
+    .btn-category-inactive:hover { 
+        opacity: 1; 
+        background-color: var(--jaced-cream) !important; /* Warna sedikit lebih gelap saat di-hover */
+    }
+    
     .btn-add-category { color: var(--jaced-sage) !important; font-weight: 600 !important; }
     .dropdown-item { transition: all 0.2s; }
     .dropdown-item:hover { background-color: #f0eeeb !important; }
@@ -229,34 +236,46 @@
      </div>
 
     {{-- Filter Bar --}}
-    <div class="d-flex justify-content-between align-items-center mb-2 pb-2 border-bottom">
-        <div class="d-flex align-items-center gap-2" style="flex: 1; min-width: 0;">
+    <div class="d-flex flex-column flex-md-row justify-content-md-between align-items-md-center gap-3 mb-3 pb-2 border-bottom">
+        
+        {{-- SISI KIRI: Slider Kategori & Tombol Add Category --}}
+        <div class="d-flex align-items-center justify-content-between justify-content-md-start gap-2" style="flex: 1; min-width: 0;">
             
             {{-- Wrapper dengan Isyarat Gradasi Geser --}}
-            <div class="category-wrapper" style="max-width: 500px; overflow: hidden;">
+            <div class="category-wrapper" style="max-width: calc(100% - 130px); overflow: hidden;">
+                <style>
+                    @media (min-width: 768px) {
+                        .category-wrapper { max-width: 500px !important; }
+                    }
+                </style>
                 
                 {{-- Ditambahkan teks bantuan 'Swipe' kecil yang hanya muncul di layar sentuh perangkat mobile --}}
                 <div class="d-flex gap-2 overflow-auto category-scroll flex-nowrap py-1" id="categoryFilterList" title="Swipe left/right to view more categories">
-                    <button class="btn btn-sm rounded-pill px-4 py-2 fw-bold flex-shrink-0"
+                    <button class="btn btn-sm rounded-pill px-3 px-md-4 py-1.5 py-md-2 fw-bold flex-shrink-0"
                             id="cat-all"
-                            style="background: #c4a882; color: white;"
+                            style="background: #c4a882; color: white; border-radius: 50px !important;"
                             onclick="filterByCategory(null, this)">All Collections</button>
                     @foreach($categories as $cat)
-                        <button class="btn btn-sm btn-category-inactive px-4 py-2 flex-shrink-0 border-0"
+                        {{-- 🌟 FIX: Ditambahkan kelas text-capitalize agar huruf awal otomatis kapital --}}
+                        <button class="btn btn-sm btn-category-inactive text-capitalize px-3 px-md-4 py-1.5 py-md-2 flex-shrink-0 border-0"
                                 data-cat-id="{{ $cat->id }}"
+                                style="border-radius: 50px !important;"
                                 onclick="filterByCategory({{ $cat->id }}, this)">
                             {{ $cat->name }}
                         </button>
                     @endforeach
                 </div>
             </div>
-            <button class="btn btn-sm btn-add-category flex-shrink-0 border-0 bg-transparent ms-2"
+
+            {{-- Tombol Add Category --}}
+            <button class="btn btn-sm btn-add-category flex-shrink-0 border-0 bg-transparent ms-md-2"
                     data-bs-toggle="modal" data-bs-target="#addCategoryModal">
                 <i class="bi bi-plus-circle-fill me-1"></i> Add Category
             </button>
         </div>
 
-        <div class="d-flex align-items-center gap-3 ms-3">
+        {{-- SISI KANAN: Opsi Pengurutan (SORT BY) & Toggle Layout View --}}
+        <div class="d-flex align-items-center justify-content-between justify-content-md-end gap-3 ms-md-3">
             <div class="dropdown">
                 <button class="btn btn-sm border-0 p-0 dropdown-toggle fw-bold d-flex align-items-center text-muted"
                         type="button" data-bs-toggle="dropdown" style="font-size: 0.85rem;">
@@ -264,16 +283,21 @@
                     SORT BY: <span class="ms-1 text-dark" id="sortLabel">NEWEST</span>
                 </button>
                 <ul class="dropdown-menu dropdown-menu-end shadow-sm border-0 p-2"
-                    style="background:#fff; border-radius:12px; min-width:160px;">
+                    style="background:#fff; border-radius:12px; min-width:180px; z-index: 1050;">
                     <li><a class="dropdown-item rounded-2 small py-2 fw-medium active" href="#" onclick="sortBy('newest','NEWEST',this)">Newest</a></li>
                     <li><a class="dropdown-item rounded-2 small py-2 fw-medium" href="#" onclick="sortBy('oldest','OLDEST',this)">Oldest</a></li>
                     <li><a class="dropdown-item rounded-2 small py-2 fw-medium" href="#" onclick="sortBy('price_high','PRICE ↓',this)">Price: High to Low</a></li>
                     <li><a class="dropdown-item rounded-2 small py-2 fw-medium" href="#" onclick="sortBy('price_low','PRICE ↑',this)">Price: Low to High</a></li>
                     <li><a class="dropdown-item rounded-2 small py-2 fw-medium" href="#" onclick="sortBy('stock_low','STOCK ↑',this)">Stock: Low to High</a></li>
+                    <li><hr class="dropdown-divider my-1" style="border-color: #f0eeeb;"></li>
+                    <li><a class="dropdown-item rounded-2 small py-2 fw-medium text-danger" href="#" onclick="sortBy('inactive','INACTIVE 🚫',this)">Inactive Items</a></li>
                 </ul>
             </div>
-            <div id="togglePlaceholder"></div>
+
+            {{-- Penampung Sakelar Grid/List Tombol --}}
+            <div id="togglePlaceholder" class="flex-shrink-0"></div>
         </div>
+
     </div>
 
     {{-- Inventory Grid --}}
@@ -318,13 +342,15 @@
                 document.querySelectorAll('#categoryFilterList .btn').forEach(b => {
                     b.classList.add('btn-category-inactive');
                     b.classList.remove('fw-bold');
-                    b.style.background = 'transparent';
-                    b.style.color = '#6b6860';
+                    b.style.background = '#f0eeeb';
+                    b.style.color = 'var(--jaced-brown-dark)';
+                    b.style.borderRadius = '50px'; // 🌟 FIX: Tetap mengunci bentuk bulat lonjong saat muat ulang halaman
                 });
                 activeCatBtn.classList.remove('btn-category-inactive');
                 activeCatBtn.classList.add('fw-bold');
                 activeCatBtn.style.background = '#c4a882';
                 activeCatBtn.style.color = 'white';
+                activeCatBtn.style.borderRadius = '50px'; // 🌟 FIX: Kunci bentuk pil bulat kustomer terpilih
             }
         } else {
             const catAll = document.getElementById('cat-all');
@@ -332,13 +358,15 @@
                 document.querySelectorAll('#categoryFilterList .btn').forEach(b => {
                     b.classList.add('btn-category-inactive');
                     b.classList.remove('fw-bold');
-                    b.style.background = 'transparent';
-                    b.style.color = '#6b6860';
+                    b.style.background = '#f0eeeb';
+                    b.style.color = 'var(--jaced-brown-dark)';
+                    b.style.borderRadius = '50px';
                 });
                 catAll.classList.remove('btn-category-inactive');
                 catAll.classList.add('fw-bold');
                 catAll.style.background = '#c4a882';
                 catAll.style.color = 'white';
+                catAll.style.borderRadius = '50px';
             }
         }
     });
@@ -347,13 +375,15 @@
         document.querySelectorAll('#categoryFilterList .btn').forEach(b => {
             b.classList.add('btn-category-inactive');
             b.classList.remove('fw-bold');
-            b.style.background = 'transparent';
-            b.style.color = '#6b6860';
+            b.style.background = '#f0eeeb'; // Gunakan warna dasar cream melingkar pasif
+            b.style.color = 'var(--jaced-brown-dark)';
+            b.style.borderRadius = '50px'; // 🌟 FIX: Kunci elemen radius non-aktif agar tidak mengotak
         });
         btn.classList.remove('btn-category-inactive');
         btn.classList.add('fw-bold');
-        btn.style.background = '#c4a882';
+        btn.style.background = '#c4a882'; // Warna latar belakang emas caramel aktif
         btn.style.color = 'white';
+        btn.style.borderRadius = '50px'; // 🌟 FIX: Kunci elemen radius aktif agar tetap oval sempurna
 
         const url = new URL(window.location.href);
         catId ? url.searchParams.set('category_id', catId) : url.searchParams.delete('category_id');
@@ -457,9 +487,6 @@
                                     required>
                                 <input type="hidden" name="price" id="priceRaw">
                             </div>
-                            <div class="form-text" style="font-size:11px; color:#9c9890;">
-
-                            </div>
                         </div>
                         <div class="col-md-4">
                             <label class="form-label">Stock <span class="text-danger">*</span></label>
@@ -495,10 +522,11 @@
                     <div class="row g-3 mb-3">
                         <div class="col-md-6">
                             <label class="form-label">Category <span class="text-danger">*</span></label>
-                            <select class="form-select" name="category_id" id="categorySelect" required>
+                            {{-- 🌟 FIX: Ditambahkan kelas text-capitalize pada komponen input select modal --}}
+                            <select class="form-select text-capitalize" name="category_id" id="categorySelect" required>
                                 <option value="" selected disabled>Select Category</option>
                                 @foreach($categories as $cat)
-                                    <option value="{{ $cat->id }}">{{ $cat->name }}</option>
+                                    <option value="{{ $cat->id }}" class="text-capitalize">{{ $cat->name }}</option>
                                 @endforeach
                             </select>
                         </div>
@@ -567,9 +595,10 @@
                 </div>
                 <div id="catErrorMsg" class="mb-3" style="font-size:11px; min-height:16px;"></div>
                 <div style="font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:.1em; color:#9c9890; margin-bottom:10px;">Current Categories</div>
+                {{-- 🌟 FIX: Ditambahkan kelas text-capitalize pada chip modal management --}}
                 <div class="d-flex flex-wrap gap-2 pb-2" id="categoryChips">
                     @foreach($categories as $cat)
-                        <span class="cat-chip" data-cat-id="{{ $cat->id }}">{{ $cat->name }}<button class="remove-cat" onclick="deleteCategory({{ $cat->id }}, this)" title="Remove">×</button></span>
+                        <span class="cat-chip text-capitalize" data-cat-id="{{ $cat->id }}">{{ $cat->name }}<button class="remove-cat" onclick="deleteCategory({{ $cat->id }}, this)" title="Remove">×</button></span>
                     @endforeach
                 </div>
             </div>
@@ -586,6 +615,8 @@
 function autoSlug(val) {
     document.getElementById('slugInput').value = val.toLowerCase().replace(/[^a-z0-9\s-]/g, '').trim().replace(/\s+/g, '-');
 }
+
+var editModalObj = null; // Instansiasi pembantu modal kustom edit
 
 function previewImages(input) {
     const wrap = document.getElementById('imagePreviewWrap');
@@ -632,21 +663,29 @@ function saveCategory() {
         const cat   = data.category;
         const chips = document.getElementById('categoryChips');
         const span  = document.createElement('span');
-        span.className     = 'cat-chip';
+        
+        // 🌟 FIX: AJAX baru ditambahkan kelas text-capitalize
+        span.className     = 'cat-chip text-capitalize';
         span.dataset.catId = cat.id;
         span.innerHTML     = `${cat.name} <button class="remove-cat" onclick="deleteCategory(${cat.id}, this)">×</button>`;
         chips.appendChild(span);
 
         const filterList = document.getElementById('categoryFilterList');
         const btn        = document.createElement('button');
-        btn.className     = 'btn btn-sm btn-category-inactive px-4 py-2 flex-shrink-0 border-0';
+        
+        // 🌟 FIX: AJAX baru ditambahkan kelas text-capitalize & radius 50px pengunci bentuk bulat
+        btn.className     = 'btn btn-sm btn-category-inactive text-capitalize px-4 py-2 flex-shrink-0 border-0';
+        btn.style.borderRadius = '50px';
         btn.dataset.catId = cat.id;
         btn.textContent   = cat.name;
         btn.onclick       = function () { filterByCategory(cat.id, this); };
         filterList.appendChild(btn);
 
         const sel = document.getElementById('categorySelect');
-        sel.appendChild(new Option(cat.name, cat.id));
+        const opt = new Option(cat.name, cat.id);
+        opt.className = 'text-capitalize';
+        sel.appendChild(opt);
+        
         input.value = '';
         input.focus();
     })
@@ -681,10 +720,6 @@ function deleteCategory(id, btn) {
         alert('⚠ System error. Could not complete the request.');
     });
 }
-
-// ── FORMAT RUPIAH ──────────────────────────────────────────
-// Titik muncul otomatis saat mengetik, nilai bersih disimpan
-// di hidden input untuk dikirim ke server
 
 function formatRupiah(input, rawId) {
     const cursorPos  = input.selectionStart;

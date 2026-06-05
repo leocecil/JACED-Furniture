@@ -4,8 +4,16 @@
     .inv-view-btn:not(.active):hover { background: #f0eeeb; color: #1a1a18; }
 
     /* Grid layout */
-    #inventoryContainer.view-grid { display: flex; flex-wrap: wrap; gap: 20px; }
-    #inventoryContainer.view-grid .inv-item { width: calc(33.333% - 14px); }
+     #inventoryContainer.view-grid {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 20px;
+        align-items: stretch; /* ← semua item sama tinggi */
+    }
+    #inventoryContainer.view-grid .inv-item {
+        width: calc(33.333% - 14px);
+        display: flex;          /* ← wajib agar card bisa stretch */
+    }
     @media (max-width: 992px) { #inventoryContainer.view-grid .inv-item { width: calc(50% - 10px); } }
     @media (max-width: 576px) { #inventoryContainer.view-grid .inv-item { width: 100%; } }
 
@@ -24,10 +32,33 @@
     #inventoryContainer.view-list .inv-item .list-card:hover { box-shadow: 0 4px 16px rgba(0,0,0,0.07); }
 
     /* Grid card system */
-    .grid-card { background: #fff; border: 1px solid #e2ddd8; border-radius: 14px; overflow: hidden; transition: box-shadow 0.2s, transform 0.2s; }
+    .grid-card { background: #fff; border: 1px solid #e2ddd8; border-radius: 14px; overflow: hidden; transition: box-shadow 0.2s, transform 0.2s; display: flex; flex-direction: column; width: 100%;}
     .grid-card:hover { box-shadow: 0 8px 24px rgba(0,0,0,0.08); transform: translateY(-2px); }
     .grid-card-img { width: 100%; height: 200px; object-fit: cover; background: #f0eeeb; display: block; }
+display: flex;
+        flex-direction: column;
+        flex: 1;
+    }
 
+    /* 🌟 FIX: Mengunci baris nama produk agar jika ada 2 baris, card lain tidak bergeser */
+    .grid-product-title-wrap {
+        min-height: 42px; /* Standar tinggi untuk menampung hingga 2 baris teks nama */
+        display: flex;
+        align-items: start;
+        margin-bottom: 4px;
+    }
+
+    /* 🌟 FIX: Mengunci deskripsi maksimal 2 baris, jika sisa otomatis diganti titik-titik (...) */
+    .grid-description-lock {
+        font-size: 12px; 
+        color: #9c9890; 
+        margin-bottom: 16px; 
+        overflow: hidden; 
+        display: -webkit-box; 
+        -webkit-line-clamp: 2; 
+        -webkit-box-orient: vertical;
+        min-height: 36px; /* Mengunci tinggi ruang deskripsi tetap seragam */
+    }
     /* List card system */
     .list-card-img { width: 68px; height: 68px; border-radius: 10px; object-fit: cover; background: #f0eeeb; flex-shrink: 0; }
     .list-card-info { flex: 1; min-width: 0; }
@@ -38,7 +69,9 @@
     /* Shared components styling */
     .item-badge-cat { font-size: 10px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; background: #f0eeeb; color: #6b6860; padding: 3px 8px; border-radius: 4px; display: inline-block; }
     .item-badge-label { font-size: 10px; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; background: #1e1c18; color: #c4a882; padding: 3px 8px; border-radius: 4px; display: inline-block; }
-    .item-inactive { opacity: 0.55; }
+    
+    /* Perbaikan Visual Buram Mengikuti Status Trashed Soft Delete */
+    .item-inactive { opacity: 0.55; filter: grayscale(15%); }
 
     .stock-badge { font-size: 11px; font-weight: 600; padding: 3px 10px; border-radius: 20px; white-space: nowrap; }
     .badge-instock  { background: #eaf7ec; color: #1d7a35; }
@@ -73,10 +106,13 @@
 
 {{-- Main Container Dynamic Ledger --}}
 <div id="inventoryContainer" class="view-grid mt-3">
+    @php
+        // Mengurutkan produk trashed ke paling belakang agar tidak merusak antrean katalog utama
+        $orderedProducts = collect($products->items())->sortBy(fn($p) => $p->trashed() ? 1 : 0)->values();
+    @endphp
 
-    @forelse($products as $product)
+    @forelse($orderedProducts as $product)
         @php
-            // ── PERBAIKAN MEMBACA GAMBAR MURNI DARI FOLDER PUBLIC/IMAGE ──
             if ($product->main_image) {
                 $cleanPath = str_starts_with($product->main_image, 'image/') ? $product->main_image : 'image/' . $product->main_image;
                 $thumb = asset($cleanPath);
@@ -90,9 +126,19 @@
             $priceFormatted = 'Rp ' . number_format($product->price, 0, ',', '.');
             $oldPriceFormatted = $product->old_price ? 'Rp ' . number_format($product->old_price, 0, ',', '.') : null;
 
-            if ($product->stock <= 0)     { $badgeClass = 'badge-outstock'; $badgeText = 'Out of Stock'; }
-            elseif ($product->stock <= 5) { $badgeClass = 'badge-lowstock'; $badgeText = 'Low Stock (' . $product->stock . ')'; }
-            else                           { $badgeClass = 'badge-instock';  $badgeText = $product->stock . ' units'; }
+            // ── PERBAIKAN LOGIKA LOW STOCK: Otomatis membaca threshold dinamis dari database tiap produk ──
+            $threshold = isset($product->low_stock) ? (int)$product->low_stock : 5;
+
+            if ($product->stock <= 0) { 
+                $badgeClass = 'badge-outstock'; 
+                $badgeText = 'Out of Stock'; 
+            } elseif ($product->stock <= $threshold) { 
+                $badgeClass = 'badge-lowstock'; 
+                $badgeText = 'Low Stock (' . $product->stock . ')'; 
+            } else { 
+                $badgeClass = 'badge-instock';  
+                $badgeText = $product->stock . ' units'; 
+            }
 
             $productPayload = [
                 'id'          => $product->id,
@@ -107,6 +153,7 @@
                 'low_stock'   => $product->low_stock,
                 'label'       => $product->label,
                 'category_id' => $product->category_id,
+                'is_active'   => !$product->trashed(),
                 'images'      => $product->images->map(fn($img) => [
                     'id'         => $img->id,
                     'image_path' => $img->image_path,
@@ -115,7 +162,7 @@
             ];
         @endphp
 
-        <div class="inv-item {{ !$product->is_active ? 'item-inactive' : '' }}">
+        <div class="inv-item {{ $product->trashed() ? 'item-inactive' : '' }}">
 
             {{-- ══ VIEW 1: GRID CARD ══ --}}
             <div class="grid-card">
@@ -127,7 +174,7 @@
                             {{ $product->label }}
                         </span>
                     @endif
-                    @if(!$product->is_active)
+                    @if($product->trashed())
                         <span class="position-absolute"
                               style="top:10px; right:10px; background:#fdecea; color:#c0392b; font-size:10px; font-weight:700; padding:3px 8px; border-radius:4px;">
                             Inactive
@@ -159,16 +206,26 @@
                     <div class="d-flex align-items-center justify-content-between mt-2">
                         <span class="stock-badge {{ $badgeClass }}">{{ $badgeText }}</span>
                         <div class="d-flex gap-1">
-                            <button type="button" class="action-btn" title="Edit" onclick="openEditModal({{ json_encode($productPayload) }})">
-                                <i class="bi bi-pencil"></i>
-                            </button>
-                            
-                            <form action="{{ route('inventory.destroy', $product->id) }}" method="POST"
-                                  onsubmit="return confirm('Apakah Anda yakin ingin menonaktifkan {{ addslashes($product->name) }}?')">
-                                @csrf 
-                                @method('DELETE')
-                                <button type="submit" class="action-btn delete" title="Delete"><i class="bi bi-trash"></i></button>
-                            </form>
+                            @if(!$product->trashed())
+                                <button type="button" class="action-btn" title="Edit" onclick="openEditModal({{ json_encode($productPayload) }})">
+                                    <i class="bi bi-pencil"></i>
+                                </button>
+                                
+                                <form action="{{ route('inventory.destroy', $product->id) }}" method="POST"
+                                      onsubmit="return confirm('Apakah Anda yakin ingin menonaktifkan {{ addslashes($product->name) }}?')">
+                                    @csrf 
+                                    @method('DELETE')
+                                    <button type="submit" class="action-btn delete" title="Delete"><i class="bi bi-trash"></i></button>
+                                </form>
+                            @else
+                                <form action="{{ route('inventory.restore', $product->id) }}" method="POST">
+                                    @csrf
+                                    <button type="submit" class="btn btn-sm px-3 py-1.5 fw-bold d-flex align-items-center gap-1" 
+                                            style="background: #5a6b5b; color: #f5f2ee; border-radius: 6px; font-size: 11px; border:none;">
+                                        <i class="bi bi-arrow-counterclockwise"></i> Aktifkan
+                                    </button>
+                                </form>
+                            @endif
                         </div>
                     </div>
                 </div>
@@ -183,7 +240,7 @@
                     <div class="list-card-meta">
                         {{ $product->category?->name ?? '—' }}
                         @if($product->label) · <span style="color:#c4a882;">{{ $product->label }}</span> @endif
-                        @if(!$product->is_active) · <span style="color:#c0392b;">Inactive</span> @endif
+                        @if($product->trashed()) · <span style="color:#c0392b;">Inactive</span> @endif
                     </div>
                 </div>
 
@@ -197,15 +254,25 @@
                 </div>
 
                 <div class="d-flex gap-1 flex-shrink-0">
-                    <button type="button" class="action-btn" title="Edit" onclick="openEditModal({{ json_encode($productPayload) }})">
-                        <i class="bi bi-pencil"></i>
-                    </button>
-                    <form action="{{ route('inventory.destroy', $product->id) }}" method="POST"
-                          onsubmit="return confirm('Apakah Anda yakin ingin menonaktifkan {{ addslashes($product->name) }}?')">
-                        @csrf 
-                        @method('DELETE')
-                        <button type="submit" class="action-btn delete" title="Delete"><i class="bi bi-trash"></i></button>
-                    </form>
+                    @if(!$product->trashed())
+                        <button type="button" class="action-btn" title="Edit" onclick="openEditModal({{ json_encode($productPayload) }})">
+                            <i class="bi bi-pencil"></i>
+                        </button>
+                        <form action="{{ route('inventory.destroy', $product->id) }}" method="POST"
+                              onsubmit="return confirm('Apakah Anda yakin ingin menonaktifkan {{ addslashes($product->name) }}?')">
+                            @csrf 
+                            @method('DELETE')
+                            <button type="submit" class="action-btn delete" title="Delete"><i class="bi bi-trash"></i></button>
+                        </form>
+                    @else
+                        <form action="{{ route('inventory.restore', $product->id) }}" method="POST">
+                            @csrf
+                            <button type="submit" class="btn btn-sm px-3 py-1.5 fw-bold d-flex align-items-center gap-1" 
+                                    style="background: #5a6b5b; color: #f5f2ee; border-radius: 6px; font-size: 11px; border:none;">
+                                <i class="bi bi-arrow-counterclockwise"></i> Aktifkan
+                            </button>
+                        </form>
+                    @endif
                 </div>
             </div>
 
@@ -258,7 +325,7 @@
                 @method('PUT')
 
                 <div class="modal-body px-4 pb-2" style="max-height: 70vh; overflow-y: auto;">
-
+                    
                     <div class="modal-section-title">Basic Information</div>
                     <div class="mb-3">
                         <label class="form-label">Product Name <span class="text-danger">*</span></label>
@@ -398,7 +465,6 @@ function openEditModal(product) {
 
     if (product.images && product.images.length > 0) {
         product.images.forEach(function (img) {
-            // ── PERBAIKAN JS: Mengarahkan path pratinjau foto lama langsung ke /image/ ──
             const cleanPath = img.image_path.startsWith('image/') ? img.image_path : 'image/' + img.image_path;
             const imgUrl = '/' + cleanPath;
             
@@ -442,6 +508,7 @@ function previewEditImages(input) {
     });
 }
 
+// Menghapus foto pendukung permanen via AJAX
 function deleteExistingImage(imageId, btn) {
     if (!confirm('Remove this image permanently?')) return;
 

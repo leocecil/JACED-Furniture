@@ -14,7 +14,7 @@
                 <button type="button" data-bs-target="#heroCarousel" data-bs-slide-to="2"></button>
             </div>
 
-            <div class="carousel-inner">
+            <div class="caro    usel-inner" style="height: 100svh; overflow: hidden;">
                 <div class="carousel-item active">
                     <div class="hero-slide" style="background-image: url('https://images.unsplash.com/photo-1505693416388-ac5ce068fe85?q=80&w=1600&auto=format&fit=crop');">
                         <div class="hero-overlay"></div>
@@ -130,7 +130,9 @@
                 @endphp
                 @foreach($categories as $index => $cat)
                     <a href="{{ route('shop', ['category' => [$cat->slug]]) }}"
-                        class="category-slide-item text-decoration-none">
+                        class="category-slide-item text-decoration-none"
+                        data-reveal="fade"
+                        data-reveal-delay="{{ $index * 80 }}">
                             <div class="category-slide-img">
                                 <img src="{{ $catImages[$cat->slug] ?? 'https://images.unsplash.com/photo-1555041469-a586c61ea9bc?q=80&w=800&auto=format&fit=crop' }}"
                                     alt="{{ $cat->name }}">
@@ -283,11 +285,13 @@
 
         /* Stats section subtle card */
         .stats-section {
-            padding: 48px 24px;
+            padding: 48px 0px 60px;
             background: var(--jaced-card);
             margin: 0 24px;
             border-radius: 24px;
             box-shadow: 0 4px 32px rgba(39, 46, 29, 0.06);
+            margin-bottom: 48px;
+            overflow: visible;
         }
         .stats-section i { color: var(--jaced-caramel); }
 
@@ -353,9 +357,34 @@
         }
 
         @media (max-width: 768px) {
+            .hero-carousel-block .carousel-inner {
+                display: block !important;
+                overflow: hidden !important;
+                height: 100svh !important;
+            }
+            #heroCarousel .carousel-item {
+                display: none !important;
+            }
+            #heroCarousel .carousel-item.active {
+                display: block !important;
+                height: 100svh !important;
+            }
+            #heroCarousel .carousel-indicators,
+            #heroCarousel .carousel-control-prev,
+            #heroCarousel .carousel-control-next {
+                display: none !important;
+            }
+            .hero-section {
+                height: 100svh !important;
+                min-height: unset !important;
+                overflow: hidden !important;
+            }
+            .hero-carousel-block {
+                height: 100svh !important;
+            }
             .hero-slide {
-                min-height: unset;
-                height: 100svh;
+                height: 100svh !important;
+                min-height: unset !important;
             }
         }
         /* ===== KEN BURNS HERO ===== */
@@ -459,6 +488,7 @@
         }
         [data-reveal="fade-up"]   { transform: translateY(40px); }
         [data-reveal="slide-up"]  { transform: translateY(60px); }
+        [data-reveal="fade"] { transform: none; }
         [data-reveal="slide-right"] { transform: translateX(-50px); }
         [data-reveal="slide-left"]  { transform: translateX(50px); }
         [data-reveal].is-visible  { opacity: 1; transform: translate(0,0); }
@@ -470,7 +500,6 @@
         .intro-text { font-size:17px; line-height:1.7; color:var(--jaced-brown-dark); max-width:640px; margin:0 auto; }
         .intro-text-muted { color: var(--jaced-muted); }
 
-        .stats-section { padding: 48px 24px; }
         .stats-section h5 { font-size: 16px; }
         .stats-section i { color: var(--jaced-caramel); }
         .stats-divider { border-left: 1px solid var(--jaced-input); border-right: 1px solid var(--jaced-input); }
@@ -484,10 +513,14 @@
         }
         .btn-browse:hover { background:var(--jaced-brown-dark); color:var(--jaced-cream); border-color:var(--jaced-brown-dark); }
 
-        .categories-section { padding: 32px 0 48px; overflow: visible; }
+        .categories-section { padding: 60px 0 60px; overflow: visible; }
         .categories-section .container {
             overflow: visible;
             padding-right: 0;
+        }
+        .categories-section .section-header {
+            margin-bottom: 32px;
+            padding: 0 24px;
         }
         .category-scroll-track {
             display: flex;
@@ -751,15 +784,24 @@
 
         @media (max-width:576px){
 
+            .hero-title { font-size: clamp(1.6rem, 7vw, 2.2rem); line-height: 1.1; }
+            .hero-desc { font-size: 13px; margin-bottom: 12px !important; }
+            .hero-subtitle { font-size: 9px; letter-spacing: 0.2em; }
+            .hero-content { padding: 0 20px; }
+
             .hero-content .d-flex{
-                flex-direction:column;
-                align-items:stretch;
-                width:100%;
+                flex-direction: row !important;
+                align-items: center;
+                width: auto !important;
+                gap: 8px;
+                flex-wrap: nowrap !important;
             }
 
             .hero-content .btn{
-                width:100%;
-                justify-content:center;
+                width: auto !important;
+                padding: 8px 16px !important;
+                font-size: 12px !important;
+                justify-content: center;
             }
 
             .carousel-control-prev,
@@ -808,7 +850,7 @@
             .stats-section .small { font-size: 12px; }
             .stats-divider { border: none; border-top: 1px solid var(--jaced-input); border-bottom: 1px solid var(--jaced-input); padding: 24px 0; margin: 8px 0; }
 
-            .categories-section { padding: 24px 0 36px; padding-top: 16px; padding-top: 16px; margin-top: -16px;}
+            .categories-section { padding: 40px 0 36px; }
             .category-slide-item { flex: 0 0 220px; }
             .category-scroll-track { padding: 8px 16px 12px; padding-right: 60px; }
 
@@ -929,20 +971,34 @@
             color: var(--jaced-white);
             transform: translateY(-3px); /* Hover effect ke atas */
         }
-
-        @media (max-width: 768px) {
-            #heroCarousel .carousel-item {
-                display: none !important;
-            }
-            #heroCarousel .carousel-item.active,
-            #heroCarousel .carousel-item.carousel-item-next,
-            #heroCarousel .carousel-item.carousel-item-prev {
-                display: block !important;
-            }
-        }
     </style>
 
     <script>
+        // Fix carousel mobile - jalanin SEBELUM Bootstrap init
+        (function() {
+            if (window.innerWidth > 768) return;
+            
+            const style = document.createElement('style');
+            style.textContent = `
+                #heroCarousel .carousel-inner { display: block !important; }
+                #heroCarousel .carousel-item { display: none !important; height: 0 !important; }
+                #heroCarousel .carousel-item.active { display: block !important; height: 100svh !important; }
+            `;
+            document.head.appendChild(style);
+
+            document.addEventListener('DOMContentLoaded', function() {
+                const carousel = document.getElementById('heroCarousel');
+                if (!carousel) return;
+                
+                // Override Bootstrap setelah dia init
+                const observer = new MutationObserver(function() {
+                    const inner = carousel.querySelector('.carousel-inner');
+                    if (inner) inner.style.removeProperty('display');
+                });
+                
+                observer.observe(carousel, { attributes: true, subtree: true, attributeFilter: ['style'] });
+            });
+        })();
         if (history.scrollRestoration) {
             history.scrollRestoration = 'manual';
         }

@@ -361,16 +361,21 @@
                 });
             });
 
-            const landing = document.querySelector('.jaced-landing');
+            // Preload home page dulu
+            const iframe = document.createElement('iframe');
+            iframe.src = cta.href;
+            iframe.style.cssText = 'position:fixed;inset:0;width:100%;height:100%;border:none;z-index:99998;opacity:0;';
+            document.body.appendChild(iframe);
+
+            // Pas clouds udah keliatan, swap langsung
             setTimeout(() => {
-                landing.style.transition = 'opacity 0.7s ease';
-                landing.style.opacity = '0';
-            }, 250);
+                iframe.style.opacity = '1';
+                document.querySelector('.jaced-landing').style.opacity = '0';
+            }, 400);
 
             setTimeout(() => {
                 window.location.href = cta.href;
-
-            },1600);
+            }, 1800);
         });
     }
 })();
