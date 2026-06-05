@@ -76,9 +76,9 @@
     </div>
 
     <div class="d-grid mb-2">
-        <button type="button" class="btn btn-outline-dark fw-bold py-2.5 d-flex align-items-center justify-content-center gap-2" style="border-color: var(--jaced-input); border-radius: 8px; color: var(--jaced-brown-dark); background-color: transparent;">
-            <i class="bi bi-google"></i> Sign in with Google
-        </button>
+        <a href="{{ route('auth.google') }}" class="btn btn-outline-dark btn-lg fs-6 fw-bold w-100" style="background: rgba(255,255,255,0.25);">
+            <i class="fab fa-google me-2"></i> Sign in with Google
+        </a>
     </div>
 </form>
 
