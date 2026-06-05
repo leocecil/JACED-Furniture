@@ -131,7 +131,7 @@
                 @foreach($categories as $index => $cat)
                     <a href="{{ route('shop', ['category' => [$cat->slug]]) }}"
                         class="category-slide-item text-decoration-none"
-                        data-reveal="slide-up"
+                        data-reveal="fade"
                         data-reveal-delay="{{ $index * 80 }}">
                             <div class="category-slide-img">
                                 <img src="{{ $catImages[$cat->slug] ?? 'https://images.unsplash.com/photo-1555041469-a586c61ea9bc?q=80&w=800&auto=format&fit=crop' }}"
@@ -488,6 +488,7 @@
         }
         [data-reveal="fade-up"]   { transform: translateY(40px); }
         [data-reveal="slide-up"]  { transform: translateY(60px); }
+        [data-reveal="fade"] { transform: none; }
         [data-reveal="slide-right"] { transform: translateX(-50px); }
         [data-reveal="slide-left"]  { transform: translateX(50px); }
         [data-reveal].is-visible  { opacity: 1; transform: translate(0,0); }
