@@ -353,6 +353,16 @@
                     $extraCount = $order->orderDetails->count() - 1;
                 @endphp
 
+                {{-- di dalam @forelse, setelah $extraCount di-define --}}
+                @if ($order->status === 'shipped')
+                    <form id="form-received-list-{{ $order->id }}"
+                        action="{{ route('store.orderhistory.received', $order->id) }}" method="POST"
+                        style="display:none;">
+                        @csrf
+                        @method('PATCH')
+                    </form>
+                @endif
+
                 {{-- Class diubah dari d-flex biasa menjadi order-item-card --}}
                 <div class="order-item-card d-flex align-items-center gap-4 p-4">
 
@@ -410,6 +420,15 @@
                                     Pay Now
                                 </a>
                             @endif
+
+                            @if ($order->status === 'shipped')
+                                <button type="button"
+                                    class="btn-order-details"
+                                    style="background: var(--jaced-sage);"
+                                    onclick="openReceivedModal({{ $order->id }})">
+                                    Confirm Received
+                                </button>
+                            @endif
                             <a href="{{ route('store.orderhistory_detail.show', $order->id) }}"
                             class="btn-order-details">
                                 Order Details
@@ -430,6 +449,40 @@
             @endforelse
         </div>
 
+    </div>
+</div>
+
+{{-- Modal Konfirmasi Received (dari list) --}}
+<div id="modal-received-list"
+    style="display:none; position:fixed; inset:0; background:rgba(0,0,0,.5); z-index:9999; align-items:center; justify-content:center;"
+    onclick="if(event.target===this) this.style.display='none'">
+    <div style="background:white; border-radius:20px; padding:32px; max-width:420px; width:90%; box-shadow:0 20px 60px rgba(0,0,0,.2);">
+        <div style="text-align:center; margin-bottom:16px;">
+            <div style="width:64px; height:64px; background:var(--jaced-caramel-bg); border-radius:50%; display:flex; align-items:center; justify-content:center; margin:0 auto;">
+                <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="var(--jaced-caramel)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M20 12V22H4V12"/><path d="M22 7H2v5h20V7z"/><path d="M12 22V7"/>
+                    <path d="M12 7H7.5a2.5 2.5 0 0 1 0-5C11 2 12 7 12 7z"/>
+                    <path d="M12 7h4.5a2.5 2.5 0 0 0 0-5C13 2 12 7 12 7z"/>
+                </svg>
+            </div>
+        </div>
+        <h5 style="font-size:18px; font-weight:700; color:var(--jaced-brown-dark); text-align:center; margin-bottom:8px;">
+            Confirm Order Received
+        </h5>
+        <p style="font-size:13px; color:var(--jaced-muted); text-align:center; line-height:1.6; margin-bottom:8px;">
+            Have you received and checked the condition of your order?
+        </p>
+        <p style="font-size:12px; color:var(--jaced-muted); text-align:center; line-height:1.6; margin-bottom:24px;">
+            If there's an issue with your order, open <strong>Order Details</strong> and use <strong>"Apply Return / Complaint"</strong> instead. Once confirmed, complaints can no longer be submitted.
+        </p>
+        <button id="btn-confirm-received-list"
+            style="width:100%; padding:13px; background:var(--jaced-sage); color:white; border:none; border-radius:12px; font-size:14px; font-weight:700; cursor:pointer; margin-bottom:10px;">
+            Yes, I've Received My Order
+        </button>
+        <button onclick="document.getElementById('modal-received-list').style.display='none'"
+            style="width:100%; padding:11px; background:none; color:var(--jaced-muted); border:1px solid var(--jaced-input); border-radius:12px; font-size:13px; font-weight:500; cursor:pointer;">
+            Cancel
+        </button>
     </div>
 </div>
 
@@ -470,5 +523,16 @@
         
         // Jalankan jika layar di-resize (misal dari desktop ke mobile)
         window.addEventListener('resize', updateFadeIndicators);
+
+        function openReceivedModal(orderId) {
+            const modal = document.getElementById('modal-received-list');
+            const btn = document.getElementById('btn-confirm-received-list');
+
+            btn.onclick = function () {
+                document.getElementById('form-received-list-' + orderId).submit();
+            };
+
+            modal.style.display = 'flex';
+        }
     </script>
 @endpush

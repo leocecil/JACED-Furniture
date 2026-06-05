@@ -21,7 +21,7 @@ class UserRoleMiddleware
             return redirect()->route('admin.login.show');
         }
 
-        return redirect()->route('login');
+        return redirect()->guest(route('login'));
     }
 
     $userRoles = Auth::user()->roles->pluck('role')->toArray();

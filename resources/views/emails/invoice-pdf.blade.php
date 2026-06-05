@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
+<link href="https://fonts.googleapis.com/css2?family=Lexend:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 <meta charset="utf-8">
 <style>
     body { font-family: DejaVu Sans, sans-serif; font-size: 13px; color: #2a2318; margin: 0; padding: 40px; }
@@ -51,7 +52,7 @@
         <div class="inv-brand-sub">Artisan Furniture</div>
     </div>
     <div class="inv-header-right">
-        <div class="inv-title">Invoice</div>
+        <div class="inv-title">Receipt</div>
         <div class="inv-id">Order #{{ str_pad($order->id, 4, '0', STR_PAD_LEFT) }}</div>
         <div class="inv-date">{{ $order->created_at->format('F d, Y') }}</div>
     </div>

@@ -149,7 +149,7 @@
             </div>
         </div>
         <div style="text-align:right;">
-            <div class="inv-title">Invoice</div>
+            <div class="inv-title">Receipt</div>
             <div class="inv-id">Order #{{ str_pad($order->id, 4, '0', STR_PAD_LEFT) }}</div>
             <div class="inv-date">{{ $order->created_at->format('F d, Y') }}</div>
             <span class="status-badge {{ $order->status }}">{{ $statusLabel[$order->status] ?? ucfirst($order->status) }}</span>

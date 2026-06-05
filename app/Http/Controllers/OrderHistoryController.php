@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Mail\InvoiceMail;
 use App\Models\Order;
+use App\Models\Product;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -177,6 +178,10 @@ class OrderHistoryController extends Controller
         $order->status = 'cancelled';
         $order->cancelled_at = now();
         $order->cancellation_reason = $reasonLabel;
+        foreach ($order->orderDetails as $detail) {
+            Product::where('id', $detail->product_id)
+                ->increment('stock', $detail->quantity);
+        }
         $order->save();
 
         $message = $needsRefund
@@ -206,7 +211,7 @@ class OrderHistoryController extends Controller
     {
         $order = Order::with(['orderDetails.product', 'paymentMethod', 'vaBank'])->findOrFail($id);
 
-        if ($order->user_id !== Auth::id() || $order->status !== 'unpaid') {
+        if ((int)$order->user_id !== (int)Auth::id() || $order->status !== 'unpaid') {
             return redirect()->route('store.orderhistory')->with('error', 'Invalid order.');
         }
 
