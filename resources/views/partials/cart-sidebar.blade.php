@@ -507,11 +507,20 @@
         }
     }
 
+    // window.updateCartBadge = function(count) {
+    //     const badge = document.getElementById('cartBadge');
+    //     if (!badge) return;
+    //     badge.textContent = count;
+    //     badge.style.display = count > 0 ? 'inline-flex' : 'none';
+    // }
     window.updateCartBadge = function(count) {
-        const badge = document.getElementById('cartBadge');
-        if (!badge) return;
-        badge.textContent = count;
-        badge.style.display = count > 0 ? 'inline-flex' : 'none';
+        const n = parseInt(count) || 0;
+        console.log('updateCartBadge called with:', count);
+        console.log('badges found:', document.querySelectorAll('#cartBadge').length);
+        document.querySelectorAll('#cartBadge').forEach(badge => {
+            badge.textContent = count;
+            badge.style.display = count > 0 ? 'inline-flex' : 'none';
+        });
     }
     window.attachCartListeners = function() {
         // INCREASE

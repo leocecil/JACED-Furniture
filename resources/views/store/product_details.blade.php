@@ -1061,7 +1061,10 @@
         @endguest
 
         const productId = '{{ $product->id }}';
-        const quantity = parseInt(document.getElementById('cartQuantity').value) || 1;
+        const quantity = parseInt(document.getElementById('quantity').value) || 1;
+
+        addToCartBtn.disabled = true;
+        addToCartBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i> Adding...';
 
         fetch('{{ route("cart.add") }}', {
             method: 'POST',
@@ -1078,11 +1081,8 @@
         .then(res => res.json())
         .then(data => {
             if(data.success){
-                addToCartBtn.disabled = true;
-                addToCartBtn.innerHTML =
-                    '<i class="fas fa-check"></i> Added';
-
-                updateCartBadge(data.count);
+                addToCartBtn.innerHTML = '<i class="fas fa-check me-2"></i> Added';
+                // updateCartBadge(data.count);
                 refreshCartSidebar();
                 showCartToast('{{ $product->name }} added to cart', 'success');
 
@@ -1091,9 +1091,62 @@
                     addToCartBtn.innerHTML =
                         '<i class="fa-solid fa-bag-shopping me-2"></i> Add to Collection';
                 }, 2000);
+
+                
+            } else {
+                addToCartBtn.disabled = false;
+                addToCartBtn.innerHTML =
+                    '<i class="fa-solid fa-bag-shopping me-2"></i> Add to Collection';
             }
+        })
+        .catch(() => {
+            addToCartBtn.disabled = false;
+            addToCartBtn.innerHTML =
+                '<i class="fa-solid fa-bag-shopping me-2"></i> Add to Collection';
+            showCartToast('Failed to add to cart', 'delete');
         });
     });
+    // const addToCartBtn = document.getElementById('addToCartBtn');
+    // addToCartBtn.addEventListener('click', function() {
+    //     @guest
+    //     window.location.href = '{{ route("login") }}';
+    //     return;
+    //     @endguest
+
+    //     const productId = '{{ $product->id }}';
+    //     const quantity = parseInt(document.getElementById('cartQuantity').value) || 1;
+
+    //     fetch('{{ route("cart.add") }}', {
+    //         method: 'POST',
+    //         headers: {
+    //             'Content-Type': 'application/json',
+    //             'X-CSRF-TOKEN': '{{ csrf_token() }}',
+    //             'Accept': 'application/json'
+    //         },
+    //         body: JSON.stringify({
+    //             product_id: productId,
+    //             quantity: quantity
+    //         })
+    //     })
+    //     .then(res => res.json())
+    //     .then(data => {
+    //         if(data.success){
+    //             addToCartBtn.disabled = true;
+    //             addToCartBtn.innerHTML =
+    //                 '<i class="fas fa-check"></i> Added';
+
+    //             updateCartBadge(data.count);
+    //             refreshCartSidebar();
+    //             showCartToast('{{ $product->name }} added to cart', 'success');
+
+    //             setTimeout(() => {
+    //                 addToCartBtn.disabled = false;
+    //                 addToCartBtn.innerHTML =
+    //                     '<i class="fa-solid fa-bag-shopping me-2"></i> Add to Collection';
+    //             }, 2000);
+    //         }
+    //     });
+    // });
 
     // RELATED PRODUCTS - Add to Cart
     document.querySelectorAll('.wl-atc-btn').forEach(btn => {
