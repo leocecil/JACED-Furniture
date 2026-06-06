@@ -227,6 +227,43 @@ class OrderManagementController extends Controller
         ]);
     }
 
+    // ── Approve cancellation refund ───────────────────────────────────
+    public function approveCancelRefund(Request $request, int $id)
+    {
+        $order = DB::table('orders')->where('id', $id)->first();
+
+        if (!$order) {
+            return response()->json(['error' => 'Order not found.'], 404);
+        }
+
+        if ($order->status !== 'cancelled') {
+            return response()->json(['error' => 'Order is not cancelled.'], 422);
+        }
+
+        if (!str_starts_with($order->cancellation_reason ?? '', '[Refund Requested]')) {
+            return response()->json(['error' => 'No refund request found for this order.'], 422);
+        }
+
+        // Cek sudah diproses via revenue_deduction
+        if ($order->revenue_deduction > 0) {
+            return response()->json(['error' => 'Refund has already been processed.'], 422);
+        }
+
+        if (empty($order->on_process_at)) {
+            return response()->json(['error' => 'Order was never paid. No refund needed.'], 422);
+        }
+
+        DB::table('orders')->where('id', $id)->update([
+            'revenue_deduction' => (float) $order->total_price,
+            'updated_at'        => now(),
+        ]);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Refund of Rp ' . number_format($order->total_price, 0, ',', '.') . ' approved for order #' . str_pad($id, 4, '0', STR_PAD_LEFT) . '.',
+        ]);
+    }
+
     // ── Auto-cancel unpaid orders older than 24h ──────────────────────
     private function autoCancelUnpaidOrders(): void
     {
@@ -311,6 +348,7 @@ class OrderManagementController extends Controller
                 'orders.shipped_at',
                 'orders.arrived_at',
                 'orders.cancelled_at',
+                'orders.revenue_deduction',
                 'orders.cancellation_reason',
                 'users.name as customer_name',
                 'users.email as customer_email',
