@@ -447,7 +447,7 @@
                     </div>
                     {{-- Baris bawah: harga + tombol --}}
                     <div class="d-flex align-items-center justify-content-between">
-                        <p class="fw-bold mb-0" style="font-size:15px; color:var(--jaced-caramel);">
+                        <p class="fw-bold mb-0" style="font-size:15px; color:var(--jaced-sage);">
                             Rp {{ number_format($order->total_price, 0, ',', '.') }}
                         </p>
                         <div class="d-flex gap-2">
