@@ -193,7 +193,7 @@
                 </div>
                 <div class="topbar-avatar">
                     @if(auth()->user()?->avatar)
-                        <img src="{{ auth()->user()->avatar }}" alt="">
+                        <<img src="{{ asset(auth()->user()->avatar) }}" alt="">
                     @else
                         {{ strtoupper(substr(auth()->user()->name ?? 'JT', 0, 2)) }}
                     @endif
@@ -207,7 +207,7 @@
                 <div class="profile-dropdown-header">
                     <div class="avatar-lg">
                         @if(auth()->user()?->avatar)
-                            <img src="{{ auth()->user()->avatar }}" alt="">
+                            <img src="{{ asset(auth()->user()->avatar) }}" alt="">
                         @else
                             {{ strtoupper(substr(auth()->user()->name ?? 'JT', 0, 2)) }}
                         @endif

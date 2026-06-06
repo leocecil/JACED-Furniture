@@ -16,7 +16,7 @@
                 {{-- Avatar --}}
                 <div class="ap-avatar-wrap" onclick="document.getElementById('avatarInput').click()" title="Change avatar">
                     @if ($user->avatar)
-                        <img src="{{ Storage::url($user->avatar) }}" alt="Avatar" class="ap-avatar" id="ap-avatar-img">
+                        <img src="{{ asset($user->avatar) }}" alt="Avatar" class="ap-avatar" id="ap-avatar-img">
                     @else
                         <img src="https://ui-avatars.com/api/?name={{ urlencode($user->name) }}&background=EAE5DB&color=5A4D47&size=200&bold=true"
                                 alt="Avatar" class="ap-avatar" id="ap-avatar-img">
