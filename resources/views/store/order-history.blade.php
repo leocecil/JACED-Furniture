@@ -290,6 +290,14 @@
     .scroll-container.is-at-end::after {
         opacity: 0; /* Pas mentok di kanan, fade kanan ilang */
     }
+
+    @media (max-width: 767px) {
+        .btn-order-details {
+            font-size: 12px;
+            padding: 7px 12px;
+            white-space: nowrap;
+        }
+    }
 </style>
 @endpush
 
@@ -364,15 +372,12 @@
                 @endif
 
                 {{-- Class diubah dari d-flex biasa menjadi order-item-card --}}
-                <div class="order-item-card d-flex align-items-center gap-4 p-4">
-
-                    {{-- Ditambahkan wrapper pembungkus gambar untuk efek zoom --}}
+                {{-- DESKTOP layout --}}
+                <div class="order-item-card d-none d-md-flex align-items-center gap-4 p-4">
                     <div class="order-product-img-wrapper">
                         <img src="{{ $productImage ? asset($productImage) : asset('image/placeholder.png') }}"
-                            alt="{{ $productName }}"
-                            class="order-product-img">
+                            alt="{{ $productName }}" class="order-product-img">
                     </div>
-
                     <div class="flex-grow-1">
                         <h2 class="fw-bold mb-1" style="font-size: 18px; font-weight: 400;">
                             {{ $productName }}
@@ -382,60 +387,83 @@
                                 </span>
                             @endif
                         </h2>
-
-                        <p class="order-id-label mb-2">
-                            ORDER #{{ $order->id }} &nbsp;·&nbsp; {{ $order->created_at->format('M d, Y') }}
-                        </p>
-
+                        <p class="order-id-label mb-2">{{ $order->created_at->format('M d, Y') }}</p>
                         <span class="status-badge {{ $statusClass[$order->status] ?? '' }}">
                             {{ $statusLabel[$order->status] ?? ucfirst($order->status) }}
                         </span>
-
                         @if ($order->status === 'delivered' && $order->delivered_at)
                             <p class="text-jaced-muted mb-0 mt-2" style="font-size: 12px;">
-                                Delivered on
-                                <span class="fw-semibold">
-                                    {{ $order->delivered_at->format('l, M d') }}
-                                </span>
+                                Delivered on <span class="fw-semibold">{{ $order->delivered_at->format('l, M d') }}</span>
                             </p>
                         @elseif ($order->status === 'packed' && $order->packed_at)
                             <p class="text-jaced-muted mb-0 mt-2" style="font-size: 12px;">
-                                Packed on
-                                <span class="fw-semibold">
-                                    {{ $order->packed_at->format('l, M d') }}
-                                </span>
+                                Packed on <span class="fw-semibold">{{ $order->packed_at->format('l, M d') }}</span>
                             </p>
                         @endif
                     </div>
-
                     <div class="d-flex flex-column align-items-end gap-2 flex-shrink-0">
-                        <p class="fw-bold text-jaced-dark mb-0" style="font-size: 16px;">
+                        <p class="fw-bold mb-0" style="font-size: 16px; color: var(--jaced-caramel);">
                             Rp {{ number_format($order->total_price, 0, ',', '.') }}
                         </p>
                         <div class="d-flex gap-2">
                             @if ($order->status === 'unpaid')
                                 <a href="{{ route('store.orderhistory.repay', $order->id) }}"
-                                class="btn-order-details"
-                                style="background: var(--jaced-sage);">
-                                    Pay Now
-                                </a>
+                                    class="btn-order-details" style="background: var(--jaced-sage);">Pay Now</a>
                             @endif
-
                             @if ($order->status === 'shipped')
-                                <button type="button"
-                                    class="btn-order-details"
-                                    style="background: var(--jaced-sage);"
-                                    onclick="openReceivedModal({{ $order->id }})">
-                                    Confirm Received
-                                </button>
+                                <button type="button" class="btn-order-details" style="background: var(--jaced-sage);"
+                                    onclick="openReceivedModal({{ $order->id }})">Confirm Received</button>
                             @endif
-                            <a href="{{ route('store.orderhistory_detail.show', $order->id) }}"
-                            class="btn-order-details">
+                            <a href="{{ route('store.orderhistory_detail.show', $order->id) }}" class="btn-order-details">
                                 Order Details
                             </a>
                         </div>
                     </div>
+                </div>
 
+                {{-- MOBILE layout --}}
+                <div class="order-item-card d-md-none p-3">
+                    {{-- Baris atas: gambar + info --}}
+                    <div class="d-flex gap-3 mb-3">
+                        <div class="order-product-img-wrapper" style="flex-shrink:0;">
+                            <img src="{{ $productImage ? asset($productImage) : asset('image/placeholder.png') }}"
+                                alt="{{ $productName }}"
+                                style="width:90px; height:90px; object-fit:cover; border-radius:10px; display:block;">
+                        </div>
+                        <div style="min-width:0;">
+                            <h2 class="fw-bold mb-1" style="font-size:14px; line-height:1.4; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">
+                                {{ $productName }}
+                            </h2>
+                            @if ($extraCount > 0)
+                                <p style="font-size:11px; color:var(--jaced-muted); margin:0 0 4px;">
+                                    +{{ $extraCount }} other item{{ $extraCount > 1 ? 's' : '' }}
+                                </p>
+                            @endif
+                            <p class="order-id-label mb-2">{{ $order->created_at->format('M d, Y') }}</p>
+                            <span class="status-badge {{ $statusClass[$order->status] ?? '' }}">
+                                {{ $statusLabel[$order->status] ?? ucfirst($order->status) }}
+                            </span>
+                        </div>
+                    </div>
+                    {{-- Baris bawah: harga + tombol --}}
+                    <div class="d-flex align-items-center justify-content-between">
+                        <p class="fw-bold mb-0" style="font-size:15px; color:var(--jaced-sage);">
+                            Rp {{ number_format($order->total_price, 0, ',', '.') }}
+                        </p>
+                        <div class="d-flex gap-2">
+                            @if ($order->status === 'unpaid')
+                                <a href="{{ route('store.orderhistory.repay', $order->id) }}"
+                                    class="btn-order-details" style="background: var(--jaced-sage);">Pay Now</a>
+                            @endif
+                            @if ($order->status === 'shipped')
+                                <button type="button" class="btn-order-details" style="background: var(--jaced-sage);"
+                                    onclick="openReceivedModal({{ $order->id }})">Confirm Received</button>
+                            @endif
+                            <a href="{{ route('store.orderhistory_detail.show', $order->id) }}" class="btn-order-details">
+                                Order Details
+                            </a>
+                        </div>
+                    </div>
                 </div>
 
                 {{-- Gak perlu pakai <hr> lagi karena tiap card udah punya batas visual sendiri saat di-hover --}}

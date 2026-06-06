@@ -290,6 +290,23 @@
         .profile-grid-container {
             grid-template-columns: 1fr;
             gap: 0;
+            padding: 0 12px;
+        }
+
+        .jaced-card {
+            margin-bottom: 16px;
+        }
+
+        .col-right-content {
+            padding: 0; 
+        }
+
+        .main-form-panel .jaced-card {
+            margin-bottom: 16px;
+        }
+
+        .section-title {
+            margin-top: 8px; 
         }
 
         .mobile-tab-bar {
@@ -336,16 +353,6 @@
             font-weight: 600;
         }
 
-        /* User info compact di atas tab bar */
-        /* .mobile-user-bar {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            padding: 12px 16px;
-            background: white;
-            border-bottom: 0.5px solid var(--jaced-input);
-        } */
-
         .mobile-user-bar .mob-avatar {
             width: 36px; height: 36px;
             border-radius: 50%;
@@ -374,7 +381,6 @@
             letter-spacing: 0.5px;
         }
 
-        /* Address card mobile */
         .jaced-card.mb-4.d-flex {
             flex-direction: column;
             gap: 12px;
@@ -633,7 +639,7 @@
     <div class="profile-grid-container">
 
         {{-- KOLOM KIRI: SIDEBAR (desktop only) --}}
-        <aside class="col-left">
+        <aside class="col-left d-none d-md-block">
             <div class="jaced-card profile-sidebar text-center">
                 <div class="avatar-upload-container">
                     <div class="avatar-preview-wrapper">

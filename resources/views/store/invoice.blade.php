@@ -111,6 +111,35 @@
         body { background: white; padding: 0; }
         .invoice-wrap { box-shadow: none; margin: 0; padding: 20px 0; border-radius: 0; width: 100%; max-width: 100%; }
     }
+
+    @media (max-width: 767px) {
+        .print-bar {
+            flex-wrap: nowrap;
+            gap: 8px;
+            overflow-x: auto;
+            justify-content: flex-start;
+            padding: 0 20px;
+            margin-bottom: 16px;
+        }
+
+        .btn-print,
+        .btn-back-inv {
+            font-size: 11px;
+            padding: 8px 14px;
+            white-space: nowrap;
+            flex-shrink: 0;
+        }
+
+        .invoice-wrap {
+            transform: scale(0.6);
+            transform-origin: top center;
+            width: 156%;      
+            margin-left: -28%;
+            margin-top: 0;
+            margin-bottom: -280px;
+        }
+        
+    }
 </style>
 @endpush
 
@@ -120,18 +149,34 @@
     $subtotal = $order->orderDetails->sum('subtotal');
 @endphp
 
-<div class="print-bar">
-    <a href="{{ route('store.orderhistory_detail.show', $order->id) }}" class="btn-back-inv">← Back to Order</a>
-    
-    {{-- Tambah ini --}}
-    <form action="{{ route('store.orderhistory.invoice.send', $order->id) }}" method="POST" style="display:inline;">
-        @csrf
-        <button type="submit" class="btn-back-inv" style="background:#f5f0e8; border-color:#c8b99a; color:#2a2318;">
-            ✉ Send to Email
-        </button>
-    </form>
+<div class="print-bar" style="flex-direction: column; gap: 8px;">
+    {{-- MOBILE: Back to Order di atas sendiri --}}
+    <div class="d-md-none">
+        <a href="{{ route('store.orderhistory_detail.show', $order->id) }}" class="btn-back-inv d-block text-center">
+            ← Back to Order
+        </a>
+    </div>
+    <div class="d-md-none d-flex gap-2">
+        <form action="{{ route('store.orderhistory.invoice.send', $order->id) }}" method="POST" style="flex:1;">
+            @csrf
+            <button type="submit" class="btn-back-inv w-100" style="background:#f5f0e8; border-color:#c8b99a; color:#2a2318;">
+                ✉ Send to Email
+            </button>
+        </form>
+        <button class="btn-print" style="flex:1;" onclick="window.print()">Print / Save as PDF</button>
+    </div>
 
-    <button class="btn-print" onclick="window.print()">Print / Save as PDF</button>
+    {{-- DESKTOP: 1 baris seperti semula --}}
+    <div class="d-none d-md-flex gap-2 justify-content-end">
+        <a href="{{ route('store.orderhistory_detail.show', $order->id) }}" class="btn-back-inv">← Back to Order</a>
+        <form action="{{ route('store.orderhistory.invoice.send', $order->id) }}" method="POST" style="display:inline;">
+            @csrf
+            <button type="submit" class="btn-back-inv" style="background:#f5f0e8; border-color:#c8b99a; color:#2a2318;">
+                ✉ Send to Email
+            </button>
+        </form>
+        <button class="btn-print" onclick="window.print()">Print / Save as PDF</button>
+    </div>
 </div>
 
 <div class="invoice-wrap">

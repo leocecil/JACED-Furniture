@@ -145,6 +145,7 @@
         border-radius: 10px;
         backdrop-filter: blur(4px);
         transition: all 0.2s ease;
+        white-space: nowrap;
     }
     .btn-banner-outline:hover { 
         background: rgba(255,255,255,0.25);
@@ -181,6 +182,8 @@
         cursor: pointer;
         transition: all 0.2s ease;
         letter-spacing: 0.03em;
+        white-space: nowrap;  
+        flex-shrink: 0; 
     }
     .stage-tab-pill:hover {
         background: rgba(255,255,255,0.2);
@@ -295,6 +298,19 @@
             flex: 1;
             text-align: center;
             justify-content: center;
+            white-space: nowrap; 
+            padding: 10px 14px;
+        }
+        .premium-tier-card {
+            padding: 30px 20px;
+        }
+        .tier-progress-wrap .d-flex.justify-content-between {
+            flex-direction: column;
+            gap: 2px !important;
+        }
+        
+        #tierPointsInfo {
+            text-align: left !important;
         }
     }
 </style>
@@ -375,7 +391,7 @@
                     
                     <h2 class="tier-title" id="tierCardTitle">{{ strtoupper($stage) }} MEMBER</h2>
                     <p class="small text-white-75 mb-0">Active Tier Period: Valid until 31 Dec 2026</p>
-                    <div class="d-flex gap-2 flex-wrap mt-3">
+                    <div class="d-flex gap-2 mt-3" style="flex-wrap:nowrap; overflow-x:auto; -webkit-overflow-scrolling:touch; scrollbar-width:none; padding-bottom:2px;">
                         <button id="tab-Bronze"   class="stage-tab-pill {{ $stage == 'Bronze'   ? 'active-pill' : '' }}" onclick="switchTierPreview('Bronze')">Bronze</button>
                         <button id="tab-Silver"   class="stage-tab-pill {{ $stage == 'Silver'   ? 'active-pill' : '' }}" onclick="switchTierPreview('Silver')">Silver</button>
                         <button id="tab-Gold"     class="stage-tab-pill {{ $stage == 'Gold'     ? 'active-pill' : '' }}" onclick="switchTierPreview('Gold')">Gold</button>
@@ -476,8 +492,8 @@
             <div class="col-12 col-lg-7">
                 <div class="premium-box">
                     <div class="d-flex align-items-center justify-content-between mb-4">
-                        <h3 class="section-title-new mb-0">Available Redeem Goals</h3>
-                        <a href="{{ route('redeem-point') }}" class="btn-view-all-link" style="font-size:12px; color:var(--jaced-muted);">See All Goals</a>
+                        <h3 class="section-title-new mb-0">Available Vouchers</h3>
+                        <a href="{{ route('redeem-point') }}" class="btn-view-all-link" style="font-size:12px; color:var(--jaced-muted);">See All</a>
                     </div>
 
                     <div class="row g-3">

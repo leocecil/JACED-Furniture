@@ -459,6 +459,7 @@
         .hero-content{
             z-index:2;
         }
+
         /* ===== KEN BURNS HERO ===== */
         .carousel-item.active .hero-slide::before {
             animation: kenBurns 7s ease-out forwards;

@@ -131,6 +131,48 @@ class ProductImageSeeder extends Seeder
                 'extension' => 'webp',
             ],
 
+            'soreto' => [
+                'product_id' => 21,
+                'count' => 3,
+                'extension' => 'webp',
+            ],
+
+            'vela' => [
+                'product_id' => 22,
+                'count' => 3,
+                'extension' => 'webp',
+            ],
+
+            'odette' => [
+                'product_id' => 23,
+                'count' => 3,
+                'extension' => 'webp',
+            ],
+
+            'brig' => [
+                'product_id' => 24,
+                'count' => 3,
+                'extension' => 'webp',
+            ],
+
+            'luna' => [
+                'product_id' => 25,
+                'count' => 2,
+                'extension' => 'jpg',
+            ],
+
+            'monte' => [
+                'product_id' => 26,
+                'count' => 3,
+                'extension' => 'jpg',
+            ],
+
+            'eddy' => [
+                'product_id' => 27,
+                'count' => 2,
+                'extension' => 'jpg',
+            ],
+
         ];
 
         foreach ($products as $folder => $product) {

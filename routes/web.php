@@ -155,6 +155,7 @@ Route::middleware(['role:admin'])->group(function() {
     Route::post('/admin/disputes/{id}/resolve',  [OrderManagementController::class, 'resolveDispute'])->name('admin.disputes.resolve');
     Route::post('/admin/disputes/{id}/resolved', [OrderManagementController::class, 'markDisputeResolved'])->name('admin.disputes.resolved');
     Route::post('/admin/disputes/{id}/tracking', [OrderManagementController::class, 'updateTracking'])->name('admin.disputes.tracking');
+    Route::post('admin/orders/{id}/refund', [OrderManagementController::class, 'approveCancelRefund']);
 
     // Complaint management - admin
     Route::get('/admin/complaints', [OrderManagementController::class, 'complaints'])->name('admin.complaints');

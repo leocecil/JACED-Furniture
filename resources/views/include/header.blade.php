@@ -9,6 +9,20 @@
             <span class="fw-black tracking-tighter fs-4 branding-title" style="font-weight: 900; letter-spacing: -1px;">Jaced Furniture</span>
         </a>
 
+        @auth
+        <div class="d-flex d-lg-none align-items-center gap-2 me-2 ms-auto" style="color: inherit;">
+            <a href="{{ route('wishlist') }}" class="header-wishlist">
+                <i class="fas fa-heart"></i>
+            </a>
+            <a href="#" class="nav-icon position-relative d-flex align-items-center justify-content-center" 
+            style="width:42px; height:42px; color:inherit;"
+            data-bs-toggle="offcanvas" data-bs-target="#cartSidebar">
+                <i class="fas fa-shopping-bag" style="font-size: 18px;"></i>
+                <span id="cartBadge" class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-dark" style="font-size: 8px; margin-top: 6px; margin-left: -6px;">{{ $globalCartItems->sum('quantity') }}</span>
+            </a>
+        </div>
+        @endauth
+
         {{-- Tombol Hamburger Menu Garis Tiga --}}
         <button class="navbar-toggler border-0 shadow-none p-2" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
             <span class="custom-toggler-icon"></span>
@@ -49,29 +63,32 @@
                     <a href="/login" class="btn btn-login btn-sm px-4 fw-bold rounded-pill shadow-sm w-mobile-100">Login</a>
                 @else
                     <div class="position-relative w-mobile-100">
-                        <button class="btn border-0 btn-sm fw-bold d-flex align-items-center justify-content-between user-btn w-mobile-100" type="button" id="customUserDropdown">
+                        <button class="btn border-0 btn-sm fw-bold d-flex align-items-center justify-content-between user-btn w-mobile-100" 
+                            type="button" id="customUserDropdown">
                             <span class="d-flex align-items-center">
                                 <i class="fas fa-user-circle me-2 fs-5"></i>
                                 <span style="font-size: 12px; letter-spacing: 1px;">{{ strtoupper(auth()->user()->name) }}</span>
                             </span>
-                            <i class="fas fa-chevron-down ms-2 d-lg-none" style="font-size: 10px;"></i>
+                            <i class="fas fa-chevron-down ms-2" id="userChevron" style="font-size: 10px; transition: transform 0.3s;"></i>
                         </button>
-                        <div class="dropdown-menu shadow-lg border-0 mt-2 position-absolute rounded-3" id="customUserMenu" style="right: 0; left: auto; min-width: 180px; display: none; z-index: 1050; background: #fff;">
+
+                        <div id="customUserMenu" style="display:none; background:#ffffff; border-radius:8px; margin-top:8px; padding: 4px 0;">
                             <a href="{{ route('profile.edit', Auth::user()->id) }}" 
-                            class="dropdown-item text-dark d-flex align-items-center py-2 px-3 fw-bold border-0 bg-transparent w-100" 
-                            style="font-size: 12px;">
+                                class="dropdown-item d-flex align-items-center py-2 px-3 fw-bold" style="font-size: 12px;">
                                 <i class="fas fa-user me-2"></i> PROFILE
                             </a>
-                            <a href="{{ route('wishlist') }}" class="dropdown-item text-dark d-flex align-items-center py-2 px-3 fw-bold border-0 bg-transparent w-100" style="font-size: 12px;">
+                            <a href="{{ route('wishlist') }}" 
+                                class="dropdown-item d-flex align-items-center py-2 px-3 fw-bold" style="font-size: 12px;">
                                 <i class="fas fa-heart me-2"></i> WISHLIST
                             </a>
-                            <a href="{{ route('reward') }}" class="dropdown-item text-dark d-flex align-items-center py-2 px-3 fw-bold border-0 bg-transparent w-100" style="font-size: 12px;">
-                                <i class="fas fa-trophy me-2" style="color: #C99A6B;"></i> REWARD
+                            <a href="{{ route('reward') }}" 
+                                class="dropdown-item d-flex align-items-center py-2 px-3 fw-bold" style="font-size: 12px;">
+                                <i class="fas fa-trophy me-2" style="color:#C99A6B;"></i> REWARD
                             </a>
-                            <hr class="dropdown-divider my-1" style="border-color: #DDD6CE; opacity: 0.5;">
+                            <hr class="my-1" style="border-color:#DDD6CE;">
                             <form action="{{ route('logout') }}" method="POST" class="m-0">
                                 @csrf
-                                <button type="submit" class="dropdown-item text-danger d-flex align-items-center py-2 px-3 fw-bold border-0 bg-transparent w-100" style="font-size: 12px;">
+                                <button type="submit" class="dropdown-item d-flex align-items-center py-2 px-3 fw-bold text-danger" style="font-size: 12px;">
                                     <i class="fas fa-sign-out-alt me-2"></i> LOGOUT
                                 </button>
                             </form>
@@ -116,6 +133,29 @@
     .transition-navbar.preload { opacity: 0; transform: translateY(-24px); animation: navbarReveal 0.8s ease forwards; animation-delay: 0.25s; }
 
     .mobile-icon-group { display: flex; flex-direction: row; align-items: center; gap: 8px; }
+    .transition-navbar.home-navbar:not(.scrolled) .d-lg-none .header-wishlist,
+    .transition-navbar.home-navbar:not(.scrolled) .d-lg-none .fa-shopping-bag {
+        color: #f3f3f1 !important;
+    }
+
+    .transition-navbar.scrolled .d-lg-none .header-wishlist,
+    .transition-navbar.scrolled .d-lg-none .fa-shopping-bag,
+    .transition-navbar.solid-navbar .d-lg-none .header-wishlist,
+    .transition-navbar.solid-navbar .d-lg-none .fa-shopping-bag {
+        color: #1c1c1a !important;
+    }
+
+    .transition-navbar.home-navbar:not(.scrolled) .mobile-icon-group .header-wishlist,
+    .transition-navbar.home-navbar:not(.scrolled) .mobile-icon-group .fa-shopping-bag {
+        color: #f3f3f1 !important;
+    }
+
+
+    .transition-navbar.scrolled .mobile-icon-group .header-wishlist,
+    .transition-navbar.scrolled .mobile-icon-group .fa-shopping-bag {
+        color: #1c1c1a !important;
+    }
+
     @keyframes navbarReveal { to { opacity: 1; transform: translateY(0); } }
 
     @media (max-width: 991.98px) {
@@ -145,7 +185,54 @@ s
         .navbar-collapse .fa-chevron-down {
             color: #1c1c1a !important;
         }
+        .mobile-icon-group {
+            flex-direction: column;
+            width: 100%;
+            gap: 4px;
+        }
+
+        .mobile-icon-group .position-relative {
+            width: 100%;
+        }
+
+        .mobile-icon-group .header-wishlist,
+        .mobile-icon-group a[data-bs-target="#cartSidebar"] {
+            display: none !important;
+        }
+
+        #customUserMenu {
+            position: static !important;
+            width: 100%;
+            box-shadow: none !important;
+            background: #ffffff;
+            border-radius: 8px;
+            margin-top: 8px;
+            overflow: hidden;
+            max-height: 0;
+            transition: max-height 0.35s ease, opacity 0.3s ease;
+            opacity: 0;
+            display: block !important;
+        }
+        #customUserMenu.open {
+            max-height: 300px;
+            opacity: 1;
+        }
         
+    }
+    @media (min-width: 992px) {
+        #customUserMenu {
+            display: none;
+            position: absolute !important;
+            right: 0;
+            min-width: 180px;
+            background: #fff;
+            border-radius: 12px;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.1);
+            z-index: 1050;
+        }
+        .mobile-icon-group {
+            justify-content: flex-end;
+        }
     }
 </style>
 
@@ -160,14 +247,31 @@ s
             });
             navbar.classList.add('preload');
         }
+
         const userBtn = document.getElementById('customUserDropdown');
         const userMenu = document.getElementById('customUserMenu');
+        const userChevron = document.getElementById('userChevron');
+
         if (userBtn && userMenu) {
             userBtn.addEventListener('click', (e) => {
                 e.stopPropagation();
-                userMenu.style.display = userMenu.style.display === 'block' ? 'none' : 'block';
+                const isMobile = window.innerWidth < 992;
+                if (isMobile) {
+                    const isOpen = userMenu.classList.contains('open');
+                    userMenu.classList.toggle('open');
+                    if (userChevron) {
+                        userChevron.style.transform = isOpen ? 'rotate(0deg)' : 'rotate(180deg)';
+                    }
+                } else {
+                    userMenu.style.display = userMenu.style.display === 'block' ? 'none' : 'block';
+                }
             });
-            document.addEventListener('click', () => userMenu.style.display = 'none');
+
+            document.addEventListener('click', () => {
+                userMenu.classList.remove('open');
+                userMenu.style.display = 'none';
+                if (userChevron) userChevron.style.transform = 'rotate(0deg)';
+            });
         }
     })();
 </script>

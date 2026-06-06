@@ -33,31 +33,33 @@
                 </button>
             </div>
 
-            <div class="wishlist-sort-wrap">
-                <div class="wishlist-sort-trigger" id="sortTrigger">
-                    <span class="wishlist-sort-label">Sort</span>
-                    <span class="wishlist-sort-value" id="sortLabel">Default</span>
-                    <i class="fas fa-chevron-down wishlist-sort-chevron"></i>
+            <div class="wishlist-dropdowns-row">
+                <div class="wishlist-sort-wrap">
+                    <div class="wishlist-sort-trigger" id="sortTrigger">
+                        <span class="wishlist-sort-label">Sort</span>
+                        <span class="wishlist-sort-value" id="sortLabel">Default</span>
+                        <i class="fas fa-chevron-down wishlist-sort-chevron"></i>
+                    </div>
+                    <div class="wishlist-sort-menu" id="sortMenu">
+                        <button class="wishlist-sort-option active" data-sort="default">Default</button>
+                        <button class="wishlist-sort-option" data-sort="name_asc">Name A–Z</button>
+                        <button class="wishlist-sort-option" data-sort="name_desc">Name Z–A</button>
+                        <button class="wishlist-sort-option" data-sort="price_asc">Price: Low to High</button>
+                        <button class="wishlist-sort-option" data-sort="price_desc">Price: High to Low</button>
+                        <button class="wishlist-sort-option" data-sort="category">By Category</button>
+                    </div>
                 </div>
-                <div class="wishlist-sort-menu" id="sortMenu">
-                    <button class="wishlist-sort-option active" data-sort="default">Default</button>
-                    <button class="wishlist-sort-option" data-sort="name_asc">Name A–Z</button>
-                    <button class="wishlist-sort-option" data-sort="name_desc">Name Z–A</button>
-                    <button class="wishlist-sort-option" data-sort="price_asc">Price: Low to High</button>
-                    <button class="wishlist-sort-option" data-sort="price_desc">Price: High to Low</button>
-                    <button class="wishlist-sort-option" data-sort="category">By Category</button>
-                </div>
-            </div>
 
-            <div class="wishlist-filter-wrap">
-                <div class="wishlist-sort-trigger" id="filterTrigger">
-                    <i class="fas fa-sliders-h me-2"></i>
-                    <span class="wishlist-sort-label">Category</span>
-                    <span class="wishlist-sort-value" id="filterLabel">All</span>
-                    <i class="fas fa-chevron-down wishlist-sort-chevron"></i>
-                </div>
-                <div class="wishlist-sort-menu" id="filterMenu">
-                    <button class="wishlist-sort-option active" data-filter="all">All</button>
+                <div class="wishlist-filter-wrap">
+                    <div class="wishlist-sort-trigger" id="filterTrigger">
+                        <i class="fas fa-sliders-h me-2"></i>
+                        <span class="wishlist-sort-label">Category</span>
+                        <span class="wishlist-sort-value" id="filterLabel">All</span>
+                        <i class="fas fa-chevron-down wishlist-sort-chevron"></i>
+                    </div>
+                    <div class="wishlist-sort-menu" id="filterMenu">
+                        <button class="wishlist-sort-option active" data-filter="all">All</button>
+                    </div>
                 </div>
             </div>
         </div>
@@ -440,8 +442,35 @@
             width:100%;
         }
 
+    .wishlist-dropdowns-row {
+        display: flex;
+        gap: 12px;
+        width: 100%;
     }
 
+    .wishlist-dropdowns-row .wishlist-sort-wrap,
+    .wishlist-dropdowns-row .wishlist-filter-wrap {
+        flex: 1;
+    }
+
+    .wishlist-dropdowns-row .wishlist-sort-trigger {
+        width: 100%;
+        justify-content: center;
+    }
+
+    .wishlist-dropdowns-row .wishlist-sort-menu,
+    .wishlist-dropdowns-row #filterMenu {
+        min-width: 160px;
+        left: 0;
+        right: auto;
+    }
+
+    /* Remove the old mobile overrides for these */
+    @media (max-width: 576px) {
+        .wishlist-header { flex-direction: column; align-items: flex-start; }
+        .wishlist-toolbar { flex-direction: column; gap: 10px; }
+        .wishlist-search-wrap { min-width: 100%; width: 100%; }
+    }
 
     @media (max-width: 992px) {
         .wishlist-page { padding: 100px 0 60px; }
