@@ -96,7 +96,8 @@
 
     /* PRODUCT INFO */
     .premium-badge{
-        display: inline-block;
+        display: inline-flex;
+        align-items: center;
         padding: 6px 14px;
         border-radius: 30px;
         background: #f2d3a1;
@@ -104,6 +105,14 @@
         font-size: 12px;
         font-weight: 700;
         letter-spacing: 1px;
+        white-space: nowrap;
+        line-height: 1;
+    }
+    .badge-row {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        flex-wrap: nowrap;
     }
 
     .product-title{
@@ -156,7 +165,11 @@
         .dimension-grid{
             display: grid;
             grid-template-columns: repeat(3, 1fr);
-            gap: 18px;
+            gap: 10px;
+        }
+
+        .dimension-grid.two-col{
+            grid-template-columns: repeat(2, 1fr);
         }
 
         .dimension-item{
@@ -175,25 +188,75 @@
             border-color: var(--jaced-caramel);
         }
 
+        /* WITH */
         .dimension-label{
-            font-size: 12px;
+            font-size: 11px;
             font-weight: 600;
             letter-spacing: 1px;
             text-transform: uppercase;
-
             color: var(--jaced-muted);
+            text-align: center;
         }
 
         .dimension-value{
-            font-size: 22px;
+            font-size: 18px;
             font-weight: 700;
             color: var(--jaced-brown-dark);
+            text-align: center;
+            white-space: nowrap;
+        }
+
+        .dimension-item{
+            background: var(--jaced-white);
+            border: 1px solid var(--jaced-input);
+            border-radius: 18px;
+            padding: 14px 10px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;        /* ADD */
+            gap: 6px;
+            transition: 0.2s ease;
+        }
+
+        .related-scroll-wrapper {
+            display: flex;
+            gap: 16px;
+            overflow-x: auto;
+            scroll-snap-type: x mandatory;
+            -webkit-overflow-scrolling: touch;
+            padding-bottom: 12px;
+            scrollbar-width: none;
+        }
+        .related-scroll-wrapper::-webkit-scrollbar { display: none; }
+
+        .related-scroll-item {
+            flex: 0 0 calc(50% - 8px);  /* 2 visible on mobile */
+            scroll-snap-align: start;
+            min-width: 0;
+        }
+
+        @media(min-width: 768px){
+            .related-scroll-item {
+                flex: 0 0 calc(33.333% - 11px);  /* 3 on tablet */
+            }
+        }
+        @media(min-width: 992px){
+            .related-scroll-item {
+                flex: 0 0 calc(25% - 12px);  /* 4 on desktop */
+            }
         }
 
         @media(max-width: 768px){
+            .dimension-card{ padding: 16px; }
             .dimension-grid{
-                grid-template-columns: 1fr;
+                grid-template-columns: repeat(3, 1fr);
+                gap: 10px;
             }
+            .dimension-item{
+                padding: 12px 8px;
+            }
+            .dimension-label{ font-size: 10px; }
+            .dimension-value{ font-size: 15px; }
         }
 
     /* ACCORDION */
@@ -267,7 +330,9 @@
         color: var(--jaced-brown-dark)
     }
 
-    .sold-tag { font-size: 16px; color: #5d5d5d; display: flex; align-items: center; gap: 5px; margin-left: 8px; }
+    .meta-block { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+    .meta-left { display: flex; flex-direction: column; gap: 8px; align-items: flex-start; }
+    .sold-tag { font-size: 16px; color: #5d5d5d; display: flex; align-items: center; gap: 5px; margin-left: 0; }
 
     .stock-row { display: flex; align-items: center; gap: 8px; font-size: 16px; color: var(--jaced-muted); font-weight: 500; }
     .stock-dot { width: 7px; height: 7px; border-radius: 50%; background: #4a7c59; flex-shrink: 0; }
@@ -363,18 +428,19 @@
 
     /* WISHLIST */
     .wishlist-btn {
-        width: 42px;
-        height: 42px;
-        border-radius: 50%;
+        width: 38px; height: 38px;
+        min-width: 38px; min-height: 38px;
+        border-radius: 50% !important;
         border: 1px solid var(--jaced-input);
         background: var(--jaced-card);
         color: var(--jaced-brown-dark);
-        font-size: 18px;
+        font-size: 16px;
         transition: all 0.25s ease;
-        cursor: pointer;
-        display: flex;
+        cursor: pointer; display: flex;
         align-items: center;
         justify-content: center;
+        flex-shrink: 0;
+        padding: 0;
     }
     .wishlist-btn i { transition: all 0.25s ease; }
     .wishlist-btn:hover {
@@ -417,6 +483,8 @@
         font-weight: 600;
         display: inline-flex;
         align-items: center;
+        justify-content: center;
+        text-align: center;
         gap: 12px;
         width: fit-content;
         max-width: 90vw;
@@ -425,31 +493,7 @@
         animation: toastIn 0.35s ease;
         letter-spacing: -0.01em;
     }
-    /* .cart-toast{
-        position: fixed;
-        bottom: 28px;
-        left: 50%;
-        transform: translateX(-50%);
-        background: var(--jaced-brown-dark);
-        color: var(--jaced-cream);
-        padding: 14px 26px;
-        border-radius: 999px;
-        font-size: 14px;
-        font-weight: 500;
-        display: inline-flex;
-        align-items: center;
-        gap: 10px;
-        width: fit-content;
-        max-width: 320px;
-        white-space: nowrap;
-        z-index: 3000;
-        box-shadow: 0 12px 32px rgba(0,0,0,0.2);
-        animation: toastIn 0.4s ease;
-        opacity: 1;
-        transition: opacity 0.3s ease;
-    } */
-
-
+    
     .stock-badge{
         position: absolute;
         top: 16px;
@@ -497,7 +541,7 @@
     .wl-card-cat { font-size: 10px; text-transform: uppercase; letter-spacing: 0.2em; color: var(--jaced-caramel); font-weight: 600; margin-bottom: 4px; display: block; }
     .wl-card-name { font-size: 16px; font-weight: 600; color: var(--jaced-brown-dark); margin-bottom: 4px; letter-spacing: -0.01em; line-height: 1.3; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; 
         display: -webkit-box; -webkit-line-clamp: 1; -webkit-box-orient: vertical; }
-    .wl-card-price { font-size: 20px; font-weight: 700; color: var(--jaced-sage); margin-bottom: 6px; display: block; }
+    .wl-card-price { font-size: 16px; font-weight: 700; color: var(--jaced-sage); margin-bottom: 6px; display: block; }
     .wl-card-actions { display: flex; gap: 8px; }
 
     .wl-atc-btn {
@@ -619,13 +663,15 @@
         <!-- RIGHT SIDE -->
         <div class="col-lg-6">
 
-            <div class="d-flex align-items-center gap-2 mb-3">
-                <span class="premium-badge">{{ strtoupper($product->label) }}</span>
-                <div class="sold-tag">
-                    <i class="fa-solid fa-bag-shopping"></i>
-                    {{ $totalSold }} people bought this
+            <div class="meta-block mb-3">
+                <div class="meta-left">
+                    <span class="premium-badge">{{ strtoupper($product->label) }}</span>
+                    <div class="sold-tag">
+                        <i class="fa-solid fa-bag-shopping"></i>
+                        {{ $totalSold }} people bought this
+                    </div>
                 </div>
-                <button class="wishlist-btn ms-auto {{ $isWishlisted ? 'active' : '' }}"
+                <button class="wishlist-btn {{ $isWishlisted ? 'active' : '' }}"
                         id="wishlistBtn" data-product="{{ $product->id }}">
                     <i class="{{ $isWishlisted ? 'fa-solid' : 'fa-regular' }} fa-heart"></i>
                 </button>
@@ -649,22 +695,24 @@
                             </div>
                         </div>
 
-                        <div class="dimension-grid">
+                        <div class="dimension-grid {{ (!$product->height || $product->height == 0) ? 'two-col' : '' }}">
                             <!-- LENGTH -->
                             <div class="dimension-item">
                                 <span class="dimension-label"> Length </span>
-                                <span class="dimension-value">{{ $product->length }} {{ $product->unit }}</span>
+                                <span class="dimension-value">{{ rtrim(rtrim(number_format($product->length, 2), '0'), '.') }} {{ $product->unit }}</span>
                             </div>
                             <!-- WIDTH -->
                             <div class="dimension-item">
                                 <span class="dimension-label"> Width </span>
-                                <span class="dimension-value">{{ $product->width }} {{ $product->unit }}</span>
+                                <span class="dimension-value">{{ rtrim(rtrim(number_format($product->width, 2), '0'), '.') }} {{ $product->unit }}</span>
                             </div>
                             <!-- HEIGHT -->
+                            @if(!empty($product->height) && $product->height != 0)
                             <div class="dimension-item">
                                 <span class="dimension-label"> Height </span>
-                                <span class="dimension-value">{{ $product->height }} {{ $product->unit }}</span>
+                                <span class="dimension-value">{{ rtrim(rtrim(number_format($product->height, 2), '0'), '.') }} {{ $product->unit }}</span>
                             </div>
+                            @endif
                         </div>
                     </div>
                 </div>
@@ -752,9 +800,9 @@
             </h3>
         </div>
 
-        <div class="row g-4">
+        <div class="related-scroll-wrapper">
             @foreach($related as $relatedProduct)
-            <div class="col-6 col-md-4 col-lg-3">
+            <div class="related-scroll-item">
                 <div class="wl-card">
                     <a href="{{ route('product.show', $relatedProduct->slug) }}"
                     style="text-decoration:none; color:inherit;">

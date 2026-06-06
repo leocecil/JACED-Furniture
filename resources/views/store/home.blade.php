@@ -379,14 +379,10 @@
                 min-height: unset !important;
                 overflow: hidden !important;
             }
-            .hero-carousel-block {
-                height: 100svh !important;
-            }
-            .hero-slide {
-                height: 100svh !important;
-                min-height: unset !important;
-            }
+            .hero-carousel-block { height: 100svh !important; }
+            .hero-slide { height: 100svh !important; min-height: unset !important; }
         }
+
         /* ===== KEN BURNS HERO ===== */
         .carousel-item.active .hero-slide {
             animation: kenBurns 12s ease-out forwards;
@@ -990,7 +986,6 @@
                 const carousel = document.getElementById('heroCarousel');
                 if (!carousel) return;
                 
-                // Override Bootstrap setelah dia init
                 const observer = new MutationObserver(function() {
                     const inner = carousel.querySelector('.carousel-inner');
                     if (inner) inner.style.removeProperty('display');
@@ -998,7 +993,8 @@
                 
                 observer.observe(carousel, { attributes: true, subtree: true, attributeFilter: ['style'] });
             });
-        })();
+        })();   
+
         if (history.scrollRestoration) {
             history.scrollRestoration = 'manual';
         }
