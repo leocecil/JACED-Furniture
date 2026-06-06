@@ -441,7 +441,7 @@
             justify-content:center;
             width:100%;
         }
-
+    }
     .wishlist-dropdowns-row {
         display: flex;
         gap: 12px;
