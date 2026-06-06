@@ -792,11 +792,11 @@
                                 </span>
                             </div>
                             <div class="d-flex flex-column gap-2 mt-3">
-                                {{-- Download Invoice --}}
+                                {{-- Download Receipt --}}
                                 @if (!in_array($order->status, ['unpaid', 'cancelled']))
                                     <a href="{{ route('store.orderhistory.invoice', $order->id) }}"
                                         class="btn-invoice" style="margin-top: 0;">
-                                        Download Invoice
+                                        Download Receipt
                                     </a>
                                 @endif
 

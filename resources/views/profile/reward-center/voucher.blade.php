@@ -38,8 +38,13 @@
         display: flex;
         gap: 8px;
         margin-bottom: 20px;
-        flex-wrap: wrap;
+        flex-wrap: nowrap;          
+        overflow-x: auto;          
+        -webkit-overflow-scrolling: touch;
+        scrollbar-width: none;
+        padding-bottom: 2px;
     }
+    .filter-pills::-webkit-scrollbar { display: none; }
     .filter-pill {
         background: white;
         border: 1px solid var(--jaced-input);
@@ -50,6 +55,8 @@
         color: var(--jaced-muted);
         cursor: pointer;
         transition: all 0.18s;
+        white-space: nowrap;        
+        flex-shrink: 0; 
     }
     .filter-pill.active {
         background: var(--jaced-brown-dark);

@@ -217,14 +217,7 @@ class ProductController extends Controller
                 'products_count' => $cat->products_count,
             ]);
 
-        $rooms = collect([
-            (object) ['slug' => 'living-room', 'name' => 'Living Room',  'products_count' => 8],
-            (object) ['slug' => 'bedroom',     'name' => 'Bedroom',      'products_count' => 5],
-            (object) ['slug' => 'dining-room', 'name' => 'Dining Room',  'products_count' => 4],
-            (object) ['slug' => 'office',      'name' => 'Office',       'products_count' => 3],
-        ]);
-
-        return view('store.shop', compact('products', 'categories', 'rooms', 'totalProducts'));
+        return view('store.shop', compact('products', 'categories', 'totalProducts'));
     }
 
     // ─── SHOW by slug ─────────────────────────────────────────────────────────

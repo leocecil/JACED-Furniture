@@ -333,7 +333,7 @@ $disputeTypeLabels = [
                             onmouseout="this.style.background='var(--jaced-brown-dark)'">
                             <i class="bi bi-arrow-up-circle"></i> {{ $trans['label'] }}
                         </button>
-
+ 
                         @elseif($order->status === 'shipped')
                         <div style="background:#E0F7FA; border-radius:10px; padding:12px 14px;">
                             <p style="font-size:12px; color:#00695C; font-weight:600; margin:0 0 2px;">
@@ -343,24 +343,62 @@ $disputeTypeLabels = [
                                 Auto-arrives {{ $order->shipped_at ? Carbon::parse($order->shipped_at)->addDays(7)->format('d M Y') : 'after 7 days' }}.
                             </p>
                         </div>
-
+ 
                         @elseif($order->status === 'arrived')
                         <div style="background:#E8F5E9; border-radius:10px; padding:12px 14px;">
                             <p style="font-size:12px; color:#2E7D32; font-weight:600; margin:0;">
                                 <i class="bi bi-check-circle"></i> Order Completed
                             </p>
                         </div>
-
+ 
                         @elseif($order->status === 'cancelled')
-                        <div style="background:#FFEBEE; border-radius:10px; padding:12px 14px;">
+                        @php
+                            $isRefundRequested = $order->cancellation_reason
+                                && str_starts_with($order->cancellation_reason, '[Refund Requested]');
+                            $refundDone = ($order->revenue_deduction ?? 0) > 0;
+                            $cleanReason = $isRefundRequested
+                                ? trim(substr($order->cancellation_reason, strlen('[Refund Requested]')))
+                                : $order->cancellation_reason;
+                        @endphp
+ 
+                        <div style="background:#FFEBEE; border-radius:10px; padding:12px 14px; margin-bottom:{{ $isRefundRequested && !$refundDone ? '10px' : '0' }};">
                             <p style="font-size:12px; color:#C62828; font-weight:600; margin:0 0 4px;">
                                 <i class="bi bi-x-circle"></i> Order Cancelled
                             </p>
                             @if($order->cancellation_reason)
-                            <p style="font-size:11px; color:var(--jaced-muted); margin:0;">{{ $order->cancellation_reason }}</p>
+                            <p style="font-size:11px; color:var(--jaced-muted); margin:0;">{{ $cleanReason }}</p>
+                            @endif
+                            @if($isRefundRequested && !$refundDone)
+                            <p style="font-size:11px; font-weight:600; color:#E65100; margin:6px 0 0;">
+                                <i class="bi bi-clock"></i> Customer requested a refund
+                            </p>
                             @endif
                         </div>
+ 
+                        @if($isRefundRequested && !$refundDone)
+                        <button
+                            onclick="openRefundModal({{ $order->id }}, {{ $order->total_price }})"
+                            style="width:100%; background:#1A237E; color:white; border:none;
+                                border-radius:10px; padding:11px 16px; font-size:13px; font-weight:600;
+                                cursor:pointer; transition:background .15s;
+                                display:flex; align-items:center; justify-content:center; gap:8px;"
+                            onmouseover="this.style.background='#0D1257'"
+                            onmouseout="this.style.background='#1A237E'">
+                            <i class="bi bi-cash-stack"></i> Approve Refund (Rp {{ number_format($order->total_price, 0, ',', '.') }})
+                        </button>
+                        @elseif($isRefundRequested && $refundDone)
+                        <div style="background:#E8F5E9; border-radius:10px; padding:12px 14px; margin-top:10px;">
+                            <p style="font-size:12px; color:#2E7D32; font-weight:600; margin:0 0 2px;">
+                                <i class="bi bi-check-circle"></i> Refund Completed
+                            </p>
+                            <p style="font-size:11px; color:var(--jaced-muted); margin:0;">
+                                Rp {{ number_format($order->revenue_deduction, 0, ',', '.') }} returned to customer.
+                            </p>
+                        </div>
                         @endif
+ 
+                        @endif
+                        {{-- End status conditions --}}
                     </div>
                 </div>
 
@@ -672,6 +710,58 @@ $disputeTypeLabels = [
     </div>
 </div>
 
+<div id="cancelRefundModalOverlay"
+    style="display:none; position:fixed; inset:0; background:rgba(0,0,0,.5);
+           z-index:99999; align-items:center; justify-content:center;">
+    <div style="background:white; border-radius:20px; padding:32px; max-width:400px; width:90%;
+                box-shadow:0 20px 60px rgba(0,0,0,.2); animation:modalIn .2s ease;">
+ 
+        {{-- Icon --}}
+        <div style="width:52px; height:52px; border-radius:50%; background:#E8EAF6;
+                    display:flex; align-items:center; justify-content:center; margin:0 auto 16px;">
+            <i class="bi bi-cash-stack" style="font-size:24px; color:#1A237E;"></i>
+        </div>
+ 
+        {{-- Title --}}
+        <h5 style="font-size:17px; font-weight:700; color:var(--jaced-brown-dark);
+                   text-align:center; margin:0 0 8px;">Approve Refund</h5>
+        <p style="font-size:13px; color:var(--jaced-muted); text-align:center; margin:0 0 16px;">
+            Return the full payment amount to the customer for this cancelled order.
+        </p>
+ 
+        {{-- Amount highlight --}}
+        <div style="background:#E8EAF6; border-radius:10px; padding:14px; text-align:center; margin-bottom:20px;">
+            <p style="font-size:11px; color:#283593; font-weight:600; text-transform:uppercase;
+                      letter-spacing:.5px; margin:0 0 4px;">Refund Amount</p>
+            <p id="cancelRefundAmount" style="font-size:22px; font-weight:700; color:#1A237E; margin:0;"></p>
+        </div>
+ 
+        <p style="font-size:12px; color:var(--jaced-muted); text-align:center;
+                  background:#F5F3EF; border-radius:8px; padding:10px 14px; margin:0 0 20px;">
+            ⚠ This action cannot be undone. Status will remain <strong>Cancelled</strong>.
+        </p>
+ 
+        {{-- Buttons --}}
+        <button id="cancelRefundConfirmBtn"
+            onclick="submitCancelRefund()"
+            style="width:100%; padding:13px; background:#1A237E; color:white; border:none;
+                   border-radius:12px; font-size:14px; font-weight:700; cursor:pointer;
+                   transition:background .15s; margin-bottom:10px;"
+            onmouseover="this.style.background='#0D1257'"
+            onmouseout="this.style.background='#1A237E'">
+            Confirm Refund
+        </button>
+        <button onclick="closeCancelRefundModal()"
+            style="width:100%; padding:11px; background:none; color:var(--jaced-muted);
+                   border:1px solid var(--jaced-input); border-radius:12px;
+                   font-size:13px; font-weight:500; cursor:pointer; transition:background .15s;"
+            onmouseover="this.style.background='#F5F3EF'"
+            onmouseout="this.style.background='none'">
+            Cancel
+        </button>
+    </div>
+</div>
+
 <script>
 function showExchangeTracking(disputeId) {
     const field = document.getElementById('exchange-tracking-field-' + disputeId);
@@ -795,6 +885,69 @@ function updateTracking(disputeId) {
         } else {
             showToast('⚠ ' + (data.error || 'Something went wrong.'));
         }
+    });
+}
+
+let cancelRefundOrderId = null;
+ 
+window.openRefundModal = function(orderId, totalPrice) {
+    cancelRefundOrderId = orderId;
+ 
+    const formatted = 'Rp ' + parseInt(totalPrice).toLocaleString('id-ID');
+    document.getElementById('cancelRefundAmount').textContent = formatted;
+ 
+    const btn = document.getElementById('cancelRefundConfirmBtn');
+    btn.disabled    = false;
+    btn.textContent = 'Confirm Refund';
+ 
+    const overlay = document.getElementById('cancelRefundModalOverlay');
+    overlay.style.display = 'flex';
+    document.body.style.overflow = 'hidden';
+}
+ 
+window.closeCancelRefundModal = function() {
+    document.getElementById('cancelRefundModalOverlay').style.display = 'none';
+    document.body.style.overflow = '';
+    cancelRefundOrderId = null;
+}
+ 
+// Close on overlay click
+document.getElementById('cancelRefundModalOverlay').addEventListener('click', function(e) {
+    if (e.target === this) window.closeCancelRefundModal();
+});
+ 
+window.submitCancelRefund = function() {
+    if (!cancelRefundOrderId) return;
+ 
+    const btn = document.getElementById('cancelRefundConfirmBtn');
+    btn.disabled    = true;
+    btn.textContent = 'Processing...';
+ 
+    fetch(`${window.orderBaseUrl}/${cancelRefundOrderId}/refund`, {
+        method:  'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRF-TOKEN': window.csrfToken,
+        },
+        body: JSON.stringify({}),
+    })
+    .then(r => r.json())
+    .then(data => {
+        window.closeCancelRefundModal();
+        btn.disabled    = false;
+        btn.textContent = 'Confirm Refund';
+ 
+        if (data.success) {
+            window.showToast('✓ ' + data.message);
+            window.fetchOrders(1);
+        } else {
+            window.showToast('⚠ ' + (data.error || 'Something went wrong.'));
+        }
+    })
+    .catch(() => {
+        btn.disabled    = false;
+        btn.textContent = 'Confirm Refund';
+        window.showToast('Network error. Please try again.');
     });
 }
 </script>

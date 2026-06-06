@@ -7,6 +7,7 @@ use App\Models\Order;
 use App\Models\OrderDetail;
 use App\Models\PaymentMethod;
 use App\Models\PointHistory;
+use App\Models\Product;
 use App\Models\ShippingAddress;
 use App\Models\VaBank;
 use App\Services\RajaOngkirService;
@@ -153,7 +154,15 @@ class OrderController extends Controller
         $subtotalPrice = $cartItems->sum(fn($item) => $item->product->price * $item->quantity);
         
         if (empty($paymentMethod)) {
-            return redirect()->back()->with('error', 'Silakan pilih metode pembayaran.');
+            return redirect()->back()->with('error', 'Please select a payment method.');
+        }
+
+        foreach ($cartItems as $cartItem) {
+            if ($cartItem->product->stock < $cartItem->quantity) {
+                return redirect()->back()->with('error', 
+                    "Stock {$cartItem->product->name} is not sufficient. Available: {$cartItem->product->stock}"
+                );
+            }
         }
        
         DB::beginTransaction();
@@ -358,6 +367,11 @@ class OrderController extends Controller
                 ]);
             }
 
+            foreach ($cartItems as $cartItem) {
+                Product::where('id', $cartItem->product_id)
+                    ->decrement('stock', $cartItem->quantity);
+            }
+
             // Midtrans
             \Midtrans\Config::$serverKey    = config('midtrans.server_key');
             \Midtrans\Config::$isProduction = config('midtrans.is_production');
@@ -555,6 +569,11 @@ class OrderController extends Controller
         } elseif (in_array($transactionStatus, ['cancel', 'deny', 'expire'])) {
             $order->status      = 'cancelled';
             $order->cancelled_at = now();
+
+            foreach ($order->orderDetails as $detail) {
+                Product::where('id', $detail->product_id)
+                    ->increment('stock', $detail->quantity);
+            }
 
         } elseif ($transactionStatus == 'pending') {
             $order->status = 'unpaid';
