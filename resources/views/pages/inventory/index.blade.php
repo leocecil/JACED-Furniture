@@ -64,20 +64,22 @@
         height: 0px !important; 
     }
     
-    /* 🌟 FIX: Mengubah tampilan kategori yang tidak aktif agar background lingkaran bulatnya tetap terlihat */
+    /* 🌟 FIX: Mengubah tampilan kategori pasif (Font Cokelat, Background Putih Lingkaran Sempurna) */
     .btn-category-inactive { 
-        color: #c4a882 !important; 
-        background-color: #ffffff !important; /* Warna abu-cream lembut agar bentuk rounded tetap terlihat kontras */
-        opacity: 0.65; 
+        color: var(--jaced-brown) !important; 
+        background-color: #ffffff !important; 
+        opacity: 0.85; 
         border-radius: 50px !important;
         font-weight: 500 !important;
+        border: 1px solid #e2ddd8 !important;
         transition: all 0.2s ease; 
     }
     
     /* Efek hover saat kursor mendekati tombol kategori */
     .btn-category-inactive:hover { 
         opacity: 1; 
-        background-color: var(--jaced-cream) !important; /* Warna sedikit lebih gelap saat di-hover */
+        background-color: var(--jaced-cream) !important;
+        color: var(--jaced-brown-dark) !important;
     }
     
     .btn-add-category { color: var(--jaced-sage) !important; font-weight: 600 !important; }
@@ -223,14 +225,20 @@
 @endif
 
 <div class="container-fluid">
-     <div class="d-flex justify-content-between align-items-start mb-4">
-        <div>
-            <h2 class="fw-bold mb-1">Inventory Ledger</h2>
-            <p class="text-jaced-muted small">Manage your premium stock items, monitor material availability, and track upcoming shipments.</p>
+     
+     {{-- 🌟 Header Atas Adaptif Mobile --}}
+     <div class="d-flex flex-row justify-content-between align-items-center mb-4 gap-2">
+        <div style="min-width: 0; flex: 1;">
+            <h2 class="fw-bold mb-1" style="font-size: calc(1.3rem + 0.6vw);">Inventory Ledger</h2>
+            <p class="text-jaced-muted small m-0 d-none d-sm-block">Manage your premium stock items, monitor material availability, and track upcoming shipments.</p>
         </div>
-        <div class="d-flex gap-2">
-            <button class="btn btn-jaced-primary px-4 py-2" data-bs-toggle="modal" data-bs-target="#addItemModal">
-                <i class="bi bi-plus-lg me-2"></i> Add New Item
+        <div class="flex-shrink-0">
+            <button type="button"
+                    class="btn btn-sm px-3 px-sm-4 py-1.5 py-sm-2 d-flex align-items-center gap-2"
+                    style="background:#1e1c18; color:#f5f2ee; border:none; border-radius:8px; font-size:12px; font-weight:600; white-space: nowrap;"
+                    data-bs-toggle="modal" data-bs-target="#addItemModal">
+                <i class="bi bi-plus-lg"></i> 
+                <span>Add Item</span>
             </button>
         </div>
      </div>
@@ -249,14 +257,12 @@
                     }
                 </style>
                 
-                {{-- Ditambahkan teks bantuan 'Swipe' kecil yang hanya muncul di layar sentuh perangkat mobile --}}
                 <div class="d-flex gap-2 overflow-auto category-scroll flex-nowrap py-1" id="categoryFilterList" title="Swipe left/right to view more categories">
                     <button class="btn btn-sm rounded-pill px-3 px-md-4 py-1.5 py-md-2 fw-bold flex-shrink-0"
                             id="cat-all"
                             style="background: #c4a882; color: white; border-radius: 50px !important;"
                             onclick="filterByCategory(null, this)">All Collections</button>
                     @foreach($categories as $cat)
-                        {{-- 🌟 FIX: Ditambahkan kelas text-capitalize agar huruf awal otomatis kapital --}}
                         <button class="btn btn-sm btn-category-inactive text-capitalize px-3 px-md-4 py-1.5 py-md-2 flex-shrink-0 border-0"
                                 data-cat-id="{{ $cat->id }}"
                                 style="border-radius: 50px !important;"
@@ -269,6 +275,7 @@
 
             {{-- Tombol Add Category --}}
             <button class="btn btn-sm btn-add-category flex-shrink-0 border-0 bg-transparent ms-md-2"
+                    style="font-size: 13px;"
                     data-bs-toggle="modal" data-bs-target="#addCategoryModal">
                 <i class="bi bi-plus-circle-fill me-1"></i> Add Category
             </button>
@@ -310,96 +317,6 @@
     </div>
 </div>
 @endsection
-
-@push('scripts')
-<script>
-    document.addEventListener('DOMContentLoaded', function () {
-        const toggleWrap  = document.getElementById('inv-toggle-wrap');
-        const placeholder = document.getElementById('togglePlaceholder');
-        if (toggleWrap && placeholder) placeholder.replaceWith(toggleWrap);
-
-        const urlParams = new URLSearchParams(window.location.search);
-        const currentSort = urlParams.get('sort');
-        const currentCat  = urlParams.get('category_id');
-
-        if (currentSort) {
-            const activeItem = document.querySelector(`.dropdown-menu .dropdown-item[onclick*="'${currentSort}'"]`);
-            if (activeItem) {
-                document.querySelectorAll('.dropdown-menu .dropdown-item').forEach(i => i.classList.remove('active'));
-                activeItem.classList.add('active');
-
-                const onclickAttr = activeItem.getAttribute('onclick');
-                const match = onclickAttr.match(/sortBy\('[^']+'\s*,\s*'([^']+)'/);
-                if (match && match[1]) {
-                    document.getElementById('sortLabel').textContent = match[1];
-                }
-            }
-        }
-
-        if (currentCat) {
-            const activeCatBtn = document.querySelector(`#categoryFilterList button[data-cat-id="${currentCat}"]`);
-            if (activeCatBtn) {
-                document.querySelectorAll('#categoryFilterList .btn').forEach(b => {
-                    b.classList.add('btn-category-inactive');
-                    b.classList.remove('fw-bold');
-                    b.style.background = '#f0eeeb';
-                    b.style.color = 'var(--jaced-brown-dark)';
-                    b.style.borderRadius = '50px'; // 🌟 FIX: Tetap mengunci bentuk bulat lonjong saat muat ulang halaman
-                });
-                activeCatBtn.classList.remove('btn-category-inactive');
-                activeCatBtn.classList.add('fw-bold');
-                activeCatBtn.style.background = '#c4a882';
-                activeCatBtn.style.color = 'white';
-                activeCatBtn.style.borderRadius = '50px'; // 🌟 FIX: Kunci bentuk pil bulat kustomer terpilih
-            }
-        } else {
-            const catAll = document.getElementById('cat-all');
-            if (catAll) {
-                document.querySelectorAll('#categoryFilterList .btn').forEach(b => {
-                    b.classList.add('btn-category-inactive');
-                    b.classList.remove('fw-bold');
-                    b.style.background = '#f0eeeb';
-                    b.style.color = 'var(--jaced-brown-dark)';
-                    b.style.borderRadius = '50px';
-                });
-                catAll.classList.remove('btn-category-inactive');
-                catAll.classList.add('fw-bold');
-                catAll.style.background = '#c4a882';
-                catAll.style.color = 'white';
-                catAll.style.borderRadius = '50px';
-            }
-        }
-    });
-
-    function filterByCategory(catId, btn) {
-        document.querySelectorAll('#categoryFilterList .btn').forEach(b => {
-            b.classList.add('btn-category-inactive');
-            b.classList.remove('fw-bold');
-            b.style.background = '#f0eeeb'; // Gunakan warna dasar cream melingkar pasif
-            b.style.color = 'var(--jaced-brown-dark)';
-            b.style.borderRadius = '50px'; // 🌟 FIX: Kunci elemen radius non-aktif agar tidak mengotak
-        });
-        btn.classList.remove('btn-category-inactive');
-        btn.classList.add('fw-bold');
-        btn.style.background = '#c4a882'; // Warna latar belakang emas caramel aktif
-        btn.style.color = 'white';
-        btn.style.borderRadius = '50px'; // 🌟 FIX: Kunci elemen radius aktif agar tetap oval sempurna
-
-        const url = new URL(window.location.href);
-        catId ? url.searchParams.set('category_id', catId) : url.searchParams.delete('category_id');
-        window.location.href = url.toString();
-    }
-
-    function sortBy(value, label, el) {
-        document.querySelectorAll('.dropdown-menu .dropdown-item').forEach(i => i.classList.remove('active'));
-        el.classList.add('active');
-        document.getElementById('sortLabel').textContent = label;
-        const url = new URL(window.location.href);
-        url.searchParams.set('sort', value);
-        window.location.href = url.toString();
-    }
-</script>
-@endpush
 
 @push('modals')
 <div class="modal fade" id="addItemModal" tabindex="-1" aria-labelledby="addItemModalLabel" aria-hidden="true">
@@ -522,11 +439,10 @@
                     <div class="row g-3 mb-3">
                         <div class="col-md-6">
                             <label class="form-label">Category <span class="text-danger">*</span></label>
-                            {{-- 🌟 FIX: Ditambahkan kelas text-capitalize pada komponen input select modal --}}
                             <select class="form-select text-capitalize" name="category_id" id="categorySelect" required>
                                 <option value="" selected disabled>Select Category</option>
                                 @foreach($categories as $cat)
-                                    <option value="{{ $cat->id }}" class="text-capitalize">{{ $cat->name }}</option>
+                                    <option value="{{ $cat->id }}">{{ $cat->name }}</option>
                                 @endforeach
                             </select>
                         </div>
@@ -595,7 +511,6 @@
                 </div>
                 <div id="catErrorMsg" class="mb-3" style="font-size:11px; min-height:16px;"></div>
                 <div style="font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:.1em; color:#9c9890; margin-bottom:10px;">Current Categories</div>
-                {{-- 🌟 FIX: Ditambahkan kelas text-capitalize pada chip modal management --}}
                 <div class="d-flex flex-wrap gap-2 pb-2" id="categoryChips">
                     @foreach($categories as $cat)
                         <span class="cat-chip text-capitalize" data-cat-id="{{ $cat->id }}">{{ $cat->name }}<button class="remove-cat" onclick="deleteCategory({{ $cat->id }}, this)" title="Remove">×</button></span>
@@ -612,137 +527,193 @@
 
 @push('scripts')
 <script>
-function autoSlug(val) {
-    document.getElementById('slugInput').value = val.toLowerCase().replace(/[^a-z0-9\s-]/g, '').trim().replace(/\s+/g, '-');
-}
+    document.addEventListener('DOMContentLoaded', function () {
+        const toggleWrap  = document.getElementById('inv-toggle-wrap');
+        const placeholder = document.getElementById('togglePlaceholder');
+        if (toggleWrap && placeholder) placeholder.replaceWith(toggleWrap);
 
-var editModalObj = null; // Instansiasi pembantu modal kustom edit
+        const urlParams = new URLSearchParams(window.location.search);
+        const currentSort = urlParams.get('sort');
+        const currentCat  = urlParams.get('category_id');
 
-function previewImages(input) {
-    const wrap = document.getElementById('imagePreviewWrap');
-    Array.from(input.files).forEach(file => {
-        if (!file.type.startsWith('image/')) return;
-        const reader = new FileReader();
-        reader.onload = e => {
-            const div = document.createElement('div');
-            div.className = 'image-preview-item';
-            div.innerHTML = `<img src="${e.target.result}" alt=""><button type="button" class="remove-img" onclick="this.closest('.image-preview-item').remove()">×</button>`;
-            wrap.appendChild(div);
-        };
-        reader.readAsDataURL(file);
+        if (currentSort) {
+            const activeItem = document.querySelector(`.dropdown-menu .dropdown-item[onclick*="'${currentSort}'"]`);
+            if (activeItem) {
+                document.querySelectorAll('.dropdown-menu .dropdown-item').forEach(i => i.classList.remove('active'));
+                activeItem.classList.add('active');
+
+                const onclickAttr = activeItem.getAttribute('onclick');
+                const match = onclickAttr.match(/sortBy\('[^']+'\s*,\s*'([^']+)'/);
+                if (match && match[1]) {
+                    document.getElementById('sortLabel').textContent = match[1];
+                }
+            }
+        }
+
+        if (currentCat) {
+            const activeCatBtn = document.querySelector(`#categoryFilterList button[data-cat-id="${currentCat}"]`);
+            if (activeCatBtn) {
+                document.querySelectorAll('#categoryFilterList .btn').forEach(b => {
+                    b.classList.add('btn-category-inactive');
+                    b.classList.remove('fw-bold');
+                    b.style.background = '#ffffff';
+                    b.style.color = 'var(--jaced-brown)';
+                    b.style.borderRadius = '50px';
+                });
+                activeCatBtn.classList.remove('btn-category-inactive');
+                activeCatBtn.classList.add('fw-bold');
+                activeCatBtn.style.background = '#c4a882';
+                activeCatBtn.style.color = 'white';
+                activeCatBtn.style.borderRadius = '50px';
+            }
+        } else {
+            const catAll = document.getElementById('cat-all');
+            if (catAll) {
+                document.querySelectorAll('#categoryFilterList .btn').forEach(b => {
+                    b.classList.add('btn-category-inactive');
+                    b.classList.remove('fw-bold');
+                    b.style.background = '#ffffff';
+                    b.style.color = 'var(--jaced-brown)';
+                    b.style.borderRadius = '50px';
+                });
+                catAll.classList.remove('btn-category-inactive');
+                catAll.classList.add('fw-bold');
+                catAll.style.background = '#c4a882';
+                catAll.style.color = 'white';
+                catAll.style.borderRadius = '50px';
+            }
+        }
     });
-}
 
-function saveCategory() {
-    const input  = document.getElementById('newCategoryInput');
-    const errMsg = document.getElementById('catErrorMsg');
-    const val    = input.value.trim();
-    errMsg.textContent = '';
-    if (!val) return;
-    if (!/^[a-zA-Z\s\-]+$/.test(val)) {
-        errMsg.style.color = '#c0392b';
-        errMsg.textContent = '⚠ Only letters, spaces, and hyphens are allowed.';
-        return;
+    function filterByCategory(catId, btn) {
+        document.querySelectorAll('#categoryFilterList .btn').forEach(b => {
+            b.classList.add('btn-category-inactive');
+            b.classList.remove('fw-bold');
+            b.style.background = '#ffffff';
+            b.style.color = 'var(--jaced-brown)';
+            b.style.borderRadius = '50px'; 
+        });
+        btn.classList.remove('btn-category-inactive');
+        btn.classList.add('fw-bold');
+        btn.style.background = '#c4a882'; 
+        btn.style.color = 'white';
+        btn.style.borderRadius = '50px'; 
+
+        const url = new URL(window.location.href);
+        catId ? url.searchParams.set('category_id', catId) : url.searchParams.delete('category_id');
+        window.location.href = url.toString();
     }
 
-    fetch('{{ route('categories.store') }}', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
-        },
-        body: JSON.stringify({ name: val }),
-    })
-    .then(r => r.json())
-    .then(data => {
-        if (!data.success) {
+    function sortBy(value, label, el) {
+        document.querySelectorAll('.dropdown-menu .dropdown-item').forEach(i => i.classList.remove('active'));
+        el.classList.add('active');
+        document.getElementById('sortLabel').textContent = label;
+        const url = new URL(window.location.href);
+        url.searchParams.set('sort', value);
+        window.location.href = url.toString();
+    }
+
+    function saveCategory() {
+        const input  = document.getElementById('newCategoryInput');
+        const errMsg = document.getElementById('catErrorMsg');
+        const val    = input.value.trim();
+        errMsg.textContent = '';
+        if (!val) return;
+        if (!/^[a-zA-Z\s\-]+$/.test(val)) {
             errMsg.style.color = '#c0392b';
-            errMsg.textContent = '⚠ ' + (data.message ?? 'Error.');
+            errMsg.textContent = '⚠ Only letters, spaces, and hyphens are allowed.';
             return;
         }
-        const cat   = data.category;
-        const chips = document.getElementById('categoryChips');
-        const span  = document.createElement('span');
-        
-        // 🌟 FIX: AJAX baru ditambahkan kelas text-capitalize
-        span.className     = 'cat-chip text-capitalize';
-        span.dataset.catId = cat.id;
-        span.innerHTML     = `${cat.name} <button class="remove-cat" onclick="deleteCategory(${cat.id}, this)">×</button>`;
-        chips.appendChild(span);
 
-        const filterList = document.getElementById('categoryFilterList');
-        const btn        = document.createElement('button');
-        
-        // 🌟 FIX: AJAX baru ditambahkan kelas text-capitalize & radius 50px pengunci bentuk bulat
-        btn.className     = 'btn btn-sm btn-category-inactive text-capitalize px-4 py-2 flex-shrink-0 border-0';
-        btn.style.borderRadius = '50px';
-        btn.dataset.catId = cat.id;
-        btn.textContent   = cat.name;
-        btn.onclick       = function () { filterByCategory(cat.id, this); };
-        filterList.appendChild(btn);
+        fetch('{{ route('categories.store') }}', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+            },
+            body: JSON.stringify({ name: val }),
+        })
+        .then(r => r.json())
+        .then(data => {
+            if (!data.success) {
+                errMsg.style.color = '#c0392b';
+                errMsg.textContent = '⚠ ' + (data.message ?? 'Error.');
+                return;
+            }
+            const cat   = data.category;
+            const chips = document.getElementById('categoryChips');
+            const span  = document.createElement('span');
+            
+            span.className     = 'cat-chip text-capitalize';
+            span.dataset.catId = cat.id;
+            span.innerHTML     = `${cat.name} <button class="remove-cat" onclick="deleteCategory(${cat.id}, this)">×</button>`;
+            chips.appendChild(span);
 
-        const sel = document.getElementById('categorySelect');
-        const opt = new Option(cat.name, cat.id);
-        opt.className = 'text-capitalize';
-        sel.appendChild(opt);
-        
-        input.value = '';
-        input.focus();
-    })
-    .catch(() => {
-        errMsg.style.color = '#c0392b';
-        errMsg.textContent = '⚠ Something went wrong. Please try again.';
-    });
-}
+            const filterList = document.getElementById('categoryFilterList');
+            const btn        = document.createElement('button');
+            
+            btn.className     = 'btn btn-sm btn-category-inactive text-capitalize px-4 py-2 flex-shrink-0 border-0';
+            btn.style.borderRadius = '50px';
+            btn.dataset.catId = cat.id;
+            btn.textContent   = cat.name;
+            btn.onclick       = function () { filterByCategory(cat.id, this); };
+            filterList.appendChild(btn);
 
-function deleteCategory(id, btn) {
-    if (!confirm('Are you sure you want to delete this category?')) return;
-    fetch(`/admin/categories/${id}`, {
-        method: 'DELETE',
-        headers: {
-            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
-            'Accept': 'application/json',
-            'Content-Type': 'application/json'
-        },
-    })
-    .then(async response => {
-        const data = await response.json();
-        if (!response.ok || !data.success) {
-            alert('⚠ ' + (data.message || 'Failed to delete category.'));
-            return;
-        }
-        btn.closest('.cat-chip').remove();
-        document.querySelectorAll(`#categoryFilterList [data-cat-id="${id}"]`).forEach(el => el.remove());
-        document.querySelectorAll(`#categorySelect option[value="${id}"]`).forEach(el => el.remove());
-    })
-    .catch(error => {
-        console.error('Error:', error);
-        alert('⚠ System error. Could not complete the request.');
-    });
-}
+            const sel = document.getElementById('categorySelect');
+            const opt = new Option(cat.name, cat.id);
+            opt.className = 'text-capitalize';
+            sel.appendChild(opt);
+            
+            input.value = '';
+            input.focus();
+        })
+        .catch(() => {
+            errMsg.style.color = '#c0392b';
+            errMsg.textContent = '⚠ Something went wrong. Please try again.';
+        });
+    }
 
-function formatRupiah(input, rawId) {
-    const cursorPos  = input.selectionStart;
-    const prevLength = input.value.length;
+    function deleteCategory(id, btn) {
+        if (!confirm('Are you sure you want to delete this category?')) return;
+        fetch(`/admin/categories/${id}`, {
+            method: 'DELETE',
+            headers: {
+                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                'Accept': 'application/json',
+                'Content-Type': 'application/json'
+            },
+        })
+        .then(async response => {
+            const data = await response.json();
+            if (!response.ok || !data.success) {
+                alert('⚠ ' + (data.message || 'Failed to delete category.'));
+                return;
+            }
+            btn.closest('.cat-chip').remove();
+            document.querySelectorAll(`#categoryFilterList [data-cat-id="${id}"]`).forEach(el => el.remove());
+            document.querySelectorAll(`#categorySelect option[value="${id}"]`).forEach(el => el.remove());
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('⚠ System error. Could not complete the request.');
+        });
+    }
 
-    const raw       = input.value.replace(/\D/g, '');
-    const formatted = raw.replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+    function formatRupiah(input, rawId) {
+        const cursorPos  = input.selectionStart;
+        const prevLength = input.value.length;
 
-    input.value = formatted;
+        const raw       = input.value.replace(/\D/g, '');
+        const formatted = raw.replace(/\B(?=(\d{3})+(?!\d))/g, '.');
 
-    const diff      = input.value.length - prevLength;
-    const newCursor = Math.max(0, cursorPos + diff);
-    input.setSelectionRange(newCursor, newCursor);
+        input.value = formatted;
 
-    const hiddenEl = document.getElementById(rawId);
-    if (hiddenEl) hiddenEl.value = raw;
-}
+        const diff      = input.value.length - prevLength;
+        const newCursor = Math.max(0, cursorPos + diff);
+        input.setSelectionRange(newCursor, newCursor);
 
-function fillRupiahInput(displayId, rawId, rawValue) {
-    const clean     = rawValue ? rawValue.toString().replace(/\D/g, '') : '';
-    const formatted = clean.replace(/\B(?=(\d{3})+(?!\d))/g, '.');
-    document.getElementById(displayId).value = formatted;
-    document.getElementById(rawId).value      = clean;
-}
+        const hiddenEl = document.getElementById(rawId);
+        if (hiddenEl) hiddenEl.value = raw;
+    }
 </script>
 @endpush
