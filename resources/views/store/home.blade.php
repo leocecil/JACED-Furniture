@@ -176,8 +176,12 @@
                         <p class="section-label">/ Best Seller</p>
                         <h2 class="section-title" style="max-width: 320px;">Timeless pieces for modern living</h2>
                     </div>
-                    <a href="{{ route('shop') }}" class="btn-browse rounded-pill px-3 py-2" data-reveal="slide-left" data-reveal-delay="250">
-                        See all best sellers <i class="fas fa-arrow-right ms-1"></i>
+                    <a href="{{ route('shop', ['sort' => 'bestseller']) }}"
+                        class="btn-browse rounded-pill px-3 py-2"
+                        data-reveal="slide-left"
+                        data-reveal-delay="250">
+                            See all best sellers
+                            <i class="fas fa-arrow-right ms-1"></i>
                     </a>
                 </div>
 
