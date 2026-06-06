@@ -17,8 +17,9 @@ class ChatbotController extends Controller
                 'budget'   => 'nullable|integer',
             ]);
 
+            $chatMessages = $request->input('messages');
             $userMessage = strtolower(
-                end($request->messages)['content'] ?? ''
+                end($chatMessages)['content'] ?? ''
             );
 
             $blockedKeywords = [
@@ -98,7 +99,7 @@ class ChatbotController extends Controller
             }
 
             $query = Product::with(['category', 'mainImage'])
-                ->select('id', 'slug', 'name', 'description', 'length', 'width', 'height', 'unit', 'price', 'stock', 'category_id');
+                ->select('id', 'name', 'description', 'length', 'width', 'height', 'unit', 'price', 'stock', 'category_id');
 
             if ($request->budget) {
                 $query->where('price', '<=', $request->budget);
@@ -106,7 +107,7 @@ class ChatbotController extends Controller
 
             $products = $query->get()->map(fn($p) => [
                 'id'         => $p->id,
-                'slug'       => $p->slug,
+                'slug'       => \Str::slug($p->name),
                 'name'       => $p->name,
                 'category'   => $p->category->name ?? 'Uncategorized',
                 'price'      => 'Rp ' . number_format($p->price, 0, ',', '.'),
@@ -185,7 +186,7 @@ Rules:
                 'max_tokens' => 2000,
                 'messages'   => array_merge(
                     [['role' => 'system', 'content' => $systemPrompt]],
-                    $request->messages
+                    $chatMessages
                 ),
             ]);
 
