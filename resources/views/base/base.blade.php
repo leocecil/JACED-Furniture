@@ -6,11 +6,11 @@
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>JACED Furniture</title>
+    <link rel="icon" type="image/png" href="{{ asset('image/jaced_logo2_square.png') }}">
 
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
     
     <link href="https://fonts.googleapis.com/css2?family=Lexend:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
-    
     <link rel="stylesheet" href="{{ asset('css/jaced.css') }}">
     <link rel="prefetch" href="{{ route('home') }}">
     @stack('styles') 
@@ -198,7 +198,7 @@
             #chat-close-btn { display: flex !important; }
         }
 
-            *, *::before, *::after {
+        *, *::before, *::after {
             cursor: none !important;
         }
 
@@ -206,7 +206,7 @@
             position: fixed;
             width: 10px;
             height: 10px;
-            background: var(--jaced-caramel);
+            background-color: gold;
             border-radius: 50%;
             pointer-events: none;
             z-index: 99999;
@@ -218,13 +218,13 @@
             width: 28px;
             height: 28px;
             background: transparent;
-            border: 2px solid var(--jaced-caramel);
+            border: 2px solid gold;
         }
 
         .cursor-sparkle {
             position: fixed;
             border-radius: 50%;
-            background: var(--jaced-caramel);
+            background-color: gold;
             pointer-events: none;
             z-index: 99998;
             transform: translate(-50%, -50%);
@@ -242,6 +242,7 @@
                 transform: translate(-50%, -50%) rotate(var(--angle)) translateY(calc(var(--distance) * -1));
             }
         }
+
     </style>
 </head>
 <body>
