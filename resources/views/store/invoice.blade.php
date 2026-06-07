@@ -113,28 +113,26 @@
         #chat-launcher, #chat-widget,
         .cursor-dot, .cursor-ring { display: none !important; }
 
-        body { background: white !important; }
+        html, body { background: white !important; }
 
-        .main-content, .container-fluid {
+        .main-content, .default-content, .container-fluid {
             padding: 0 !important;
+            padding-top: 0 !important;
             margin: 0 !important;
             max-width: 100% !important;
         }
 
+        /* Override mobile transform yang ikut ke print */
         .invoice-wrap {
-            box-shadow: none !important;
+            transform: none !important;
+            width: 100% !important;
             margin: 0 auto !important;
+            margin-left: auto !important;
+            margin-bottom: 0 !important;
+            box-shadow: none !important;
             padding: 48px !important;
             border-radius: 0 !important;
-            max-width: 800px !important;  /* ← pertahankan max-width asli */
-            width: 100% !important;
-        }
-
-        /* Paksa scale 100%, jangan ada zoom */
-        html {
-            zoom: 1 !important;
-            -webkit-print-color-adjust: exact;
-            print-color-adjust: exact;
+            max-width: 800px !important;
         }
     }
 
