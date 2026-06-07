@@ -115,9 +115,7 @@
 
         body { background: white !important; }
 
-        /* Reset wrapper dari base.blade.php */
-        .main-content,
-        .container-fluid {
+        .main-content, .container-fluid {
             padding: 0 !important;
             margin: 0 !important;
             max-width: 100% !important;
@@ -125,10 +123,18 @@
 
         .invoice-wrap {
             box-shadow: none !important;
-            margin: 0 !important;
-            padding: 32px !important;
+            margin: 0 auto !important;
+            padding: 48px !important;
             border-radius: 0 !important;
-            max-width: 100% !important;
+            max-width: 800px !important;  /* ← pertahankan max-width asli */
+            width: 100% !important;
+        }
+
+        /* Paksa scale 100%, jangan ada zoom */
+        html {
+            zoom: 1 !important;
+            -webkit-print-color-adjust: exact;
+            print-color-adjust: exact;
         }
     }
 
