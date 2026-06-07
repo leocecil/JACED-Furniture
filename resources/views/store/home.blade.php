@@ -1,7 +1,26 @@
 @extends('base.base')
 
 @section('title', 'Home — JACED Furniture')
+@push('styles')
+<style>
+    #heroCarousel,
+    #heroCarousel .carousel-inner,
+    #heroCarousel .carousel-item,
+    #heroCarousel .hero-slide {
+        height: 100%;
+    }
 
+    @media (max-width:768px) {
+        #heroCarousel,
+        #heroCarousel .carousel-inner,
+        #heroCarousel .carousel-item,
+        #heroCarousel .hero-slide {
+            height: 100svh;
+            min-height: 100svh;
+        }
+    }
+</style>
+@endpush
 @section('content')
 
     {{-- ============== HERO BLOCK ============== --}}
@@ -16,7 +35,7 @@
 
             <div class="carousel-inner" style="height: 100svh; overflow: hidden;">
                 <div class="carousel-item active">
-                    <div class="hero-slide" style="background-image: url('https://images.unsplash.com/photo-1505693416388-ac5ce068fe85?q=80&w=1600&auto=format&fit=crop');">
+                    <div class="hero-slide hero-slide-1" style="background-image: url('https://images.unsplash.com/photo-1505693416388-ac5ce068fe85?q=80&w=1600&auto=format&fit=crop');">
                         <div class="hero-overlay"></div>
                         <div class="hero-content">
                             <p class="hero-subtitle text-uppercase mb-3">/ Curated Collection 2026</p>
@@ -30,7 +49,7 @@
                     </div>
                 </div>
                 <div class="carousel-item">
-                    <div class="hero-slide" style="background-image: url('https://images.unsplash.com/photo-1493663284031-b7e3aefcae8e?q=80&w=1600&auto=format&fit=crop');">
+                    <div class="hero-slide hero-slide-2" style="background-image: url('https://images.unsplash.com/photo-1493663284031-b7e3aefcae8e?q=80&w=1600&auto=format&fit=crop');">
                         <div class="hero-overlay"></div>
                         <div class="hero-content">
                             <p class="hero-subtitle text-uppercase mb-3">/ Built to Last</p>
@@ -44,7 +63,7 @@
                     </div>
                 </div>
                 <div class="carousel-item">
-                    <div class="hero-slide" style="background-image: url('https://images.unsplash.com/photo-1484101403633-562f891dc89a?q=80&w=1600&auto=format&fit=crop');">
+                    <div class="hero-slide hero-slide-3" style="background-image: url('https://images.unsplash.com/photo-1484101403633-562f891dc89a?q=80&w=1600&auto=format&fit=crop');">
                         <div class="hero-overlay"></div>
                         <div class="hero-content">
                             <p class="hero-subtitle text-uppercase mb-3">/ Quiet Luxury</p>
@@ -157,8 +176,12 @@
                         <p class="section-label">/ Best Seller</p>
                         <h2 class="section-title" style="max-width: 320px;">Timeless pieces for modern living</h2>
                     </div>
-                    <a href="{{ route('shop') }}" class="btn-browse rounded-pill px-3 py-2" data-reveal="slide-left" data-reveal-delay="250">
-                        See all best sellers <i class="fas fa-arrow-right ms-1"></i>
+                    <a href="{{ route('shop', ['sort' => 'bestseller']) }}"
+                        class="btn-browse rounded-pill px-3 py-2"
+                        data-reveal="slide-left"
+                        data-reveal-delay="250">
+                            See all best sellers
+                            <i class="fas fa-arrow-right ms-1"></i>
                     </a>
                 </div>
 
@@ -356,35 +379,103 @@
             position: relative; display: flex; align-items: center;
         }
 
-        @media (max-width: 768px) {
-            .hero-section,
-            #heroCarousel,
+        .hero-slide{
+            position:relative;
+            overflow:hidden;
+        }
+
+        .hero-slide::before{
+            content:'';
+            position:absolute;
+            inset:0;
+            background-size:cover;
+            background-position:center;
+            z-index:0;
+            transform:scale(1);
+        }
+
+        .hero-slide-1::before{
+            background-image:url('https://images.unsplash.com/photo-1505693416388-ac5ce068fe85?q=80&w=1600&auto=format&fit=crop');
+        }
+
+        .hero-slide-2::before{
+            background-image:url('https://images.unsplash.com/photo-1493663284031-b7e3aefcae8e?q=80&w=1600&auto=format&fit=crop');
+        }
+
+        .hero-slide-3::before{
+            background-image:url('https://images.unsplash.com/photo-1484101403633-562f891dc89a?q=80&w=1600&auto=format&fit=crop');
+        }
+
+        @media (max-width:768px){
+
+            .hero-section{
+                height:100svh;
+                min-height:100svh;
+            }
+
             .hero-carousel-block,
             .hero-carousel-block .carousel-inner,
             .hero-carousel-block .carousel-item,
-            .hero-slide {
-                height: 66vw !important;   /* portrait 4:5 */
-                min-height: unset !important;
-                max-height: 88svh !important;
-                overflow: hidden !important;
+            .hero-slide{
+                height:100svh !important;
+                min-height:100svh !important;
             }
-            #heroCarousel .carousel-control-prev,
-            #heroCarousel .carousel-control-next {
-                display: none !important;
+
+            .hero-slide{
+                background-size:cover !important;
+                background-position:center center !important;
             }
+
+            /* slide 1 */
+            .carousel-item:nth-child(1) .hero-slide{
+                background-position:65% center !important;
+            }
+
+            /* slide 2 */
+            .carousel-item:nth-child(2) .hero-slide{
+                background-position:60% center !important;
+            }
+
+            /* slide 3 */
+            .carousel-item:nth-child(3) .hero-slide{
+                background-position:50% center !important;
+            }
+            .carousel-item.active .hero-slide::before{
+                animation: mobileKenBurns 7s ease-out forwards;
+            }
+
+            @keyframes mobileKenBurns{
+                from{
+                    transform:scale(1);
+                }
+
+                to{
+                    transform:scale(1.15);
+                }
+            }
+
         }
+
+        .hero-overlay{
+            z-index:1;
+        }
+
+        .hero-content{
+            z-index:2;
+        }
+
         /* ===== KEN BURNS HERO ===== */
-        .carousel-item.active .hero-slide {
-            animation: kenBurns 12s ease-out forwards;
+        .carousel-item.active .hero-slide::before {
+            animation: kenBurns 7s ease-out forwards;
         }
+
         @keyframes kenBurns {
-            0% {
-                background-size: 100%;
-                background-position: center center;
+            from {
+                transform: scale(1);
             }
-            100% {
-                background-size: 115%;
-                background-position: center 55%;
+
+            to {
+                transform: scale(1.15);
             }
         }
         .hero-overlay {
@@ -714,17 +805,17 @@
             }
 
             .hero-title{
-                font-size:clamp(1.6rem,8vw,2.8rem);
+                font-size:clamp(2.2rem,10vw,3.8rem);
                 line-height:1;
             }
 
             .hero-subtitle{
-                font-size:8px;
-                letter-spacing:.2em;
+                font-size:12px;
+                letter-spacing:.25em;
             }
 
             .hero-desc{
-                font-size:13px;
+                font-size:16px;
             }
 
             .stats-section{
@@ -770,10 +861,10 @@
 
         @media (max-width:576px){
 
-            .hero-title { font-size: clamp(1.4rem, 6vw, 2rem); line-height: 1.1; }
-            .hero-desc { font-size: 11px; margin-bottom: 11px !important; }
-            .hero-subtitle { font-size: 9px; letter-spacing: 0.2em; }
-            .hero-content { padding: 0 20px; }
+            .hero-title { font-size: clamp(2.4rem, 9vw, 3.2rem); line-height: 1; }
+            .hero-desc { font-size: 15px; margin-bottom: 18px !important; }
+            .hero-subtitle { font-size: 12px; letter-spacing: 0.25em; }
+            .hero-content { padding: 0 24px; }
 
             .hero-content .d-flex{
                 flex-direction: row !important;
@@ -785,8 +876,8 @@
 
             .hero-content .btn{
                 width: auto !important;
-                padding: 6px 12px !important;
-                font-size: 11px !important;
+                padding: 10px 18px !important;
+                font-size: 13px !important;
                 justify-content: center;
             }
 

@@ -94,12 +94,21 @@ class AdminProfileController extends Controller
 
         $user = Auth::user();
 
-        // Delete old avatar if it exists
-        if ($user->avatar && Storage::disk('public')->exists($user->avatar)) {
-            Storage::disk('public')->delete($user->avatar);
+        // Hapus avatar lama jika ada
+        if ($user->avatar && file_exists(public_path($user->avatar))) {
+            unlink(public_path($user->avatar));
         }
 
-        $path = $request->file('avatar')->store('avatars', 'public');
+        // Buat folder jika belum ada
+        if (!file_exists(public_path('images/avatars'))) {
+            mkdir(public_path('images/avatars'), 0755, true);
+        }
+
+        $file     = $request->file('avatar');
+        $filename = time() . '_' . $file->getClientOriginalName();
+        $file->move(public_path('images/avatars'), $filename);
+
+        $path = 'images/avatars/' . $filename; // ← path konsisten
 
         $user->update(['avatar' => $path]);
 

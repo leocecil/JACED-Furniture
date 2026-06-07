@@ -17,51 +17,50 @@
     
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" integrity="sha512-DTOQO9RWCH3ppGqcWaEA1BIZOC6xxalwEsw9c2QQeAIftl+Vegovlnee1c9QX4TctnWMn13TZye+giMm8e2LwA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
 
-    <div class="custom-cursor" id="customCursor"></div>
-
     <script>
-    const cursor = document.getElementById('customCursor');
+    document.addEventListener('DOMContentLoaded', function () {
+        const finePointer = window.matchMedia('(hover: hover) and (pointer: fine)').matches;
+        if (!finePointer) return;
 
-    document.addEventListener('mousemove', function(e) {
-        cursor.style.left = e.clientX + 'px';
-        cursor.style.top = e.clientY + 'px';
-        createSparkle(e.clientX, e.clientY);
+        const dot = document.getElementById('cursorDot');
+        const ring = document.getElementById('cursorRing');
+        if (!dot || !ring) return;
+
+        let mouseX = 0, mouseY = 0, ringX = 0, ringY = 0, visible = false;
+
+        document.addEventListener('mousemove', function (e) {
+            mouseX = e.clientX;
+            mouseY = e.clientY;
+            dot.style.left = mouseX + 'px';
+            dot.style.top = mouseY + 'px';
+            if (!visible) {
+                visible = true;
+                dot.style.opacity = '1';
+                ring.style.opacity = '1';
+            }
+        });
+
+        document.addEventListener('mouseleave', function () {
+            visible = false;
+            dot.style.opacity = '0';
+            ring.style.opacity = '0';
+        });
+
+        document.addEventListener('mouseover', function (e) {
+            const isClickable = e.target.closest('a, button, [role="button"], input, select, textarea, label, .shop-filter-pill, .category-slide-item, .shop-product-card');
+            dot.classList.toggle('hovering', !!isClickable);
+            ring.classList.toggle('hovering', !!isClickable);
+        });
+
+        function animate() {
+            ringX += (mouseX - ringX) * 0.18;
+            ringY += (mouseY - ringY) * 0.18;
+            ring.style.left = ringX + 'px';
+            ring.style.top = ringY + 'px';
+            requestAnimationFrame(animate);
+        }
+        animate();
     });
-
-    document.addEventListener('mouseover', function(e) {
-        const el = e.target;
-        const isClickable = el.closest('a, button, [role="button"], input, select, textarea, label, .shop-filter-pill, .category-slide-item, .shop-product-card');
-        cursor.classList.toggle('hovering', !!isClickable);
-    });
-
-    let sparkleThrottle = 0;
-
-    function createSparkle(x, y) {
-        const now = Date.now();
-        if (now - sparkleThrottle < 40) return;
-        sparkleThrottle = now;
-
-        const sparkle = document.createElement('div');
-        sparkle.className = 'cursor-sparkle';
-
-        const size = Math.random() * 6 + 3;
-        const angle = Math.random() * 360;
-        const distance = Math.random() * 24 + 8;
-        const duration = Math.random() * 400 + 300;
-
-        sparkle.style.cssText = `
-            left: ${x}px;
-            top: ${y}px;
-            width: ${size}px;
-            height: ${size}px;
-            --angle: ${angle}deg;
-            --distance: ${distance}px;
-            --duration: ${duration}ms;
-        `;
-
-        document.body.appendChild(sparkle);
-        setTimeout(() => sparkle.remove(), duration);
-    }
     </script>
     
     <style>
@@ -198,54 +197,49 @@
             #chat-close-btn { display: flex !important; }
         }
 
-        *, *::before, *::after {
-            cursor: none !important;
-        }
+        @media (hover: hover) and (pointer: fine) {
+            *, *::before, *::after { cursor: none !important; }
 
-        .custom-cursor {
-            position: fixed;
-            width: 10px;
-            height: 10px;
-            background-color: gold;
-            border-radius: 50%;
-            pointer-events: none;
-            z-index: 99999;
-            transform: translate(-50%, -50%);
-            transition: transform 0.15s ease, width 0.2s ease, height 0.2s ease, background 0.2s ease;
-        }
-
-        .custom-cursor.hovering {
-            width: 28px;
-            height: 28px;
-            background: transparent;
-            border: 2px solid gold;
-        }
-
-        .cursor-sparkle {
-            position: fixed;
-            border-radius: 50%;
-            background-color: gold;
-            pointer-events: none;
-            z-index: 99998;
-            transform: translate(-50%, -50%);
-            animation: sparkle-out var(--duration) ease-out forwards;
-            opacity: 0.7;
-        }
-
-        @keyframes sparkle-out {
-            0% {
-                opacity: 0.7;
-                transform: translate(-50%, -50%) rotate(var(--angle)) translateY(0);
-            }
-            100% {
+            .cursor-dot, .cursor-ring {
+                position: fixed;
+                top: 0;
+                left: 0;
+                pointer-events: none;
+                z-index: 99999;
+                border-radius: 50%;
+                transform: translate(-50%, -50%);
                 opacity: 0;
-                transform: translate(-50%, -50%) rotate(var(--angle)) translateY(calc(var(--distance) * -1));
+            }
+            .cursor-dot {
+                width: 6px;
+                height: 6px;
+                background: var(--jaced-caramel, #C99A6B);
+                transition: opacity 0.2s ease;
+            }
+            .cursor-ring {
+                width: 32px;
+                height: 32px;
+                border: 1px solid rgba(201, 154, 107, 0.5);
+                transition: width 0.25s ease, height 0.25s ease, border-color 0.25s ease, background 0.25s ease, opacity 0.2s ease;
+            }
+            .cursor-ring.hovering {
+                width: 46px;
+                height: 46px;
+                border-color: rgba(201, 154, 107, 0.9);
+                background: rgba(201, 154, 107, 0.1);
+            }
+            .cursor-dot.hovering {
+                opacity: 0;
             }
         }
 
     </style>
 </head>
 <body>
+
+    <div class="cursor-ring" id="cursorRing"></div>
+    <div class="cursor-dot" id="cursorDot"></div>
+
 
     {{-- Komponen Navbar Atas --}}
     @include('include.header')

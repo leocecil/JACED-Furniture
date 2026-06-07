@@ -77,10 +77,6 @@
                                 class="dropdown-item d-flex align-items-center py-2 px-3 fw-bold" style="font-size: 12px;">
                                 <i class="fas fa-user me-2"></i> PROFILE
                             </a>
-                            <a href="{{ route('wishlist') }}" 
-                                class="dropdown-item d-flex align-items-center py-2 px-3 fw-bold" style="font-size: 12px;">
-                                <i class="fas fa-heart me-2"></i> WISHLIST
-                            </a>
                             <a href="{{ route('reward') }}" 
                                 class="dropdown-item d-flex align-items-center py-2 px-3 fw-bold" style="font-size: 12px;">
                                 <i class="fas fa-trophy me-2" style="color:#C99A6B;"></i> REWARD

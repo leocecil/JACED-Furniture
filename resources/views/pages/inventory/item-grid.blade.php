@@ -233,7 +233,7 @@ display: flex;
 
             {{-- ══ VIEW 2: LIST CARD ══ --}}
             <div class="list-card">
-                <img src="{{ $thumb }}" alt="{{ $product->name }}" class="list-card-img">
+                <img src="{{ $thumb }}" alt="{{ $product->name }}" class="list-card-img d-none d-sm-block">
 
                 <div class="list-card-info">
                     <div class="list-card-name">{{ $product->name }}</div>
