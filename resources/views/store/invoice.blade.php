@@ -107,9 +107,29 @@
     .status-badge.cancelled { color: #777; background: #eee; }
 
     @media print {
-        .print-bar, nav, header, footer, .jaced-navbar, .jaced-footer, .btn-print, .btn-back-inv { display: none !important; }
-        body { background: white; padding: 0; }
-        .invoice-wrap { box-shadow: none; margin: 0; padding: 20px 0; border-radius: 0; width: 100%; max-width: 100%; }
+        .print-bar, nav, header, footer,
+        .jaced-navbar, .jaced-footer,
+        .btn-print, .btn-back-inv,
+        #chat-launcher, #chat-widget,
+        .cursor-dot, .cursor-ring { display: none !important; }
+
+        body { background: white !important; }
+
+        /* Reset wrapper dari base.blade.php */
+        .main-content,
+        .container-fluid {
+            padding: 0 !important;
+            margin: 0 !important;
+            max-width: 100% !important;
+        }
+
+        .invoice-wrap {
+            box-shadow: none !important;
+            margin: 0 !important;
+            padding: 32px !important;
+            border-radius: 0 !important;
+            max-width: 100% !important;
+        }
     }
 
     @media (max-width: 767px) {
