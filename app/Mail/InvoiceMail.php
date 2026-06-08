@@ -26,7 +26,7 @@ class InvoiceMail extends Mailable
     public function envelope(): Envelope
     {
         return new Envelope(
-            subject: 'Invoice Order #' . $this->order->id . ' - Jaced Furniture',
+            subject: 'Receipt Order #' . $this->order->id . ' - Jaced Furniture',
         );
     }
 
@@ -47,7 +47,7 @@ class InvoiceMail extends Mailable
         return [
             \Illuminate\Mail\Mailables\Attachment::fromData(
                 fn () => $pdf->output(),
-                'Invoice-Order-' . $this->order->id . '.pdf'
+                'Receipt-Order-' . $this->order->id . '.pdf'
             )->withMime('application/pdf'),
         ];
     }

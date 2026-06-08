@@ -58,12 +58,6 @@
         scrollbar-width: none;     /* 🌟 FIX: Hilangkan scrollbar di Firefox */
     }
     
-    /* 🌟 FIX: Hilangkan scrollbar horizontal di Chrome, Safari, Opera, dan Edge Chromium */
-    .category-scroll::-webkit-scrollbar { 
-        display: none !important;
-        height: 0px !important; 
-    }
-    
     /* 🌟 FIX: Mengubah tampilan kategori pasif (Font Cokelat, Background Putih Lingkaran Sempurna) */
     .btn-category-inactive { 
         color: var(--jaced-brown) !important; 
@@ -143,6 +137,7 @@
         border: none; cursor: pointer;
         display: flex; align-items: center; justify-content: center;
         font-size: 11px; line-height: 1;
+        z-index: 5;
     }
 
     /* Category chips */
@@ -319,16 +314,16 @@
 @endsection
 
 @push('modals')
-<div class="modal fade" id="addItemModal" tabindex="-1" aria-labelledby="addItemModalLabel" aria-hidden="true">
+<div class="modal fade" id="addItemModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="addItemModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered modal-lg">
         <div class="modal-content border-0 shadow" style="border-radius: 16px;">
  
             <div class="modal-header border-0 pt-4 px-4 pb-0">
                 <h5 class="modal-title fw-bold" id="addItemModalLabel">Add New Product</h5>
-                <button type="button" class="btn-close shadow-none" data-bs-dismiss="modal"></button>
+                <button type="button" class="btn-close shadow-none" onclick="hideItemModal()"></button>
             </div>
  
-            <form action="{{ route('inventory.store') }}" method="POST" enctype="multipart/form-data">
+            <form action="{{ route('inventory.store') }}" id="addProductForm" method="POST" enctype="multipart/form-data">
                 @csrf
                 <div class="modal-body px-4 pb-2" style="max-height: 70vh; overflow-y: auto;">
  
@@ -337,8 +332,9 @@
  
                     <div class="mb-3">
                         <label class="form-label">Product Name <span class="text-danger">*</span></label>
-                        <input type="text" class="form-control" name="name"
-                               placeholder="e.g., Sculptural Lounge Chair" required>
+                        <input type="text" class="form-control" name="name" id="productNameInput"
+                               placeholder="e.g., Sculptural Lounge Chair" required oninput="validateProductName()">
+                        <div id="productNameFeedback" class="form-text mt-1 fw-medium" style="font-size: 11px; display: none;"></div>
                     </div>
  
                     <div class="mb-3">
@@ -393,7 +389,7 @@
                             <label class="form-label">Price <span class="text-danger">*</span></label>
                             <div class="input-group">
                                 <span class="input-group-text">Rp</span>
-                    
+                     
                                 <input type="text"
                                     class="form-control"
                                     id="priceDisplay"
@@ -460,8 +456,9 @@
                     <div class="modal-section-title">Product Images <span class="text-danger">*</span></div>
 
                     <div class="image-upload-area">
-                        <input type="file" name="images[]" id="imageInput"
-                               accept="image/*" multiple onchange="previewImages(this)" required>
+                        <input type="file" id="imageInput" accept="image/*" multiple onchange="processImages(this)" required>
+                        <div id="hiddenInputsContainer"></div>
+                        
                         <i class="bi bi-cloud-upload fs-3 text-muted d-block mb-2"></i>
                         <div style="font-size:13px; font-weight:600; color:#3a3a36;">
                             Click or drag & drop images here
@@ -470,7 +467,7 @@
                             JPG, PNG, WEBP — max 2MB each — multiple images allowed
                         </div>
                         <div style="font-size:11px; color:#c4a882; font-weight:600; margin-top:4px;">
-                            First image will be set as main image
+                            Foto PERTAMA yang dimasukkan otomatis menjadi MAIN IMAGE
                         </div>
                     </div>
                     <div class="image-preview-wrap" id="imagePreviewWrap"></div>
@@ -480,11 +477,11 @@
                 <div class="modal-footer border-0 pb-4 px-4 pt-3 d-flex gap-2">
                     <button type="button"
                             class="btn btn-sm flex-grow-1 py-2 rounded-3"
-                            data-bs-dismiss="modal"
+                            onclick="hideItemModal()"
                             style="background:#f0eeeb; color:#1a1a18; border:none;">
                         Cancel
                     </button>
-                    <button type="submit"
+                    <button type="submit" id="btnSaveProduct"
                             class="btn btn-sm flex-grow-1 py-2 rounded-3 fw-bold"
                             style="background:#c4a882; color:white; border:none;">
                         <i class="bi bi-check-lg me-1"></i> Save Product
@@ -527,6 +524,9 @@
 
 @push('scripts')
 <script>
+    const existingProducts = @json($products->items() ?? []);
+    let selectedFiles = [];
+
     document.addEventListener('DOMContentLoaded', function () {
         const toggleWrap  = document.getElementById('inv-toggle-wrap');
         const placeholder = document.getElementById('togglePlaceholder');
@@ -584,6 +584,109 @@
             }
         }
     });
+
+    function hideItemModal() {
+        const modalEl = document.getElementById('addItemModal');
+        const modalInstance = bootstrap.Modal.getInstance(modalEl) || new bootstrap.Modal(modalEl);
+        modalInstance.hide();
+    }
+
+    function validateProductName() {
+        const input = document.getElementById('productNameInput');
+        const feedback = document.getElementById('productNameFeedback');
+        const btnSave = document.getElementById('btnSaveProduct');
+        const nameVal = input.value.trim().toLowerCase();
+
+        if (!nameVal) {
+            feedback.style.display = 'none';
+            btnSave.disabled = false;
+            return;
+        }
+
+        const isDuplicate = existingProducts.some(p => p.name && p.name.toLowerCase() === nameVal);
+
+        if (isDuplicate) {
+            feedback.style.display = 'block';
+            feedback.style.color = '#c0392b';
+            feedback.innerHTML = '<i class="bi bi-exclamation-circle-fill me-1"></i> Produk dengan nama ini sudah terdaftar di sistem!';
+            btnSave.disabled = true;
+        } else {
+            feedback.style.display = 'none';
+            btnSave.disabled = false;
+        }
+    }
+
+    function processImages(input) {
+        if (!input.files.length) return;
+
+        const newFiles = Array.from(input.files);
+        selectedFiles = selectedFiles.concat(newFiles);
+
+        renderPreviewsAndInputs();
+    }
+
+    function renderPreviewsAndInputs() {
+        const previewWrap = document.getElementById('imagePreviewWrap');
+        const hiddenContainer = document.getElementById('hiddenInputsContainer');
+        
+        previewWrap.innerHTML = '';
+        hiddenContainer.innerHTML = '';
+
+        const mainDT = new DataTransfer();
+        const galleryDT = new DataTransfer();
+
+        selectedFiles.forEach((file, index) => {
+            if (!file.type.startsWith('image/')) return;
+
+            if (index === 0) {
+                mainDT.items.add(file);
+            } else {
+                galleryDT.items.add(file);
+            }
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const item = document.createElement('div');
+                item.className = 'image-preview-item';
+                
+                if (index === 0) {
+                    item.style.border = '2px solid var(--jaced-caramel)';
+                }
+
+                item.innerHTML = `
+                    <img src="${e.target.result}" alt="Preview">
+                    ${index === 0 ? '<span class="badge position-absolute bottom-0 start-0 w-100 text-center bg-dark text-white" style="font-size:9px; opacity:0.8; border-radius:0 0 6px 6px; z-index:4;">MAIN</span>' : ''}
+                    <button type="button" class="remove-img" onclick="removeSelectedImage(${index})">×</button>
+                `;
+                previewWrap.appendChild(item);
+            }
+            reader.readAsDataURL(file);
+        });
+
+        if (mainDT.files.length > 0) {
+            const mainInput = document.createElement('input');
+            mainInput.type = 'file';
+            mainInput.name = 'main_image';
+            mainInput.style.display = 'none';
+            mainInput.files = mainDT.files;
+            hiddenContainer.appendChild(mainInput);
+        }
+
+        if (galleryDT.files.length > 0) {
+            const galleryInput = document.createElement('input');
+            galleryInput.type = 'file';
+            galleryInput.name = 'images[]';
+            galleryInput.multiple = true;
+            galleryInput.style.display = 'none';
+            galleryInput.files = galleryDT.files;
+            hiddenContainer.appendChild(galleryInput);
+        }
+    }
+
+    function removeSelectedImage(index) {
+        selectedFiles.splice(index, 1);
+        renderPreviewsAndInputs();
+    }
 
     function filterByCategory(catId, btn) {
         document.querySelectorAll('#categoryFilterList .btn').forEach(b => {

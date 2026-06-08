@@ -2150,7 +2150,7 @@
 
                     costs.sort((a, b) => a.cost - b.cost);
 
-                    let html = '<div class="row g-2 mt-1">';
+                    let html = '<div class="d-flex flex-column gap-2 mt-1">';
                     costs.forEach((item, index) => {
                         html += `
                         <div class="col-12">
