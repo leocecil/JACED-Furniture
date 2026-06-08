@@ -543,7 +543,7 @@
                     document.getElementById('cartTotalPrice').innerText =
                         'Rp ' + Number(data.total).toLocaleString('id-ID');
                     updateCartBadge(data.count);
-                    if(data.quantity === data.stock){
+                    if(data.quantity >= data.stock){
                         showCartToast("You've reached the maximum stock available.", 'warning');
                     } else{
                         showCartToast('Product quantity increased', 'update');
@@ -572,7 +572,7 @@
                     document.getElementById('cartTotalPrice').innerText =
                         'Rp ' + Number(data.total).toLocaleString('id-ID');
                     updateCartBadge(data.count);
-                    if(data.quantity === 1){
+                    if(data.quantity <= 1){
                         showCartToast("Minimum quantity to purchase is 1.", 'warning');
                     } else{
                         showCartToast('Product quantity decreased', 'update');
