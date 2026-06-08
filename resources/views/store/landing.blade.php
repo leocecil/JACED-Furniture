@@ -303,81 +303,133 @@
 
     animate();
 
-    const cta = document.querySelector('.jaced-cta-btn');
-    if (cta) {
-        cta.addEventListener('click', (e) => {
-            e.preventDefault();
+    // const cta = document.querySelector('.jaced-cta-btn');
+    // if (cta) {
+    //     cta.addEventListener('click', (e) => {
+    //         e.preventDefault();
 
-            const target = cta.href;
+    //         const target = cta.href;
 
-            // bikin redirect disiapkan SEKARANG
-            const nextPage = document.createElement('link');
-            nextPage.rel = 'prefetch';
-            nextPage.href = target;
-            document.head.appendChild(nextPage);
+    //         // bikin redirect disiapkan SEKARANG
+    //         const nextPage = document.createElement('link');
+    //         nextPage.rel = 'prefetch';
+    //         nextPage.href = target;
+    //         document.head.appendChild(nextPage);
 
-            const clouds = [
-                { size: 1000, top: '20%',  left: '-50%', delay: 0,   duration: 2.8 },
-                { size: 700,  top: '55%',  left: '-45%', delay: 80,  duration: 3.0 },
-                { size: 1200, top: '-10%', left: '-55%', delay: 150, duration: 2.6 },
-                { size: 500,  top: '70%',  left: '-40%', delay: 50,  duration: 3.2 },
-                { size: 850,  top: '40%',  left: '-48%', delay: 200, duration: 3.1 },
-                { size: 650,  top: '10%',  left: '-38%', delay: 280, duration: 3.3 },
-                { size: 900,  top: '60%',  left: '-52%', delay: 100, duration: 2.9 },
-            ];
+    //         const clouds = [
+    //             { size: 1000, top: '20%',  left: '-50%', delay: 0,   duration: 2.8 },
+    //             { size: 700,  top: '55%',  left: '-45%', delay: 80,  duration: 3.0 },
+    //             { size: 1200, top: '-10%', left: '-55%', delay: 150, duration: 2.6 },
+    //             { size: 500,  top: '70%',  left: '-40%', delay: 50,  duration: 3.2 },
+    //             { size: 850,  top: '40%',  left: '-48%', delay: 200, duration: 3.1 },
+    //             { size: 650,  top: '10%',  left: '-38%', delay: 280, duration: 3.3 },
+    //             { size: 900,  top: '60%',  left: '-52%', delay: 100, duration: 2.9 },
+    //         ];
 
-            clouds.forEach((c) => {
-                const cloud = document.createElement('div');
-                const s = c.size;
-                cloud.style.cssText = `
-                    position: fixed;
-                    top: ${c.top};
-                    left: ${c.left};
-                    width: ${s}px;
-                    height: ${s}px;
-                    border-radius: 50%;
-                    z-index: 99999;
-                    pointer-events: none;
-                    background: radial-gradient(circle at center,
-                        rgba(242,237,230,0.96) 0%,
-                        rgba(230,222,210,0.85) 30%,
-                        rgba(215,205,190,0.6) 55%,
-                        rgba(200,188,172,0.3) 75%,
-                        transparent 90%
-                    );
-                    filter: blur(${s * 0.09}px);
-                    opacity: 0;
-                    transform: translateX(0px);
-                    transition: transform ${c.duration}s cubic-bezier(0.16, 1, 0.3, 1) ${c.delay}ms,
-                                opacity 0.5s ease ${c.delay}ms;
-                `;
-                document.body.appendChild(cloud);
+    //         clouds.forEach((c) => {
+    //             const cloud = document.createElement('div');
+    //             const s = c.size;
+    //             cloud.style.cssText = `
+    //                 position: fixed;
+    //                 top: ${c.top};
+    //                 left: ${c.left};
+    //                 width: ${s}px;
+    //                 height: ${s}px;
+    //                 border-radius: 50%;
+    //                 z-index: 99999;
+    //                 pointer-events: none;
+    //                 background: radial-gradient(circle at center,
+    //                     rgba(242,237,230,0.96) 0%,
+    //                     rgba(230,222,210,0.85) 30%,
+    //                     rgba(215,205,190,0.6) 55%,
+    //                     rgba(200,188,172,0.3) 75%,
+    //                     transparent 90%
+    //                 );
+    //                 filter: blur(${s * 0.09}px);
+    //                 opacity: 0;
+    //                 transform: translateX(0px);
+    //                 transition: transform ${c.duration}s cubic-bezier(0.16, 1, 0.3, 1) ${c.delay}ms,
+    //                             opacity 0.5s ease ${c.delay}ms;
+    //             `;
+    //             document.body.appendChild(cloud);
 
-                requestAnimationFrame(() => {
-                    requestAnimationFrame(() => {
-                        cloud.style.opacity = '1';
-                        cloud.style.transform = `translateX(${window.innerWidth * 2.2}px)`;
-                    });
-                });
-            });
+    //             requestAnimationFrame(() => {
+    //                 requestAnimationFrame(() => {
+    //                     cloud.style.opacity = '1';
+    //                     cloud.style.transform = `translateX(${window.innerWidth * 2.2}px)`;
+    //                 });
+    //             });
+    //         });
 
-            // Preload home page dulu
-            const iframe = document.createElement('iframe');
-            iframe.src = cta.href;
-            iframe.style.cssText = 'position:fixed;inset:0;width:100%;height:100%;border:none;z-index:99998;opacity:0;';
-            document.body.appendChild(iframe);
+    //         // Preload home page dulu
+    //         const iframe = document.createElement('iframe');
+    //         iframe.src = cta.href;
+    //         iframe.style.cssText = 'position:fixed;inset:0;width:100%;height:100%;border:none;z-index:99998;opacity:0;';
+    //         document.body.appendChild(iframe);
 
-            // Pas clouds udah keliatan, swap langsung
-            setTimeout(() => {
-                iframe.style.opacity = '1';
-                document.querySelector('.jaced-landing').style.opacity = '0';
-            }, 400);
+    //         // Pas clouds udah keliatan, swap langsung
+    //         setTimeout(() => {
+    //             iframe.style.opacity = '1';
+    //             document.querySelector('.jaced-landing').style.opacity = '0';
+    //         }, 400);
 
-            setTimeout(() => {
-                window.location.href = cta.href;
-            }, 1800);
+    //         setTimeout(() => {
+    //             window.location.href = cta.href;
+    //         }, 1800);
+    //     });
+    // }
+
+    cta.addEventListener('click', (e) => {
+        e.preventDefault();
+        const target = cta.href;
+
+        // Spawn clouds (keep the nice effect, just shorter)
+        const clouds = [
+            { size: 1000, top: '20%',  left: '-50%', delay: 0,   duration: 1.6 },
+            { size: 700,  top: '55%',  left: '-45%', delay: 40,  duration: 1.8 },
+            { size: 1200, top: '-10%', left: '-55%', delay: 80,  duration: 1.5 },
+            { size: 500,  top: '70%',  left: '-40%', delay: 20,  duration: 1.9 },
+            { size: 850,  top: '40%',  left: '-48%', delay: 100, duration: 1.7 },
+        ];
+
+        clouds.forEach((c) => {
+            const cloud = document.createElement('div');
+            const s = c.size;
+            cloud.style.cssText = `
+                position: fixed;
+                top: ${c.top};
+                left: ${c.left};
+                width: ${s}px;
+                height: ${s}px;
+                border-radius: 50%;
+                z-index: 99999;
+                pointer-events: none;
+                background: radial-gradient(circle at center,
+                    rgba(242,237,230,0.96) 0%,
+                    rgba(230,222,210,0.85) 30%,
+                    rgba(215,205,190,0.6) 55%,
+                    rgba(200,188,172,0.3) 75%,
+                    transparent 90%
+                );
+                filter: blur(${s * 0.09}px);
+                opacity: 0;
+                transform: translateX(0px);
+                transition: transform ${c.duration}s cubic-bezier(0.16, 1, 0.3, 1) ${c.delay}ms,
+                            opacity 0.3s ease ${c.delay}ms;
+            `;
+            document.body.appendChild(cloud);
+
+            requestAnimationFrame(() => requestAnimationFrame(() => {
+                cloud.style.opacity = '1';
+                cloud.style.transform = `translateX(${window.innerWidth * 2.2}px)`;
+            }));
         });
-    }
+
+        // Navigate much sooner — clouds are already flying, user won't notice
+        setTimeout(() => {
+            window.location.href = target;
+        }, 300); // ← was 1800ms, now 300ms
+    });
 })();
 </script>
 
