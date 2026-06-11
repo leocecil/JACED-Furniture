@@ -372,10 +372,12 @@
         if ($order->arrived_at && $order->status !== 'disputed')
             $updates[] = [
                 'timestamp' => $order->arrived_at->timestamp,
-                'dot'   => 'green',
-                'time'  => $order->arrived_at->format('M d, Y · h:i A'),
-                'title' => 'Order Arrived',
-                'desc'  => 'Your order has been confirmed received.',
+                'dot'       => 'green',
+                'time'      => $order->arrived_at->format('M d, Y · h:i A'),
+                'title'     => ($dispute && $dispute->status === 'rejected') ? 'Order Completed' : 'Order Arrived',
+                'desc'      => ($dispute && $dispute->status === 'rejected')
+                                ? 'Your complaint was reviewed and the order has been marked as completed.'
+                                : 'Your order has been confirmed received.',
             ];
 
         if ($order->shipped_at)
@@ -493,7 +495,7 @@
             </p>
 
             {{-- Status Info Banner --}}
-            @if ($order->status === 'disputed' || $order->refund_status === 'completed')
+            @if ($order->status === 'disputed' || $order->refund_status === 'completed' || $dispute)
                 @if($dispute?->resolution_type === 'refund' && $dispute?->status === 'resolved')
                     <div style="background:#E0F7FA; border-radius:10px; padding:14px 18px; margin-bottom:24px; display:flex; align-items:center; gap:12px;">
                         <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#006064" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -516,7 +518,7 @@
                         </div>
                     </div>
 
-                @elseif($dispute?->resolution_type === 'exchange' && $dispute?->status === 'resolved')
+                @elseif($dispute?->resolution_type === 'exchange' && in_array($dispute?->status, ['resolved', 'shipping_replacement']))
                     <div style="background:#F1F8E9; border-radius:10px; padding:14px 18px; margin-bottom:24px; display:flex; align-items:center; gap:12px;">
                         <span style="font-size:22px;">
                             <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#33691E" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -791,6 +793,21 @@
                                     Rp {{ number_format($order->total_price, 0, ',', '.') }}
                                 </span>
                             </div>
+                            @if($order->refund_amount > 0)
+                                <hr class="divider-jaced my-3">
+                                <div class="summary-row">
+                                    <span class="text-jaced-muted">Refunded</span>
+                                    <span class="fw-semibold" style="color: #006064;">
+                                        - Rp {{ number_format($order->refund_amount, 0, ',', '.') }}
+                                    </span>
+                                </div>
+                                <div class="summary-row">
+                                    <span class="fw-semibold text-jaced-dark">Net Total</span>
+                                    <span class="fw-semibold" style="color: var(--jaced-sage);">
+                                        Rp {{ number_format($order->total_price - $order->refund_amount, 0, ',', '.') }}
+                                    </span>
+                                </div>
+                            @endif
                             <div class="d-flex flex-column gap-2 mt-3">
                                 {{-- Download Receipt --}}
                                 @if (!in_array($order->status, ['unpaid', 'cancelled']))

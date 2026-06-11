@@ -402,7 +402,7 @@
                         @endif
                     </div>
                     <div class="d-flex flex-column align-items-end gap-2 flex-shrink-0">
-                        <p class="fw-bold mb-0" style="font-size: 16px; color: var(--jaced-caramel);">
+                        <p class="fw-bold mb-0" style="font-size: 16px; color: var(--jaced-sage);">
                             Rp {{ number_format($order->total_price, 0, ',', '.') }}
                         </p>
                         <div class="d-flex gap-2">
@@ -457,7 +457,7 @@
                             @endif
                             @if ($order->status === 'shipped')
                                 <button type="button" class="btn-order-details" style="background: var(--jaced-sage);"
-                                    onclick="openReceivedModal({{ $order->id }})">Confirm Received</button>
+                                    onclick="openReceivedModal({{ $order->id }})">Received</button>
                             @endif
                             <a href="{{ route('store.orderhistory_detail.show', $order->id) }}" class="btn-order-details">
                                 Order Details

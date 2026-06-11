@@ -18,12 +18,36 @@ class OrderHistoryController extends Controller
     {
         $user = Auth::user();
 
-        DB::table('orders')
+        $autoArrivedOrders = DB::table('orders')
             ->where('user_id', $user->id)
             ->where('status', 'shipped')
             ->whereNotNull('shipped_at')
             ->where('shipped_at', '<=', now()->subDays(7))
-            ->update(['status' => 'arrived', 'arrived_at' => now()]);
+            ->get();
+
+        foreach ($autoArrivedOrders as $autoOrder) {
+            DB::table('orders')->where('id', $autoOrder->id)->update([
+                'status'     => 'arrived',
+                'arrived_at' => now(),
+                'updated_at' => now(),
+            ]);
+
+            $poin = (int) floor($autoOrder->total_price / 10000);
+            if ($poin > 0) {
+                DB::table('users')->where('id', $user->id)->increment('current_points', $poin);
+                DB::table('users')->where('id', $user->id)->increment('accumulated_points', $poin);
+                DB::table('point_histories')->insert([
+                    'user_id'    => $user->id,
+                    'points'     => $poin,
+                    'type'       => 'earned',
+                    'source'     => 'purchase',
+                    'order_id'   => $autoOrder->id,
+                    'expired_at' => now()->addYear(),
+                    'created_at' => now(),
+                    'updated_at' => now(),
+                ]);
+            }
+        }
 
         $filters = ['All', 'Unpaid', 'On Process', 'Packed', 'Delivered', 'Shipped','Arrived', 'Cancelled', 'Disputed'];
         $activeFilter = $request->get('filter', 'All');
@@ -124,6 +148,15 @@ class OrderHistoryController extends Controller
 
         if ($order->status !== 'shipped') {
             return redirect()->back()->with('error', 'Complaint can only be submitted before the order is confirmed.');
+        }
+
+        $existingDispute = DB::table('order_disputes')
+            ->where('order_id', $order->id)
+            ->whereIn('status', ['open', 'shipping_replacement'])
+            ->exists();
+
+        if ($existingDispute) {
+            return redirect()->back()->with('error', 'You already have an active complaint for this order.');
         }
 
         $photoPath = null;
