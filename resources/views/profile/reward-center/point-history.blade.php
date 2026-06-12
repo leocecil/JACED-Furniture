@@ -200,7 +200,7 @@
                 </div>
                 <div class="balance-badge">
                     <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/></svg>
-                    Active &amp; ready to use
+                    Active & ready to use
                 </div>
 
                 <div class="stat-divider"></div>
