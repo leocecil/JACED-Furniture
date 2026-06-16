@@ -1,3 +1,22 @@
+# JACED Furniture - E-Commerce Platform
+
+🌐 **Live Demo:** [starvy.web.id](https://starvy.web.id)
+
+---
+
+### 📝 Project Overview
+JACED Furniture is a production-grade web application built to streamline e-commerce operations for furniture retail. Developed as a collaborative full-stack group project, the platform bridges user-friendly shopping experiences with robust backend management. 
+
+---
+
+### 🛠️ Tech Stack & Tools
+
+*   **Backend Framework:** Laravel (PHP)
+*   **Frontend Interface:** HTML5, CSS3, JavaScript, Bootstrap
+*   **Database:** MySQL
+*   **Deployment & Hosting:** Cloud Web Hosting (cPanel)
+
+
 <p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
 
 <p align="center">
